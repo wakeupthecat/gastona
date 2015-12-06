@@ -1,0 +1,44 @@
+/*
+   //(o) WelcomeGastona_source_javaj_variables sysDefaultFonts
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_ variables
+   <name>       javaClass of
+   <groupInfo>
+   <javaClass>
+   <importance> 5
+   <desc>       //Specify a widget type for a given widget name
+
+   <help>
+      //
+      //  Variable to specify the widget type of a given widget name.
+      //
+      //  Syntax:
+      //
+      //    <javaClass of WIDGETNAME>  javaContainerClass, parameter(*), ...
+      //
+      //  javaContainerClass is any valid java class being a java.awt.Component and
+      //  having a default constructor.
+      //
+      //  (*) If the java class implements also the interface javaj.widgets.basics.setParameters_able
+      //      then the parameters are passed to the widget using this interface.
+      //
+      //    ------Interface setParameters_able-------------
+      //    package javaj.widgets.basics;
+      //
+      //    public interface setParameters_able
+      //    {
+      //       public void setParameters (String [] param);
+      //    }
+      //    ------------------------------------------------
+
+   <examples>
+      gastSample
+
+#** FIN_EVA#
+*/

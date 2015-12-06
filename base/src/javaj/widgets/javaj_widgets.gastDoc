@@ -1,0 +1,126 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_widget
+   <name>       " Introduction to widgets"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //Introduction to javaj widgets
+
+   <help>
+      //
+      // Javaj provide a set of graphic components called zWidgets or simply widgets. This set includes
+      // most of the typical components needed for a GUI application like buttons, check boxes but also
+      // enhanced ones with database capabilities like lists, tables, assisted tables (zAsiste)
+      // and trees. zWidgets also includes a mechanism to control them, that is reading and writting
+      // its data, reacting to user interaction like button pressed, row of a list selected etc.
+      //
+      // All zWidgets might be controlled by java classes (javaj controllers) but also
+      // directly by Listix like how it is done in all samples in this documentation.
+      // This way of communication with the widgets is straightforward, does not need of
+      // java development at all and therefore makes possible developing an entire Gastona application
+      // just in one text file.
+      //
+      // As explained in the introduction to javaj, widgets are declared a name in the unit #javaj#.
+      // This name has to be unique for each widget since it will be used by the control mechanism.
+      // Each widget define, using its name, two things: Attributes and Messages
+      //
+      //    Attributes: Data and states of a widget
+      //    ----------------------------------------
+      //
+      //      widgets attributes are variables placed in the Eva Unit #data# used for the reachable
+      //      data (e.g. items of the list) and also for the different states of the widget (enabled).
+      //      The name of the variable of an attribute is formed with both the name of the widget and
+      //      the the name of the attribute
+      //
+      //           <WIDGETNAME ATTRIBUTENAME>
+      //
+      //      For example a button called 'bMyButton' which attribute 'enabled' is set to 0 is
+      //      represented by
+      //
+      //          <bMyButton enabled> 0
+      //
+      //      Each widget can define its own attributes and meaning but there are some common
+      //      attributes for all of them like "visible", "enabled" and the unnamed attribute
+      //      (attribute name is "") which will be refered as data attribute. The variable name
+      //      for the data attribute is simply the widget name. For example, for a button
+      //      bMyButton which label has to be "Click me!" (data of the button) and for a simple table
+      //      tMyTable with two columns the data section would look like this
+      //
+      //          #data#
+      //
+      //              <bMyButton> "Click me!"
+      //
+      //              <tMyTable>
+      //                   name     , function
+      //                   Gastona  , main application controller
+      //                   Javaj    , GUI builder
+      //                   Listix   , Logic and Text generator
+      //
+      //      Many widgets admits data from a database as well (zList, zTable, zTree), this is done
+      //      using the attributes 'dbName' and 'sqlSelect', if this attributes are given then the
+      //      data of the widget will be retrieved from the database instead of the data attribute.
+      //
+      //      Widget attributes might be given in #data# unit (default data) and/or created by Listix
+      //      and some attributes are created by the widget itself. For example on selecting items in
+      //      lists and tables there are attributes that will be created and filled automatically.
+      //
+      //      Attributes filled or updated directly by the widget are said to have the direction
+      //      widget to Application. In the widgets documentation it is used following convention to
+      //      describe Attribute direction
+      //
+      //          --o Direction : Application to widget (application should fill the attribute)
+      //          o-- Direction : widget to Application (widget will fill the attribute)
+      //          o-o Direction : both directions (either the application or the widget may fill
+      //                          the attribute)
+      //
+      //      All attributes of all widgets in a Gastona application are placed in the unit #data#,
+      //      therefore this unit grows dynamically on demand. At any time we can explore the data
+      //      unit using the listix command "DUMP, data". The unit data might be loaded as well using
+      //      the listix command "LOAD, data".
+      //
+      //    Messages: updating widget data and states and reacting to user interaction
+      //    ----------------------------------------------------------------------------
+      //
+      //       Gastona Messages (Mensaka) are simply a text, that can be sent or received by any:
+      //       Javaj, Listix, zWidgets, custom java controllers etc. Although it does not mean
+      //       that all are listening to all messages but the receivers has to be suscribed
+      //       to the messages they are interested in.
+      //
+      //       Widgets send and are suscribed (listen) to its own Mensaka messages. This messages are
+      //       formed with the widget name as well:
+      //
+      //             "WIDGETNAME MESSAGE"
+      //
+      //       Here exists also the empty message which is used tipically when a widget is selected.
+      //       For example when the button bMyButton is pressed it sends the message "bMyButton".
+      //
+      //       Note: Listix suscribes himself to messages using its variable <-- MESSAGE>
+      //
+      //       We have seen how widgets handle its data and states using attributes. Nevertheless
+      //       changes in these attributes are not immediately reflected on the widget, it needs
+      //       a message to do that. This is done using the messages "data!" and "control!" which
+      //       are defined almost in all widgets. For example if we want to disable a button called
+      //       bMyButton, we have to change its attribute "enabled" and then send the message
+      //       "control!". This is how this can be done using Listix
+      //
+      //          <! disabling a button
+      //          SET VAR, bMyButton enabled, 0
+      //          MESSAGE, bMyButton control!
+      //
+      //       The messages have a direction which is represented as follows in the documentation
+      //
+      //          --o Direction : Application to widget
+      //          o-- Direction : widget to Application
+      //
+
+#**FIN_EVA#
+
+*/

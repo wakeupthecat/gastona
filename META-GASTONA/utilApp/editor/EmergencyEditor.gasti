@@ -1,0 +1,53 @@
+#javaj#
+
+    <frames>
+      FrameStdEE, Emergency editor, 600, 500
+
+    <layout of FrameStdEE>
+          EVA, 10, 10, 7, 7
+
+          ---,               , X
+             , lStdEE.lFile  , eStdEE.eFile, bStdEE.bSearch, bStdEE.bSave
+           X , fStdEE.fEditor, -, -, -, -
+
+#data#
+
+    <lStdEE.lFile> File
+
+    <bStdEE.bSearch> Search
+    <bStdEE.bSearch DIALOG> FILE
+
+    <bStdEE.bSave> Save
+
+    <bStdEE.bSearch image> javaj/img/linterna.png
+    <bStdEE.bSave image>   javaj/img/floppy.png
+
+#listix#
+
+   <-- bStdEE.bSearch>
+       -->, eStdEE.eFile,, @<bStdEE.bSearch chosen>
+       @<StdEE.load file>
+
+   <-- bStdEE.bSave>
+       SETVAR, fStdEE.fEditor fileName, @<eStdEE.eFile>
+       MSG, fStdEE.fEditor save
+
+   <StdEE.show (file)>
+      -->, eStdEE.eFile, @<p1>
+      @<StdEE.load file>
+      MSG, FrameStdEE show
+
+
+   <StdEE.load file>
+       CHECK, VAR  , eStdEE.eFile
+       CHECK, RFILE, @<eStdEE.eFile>, BOX, File @<eStdEE.eFile> not found
+       SETVAR, fStdEE.fEditor fileName, @<eStdEE.eFile>
+       MSG, fStdEE.fEditor load
+
+   <run StdEE.edit(file line)>
+      -->, eStdEE.eFile,, @<p1>
+      SETVAR, fStdEE.fEditor fileName, @<p1>
+      SETVAR, fStdEE.fEditor lineToGo, @<p2>
+      MSG, fStdEE.fEditor data!
+      MSG, FrameStdEE show
+      

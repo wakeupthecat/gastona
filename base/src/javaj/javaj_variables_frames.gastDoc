@@ -1,0 +1,48 @@
+/*
+   //(o) WelcomeGastona_source_javaj_variables sysDefaultFonts
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_ variables
+   <name>       frames
+   <groupInfo>
+   <javaClass>
+   <importance> 9
+   <desc>       //To declare the main frame as well as secondary ones
+
+   <help>
+      //
+      //  Declare the main frame (application window) as well as all possible secondary windows that
+      //  the application use or might use. Usually frames has to declare also a layout except if the
+      //  frame contains just one widget, in this case the same name can be used for the frame and
+      //  the widget.
+      //
+      //  Syntax:
+      //
+      //    <frames>
+      //       frameName, title, defaultWidth, defaultHeight
+      //       ...
+      //
+      //  The frame at the first row is the main application window and it is shown by default while
+      //  the rest has to be made visible explicitly (e.g. using the message "frameName show", see
+      //  widget zFrame).
+      //
+      //  When the frame is built it takes a calculated size acording with some values like preferred
+      //  size of the contained widgets, its data etc. This size might result convenient in many cases
+      //  but it will not match always with what we would like, then can be adjusted with defaultWidth
+      //  and/or defaultHeight. However, the frame as a widget has also attributes for its size (sizeX
+      //  and sizeY) these values if given will overwrite the default values. For example, the user
+      //  resize the frame, on closing the application this values are save and on loading the application
+      //  the values are loaded. This can be achieved very easily, see listix command DUMP and LOAD.
+      //
+
+
+   <examples>
+      gastSample
+
+#** FIN_EVA#
+*/

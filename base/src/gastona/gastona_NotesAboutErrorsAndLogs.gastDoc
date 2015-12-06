@@ -1,0 +1,146 @@
+/*
+   //(o) gastonaDoc_source notesDevelopment_sqlite
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    z Notes about development
+   <name>       " 3-Errors and Logs"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //Errors and Logs
+
+
+   <help>
+      //
+      //   Error messages
+      //   -------------------
+      //
+      //   The main goal of having error messages is to help the development by detecting obvious mistakes.
+      //   The whole Gastona system including widgets and commands check attributes, parameters and
+      //   consistence in general when this is suitable, producing error messages when the check does
+      //   not success positively.
+      //
+      //   There are following levels of errors
+      //
+      //       2 FATAL  :  It is a "bad enough" error, it will be shown within a popup and after that, the
+      //                   application will be closed.
+      //       3 SEVERE :  It is an ugly error, extra information (call stack) will be collected
+      //       4 ERROR  :  It has to be fixed
+      //       5 WARNING:  advise of possible malfunction
+      //       6 MESSAGE:  It is not an error, it is just program information
+      //
+      //    Since closing the application is a very unconfortable measure for the user, errors of kind
+      //    FATAL are minimized as much as reasonably possible. They still might appear in small mistakes, for
+      //    example if the script is empty or contains one unit but mistyped (e.g. #java# and not #javaj#).
+      //
+      //    Appart from FATAL errors the rest are only shown in consoles (no popups). Therefore it
+      //    is a good idea to have a console (widget 'o'), or to use the call to java with the native
+      //    console during the development of an application and until all errors are removed (if this
+      //    is possible).
+      //
+      //    Logs (application traces)
+      //    -----------------------------
+      //
+      //    Removing errors may result a quite hard task in some cases. For example, when the error
+      //    message does not point directly to a reconocible mistake, or when lot of actions take
+      //    place and it is not obvious which action produces the error, etc. It can be also hard to
+      //    find general malfunctions specially if no error messages at all are involved.
+      //
+      //    To help in this activities another kind of messages can be very helpful: trace messages or
+      //    logs.
+      //
+      //    Gastona implements a quite extensive set of logs. All message activity between widgets,
+      //    listix formats flow, detailed information about commands execution and much more low
+      //    level information can be logged.
+      //
+      //    The way to produce this logs is as follows:
+      //
+      //    All log activity will be saved in a directory, the session log directory
+      //    NOTE! Enabling log information makes the application run slower, the more logs enabled
+      //          the slower the application will be.
+      //
+      //    1) Either create a sub-directory called "sessionLog" from the current directory or
+      //       call gastona setting the property "gastona.sessionLog.dir" to the desired directory
+      //       for that. (e.g. java -jar gastona.jar -Dgastona.sessionLog.dir=MyLogDir script.gast)
+      //
+      //    2) Run the application (Gastona script) once. Following files should be created automatically
+      //
+      //          generated_linked.gast
+      //             This is simply the full gastona script after "fusioning" (if gastona <fusion> is used)
+      //             all the sub-scripts. This is the real script that Gastona is executing, it might
+      //             help to take a look on it to check if all seems to be ok. Note that changing this
+      //             file has no effect, since it is generated on each application execution.
+      //
+      //          logConfiguration.eva
+      //             At the beginning (when generated the first time) it contains an empty EVA table
+      //             <logLevels> with two columns : clientName and maxLogLevel. Filling this table
+      //             enables log on different "log clients" or modules that produce logs up to the given
+      //             level (from 10 to 19).
+      //             Of course this file may be manually changed.
+      //
+      //          logSession.sql
+      //             This is a sqlite script prepared to be loaded into a sqlite database. It contains
+      //             all the log activity of all "log clients" enabled in the session. It can be
+      //             reviewed directly (so do I sometimes) or just use it to generate a log session
+      //             sqlite database. To do this you may use the next file (logViewer.gast)
+      //
+      //          logViewer.gast
+      //             Script to generate the log database (logDatabase.db) from logSession.sql file and
+      //             to explore it.
+      //
+      //          sqlLog.log
+      //             This file contains all executed queries to sqlite and the results generated by them.
+      //             It is not possible to disable logging to this file. Note that for big loops and
+      //             large database queries the file can become very large.
+      //
+      //    3) Enabling the log clients for the next log session
+      //
+      //          All possible(*) log clients are to be found in the table logClients from logDatabase.db
+      //          choose the desired ones and give them a maxLogLevel. For example to log the gastona
+      //          activity (deeply), the listix format flow (normal) and the activity of listix commands
+      //          (normal) you may set following values into logConfiguration.eva
+      //
+      //             <logLevels>
+      //                clientName , maxLogLevel
+      //                gastona    , 19
+      //                listix_flow, 12
+      //                listix_commands, 12
+      //
+      //          (*) The clients will appear in the table logClients as long as they have perform some
+      //              activity during the session. For example if you want to see all clients related
+      //              with PARSONS command you should ensure that this command is called during the
+      //              session (in point 2)
+      //
+      //    4) Run again the application. After that, a complete new logSession.sql should be
+      //       generated containing all the logs of the session.
+      //
+      //   The main tables from logDatabase.db are
+      //   -------------------------------------------------
+      //
+      //    logClients (clientID, milliStamp, clientName, maxLogLevel, clientFirstObj)
+      //       Contain all log client registered (not necessarily enabled) in the last session
+      //
+      //    logMessages (msgCounter, milliStamp, clientID, level, context, message)
+      //       Contain all log and error messages
+      //
+      //    logStacksOnError (msgCounter, stackType, stackItem);
+      //       Contain aditional information about errors (same msgCounter as the error associated)
+      //       like call-stack (only on Fatal and Severe errors), message-stack and format-stack.
+      //
+      //    Of special interest in case of errors is the format-stack, which tells you exactly which
+      //    command was on execution at the moment of the error
+      //
+
+   <examples>
+      gastSample
+
+
+
+#**FIN_EVA#
+
+*/

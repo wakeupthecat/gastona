@@ -1,0 +1,207 @@
+/*
+   //(o) gastonaDoc_source listix_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    listix
+   <name>       " Introduction to Listix"
+   <groupInfo>
+   <javaClass>  listix.listix
+   <importance> 2
+   <desc>       //Introduction to listix
+
+   <help>
+      //
+      // Listix is the part where the logic of a Gastona application can be implemented. It includes communication with
+      // widgets, reaction to user interaction, calls to intern or external applications, generation of code or
+      // whatever kind of text. In fact Listix is a pseudo language having variables, loops and other
+      // functionality provided by its commands. Furthermore the language is enhanced with SQL
+      // capability of the enbedded sqlite engine which serveral commands use.
+      //
+      // As it is made in Javaj, the Eva variables are the base structure, and here the units #listix#
+      // and #data# are used. This organization of the code is not typical in script languages, that is
+      // why it might result difficult to read at the begining. Nevertheless, the mechanics used are
+      // quite simple.
+      //
+      // Let's take a look at two typical uses of listix which are repeated in almost all samples in this
+      // documentation. First the code
+      //
+      //    <-- bMyButton>
+      //        SET VAR, lMyLabel, "You pressed the button (admit it)"
+      //        MSG, lMyLabel data!
+      //
+      // has the meaning
+      //
+      //    - When the GUI component called "bMyButton" is clicked ...
+      //    - Set the value "You pressed...etc" into the variable called "lMyLabel" and ...
+      //    - Send the message "lMyLabel data!"
+      //
+      // The logic in this case consists in reacting to a widget event (button press) and updating
+      // the data of another widget (lMyLabel). The elements used in this code are : the special
+      // variable name starting with "--" and two commands : SET VAR and MSG
+      //
+      // This other code
+      //
+      //    <myName> Julia
+      //    <myCity> Santiago
+      //
+      //    <main>   //@<myName> lives in @<myCity>
+      //
+      // would print out "Julia lives in Santiago". In this case there are no commands involved, Listix
+      // is used just as a printer with some kind of text replacement. What is really happening it is
+      // not exactly a simple variable replacement, but indeed is a call to a variable as it where a
+      // procedure. If we imagine listix having a pen or a cursor pointing to the begining of the variable
+      // <main> the text "@<myName>" causes this pen to move to the begining of the variable <myName> and
+      // after finishing it the pen will return to the variable main at the position after "@<myName>".
+      // As we see the variables in listix have a special behaviour, they can call other variables since
+      // they are a kind of "variable-procedure", we will call these variables also "listix formats". The
+      // exact mechanism is explained in "Executing a listix format".
+      //
+      // Apart from the variables and the text generation, the rest can be done by commands. There are about
+      // 40 commands of very different proposes, from a simple calculation to a process that involve thousends
+      // of actions like scanning a directory or parsing a big file. A command has the generic syntax:
+      //
+      //       COMMANDNAME, parameter1, parameter2, ..., parameterN
+      //                  , option1, optParam1, optParam2, ...
+      //                  , optionM, optParam1, optParam2, ...
+      //
+      // having at least 1 parameter and 0 or more options.
+      //
+      // All commands are documented separatelly. Maybe the most important ones are: SET VAR,
+      // LOOP TABLE, IN CASE, CALL, LAUNCH, MESSAGE and SET DATA! (also know as "-->"). There are
+      // also a couple of very powerful commands like DATABASE, SCAN and PARSONS that make incredibly
+      // easy things that usually are ardous tasks.
+      //
+      // If COMMANDNAME is an empty string and it still has one or more parameters either it can be an
+      // option of a previous command or it is simply a "void command" and it will be skiped (ignored)
+      // by Listix. For example
+      //
+      //       ,,
+      //    or
+      //       ,this will be ignored @<egal>, nothing will happens!
+      //
+      // the options of a command can be seen also as void commands.
+      //
+      // If we forget for a moment what a command specifically does, we can describe the activity of
+      // listix in more simple way: text generation. And this is the way listix perform it
+      //
+      // Listix in reallity "execute variables", we call these variables listix formats or simply formats.
+      // A format has only two things text or commands, the text is generated and the commands are executed.
+      //
+      // ======== Executing a listix format =============
+      //
+      //    - A format is read row by row
+      //
+      //    - If the row has just one column then it is simply a text to generate (to be print out
+      //      somewhere), during the generation if the pattern "@<xxx>" is found, it has de meaning
+      //      "execute the format xxx" before continue.
+      //
+      //    - If the row has more than one column then it is a listix command. The first column
+      //      contains the command name. In this case listix invoques the command.
+      //
+      //   Example of listix format:
+      //
+      //      <a listix format>
+      //          //Text @<call other format> more text @<another format>
+      //          //more text
+      //          SOME COMMAND, parameter 1, etc
+      //                      , option 1, parameter of option
+      //          //Continue with @<some format> text
+      //          , This will be skiped (void command)
+      //
+      // ======== Target of generation =============
+      //
+      // By default the generation will be performed over the standard ouput (console), but this can
+      // be different when
+      //
+      //    - a command GENERATE changes the target of the generation, for example to a file
+      //
+      //    - when using variables "@<xxx>" within command parameters or options, in many cases (it
+      //      depends on the command), the generation will be performed in memory and the result placed
+      //      in the argument or option, this is known as "solving" a format.
+      //
+      // ======== Entry points (entry formats) ==============
+      //
+      // The two formats <main0> and <main> are special. They are called by Gastona during the
+      // startup of the script
+      //
+      //    main0
+      //       It is called once all widgets have been instanciated and have received its default
+      //       data but they are NOT yet visible
+      //
+      //    main
+      //       It is called just after setting visible the main frame
+      //
+      // Once main0 and main has been executed listix can only react to messages, usually from
+      // widgets.
+      //
+      //    -- MESSAGETEXT
+      //       The formats starting with "-- " (e.g. <-- message>) have associated a message, when this
+      //       message is sent the format is executed by listix. This is the way react to user interaction
+      //       (messages of widgets) or any other event sent through the message mechanism (Mensaka).
+      //
+
+
+   <examples>
+      gastSample
+
+      listix intro1
+      listix intro2
+
+   <listix intro1>
+      //#javaj#
+      //
+      //    <frames> oConsole, "Listix intro 1"
+      //
+      //#data#
+      //
+      //    <you> listix
+      //
+      //#listix#
+      //
+      //    <main> Hello @<you>!
+      //
+
+   <listix intro2>
+      //#javaj#
+      //
+      //    <frames> fMain, "Listix intro 2"
+      //
+      //    <layout of fMain>
+      //       PANEL, Y
+      //       bPressMe, oConsole
+      //
+      //#data#
+      //
+      //    <personajes>
+      //       name        , level
+      //       Gastona     , ok
+      //       Javaj       , good
+      //       Listix      , learning
+      //
+      //#listix#
+      //
+      //    <-- bPressMe>  //@<welcome html>
+      //
+      //    <welcome html>
+      //       //<html><body>
+      //       //  <h2> Html generation sample </h2>
+      //       //  <b> Learning status </b>
+      //       //
+      //       //  <table border=1>
+      //       //
+      //       LOOP, EVA, personajes
+      //       //    <tr><td> @<name> <td> @<level> </tr>
+      //       =,,
+      //       //
+      //       //  </table>
+      //       //</body></html>
+      //
+
+#**FIN_EVA#
+
+*/

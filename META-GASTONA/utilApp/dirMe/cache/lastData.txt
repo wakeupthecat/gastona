@@ -1,0 +1,375 @@
+#data#
+
+   <bNewDir Dialog>
+      //DIRS
+
+   <bNewDir image>
+      //javaj/img/folder.png
+
+   <bRescanDir image>
+      //javaj/img/math.png
+
+   <bRemoveDir image>
+      //javaj/img/cancel.png
+
+   <bNewDir>
+      //Scan dir
+
+   <bRescanDir>
+      //Rescan dir
+
+   <bRemoveDir>
+      //Borrar scan
+
+   <iRoots sqlSelect>
+      //SELECT * FROM scan_roots WHERE rootLabel != 'paka'
+
+   <iRoots visibleColumns>
+      //pathRoot
+
+   <bCollect4Paka>
+      //=> Pasar a Paka
+
+   <bStart>
+      //Abrir
+
+   <bEdit>
+      //Editar
+
+   <bStart image>
+      //javaj/img/linterna.png
+
+   <bExplorer image>
+      //javaj/img/explorer.png
+
+   <bEdit image>
+      //javaj/img/write.png
+
+   <bMsDOS image>
+      //javaj/img/shell.png
+
+   <TableMetadataDicc>
+      pathNode,10
+      pathFile,60
+      fileName,40
+      extension,12
+
+   <sFiles sqlSelect>
+      //SELECT * FROM scan_all WHERE rootID = ?((iRoots selected.rootID)) AND ((1)) AND ((1)) AND ((1))
+
+   <sFiles visibleColumns>
+      pathFile,fileName,extension,date,size
+
+   <filterExt>
+      //(1)
+
+   <filterPath>
+      //(1)
+
+   <filterDate>
+      //(1)
+
+   <groups ACTIVE>
+      //1
+
+   <lSospechosos>
+      //Lista de sospechosos de estar repetidos por tener igual ...
+
+   <kNombre selected>
+      //1
+
+   <kFecha selected>
+      //1
+
+   <kTamany selected>
+      //1
+
+   <groupSame ACTIVE>
+      //0
+
+   <rgRadioSeparator orientation>
+      //X
+
+   <rgRadioSeparator titledBorder>
+      //Separator
+
+   <rgRadioSeparator>
+      label,separator
+      Tabulator,"@<TAB>"
+      Colon kansas,;
+      Comma,","
+      White space," "
+
+   <rgRadioSeparator selectedIndices>
+      //index
+      //0
+
+   <TAB>
+      "	"
+
+   <SEPARATOR>
+      "	"
+
+   <kExport>
+      //Dialogo Export
+
+   <eColumns>
+      //pathRoot, pathFile, fileName, extension, date, size, fullPath
+
+   <eExportName>
+      //export\fichero.txt
+
+   <lExportBase>
+      //Exportar a
+
+   <kOnly selected records>
+      //Sólo los seleccionados
+
+   <kInclude column names>
+      //Incluir nombres columnas
+
+   <bAllColumns>
+      //Todas las columnas
+
+   <bAutoExportName>
+      //Generar nombre
+
+   <bExport>
+      //Exportar
+
+   <lStdEE.lFile>
+      //File
+
+   <bStdEE.bSearch>
+      //Search
+
+   <bStdEE.bSearch DIALOG>
+      //FILE
+
+   <bStdEE.bSave>
+      //Save
+
+   <bStdEE.bSearch image>
+      //javaj/img/linterna.png
+
+   <bStdEE.bSave image>
+      //javaj/img/floppy.png
+
+   <rTabulator selected>
+      //0
+
+   <lDirectorios escaneados>
+      //Directorios escaneados
+
+   <eStdEE.eFile>
+      //
+
+   <iRoots>
+      //
+
+   <iRoots db cachedRecordCount>
+      //0
+
+   <iRoots db totalRecordCount>
+      //0
+
+   <iRoots db recordOffset>
+      //0
+
+   <iRoots subTableSelection>
+      //
+
+   <sFiles>
+      //
+
+   <sFiles db cachedRecordCount>
+      //0
+
+   <sFiles db totalRecordCount>
+      //0
+
+   <sFiles db recordOffset>
+      //0
+
+   <sFiles subTableSelection>
+      "","","","",""
+
+   <bExplorer>
+      //Explorer
+
+   <bMsDOS>
+      //MsDOS
+
+   <lExtension>
+      //Extension
+
+   <lFecha>
+      //Fecha
+
+   <lPath>
+      //Path
+
+   <tExtenFilt>
+      //
+
+   <tExtenFilt db cachedRecordCount>
+      //0
+
+   <tExtenFilt subTableSelection>
+      //
+
+   <tDateFilt>
+      //
+
+   <tDateFilt db cachedRecordCount>
+      //0
+
+   <tDateFilt subTableSelection>
+      //
+
+   <tPathFilt>
+      //
+
+   <tPathFilt db cachedRecordCount>
+      //0
+
+   <tPathFilt subTableSelection>
+      //
+
+   <kNombre>
+      //Nombre
+
+   <kFecha>
+      //Fecha
+
+   <kTamany>
+      //Tamany
+
+   <tSameBrowse>
+      //
+
+   <tSameBrowse db cachedRecordCount>
+      //0
+
+   <tSameBrowse subTableSelection>
+      //
+
+   <lOptions>
+      //Options
+
+   <lColumns>
+      //Columns
+
+   <eColumns dirty>
+      //0
+
+   <eExportName dirty>
+      //0
+
+   <rTabulator>
+      //Tabulator
+
+   <rColon>
+      //Colon
+
+   <rComma>
+      //Comma
+
+   <rWhite space>
+      //White space
+
+   <FdirMe visible>
+      //1
+
+   <FrameStdEE visible>
+      //0
+
+   <FdirMe sizeX>
+      //1031
+
+   <FdirMe sizeY>
+      //805
+
+   <FdirMe posX>
+      //0
+
+   <FdirMe posY>
+      //0
+
+   <sFiles sqlExtraFilter>
+      //
+
+   <tExtenFilt sqlSelect>
+      //SELECT extension , count(*) AS nFiles, ROUND (SUM(size)/1000000, 3) AS MB FROM scan_files WHERE rootID = ?((iRoots selected.rootID)) GROUP BY extension ORDER BY 0+nFiles DESC
+
+   <tExtenFilt db totalRecordCount>
+      //0
+
+   <tExtenFilt db recordOffset>
+      //0
+
+   <tPathFilt sqlSelect>
+      //SELECT pathFile , count(*) AS nFiles, ROUND (SUM(size)/1000000, 3) AS MB FROM scan_files WHERE rootID = ?((iRoots selected.rootID)) GROUP BY pathFile ORDER BY 0+nFiles DESC
+
+   <tPathFilt db totalRecordCount>
+      //0
+
+   <tPathFilt db recordOffset>
+      //0
+
+   <tDateFilt sqlSelect>
+      //SELECT substr(date,1,7) as mes , count(*) AS nFiles, ROUND (SUM(size)/1000000, 3) AS MB FROM scan_files WHERE rootID = ?((iRoots selected.rootID)) GROUP BY mes ORDER BY mes DESC
+
+   <tDateFilt db totalRecordCount>
+      //0
+
+   <tDateFilt db recordOffset>
+      //0
+
+   <tSameBrowse sqlSelect>
+      //SELECT COUNT(*) AS nFiles, ROUND (SUM(size)/1000000, 3) AS MB  , fileName , date , size FROM scan_files WHERE rootID = ?((iRoots selected.rootID)) GROUP BY ""  , fileName , date , size HAVING nFiles > 1 ORDER BY nFiles DESC
+
+   <tSameBrowse db totalRecordCount>
+      //0
+
+   <tSameBrowse db recordOffset>
+      //0
+
+   <tExtenFilt sqlExtraFilter>
+      //
+
+   <tPathFilt sqlExtraFilter>
+      //
+
+   <tDateFilt sqlExtraFilter>
+      //
+
+   <kExport selected>
+      //1
+
+   <rColon selected>
+      //0
+
+   <rComma selected>
+      //0
+
+   <rWhite space selected>
+      //1
+
+   <radioSeparator selected>
+      //rWhite space
+
+   <rgRadioSeparator selected>
+      //1
+
+   <rgRadioSeparator db cachedRecordCount>
+      //4
+
+   <rgRadioSeparator subTableSelection>
+      label,separator
+
+   <rgRadioSeparator selected.label>
+      //Tabulator
+
+   <rgRadioSeparator selected.separator>
+      //@<TAB>

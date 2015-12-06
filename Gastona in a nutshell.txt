@@ -1,0 +1,187 @@
+06.02.2010 09:12
+
+   G A S T O N A in few words
+   ---------------------------
+
+
+   ::: Gastona is a development system for GUI applications and ...
+
+-------------- Base Format for code and data
+
+   All in gastona is given in a generic variable format called EVA. This format
+   is like a Windows INI format but accepting lists of strings on each variable.
+   The variables are grouped into units.
+
+   Example:
+
+      #unit 1#
+
+         <variable A> text data
+
+         <! this is a comment, and will be totally ignored
+         <my table>
+               name  , description
+               Pablo , lklfjsdljfsl
+
+         <another variable>
+            first, second, third, "last one, still last one"
+            second row, //second and last element of row 2
+
+      #another unit#
+
+         <variable X> aaaaa
+
+    :::: EVA format does not care about the data structure of variables, this is an issue of the
+    specific module or application that uses it.
+
+    A Gastona script can be given in a single EVA text file using up to four Eva units
+
+      #gastona#   some general features can be given here
+      #javaj#     The GUI part is defined here
+      #data#      Widget data is placed here, also general data to be used in logic can be placed here
+      #listix#    Holds the logic of the application through a "variable-procedure" system and commands
+
+
+-------------- GUI basics
+
+   - To get a Frame visible with some GUI Component (widget) inside is just enough to declare
+   the variable <frames> within the unit #javaj#
+
+      for example:
+
+      #javaj#
+
+         <frames> bMy Button
+
+   - Widgets
+
+      The easiest way to build a graphic user interface in gastona is by using the set of
+      standard widgets that comes with gastona. The first chararcters of the widget name
+      determines the type of widget it is. For example
+
+         'l' label, 'b' Button, 'k' check button, 'i' List, 'o' console,
+         'x' text area etc.
+
+   - Data of the widgets
+
+      Static data (e.g. for labels, fix combo boxes, fix lists etc) or simply default data can be
+      given in variables using the unit #data# placing it in a variable called like the widget name
+
+      For example an aplication that shows a list of three elements
+
+         #javaj#
+
+            <frames> iMyList
+
+         #data#
+
+            <iMyList>
+               item
+               one
+               two
+               three
+
+      the same can be done with a combo box, or a table just changing the first character of the widget
+      name (in all places where this is used).
+
+
+      ---- FILLING DATA
+
+      There are many ways of giving the data to the widgets
+         - referencing other variable
+
+            <iMyList var> myDataIsHere
+
+         - accessing it through the intern database engine (indeed sqlite database)
+
+            <iMyList dbName>    data/myDatabase.db
+            <iMyList sqlSelect> //SELECT * FROM clients
+
+      The widgets generates data related with it states, typically selected items as well as
+      multi selection generate new variables, for example selecting the items "two" and three
+      will generate and fill the variables
+
+            <iMyList item> two
+            <iMyList subTableSelection>
+                  item
+                  two
+                  three
+
+     Many listix commands can create variables as well
+
+      ---- MANIPULATING DATA
+
+         - Editing data through script is limited basically to set and add new rows
+         - Custom controllers (java classes) can manipulate the data freely
+         - SQL provides ...
+
+
+
+   - Placing widgets
+
+      The widgets are placed and arranged using layouts, there are several layout types. All layouts
+      are declared in variables which name start with "layout of" in the unit #javaj#
+
+         #javaj#
+
+            <frames> myFrame
+
+            <layout of myFrame>
+               PANEL, Y
+
+               bMyButton, iMyList
+
+      The most flexible and powerful layout is the EVALAYOUT, it arranges the widgets in a grid
+      where the columns and rows can be declared either fixed in size, adaptable to its contents (default)
+      or extendible on resize. Example : two buttons and a text extensible to the right and to the bottom
+      can be expressed as
+
+         #javaj#
+
+            <frames> myFrame
+
+            <layout of myFrame>
+               EVALYOUT
+
+                  , A       , X
+                  , bPress1 , xText
+                  , bPress2 ,  +
+                X ,         ,  +
+
+   - Implementing application logic
+
+      Actions over the widgets are communicated through messages. Such a message is just a string that
+      starts with the widget name. For example
+
+         message       meaning
+         --------      ------------
+         "widName"     a button pressed, checkbox selected/unselected, item(s) selected from a list etc..
+         "widName 2"   doble click on a list, table or tree
+         "widName droppedFiles"  a set of files has been dropped on a widget
+
+      Messages can be intercepted by the special variable-procedures in the unit #listix#, a variable with
+      the name is "-- messageX" catches the message "messageX", namely the variable-procedure is executed
+      by listix when the message is received
+
+         #javaj#
+
+            <frames> F, Hello Sample
+
+            <layout of F>
+               EVA, 10, 10, 10, 10
+
+                  ,         , X
+                  , bPress  , oConsole
+                X ,         ,   +
+
+         #listix#
+
+            <-- bPress>  //You pressed the button!
+
+   - More about widget interaction
+
+      All widgets have a set of attributes to store its data and states (e.g. value selected in a list)
+      as well as a set of messages. Both, attributes and messages have a direction defined, either
+      "widget -> listix" (programmed logic), "listix -> widget" or for instance
+      when the user make a double click on an item in a list called iList the message "iList 2" has
+      the direction  "widget -> listix"

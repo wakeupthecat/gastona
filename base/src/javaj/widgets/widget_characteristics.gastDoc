@@ -1,0 +1,26 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_widget_General characteristics
+   <name>       " Introduction"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //General characteristics in zWidgets
+
+   <help>
+      //
+      // By "General characteristics" we mean those groups of attributes and messages that
+      // represents a given feature or ability of a widget. There are some characteristics that
+      // are common to several widgets, for them we give in this chapter a more detailed explanation.
+      //
+
+#**FIN_EVA#
+
+*/

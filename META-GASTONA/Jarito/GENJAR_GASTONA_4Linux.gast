@@ -1,0 +1,98 @@
+#javaj#
+
+
+   <frames>
+         F, Generador de gastona.jar, 500, 400
+
+   <layout of F>
+         EVA, 10 , 10, 5, 5
+
+         ,               , X
+         , lJavac path   , eJavacPath
+         , bGenerateJar  , -
+      X  , oConsola      , -
+      X  ,    +
+      X  , o2ErrConsola  , -
+
+
+#listix#
+
+   <!ALTERNATIVE TO .gastonaLocal changing this script
+   <!tool javac> yourFullPathTo/javac.exe
+
+   <main0>
+      LOAD, data, "@<:sys user.home>/.gastonaLocal"
+      CHECK, VAR, tool javac, SET VAR, tool javac, /usr/lib/jvm/java-6-sun-1.6.0.10/bin/javac
+
+   <-- bGenerateJar>
+      MSG, oConsola clear
+      MSG, o2ErrConsola clear
+      GEN, con, main, formats, @<thisDIR>/genJarrito_4Linux.lsx
+
+#data#
+
+   <eJavacPath var> tool javac
+
+   <gastonaVersion>  //10.36.091122 \"Tokoa\"
+
+   <thisDIR>  //@<:sys gastona.gastFile.dir>
+
+   <previous to jar>
+      @<install sqlite>
+      @<generate gastonaVersion>
+
+   <manifestClass> gastona.gastona
+   <jarName>       gastona.jar
+
+   <traspasosTo>
+      que    ,  fromSubDir            , toSubDir,    rename
+
+      *    ,  META-GASTONA/muTools  ,
+      *    ,  javaj/img
+
+      *    ,  META-GASTONA/WelcomeGastona,
+      *    ,  META-GASTONA/WelcomeGastona/genDB,
+      *    ,  META-GASTONA/utilApp/arces
+      *    ,  META-GASTONA/utilApp/arces/gasti
+<!      *    ,  META-GASTONA/utilApp/files
+      *    ,  META-GASTONA/utilApp/logAnalysis
+      *    ,  META-GASTONA/utilApp/editor
+      *    ,  META-GASTONA/utilApp/std
+
+   <table task javac>
+
+      source
+
+      //gastona/gastona.java
+      //de/elxala/Eva/util/EvaFileToHtml.java
+      <!//javaj/widgets/*.java
+
+
+   <generate gastonaVersion>
+      //Generating gastonaVersion with date [@<:lsx date>]
+      //
+      GEN, @<destDir>/gastona/gastonaVersion.java, gastVer
+
+
+   <gastVer>
+      //package gastona;
+      //
+      /////gastona.jar built at @<:lsx date>
+      //public class gastonaVersion
+      //{
+      //   public static String getVersion ()
+      //   {
+      //      return "@<gastonaVersion>";
+      //   }
+      //
+      //   public static String getBuildDate ()
+      //   {
+      //      return "@<:lsx date>";
+      //   }
+      //
+      //   public static void main (String [] par)
+      //   {
+      //      System.out.println (getVersion ());
+      //   }
+      //}
+      //

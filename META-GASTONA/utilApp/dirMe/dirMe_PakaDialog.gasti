@@ -1,0 +1,130 @@
+#javaj#
+
+   <layout of layPaka>
+        EVA, 5, 5, 5, 5
+           ,               ,              ,X
+           , bEnpaka       ,  ePakaZipName
+         X , sPakaGrid     , -, -
+           , bRemoveOnePaka, bClearPaka ,
+
+   <layout of carta>
+      <!MENU,
+
+      Paka , Mostrar Paka  , menShowPaka
+      Paka , Ocultar Paka  , menHidePaka
+
+#data#
+
+
+   <bRemoveOnePaka image> javaj/img/cancel.png
+   <bClearPaka image>     javaj/img/new.png
+
+   <bEnpaka>     bPaka recoge en ..
+   <ePakaZipName> Trastero
+
+   <sPakaGrid visibleColumns> pathFile, fileName, extension, date, size
+
+   <Paka ACTIVE> 0
+
+#listix#
+
+   <void>
+
+   <main0>
+      IN CASE, @<Paka ACTIVE>, ==, 1, JAVAJ, MASK, layFiles, layPaka
+
+
+   <setZipName>
+      SET VAR, zipFileName, export\@<:lsx date yyyy_MM_dd>\@<ePakaZipName>.zip
+
+   <-- menShowPaka>
+      MSG, ACTIVATE PAKA
+
+   <-- menHidePaka>
+      MSG, DEACTIVATE PAKA
+
+   <-- bEnpaka>
+      @<zip collect>
+
+   <zip collect>
+      <! Prepar list of files
+      SETVAR, listCollect, fileName
+      LOOP, SQL,, @<sqlMore markedFiles>
+      @<addCollectFile>
+      =,,
+      @<setZipName>
+      GEN, @<zipFileName>, void
+      ZIP, ZIP FILES, @<zipFileName>, listCollect
+         , BASE PATH, @<iRoots selected.pathRoot>
+
+      @<refrescaPakaGrid>
+
+   <addCollectFile>
+      ADDTOVAR, listCollect, @<subPath>
+
+   <-- ACTIVATE PAKA>
+      SET VAR, Paka ACTIVE, 1
+      JAVAJ, MASK, layFiles, layPaka
+      @<refrescaPakaGrid>
+
+   <-- DEACTIVATE PAKA>
+      SET VAR, Paka ACTIVE, 0
+      JAVAJ, MASK, layFiles
+
+   <-- NEW ROOT SELECTED>
+      IN CASE, @<Paka ACTIVE>, ==, 1, @<refrescaPakaGrid>
+
+   <-- PAKA COLLECT SELECTED FILES>
+      DB,, EXECUTE, @<script collect selected>
+
+   <script collect selected>
+      <!//BEGIN;
+      //
+      //CREATE TABLE IF NOT EXISTS scan_files_marked (rootID, fileID);
+      //INSERT OR IGNORE INTO __dbMore_connections VALUES ('file', 'scan_files_marked', 'fileID', 'scan_files', 'fileID');
+      //INSERT OR IGNORE INTO __dbMore_connections VALUES ('root', 'scan_files_marked', 'rootID', 'scan_roots', 'rootID');
+      //INSERT OR IGNORE INTO __dbMore_connections VALUES ('all',  'scan_files_marked', 'fileID', 'scan_all',   'fileID');
+      //
+      LOOP, EVA, sFiles subTableSelection
+      //INSERT INTO scan_files_marked VALUES (@<rootID>, @<fileID>);
+      =,,
+      //
+      <!//COMMIT;
+      //
+
+   <-- bRemoveOnePaka>
+      CHECK, VAR, sPakaGrid subTableSelection
+      LOOP, EVA, sPakaGrid subTableSelection
+      @<delete one>
+      =,,
+      @<refrescaPakaGrid>
+
+  <delete one>
+      DB,, EXECUTE, //DELETE FROM scan_files_marked WHERE rootID = @<rootID> and fileID = @<fileID>;
+
+   <-- bClearPaka>
+      DB,, EXECUTE, //DELETE FROM scan_files_marked WHERE rootID = @<iRoots selected.rootID>;
+      @<refrescaPakaGrid>
+
+
+   <refrescaPakaGrid>
+      -->, sPakaGrid, sqlSelect, //SELECT * FROM (@<sqlMore markedFiles>) WHERE rootID = @<iRoots selected.rootID>
+
+   <sqlMore markedFiles>
+      DBMORE, TOSQL, sqlMore markedColumns, scan_files_marked
+            , DBNAME, ""
+            , LINE BREAK, 0
+
+   <sqlMore markedColumns>
+
+      rootID       , rootID
+      fileID       , fileID
+      all subPath  , subPath
+      all pathFile , pathFile
+      all fileName , fileName
+      all extension, extension
+      all date     , date
+      all size     , size
+
+
+#**#

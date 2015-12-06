@@ -1,0 +1,56 @@
+#listix#
+
+   <appName> anonymous
+
+   <createFileNames>
+      SETVAR, dirCACHE, @<:sys user.home>\gastonaApps\@<appName>\cache
+      SETVAR, dirDATA , @<:sys user.home>\gastonaApps\@<appName>\data
+      SETVAR, dirTEMP , @<:sys java.io.tmpdir>\gastonaTEMP
+      LOOP, EVA, appFiles
+      @<setAppFileName>
+
+   <setAppFileName>
+      SET VAR, @<varName>, @<nameByType>
+
+   <nameByType>
+      IN CASE, @<dirType>
+             , D, @<dirDATA>\@<fileName>
+             , C, @<dirCACHE>\@<fileName>
+             , T, @<:listix newTempFile>_@<fileName>
+             , ELSE, @<:listix newTempFile>_@<fileName>
+
+#** FIN_EVA#
+
+#data example#
+
+   <appName>  TCVeo
+   <appFiles>
+      varName, dirType, fileName
+
+      resultDB , D    , @<appName>Result.db
+      cacheData, C    , cacheData.eva
+      tmp1     , T    , tmpx.txt
+
+#--- otras ideas#
+
+
+   <hoy>
+      @<:listix date>
+
+   <ensureDirCache>
+      CHECK, DIR, @<dirCACHE>, GEN, @<dirCACHE>\.dircreated, hoy
+
+   <ensureDirData>
+      CHECK, DIR, @<dirDATA>, GEN, @<dirDATA>\.dircreated, hoy
+
+   <main>
+      @<ensureDirCache>
+      @<ensureDirData>
+
+      CHECK, FILE, @<dirCACHE>\TCVeoCurrentData.gasti
+      LOAD, data, @<dirCACHE>\TCVeoCurrentData.gasti
+
+
+   <-- javaj exit_now>
+      DUMP, data, @<dirCACHE>\TCVeoCurrentData.gasti
+

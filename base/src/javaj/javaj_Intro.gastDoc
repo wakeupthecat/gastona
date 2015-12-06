@@ -1,0 +1,130 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj
+   <name>       " Introduction to javaj"
+   <groupInfo>
+   <javaClass>  javaj.javaj36
+   <importance> 10
+   <desc>       //Introduction to javaj
+
+   <help>
+      //
+      // Javaj is the responsible of the user interface of a Gastona application. That means
+      // all that is visible in the application and might allow user interaction.
+      //
+      // The job of Javaj is simply building frames placing on it the desired widgets. To do that it
+      // starts with the variable <frames> (no frames no fun!) where the main frame and optionally other
+      // secondary frames are declared using a name. The main elements that javaj handle are:
+      //
+      //    - frames, which are windows (main window or secondary dialogs)
+      //    - layouts or containers, they contain usually widgets but might contain also other layouts
+      //      when a layout contain another layout it is called "layout composition"
+      //    - final widgets, these can be from a button to a more complex dialog
+      //
+      // All these elements need a unique name in order to be able to identify each one for communication
+      // and other proposes. The name might contain spaces and other characters.
+      //
+      // To define all this elements, just follow this rules
+      //
+      //    -- Want a frame ? => add a row in the variable <frames>
+      //    -- Want a container or layout ? => declare the variable <layout of MYLAYOUTNAME>
+      //    -- Want a widget ? => write its name within a layout
+      //
+      // Isn't a frame a layout or container ? Very often, that is way we usually will use its
+      // name in both the variable <frames> and the related <layout of ...>
+      //
+      // Example:
+      //
+      //    #javaj#
+      //
+      //       <frames>
+      //          myFirstFrame, "Title of my first frame"
+      //
+      //       <layout of myFirstFrame>
+      //          PANEL
+      //
+      //          lMy first label, bMy first button
+      //
+      // This creates a frame called "myFirstFrame" and layouting it using the layout type PANEL
+      // that contains two widgets : a label called "lMy first label" and a button called "bMy first button"
+      //
+      // All javaj widgets have associated a prefix (usually one character) to facilitate its declaration
+      //
+      // Is it mandatory to use this prefix ? No, you can always specify the widget through its
+      // java class name by setting a variable <javaClass of WIDGETNAME>, for example to convert the
+      // widget named "bMy first button" into a table, you can add the variable
+      //
+      //    <javaClass of bMy first button> javaj.widgets.zTable
+      //
+      // Here are the rules that actually javaj follows to determine what kind of element is a given
+      // component with name COMPNAME
+      //
+      //    1) if the variable <layout of COMPNAME> exists, then it is a layout (container)
+      //    2) if not, and the variable <javaClass of COMPNAME> exists then it is a widget
+      //       whose java class is defined in this variable
+      //    3) if not a container nor a declared widget, Javaj use the first character(s) of COMPNAME
+      //       to find out the widget class (e.g. name bMyButton will be a javaj.widgets.zButton)
+      //
+      // The third rule makes possible to declare widgets very easily and it is widely used in all
+      // the Gastona samples.
+      //
+      // All variables <layout of ...> start with a layout type name (e.g. PANEL), this define the
+      // way the components has to be declared and how are they arranged. See the documentation for
+      // each layout.
+      //
+      // Javaj might set as well some other general properties like default fonts, default images etc
+      // see javaj variables.
+      //
+      //
+
+   <examples>
+      gastSample
+
+      javaj intro1
+      javaj intro2
+      javaj intro3
+
+   <javaj intro1>
+      //#javaj#
+      //
+      //    <frames> tMyTable, "Frame containing just a table"
+      //
+
+   <javaj intro2>
+      //#javaj#
+      //
+      //    <frames> mainWindow, "Frame containing two buttons and a text"
+      //
+      //    <layout of mainWindow>
+      //       PANEL, X
+      //       bMyButton, bButton2, eMyText
+      //
+
+   <javaj intro3>
+      //#javaj#
+      //
+      //    <frames> myFrame, "Frame containing more things"
+      //
+      //    <layout of myFrame>
+      //       EVALAYOUT, 10, 10, 5, 5
+      //
+      //       grid,   X       ,   X
+      //        X  , tTable    , oConsole
+      //           , southLay  , -
+      //
+      //    <layout of southLay>
+      //       PANEL, X
+      //       bMyButton, eMyText
+      //
+
+
+#**FIN_EVA#
+
+*/

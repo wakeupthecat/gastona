@@ -1,0 +1,286 @@
+#listix#
+
+   <main0>
+      SET VAR, SQLSyntax.db, @<:lsx tmp db>
+      DATABASE, @<SQLSyntax.db>, CREATETABLE, tab_sqlite_commands
+      DATABASE, @<SQLSyntax.db>, CREATETABLE, tab_sqlite_examples
+      MSG, HELP DB READY
+
+#data#
+
+   <THIS TABLE>
+      CHECK, VAR, iLasTablas selected.name, aTableName
+      @<iLasTablas selected.name>
+
+
+   <tab_sqlite_examples>
+         command,     rest,                                                                      description
+         ALTER TABLE, "@<THIS TABLE> RENAME TO @<THIS TABLE>_nova ", // Rename a table
+         ALTER TABLE, "@<THIS TABLE> ADD COLUMN nouCamp ",                         // add a new column
+         ANALYZE,     "@<THIS TABLE>"                                            , // Analyze a table
+         CREATE TABLE, "novaTabla (id, name, description)", //Create a new table "novaTabla" with fields "id", "name" and "description"
+         CREATE TABLE, "novaTabla2 (id INTEGER PRIMARY KEY AUTOINCREMENT, name, desc)", //Create a new table "novaTabla2" with fields "id" (primary key and autoincrement), "name" and "desc"
+         CREATE TABLE, "duplo_@<THIS TABLE> AS SELECT * FROM @<THIS TABLE>", //Duplicate the selected table with name "duplo_" + old name
+         CREATE INDEX, "IF NOT EXISTS indexID ON @<THIS TABLE> (id)", //Create an unique index with name "indexID" in the selected table using the field "id"
+         CREATE INDEX, "myIndex ON @<THIS TABLE> (id, name)", //Create an index with name "myIndex" in the selected table composed by "id" and "name"
+         CREATE VIEW,  "myView AS SELECT * FROM @<THIS TABLE>", //Create a view named "myView" using a simple select query"
+         DELETE,       "FROM @<THIS TABLE> WHERE name = 'delete me pleaseplease'", //Delete records from selected table with a condition"
+         DROP TABLE,   "IF EXISTS notyet_@<THIS TABLE>", //Removes completely a tabled named notyet_@<THIS TABLE>"
+         DROP INDEX,   "IF EXISTS myIndex", //Removes (if exists) the index named "myIndex"
+         DROP VIEW,    "IF EXISTS myView" , //Removes (if exists) the view named "myView"
+         INSERT,       "INTO novaTabla VALUES (10, 'Maradona', 'Armando')",               // Inserts a new record in the table 'novaTabla'
+         INSERT,       "INTO novaTabla2 (id, desc, name) SELECT * FROM novaTabla", // Inserts a new record in the table 'novaTabla2' using a select sql query
+         PRAGMA,       "index_list(myTable)", // Get the indexes of the table "myTable"
+         PRAGMA,       "index_info(myIndex)", // Extract information about the index "myIndex"
+         PRAGMA,       "table_info(myTable)", // Extract information about the table "myTable"
+         EXPLAIN,      "SELECT * FROM @<THIS TABLE> LIMIT 10", //"compiles" the select sql query into a sequence of virtual machine instructions (sqlite specific)
+         SELECT,       "SELECT * FROM @<THIS TABLE> LIMIT 10", //Shows the first 10 records of the selected table
+         UPDATE,       "@<THIS TABLE> SET type='new' WHERE type='old'", //Update the records with contents 'old' with 'new' in field "type"
+         VACUUM,       "", //Optimizes the database in size
+
+   <tab_sqlite_commands>
+      name                , sqliteHtmlName, sqlgroup, importance
+
+      ALTER TABLE         , altertable   , schema ,  3
+      ANALYZE             , analyze      , misc   ,  3
+      ATTACH DATABASE     , attach       , schema ,  3
+      BEGIN TRANSACTION   , transaction  , batch  ,  4
+      comment             , comment      , misc ,  5
+      COMMIT TRANSACTION  , transaction  , batch  ,  4
+      COPY                , copy         , batch  ,  6
+      CREATE INDEX        , createindex  , schema ,  8
+      CREATE TABLE        , createtable  , schema , 10
+      CREATE TRIGGER      , createtrigger, schema ,  4
+      CREATE VIEW         , createview   , schema , 10
+      CREATE VIRTUAL TABLE, createvtab   , schema ,  4
+      DELETE              , delete       , data   ,  8
+      DETACH DATABASE     , detach       , schema ,  3
+      DROP INDEX          , dropindex    , schema ,  4
+      DROP TABLE          , droptable    , schema ,  4
+      DROP TRIGGER        , droptrigger  , schema ,  4
+      DROP VIEW           , dropview     , schema ,  4
+      END TRANSACTION     , transaction  , batch  ,  4
+      EXPLAIN             , explain      , misc   ,  2
+      expression          , expr         , misc ,  9
+      INSERT              , insert       , data   , 10
+      ON CONFLICT clause  , conflict     , misc   ,  4
+      PRAGMA              , pragma       , misc   ,  4
+      REINDEX             , reindex      , schema ,  4
+      REPLACE             , replace      , data   ,  5
+      ROLLBACK TRANSACTION, transaction  , batch  ,  4
+      SELECT              , select       , data   , 10
+      UPDATE              , update       , data   ,  9
+      VACUUM              , vacuum       , misc   ,  1
+
+   <help altertable>
+      //
+      //sql-statement ::= ALTER TABLE [database-name .] table-name alteration
+      //alteration    ::= RENAME TO new-table-name
+      //alteration    ::= ADD [COLUMN] column-def
+      //
+      //Examples:
+      //      ALTER TABLE @<THIS TABLE> RENAME TO @<THIS TABLE>_nova ;
+      //      ALTER TABLE @<THIS TABLE> ADD COLUMN nouCamp ;
+      //
+
+   <help analyze>
+      //
+      //sql-statement ::= ANALYZE
+      //sql-statement ::= ANALYZE database-name
+      //sql-statement ::= ANALYZE [database-name .] table-name
+      //
+      //Examples:
+      //      ANALYZE @<THIS TABLE> ;
+      //
+
+   <help attach>
+      //
+      //sql-statement ::= ATTACH [DATABASE] database-filename AS database-name
+      //
+      //Examples:
+      //      ATTACH secondDB AS atacha ;
+      //
+
+   <help transaction>
+      //
+      //sql-statement ::= BEGIN [ DEFERRED | IMMEDIATE | EXCLUSIVE ] [TRANSACTION [name]]
+      //sql-statement ::= END [TRANSACTION [name]]
+      //sql-statement ::= COMMIT [TRANSACTION [name]]
+      //sql-statement ::= ROLLBACK [TRANSACTION [name]]
+      //
+      //Examples:
+      //      BEGIN ; xtransaction ; COMMIT
+      //
+
+   <help comment>
+      //
+      //comment ::= SQL-comment | C-comment
+      //SQL-comment ::= -- single-line
+      //C-comment ::= /* multiple-lines [*/]
+      //
+      //Examples:
+      //      -- this is a commented line
+      //      /*
+      //         this is a commented block
+      //         more lines are permited
+      //      */
+      //
+
+   <help copy>
+      //
+      //sql-statement ::= COPY [ OR conflict-algorithm ] [database-name .] table-name FROM filename
+      //                  [ USING DELIMITERS delim ]
+      //
+      //Examples:
+      //      COPY @<THIS TABLE> FROM data.txt ;
+      //
+
+   <help createindex>
+      //
+      //sql-statement ::= CREATE [UNIQUE] INDEX [IF NOT EXISTS] [database-name .] index-name
+      //                  ON table-name ( column-name [, column-name]* )
+      //column-name   ::= name [ COLLATE collation-name] [ ASC | DESC ]
+      //
+      //Examples:
+      //      CREATE UNIQUE INDEX IF NOT EXISTS indexID ON @<THIS TABLE> (id) ;
+      //
+
+   <help createtable>
+      //
+      //sql-command       ::= CREATE [TEMP | TEMPORARY] TABLE [IF NOT EXISTS] [database-name .] table-name
+      //                      ( column-def [, column-def]* [, constraint]* )
+      //sql-command       ::= CREATE [TEMP | TEMPORARY] TABLE [database-name.] table-name AS select-statement
+      //column-def        ::= name [type] [[CONSTRAINT name] column-constraint]*
+      //type              ::= typename | typename ( number ) | typename ( number , number )
+      //column-constraint ::= NOT NULL [ conflict-clause ] |
+      //                      PRIMARY KEY [sort-order] [ conflict-clause ] [AUTOINCREMENT] |
+      //                      UNIQUE [ conflict-clause ] |
+      //                      CHECK ( expr ) |
+      //                      DEFAULT value |
+      //                      COLLATE collation-name
+      //constraint        ::= PRIMARY KEY ( column-list ) [ conflict-clause ] |
+      //                      UNIQUE ( column-list ) [ conflict-clause ] |
+      //                      CHECK ( expr )
+      //conflict-clause   ::= ON CONFLICT conflict-algorithm
+      //
+      //Examples:
+      //      CREATE TABLE novaTabla (id, name, others) ;
+      //      CREATE TABLE derivatedTabla AS SELECT * FROM @<THIS TABLE> ;
+      //
+
+   <help createtrigger>
+      //
+      //sql-statement ::= CREATE [TEMP | TEMPORARY] TRIGGER [IF NOT EXISTS] trigger-name [ BEFORE | AFTER ]
+      //                  database-event ON [database-name .] table-name
+      //                  trigger-action
+      //sql-statement ::= CREATE [TEMP | TEMPORARY] TRIGGER [IF NOT EXISTS] trigger-name INSTEAD OF
+      //                  database-event ON [database-name .] view-name
+      //                  trigger-action
+      //database-event ::= DELETE | INSERT | UPDATE | UPDATE OF column-list
+      //trigger-action ::= [ FOR EACH ROW | FOR EACH STATEMENT ] [ WHEN expression ]
+      //                   BEGIN
+      //                      trigger-step ; [ trigger-step ; ]*
+      //                   END
+      //trigger-step   ::= update-statement | insert-statement |
+      //                   delete-statement | select-statement
+      //
+
+   <help createview>
+      //
+      //sql-command ::= CREATE [TEMP | TEMPORARY] VIEW [IF NOT EXISTS] [database-name.] view-name AS select-statement
+      //
+
+   <help createvtab>
+      //sql-command ::= CREATE VIRTUAL TABLE [database-name .] table-name USING module-name [( arguments )]
+
+   <help delete>
+      //sql-statement ::= DELETE FROM [database-name .] table-name [WHERE expr]
+
+   <help detach>
+      //sql-command ::= DETACH [DATABASE] database-name
+
+   <help dropindex>
+      //sql-command ::= DROP INDEX [IF EXISTS] [database-name .] index-name
+
+   <help droptable>
+      //sql-command ::= DROP TABLE [IF EXISTS] [database-name.] table-name
+
+   <help droptrigger>
+      //sql-statement ::= DROP TRIGGER [IF EXISTS] [database-name .] trigger-name
+
+   <help dropview>
+      //sql-command ::= DROP VIEW [IF EXISTS] view-name
+
+   <help explain>
+      //sql-statement ::= EXPLAIN sql-statement
+
+   <help expr>
+      //expr ::= expr binary-op expr |
+      //            expr [NOT] like-op expr [ESCAPE expr] |
+      //            unary-op expr | ( expr ) |
+      //            column-name | table-name . column-name |
+      //            database-name . table-name . column-name |
+      //            literal-value |  parameter |
+      //            function-name ( expr-list | * ) |
+      //            expr ISNULL |
+      //            expr NOTNULL |
+      //            expr [NOT] BETWEEN expr AND expr |
+      //            expr [NOT] IN ( value-list ) |
+      //            expr [NOT] IN ( select-statement ) |
+      //            expr [NOT] IN [database-name .] table-name |
+      //            [EXISTS] ( select-statement ) |
+      //                     CASE [expr] ( WHEN expr THEN expr )+ [ELSE expr] END |
+      //                     CAST ( expr AS type ) |
+      //                     expr COLLATE collation-name
+      //
+      //   like-op ::= LIKE | GLOB | REGEXP | MATCH
+
+   <help insert>
+      //   sql-statement ::= INSERT [OR conflict-algorithm] INTO [database-name .] table-name [(column-list)] VALUES(value-list) |
+      //                     INSERT [OR conflict-algorithm] INTO [database-name .] table-name [(column-list)] select-statement
+
+   <help conflict>
+      //   conflict-clause    ::= ON CONFLICT conflict-algorithm
+      //   conflict-algorithm ::= ROLLBACK | ABORT | FAIL | IGNORE | REPLACE
+
+   <help pragma>
+      //   sql-statement ::= PRAGMA name [= value] |
+      //                     PRAGMA function(arg)
+
+   <help reindex>
+      //   sql-statement ::= REINDEX collation name
+      //   sql-statement ::= REINDEX [database-name .] table/index-name
+
+   <help replace>
+      //   sql-statement ::= REPLACE INTO [database-name .] table-name [( column-list )] VALUES ( value-list )
+      //   sql-statement ::= REPLACE INTO [database-name .] table-name [( column-list )] select-statement
+
+   <help select>
+      //   sql-statement  ::= SELECT [ALL | DISTINCT] result [FROM table-list]
+      //                      [WHERE expr]
+      //                      [GROUP BY expr-list]
+      //                      [HAVING expr]
+      //                      [compound-op select]*
+      //                      [ORDER BY sort-expr-list]
+      //                      [LIMIT integer [( OFFSET | , ) integer]]
+      //
+      //   result         ::= result-column [, result-column]*
+      //
+      //   result-column  ::= * | table-name . * | expr [ [AS] string ]
+      //   table-list     ::= table [join-op table join-args]*
+      //   table          ::= table-name [AS alias] | ( select ) [AS alias]
+      //   join-op        ::= , | [NATURAL] [LEFT | RIGHT | FULL] [OUTER | INNER | CROSS] JOIN
+      //   join-args      ::= [ON expr] [USING ( id-list )]
+      //   sort-expr-list ::= expr [sort-order] [, expr [sort-order]]*
+      //   sort-order     ::= [ COLLATE collation-name ] [ ASC | DESC ]
+      //   compound_op    ::= UNION | UNION ALL | INTERSECT | EXCEPT
+
+   <help update>
+      //   sql-statement ::= UPDATE [ OR conflict-algorithm ] [database-name .] table-name
+      //                     SET assignment [, assignment]*
+      //                     [WHERE expr]
+      //   assignment    ::= column-name = expr
+
+   <help vacuum>
+      //   sql-statement ::= VACUUM [index-or-table-name]
+

@@ -1,0 +1,103 @@
+- Features and new developement
+
+   - Calling and deploying
+
+         all in jar
+            - by library files are searched in jar (images, text files etc)
+            - MicroTool concept (unpack on demand)
+            - AutoStart concept (allow easily deploying applications in a jar)
+                autoStart.gast inserted in gastona.jar = new application (not anymore a script that depends on the installed gastona.jar version etc)
+            - script fusion concept (like include but with 3 kinds of merge)
+               allow localized customizations and changes without having to copy-paste
+
+   - Eva:
+
+         Uniform format for all script proposes and for more
+         allows rapid development creating relaxed structures that later can be "hardtyped" (or not)
+         load and save either from file or database
+
+   - Mensaka:
+         replacing the native java observer pattern, why ?
+
+         observable has to handle observers : it is not his task and nor his problem
+         interfaces to comply with the observer pattern are ardous and unflexible
+         observer has to reach the observable : difficult problem and hardly scalable
+
+         aproach:
+
+         simple synchronous messaging with suscription
+         data transmited via Eva Unit, very flexible and powerful
+            can be implemented with lack of interfaces but it can be "interfaced" as needed
+
+         cuasi blackboard data aproach (for widgets)
+         Messaging is used by widgets but can be used for any class-to-class communication
+
+   - DB
+
+         - SQL integrated transparently
+         - Easy database and table creation, making SQL useful for other tasks than only database apps
+         - Windowing transparentely all SQL select queries (application does not need LIMIT to be efficient)
+         - Table Connection schema concept (deep table, deep select)
+         - Default database and default Temporary database
+
+
+    - GUI
+
+         - EvaLayout manager
+         - new layout system with composition and relayouting concept (javaj) based on Eva structure
+         - widget decoupling concept (see Mensaka), allow powerful widgets combined with easy use
+         - Simplifyied and powerful table data model for many widgets
+           with the added feature SQL
+
+         specially powerful widgets:
+
+         - Asiste widget Search filter and sorting using sql internally
+         - Tree widget 1D aproach, facilitates creating trees with no effort plus having the
+           search, filter capabilities (SQL)
+              accepted limits:
+                  - no dynamic loading for big trees (but they can be filtered instead)
+                  - no folder data but only leaf data, still folders are selectables
+
+   - Listix engine
+
+         - Novel variable-procedure scripting concept with call-stack and loop table stack
+         - Easy and powerful loops and sub-loops (Variable table / SQL / SCAN FILES / TEXT FILES etc)
+         - Application caller and launcher
+         - Generation of text files, code, sqls, command line arguments etc is straighforward
+
+         specially powerful commands:
+
+         - SCAN FILES into db
+         - PARSE TEXT FILES using regular expressions into db
+         - PARSE XML into DB
+
+   - Java connection is total (indeed it was designed as a java development helper)
+
+      - dynamic class loader (but not de-loader :()
+      - "static void" and "static String" functions can be called directly
+      - to add new widget : a java class and declaring its name into the script
+      - to add new listix command: a class and loading it in the script
+      - controller: a class can be instanciated and react to messages or access the widgets directly
+
+   - Other programs and tools connection
+
+      - caller and parser can be used
+      - due to the powerful generator, it is possible to easily generate perl or whatever script and
+        call it
+      - eva format can be used as exange format with apps developed in other languages
+
+   - Log concept
+
+         - Log switchable to on by creating the folder "sessionLog" or by specifying the log folder in script
+         - Levels of messages: PANIC, FATAL, SEVERE, ERROR and 10 debug levels
+         - selectable per source and level activation of logs
+         - log on database (text file with sql inserts)
+         - basic general log (time stamp, etc) and custom logs (specific tables)
+         - generate database with extra schema (tables connected)
+         - total sql activity dumped
+         - call stack dumped on serious errors and listix and Mensaka stacks on normal errors
+         - optimized source info detection using reflection
+         - easy to use for the sources (java classes)
+
+         - not yet implemented, but from the data logged automatic session reports
+           and graphics (e.g. graphwiz) can be generated i.e. for message and logic execution flow, etc

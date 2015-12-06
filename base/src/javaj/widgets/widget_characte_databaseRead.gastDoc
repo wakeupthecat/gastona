@@ -1,0 +1,61 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_widget_General characteristics
+   <name>       database read
+   <groupInfo>
+   <javaClass>
+   <importance> 8
+   <desc>       //Capability of retrieving data from a database
+
+   <help>
+      //
+      //    Attributes: dbName, sqlSelect, sqlExtraFilter, sqlPrevious
+      //    Messages  :
+      //
+      //    When the attribute 'sqlSelect' is given then widget's data will be retrieved from a
+      //    database and using the query, for example
+      //
+      //          <tMyTable sqlSelect>
+      //                //SELECT name FROM tab_customers WHERE city = 'Barcelona'
+      //
+      //    If given 'dbName' is the database (a file name) to be used in the query, if not given or
+      //    given as empty string then the default database will be used. (EXPERIMENTAL: an undocumented
+      //    attribute 'dbName var' is implemented, if given the database name will be take for the
+      //    variable in this attribute).
+      //
+      //    Usually it is enough to specify these two attributes 'dbName' and 'sqlSelect', because a
+      //    SELECT SQL query might perform all kind of filters and order criterias. Anyway, there are
+      //    widget that accepts extra filter or order criteria from the user (e.g. zAsiste), these
+      //    widgets use the attribute 'sqlExtraFilter' to reflect this user criteria, for example
+      //
+      //          <tMyTable sqlExtraFilter>
+      //                //WHERE name >= 'G' ORDER BY name
+      //
+      //    'sqlExtraFilter' is like a half select query where the clauses WHERE, ORDER BY and LIMIT
+      //    are accepted. But note that this clauses still can be used within the attribute sqlSelect,
+      //    since 'sqlExtraFilter' will act over the whole 'sqlSelect'.
+      //
+<!//(o) TODO_previousSQL dbFeature (documented it when all tests ok)
+<!      //    Finally it is also possible to add some previous SQL statements that will be performed
+<!      //    before 'sqlSelect' and 'sqlExtraFilter' if given. This is done using the attribute
+<!      //    'sqlPrevious', this might be useful if working with more databases, for instance
+<!      //
+<!      //         <tMyTable sqlPrevious>
+<!      //             //ATTACH c:\myData\mySecond.db AS db2 ;
+<!      //
+<!      //    or whatever previous preparation is needed
+<!      //
+<!      //         <tMyTable sqlPrevious>
+<!      //             //CREATE TEMP TABLE tempSummary AS SELECT ...;
+<!      //
+
+#**FIN_EVA#
+
+*/

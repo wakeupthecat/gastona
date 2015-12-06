@@ -1,0 +1,152 @@
+#javaj#
+
+   <sysDefaultFonts>
+      <!Tahoma, 12, 1, *
+      Courier New, 12, 0, TextArea.font
+
+   <frames>
+      F      , Compare Directories, 600, 600
+      Fbatch , Batch
+
+   <layout of F>
+      EVA, 10, 10, 5, 5
+
+         ---, X           , X
+            , lDirLeft    , lDirRight
+          22, eDirLeft    , eDirRight
+            , botones     , -
+            , lSolEsquerra, lSolDereta
+          X , tSolEsquerra, tSolDereta
+            , lIguals     , lDiferents
+          X , tIguals     , tDiferents
+            ,             , bDiffFiles
+
+   <layout of botones>
+      EVA,,, 3, 3
+
+      ---,             , X       , X
+         , kDontUseDate, bCompare, bGenBatch
+
+   <layout of Fbatch>
+      EVA, 8, 8, 3, 3
+
+      ---, X
+       X , xBatch
+
+#data#
+
+   <eDirLeft>
+   <eDirRight>
+
+   <kDontUseDate> Do not use date to determine identic files
+   <kDontUseDate selected> 0
+
+   <tDiferents visibleColumns> subPath
+   <tIguals visibleColumns> subPath
+   <tSolEsquerra visibleColumns> subPath
+   <tSolDereta visibleColumns> subPath
+
+
+#listix#
+
+   <-- bGenBatch>
+      GEN, @<tmp1>, generateBatch
+      SETVAR, xBatch fileName, @<tmp1>
+      MSG, xBatch load
+      MSG, Fbatch show
+
+
+   <-- tDiferents>
+      -->, bDiffFiles, enabled, 1
+
+   <-- bDiffFiles>
+      CHECK, VAR, tool diffFiles, @<tool Diff required>
+      CHECK, VAR, tDiferents selected.subPath, -->, bDiffFiles, enabled, 0
+      LAUNCH, //@<tool diffFiles> "@<eDirRight>\@<tDiferents selected.subPath>" "@<eDirLeft>\@<tDiferents selected.subPath>"
+
+   <tool Diff required>
+      BOX, I, //Requires <tool diffFiles>, if you have such a tool in your machine installed, just give it in @<:sys user.home>\.gastonaLocal file
+
+   <-- kDontUseDate>
+      @<updateIgualsAndDiff>
+
+   <dateComma> IF, @<kDontUseDate selected>, =, 0, //date,
+
+   <db> ""
+
+   <main0>
+      SET VAR, tmp1, @<:lsx newTempFile>
+      LOAD, data, @<:sys user.home>/.gastonaLocal
+
+      CHECK, VAR, p1
+      SETVAR, eDirLeft, @<p1>
+
+      CHECK, VAR, p2
+      SETVAR, eDirRight, @<p2>
+
+      <! dir given, Launch comparation
+      @<do compare dirs>
+
+   <-- bCompare>
+      @<do compare dirs>
+
+   <do compare dirs>
+      DATABASE, @<db>, EXECUTE, //DELETE FROM left_files;
+      DATABASE, @<db>, EXECUTE, //DELETE FROM right_files;
+      SCAN, ADDFILES, @<db>, @<eDirLeft>
+          , PREFIX  , "left"
+
+      SCAN, ADDFILES,@<db>, @<eDirRight>
+          , PREFIX  , "right"
+
+      @<updateIgualsAndDiff>
+
+      -->, tSolEsquerra, sqlSelect, @<sql OnlyLeftFiles>
+      -->, tSolDereta  , sqlSelect, @<sql OnlyRightFiles>
+
+   <generateBatch>
+      //ECHO ONLY LEFT FILES (copy them to right)
+      //ECHO =====================================
+      //
+      LOOP, SQL,, @<sql OnlyLeftFiles>
+      //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
+      =,,
+      //
+      //
+      //ECHO ONLY RIGHT FILES (delete them from right side)
+      //ECHO ================================================
+      //
+      LOOP, SQL,, @<sql OnlyRightFiles>
+      //DEL "@<eDirRight>\@<subPath>"
+      =,,
+      //
+      //
+      //ECHO DIFFERENT FILES (copy them to right)
+      //ECHO ====================================
+      //
+      LOOP, SQL,, @<sql DifferentFiles>
+      //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
+      =,,
+      //
+      //
+      //ECHO IDENTIC FILES (delete from left)
+      //ECHO ====================================
+      //
+      LOOP, SQL,, @<sql SameFiles>
+      //DEL "@<eDirLeft>\@<subPath>"
+      =,,
+
+
+   <updateIgualsAndDiff>
+      -->, tIguals     , sqlSelect, @<sql SameFiles>
+      -->, tDiferents  , sqlSelect, @<sql DifferentFiles>
+
+   <sql OnlyLeftFiles>  //SELECT subPath FROM left_all EXCEPT SELECT subPath FROM right_all
+   <sql OnlyRightFiles> //SELECT subPath FROM right_all EXCEPT SELECT subPath FROM left_all
+   <sql SameFiles>      //SELECT subPath FROM (@<IDENTIC FILES>)
+   <sql DifferentFiles> //SELECT subPath FROM (@<COMMON FILES>) EXCEPT SELECT subPath FROM (@<IDENTIC FILES>)
+
+   <IDENTIC FILES> //SELECT subPath, @<dateComma> size FROM left_all INTERSECT SELECT subPath, @<dateComma> size FROM right_all
+   <COMMON FILES>  //SELECT subPath FROM left_all INTERSECT SELECT subPath FROM right_all
+
+#**#

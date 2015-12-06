@@ -1,0 +1,227 @@
+#javaj#
+
+   <frames>
+      fmain, DEDICA 2011
+      fchooseProject, Choose chapter
+
+   <layout of fmain>
+      EVA, 7, 7, 4, 4
+
+         ,         ,   , X
+         , project,-,-
+         , startend, hActivity, hStatus
+         , contact, -, -
+         , lAnnotation title, -, -
+         , eAnotaTitle, -, -
+         , lAnnotation description, -, -
+      X  , xAnotaDesc, -, -
+         , ,, saveButtons
+
+   <layout of project>
+      EVA, 7, 7, 11, 3
+
+         ,          , X      ,          , X      ,             , X
+         , lProject , eProjID, lChapter, eChapID, lSub chapter, eSubChapID, bChoose
+
+
+   <layout of startend>
+      EVA, 7, 7, 6, 3
+
+         ,          , 150
+         , lStart   , eStartStamp
+         , lEnd     , eEndStamp
+         , lReference,
+         , cRefType , eRefValue
+
+   <layout of contact>
+      EVA, 7, 7, 6, 3
+
+         ,               ,            , X
+         , lTogether with, cContactType, eContactValue
+
+   <layout of saveButtons>
+      EVALAYOUT, 6, 6, 4, 4
+
+         ,
+         , bSave & Exit, bSave & Start, bCancel
+
+   <layout of fchooseProject>
+      EVA, 7, 7, 4, 4
+
+         ,     X
+       X , sProjGrid
+
+
+#data#
+
+   <hActivity>
+      value, label
+        A  , Analysis
+        D  , Development
+        W  , Write Documentation
+        T  , Tests
+        B  , Bug Analysis
+
+
+   <hStatus>
+      value, label
+
+         0 , Annotation
+         1 , Documentation
+         2 , Todo openned
+         3 , Todo on analysis
+         4 , Todo on development
+         5 , Todo done
+         6 , Todo closed
+
+   <cRefType>
+      refId, name
+      0    , Ticket Nr
+      1    , Work package
+      2    , Doors
+      3    , Other
+
+   <cContactType>
+      conId, name
+      0    , none
+      1    , Telephone
+      2    , Telko
+      3    , Meeting
+      4    , Visit
+
+
+   <sql create db>
+      //CREATE TABLE IF NOT EXISTS tAnota    (anotaId INTEGER PRIMARY KEY AUTOINCREMENT, user, dateStart, dateEnd, timeSeconds, projID, chapID, subChapID, refType, refValue, activityType, status, contactType, contactValue, title, desc);
+
+#listix#
+
+   <-- javaj exit>
+      DUMP, data, @<:sys user.home>\dedica_lastpos.eva, fmain posX, fmain posY, fmain sizeX, fmain sizeY, fchooseProject posX, fchooseProject posY, fchooseProject sizeX, fchooseProject sizeY, eProjID, eChapID, eSubChapID
+
+
+   <-- bChoose>
+      MESSAGE, fchooseProject show
+      -->, sProjGrid, sqlSelect, //SELECT projID, chapID, subChapID FROM tAnota WHERE user='@<eUser>' GROUP BY projID, chapID, subChapID ORDER BY projID, chapID, subChapID
+
+   <-- sProjGrid 2>
+      -->, eProjID,, @<sProjGrid selected.projID>
+      -->, eChapID,, @<sProjGrid selected.chapID>
+      -->, eSubChapID,, @<sProjGrid selected.subChapID>
+
+      MESSAGE, fchooseProject hide
+
+   <main0>
+      LOAD, data, @<:sys user.home>\dedica_lastpos.eva
+      SETPROP, gastona.defaultDB, dedica_v3.db
+      VAR=, xAnotaDesc fileName, @<:lsx tmp txt>
+
+   <main>
+      -->, eUser,, @<:sys user.name>
+      LSX, check db
+      LSX, start or end
+
+   <check db>
+      CHECK, FILE, @<:sys gastona.defaultDB>, LSX, create new DB
+
+   <create new DB>
+      DB,, EXECUTE, @<sql create db>
+
+   <start or end>
+      VAR=, IS NEW, 1
+      VAR=, eStartStamp, ""
+      LOOP, SQL,, //SELECT * FROM tAnota WHERE LENGTH (dateEnd) = 0
+          ,, LSX, load record
+
+      IN CASE, @<eStartStamp>,
+             , "" , VAR=, IS NEW, 1
+             , ELSE, VAR=, IS NEW, 0
+
+      VAR=, REF DATE, @<eStartStamp>
+
+      IN CASE, @<IS NEW>
+             , 0, -->, eEndStamp,, @<:lsx date1>
+             , 1, LSX, load default record
+
+   <load default record>
+      -->, eStartStamp,, @<:lsx date1>
+      -->, eEndStamp,, ""
+      VAR=, cRefType selectedIndices, index
+      VAR+, cRefType selectedIndices, 3
+      MSG, cRefType data!
+      -->, eRefValue,, ""
+      VAR=, cContactType selectedIndices, index
+      VAR+, cContactType selectedIndices, 0
+      MSG, cContactType data!
+      -->, eContactValue,, ""
+      -->, eAnotaTitle,, ""
+
+      GEN, @<xAnotaDesc fileName>, ""
+      MSG, xAnotaDesc load
+
+      -->, rDevelopment, selected, 1
+      -->, rAnnotation, selected, 1
+
+   <load record>
+      -->, eProjID,, @<projID>
+      -->, eChapID,, @<chapID>
+      -->, eSubChapID,, @<subChapID>
+      -->, eStartStamp,, @<dateStart>
+      -->, eEndStamp,, @<dateStart>
+      VAR=, cRefType selectedIndices, index
+      VAR+, cRefType selectedIndices, @<refType>
+      MSG, cRefType data!
+      -->, eRefValue,, @<refValue>
+      VAR=, cContactType selectedIndices, index
+      VAR+, cContactType selectedIndices, @<contactType>
+      MSG, cContactType data!
+      -->, eContactValue,, @<contactValue>
+      -->, eAnotaTitle,, @<title>
+
+      GEN, @<xAnotaDesc fileName>, description AsText
+      MSG, xAnotaDesc load
+      MSG, xAnotaDesc data!
+
+      IN CASE, @<activityType>
+             , A, msg, hActivity select!, #, 0
+             , D, msg, hActivity select!, #, 1
+             , W, msg, hActivity select!, #, 2
+             , T, msg, hActivity select!, #, 3
+             , B, msg, hActivity select!, #, 4
+             , ELSE, msg, hActivity select!, #, 5
+
+      msg, hStatus select!, #, @<status>
+
+	<description AsText>
+	   STRCONV, STRE-TEXT, desc
+
+   <save data>
+      INCASE, @<IS NEW>
+           , 0, DB,, EXECUTE, //UPDATE tAnota SET dateStart='@<eStartStamp>', dateEnd='@<eEndStamp>', timeSeconds=@<calc seconds>, projID='@<eProjID>', chapID='@<eChapID>', subChapID='@<eSubChapID>', refType='@<cRefType selected.refId>', refValue='@<eRefValue>', activityType='@<hActivity select.value>', status='@<hStatus selected.value>', contactType='@<cContactType selected.conId>', contactValue='@<eContactValue>', title='@<eAnotaTitle>', desc='@<description4db>' WHERE dateStart == '@<REF DATE>';
+           , 1, DB,, EXECUTE, //INSERT INTO tAnota (user, dateStart, dateEnd, timeSeconds, projID, chapID, subChapID, refType, refValue, activityType, status, contactType, contactValue, title, desc) VALUES ('@<eUser>', '@<eStartStamp>', '@<eEndStamp>', 0, '@<eProjID>', '@<eChapID>', '@<eSubChapID>', '@<cRefType selected.refId>', '@<eRefValue>', '@<hActivity select.value>', '@<hStatus selected.value>', '@<cContactType selected.conId>', '@<eContactValue>', '@<eAnotaTitle>', '@<description4db>');
+
+
+   <startMillis> STRCONV, DATE-LONG, @<eStartStamp>
+   <endMillis> STRCONV, DATE-LONG, @<eEndStamp>
+
+   <calc seconds> =, int((endMillis - startMillis) / 1000)
+
+
+   <description4db>
+      STRCONV, TEXT-STR, xAnotaDesc
+
+   <-- bSave & Exit>
+      LSX, save data
+      msg, javaj doExit
+
+
+   <-- bSave & Start>
+      LSX, save data
+      LSX, start or end
+
+
+   <-- bCancel>
+      msg, javaj doExit
+
+
+
+ #**#

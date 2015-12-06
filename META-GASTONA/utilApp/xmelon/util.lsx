@@ -1,0 +1,98 @@
+#documentation#
+
+   <help>
+      //   LSX module     : META-GASTONA/utilApp/xmelon/util.lsx
+      //   Last change on : 03.03.2010 19:33
+      //
+      //   Variables
+      //
+      //      "XMELON_PREFIX"
+      //         Prefix of the xmelon tables, default is "xmelon"
+      //
+      //      "BREAK_LINE"
+      //         Break line text for the resulting SQLs, default is empty string
+      //
+      //      "DBNAME"
+      //         Database name where the XMeLon tables are to be found, default is "" (property gastona.defaultDB)
+      //
+      //   Main functions (listix variable-procedures)
+      //
+      //      "SQL PATH ASSOCIATED FIELDS"
+      //         Returns the sql for the all fields associated with all paths
+      //
+      //      "SQL PATH ASSOCIATED FIELDS (pathID)"
+      //         Returns the sql that gives all fields associated with the path given by ID (pathID) in the column tag_tagStr
+      //
+      //      "SQL PATH ASSOCIATED FIELDS (pathStr)"
+      //         Returns the sql that gives all fields associated with the path given by name (pathStr) in the column tag_tagStr
+      //
+      //      "SQL FOR PATH (pathStr)"
+      //         Returns the sql that builds the table of the path given by name (pathStr)
+      //
+      //      "SQL FOR PATH (pathID)"
+      //         Returns the sql that builds the table of the path given by ID (pathID)
+      //
+      //   Example
+      //
+      //      GENERATE,, SQL FOR PATH (pathStr), listix, META-GASTONA/utilApp/xmelon/util.lsx
+      //              , PARAMS, /Document/myPath
+      //              , SET VAR DATA, DBNAME, mydatabase.db
+
+
+#listix#
+
+   <XMELON_PREFIX> xmelon
+   <BREAK_LINE> ""
+   <DBNAME> ""
+
+
+   <SQL calc_PathTag>     //SELECT patID,tagID,count(*) AS ncount FROM @<XMELON_PREFIX>_data GROUP BY patID,tagID ORDER BY ncount DESC
+   <SQL calc_mainTables>  //SELECT patID, COUNT(tagID) AS maxCampos, MAX(ncount) AS maxRec FROM @<SQL calc_PathTag> GROUP BY patID ORDER BY maxRec DESC
+   <SQL calc_AllFields>   //SELECT tagID, COUNT(patID) AS nTables, MAX(ncount) AS maxRec FROM @<SQL calc_PathTag> GROUP BY tagID ORDER BY maxRec DESC
+
+   <GET PATHID (pathStr)>
+      LOOP, SQL, @<DBNAME>, //SELECT  pathStr, patID FROM @<XMELON_PREFIX>_pathDef WHERE pathStr = '@<p1>' LIMIT 1
+      @<patID>
+
+
+   <SQL PATH ASSOCIATED FIELDS>
+      //SELECT calc_PathTag.patID AS patID, calc_PathTag.tagID AS tagID, calc_PathTag_tag.tagStr AS tag_tagStr FROM (@<SQL calc_PathTag>) AS calc_PathTag, @<XMELON_PREFIX>_tagDef AS calc_PathTag_tag WHERE  calc_PathTag.tagID == calc_PathTag_tag.tagID
+
+
+   <SQL FOR PATH (pathStr)>
+      LISTIX, SQL FOR PATH (pathID), @<PATHID OF p1>
+
+
+   <PATHID OF p1>
+      LISTIX, GET PATHID (pathStr), @<p1>
+
+
+   <SQL FOR PATH (pathID)>
+      //SELECT fileID, patID, patCnt, parentPatCnt,@<BREAK_LINE>
+      LOOP, SQL, @<DBNAME>, //@<SQL PATH ASSOCIATED FIELDS p1>
+          , LINK, ", @<BREAK_LINE>"
+      // MAX(SUBSTR(value, 1, LENGTH(value)*(tagID='@<tagID>'))) AS c_@<tag_tagStr>
+      ,,
+      // @<BREAK_LINE>FROM @<XMELON_PREFIX>_data @<BREAK_LINE>WHERE patID = @<p1> @<BREAK_LINE>GROUP BY fileID, patID, patCnt
+
+      <! NOTE: "GROUP BY fileID, patID, patCnt, parentPatCnt" would also work but it is a little bit slower than
+      <!       "GROUP BY fileID, patID, patCnt" and since per construction patCnt has always the same parentPatCnt
+      <!       it should not be any difference in the result
+
+
+   <SQL PATH ASSOCIATED FIELDS p1>
+      LISTIX, SQL PATH ASSOCIATED FIELDS (pathID), @<p1>
+
+
+   <SQL PATH ASSOCIATED FIELDS (pathStr)>
+      LISTIX, SQL PATH ASSOCIATED FIELDS (pathID), @<PATHID OF p1>
+
+
+   <SQL PATH ASSOCIATED FIELDS (pathID)>
+      //SELECT * FROM (@<SQL PATH ASSOCIATED FIELDS>) WHERE patID == '@<p1>'
+
+
+#**#
+
+
+

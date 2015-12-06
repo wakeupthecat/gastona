@@ -1,0 +1,110 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    gastona
+   <name>       " 1-Motivation"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //Motivation
+
+   <help>
+      //
+      // --- To program or not to program, that is the question. ---
+      //
+      // The development of Graphic User Interface applications (GUI) using languages like C, C++ or java
+      // are, in general arduous and the final results are, since they are compiled languages, quite
+      // unflexible. Furthermore most of the times the code needed is quite repetitive by always using
+      // the same mechanics (e.g. fill this list, get that selected value etc). As a matter of fact,
+      // many typical GUI requirements are expressed easily using few words, making it hard to believe
+      // that its realization can take so much effort. The idea of using an appropiate scripting language
+      // for this type of development is not new (e.g. Tcl-Tk).
+      //
+      // Other scripting languages like Perl or Phyton have also demonstrated the weakness of these compiled
+      // languages in tasks like parsing, text or report generation and batch processing which are needed
+      // very often in applications and tools.
+      //
+      // Yet another kind of language, SQL, solves in a natural way many typical tasks that a GUI application
+      // might need like sorting lists, searching items, filtering and many other problematics which solution
+      // in an algorithmic way result expensive in all senses. But it seems to be reserved for purely
+      // database applications because its implementation is, in general, again ardous. The reason for
+      // these difficulties lies not, for sure, in the SQL as language.
+      //
+      // The approach of Gastona is not to be a complete language but to cover the gaps mentioned
+      // through a mini-script language, but still having the possibility to program functionality
+      // in another language when this appears to be the best choice. In other words, just program
+      // what has to be programmed and use for the rest configuration, scripting and SQL.
+      //
+      // Using Gastona many applications can be developed without programming a solely line of
+      // code in java. For example this WelcomeGastona including the generation of the documentation
+      // has been made using only Gastona scripts.
+      //
+      // Anyway, learning a new language needs always some effort, it has to be a good reason to do
+      // that. I sincerely belive that developing with Gastona has reached a very acceptable Feature/Effort
+      // ratio and not less important, not requiring at all a high and specialized programming level.
+      // Hopefully it helps to demistify the GUI development and the SQL language making them
+      // closer to so many people that know what they want from an application but that, for any reason,
+      // cannot achieve its development.
+      //
+
+   <examples>
+      gastSample
+
+      Gastona Motivation
+
+   <Gastona Motivation>
+      //#javaj#
+      //
+      //   <frames>
+      //      Fmain, Gastona Motivation, 300, 400
+      //
+      //   <layout of Fmain>
+      //      EVALAYOUT, 15, 15, 5, 5
+      //
+      //      (grid),     X      ,        X
+      //            , bTo program, bNot to program
+      //         X  , oConsole   ,        -
+      //
+      //#listix#
+      //
+      //   <-- bTo program>
+      //      MSG, oConsole clear
+      //      //
+      //      // Compiler +
+      //      // complex IDE +
+      //      // GUI Editor +
+      //      // Database installation +
+      //      // Configuration +
+      //      // Administration +
+      //      // start/stop server +
+      //      // learn complex APIs +
+      //      // Report generator +
+      //      // source generator +
+      //      // ... other generators +
+      //      // books +
+      //      // licenses ? +
+      //      // hours +
+      //      // more hours ..
+      //      //
+      //
+      //   <-- bNot to program>
+      //      MSG, oConsole clear
+      //      //
+      //      // Gastona in less than 1 MB
+      //      // (including sqlite!)
+      //      //
+      //      // done. ;)
+      //      //
+
+
+
+
+#**FIN_EVA#
+
+*/

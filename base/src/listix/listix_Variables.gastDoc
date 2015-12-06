@@ -1,0 +1,161 @@
+/*
+   //(o) WelcomeGastona_source_javaj_layout EVALAYOUT
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    listix
+   <name>       " Primitive variables"
+   <groupInfo>
+   <javaClass>  listix.listix
+   <importance> 6
+   <desc>       //Listix primitive variables
+
+   <help>
+      //
+      //   Listix primitive variables are a special set of read only variables
+      //   which contents might change on each use of it. The prupose of this variables
+      //   is to provide System or internal information.
+      //
+      //   The variables start either with ":sys" or ":listix", while ":lsx" is accepted
+      //   as synonym of ":listix". Here are described all existent listix primitive variables.
+      //
+      //      @<:sys javaProperty>
+      //
+      //         Returns the value of the java property 'javaProperty', see java documentation
+      //         of java.util.Properties for more information about java Properties.
+      //
+      //         Example:
+      //
+      //            //user @<:sys user.name> has the home directory @<:sys user.home>
+      //
+      //         Since property "user.name" is the current user and "user.home" the user home directory.
+      //
+      //
+      //      @<:lsx DATE [pattern]>
+      //
+      //          Returns the current date and time using the pattern if given, if not
+      //          the default pattern is "dd.MM.yyyy hh:mm".
+      //          See documentation of java class java.text.SimpleDateFormat for more information
+      //          about Date patterns.
+      //          Three typical standard patterns for use in datatabases are facilitated with a number
+      //          after date:
+      //
+      //           date0 for the pattern "yyyy-MM-dd"
+      //           date1 for the pattern "yyyy-MM-dd HH:mm:ss"
+      //           date2 for the pattern "yyyy-MM-dd HH:mm:ss S"
+      //
+      //          Example:
+      //            //today is @<:lsx date>, specifically @<:lsx date2>
+      //
+      //      @<:lsx TMP [extension]>
+      //
+      //          Creates and returns the path name of a temporary file with the given extension.
+      //          The normal use of this variable is with the command SET VAR to set the returned
+      //          name in an own variable.
+      //
+      //          Example:
+      //            SET VAR, myTempHtml, @<:lsx TMP html>
+      //
+      //      @<:lsx defaultTmpDB>
+      //
+      //         Returns the default temporary database used by Listix as full path. The only act of
+      //         invoquing this variable ensures that the database exists since it will be created if
+      //         not already done. Each Listix generation, that is the main Listix or when calling the
+      //         commands GENERATE or LISTIX, might use if needed a temporary database. This database
+      //         is used on commands related with databases where the database name is not given
+      //         (empty string). Note that each call to GENERATE or LISTIX might create a different
+      //         default database.
+      //
+      //      @<:lsx host name>
+      //
+      //         Returns the host name
+      //
+      //      @<:lsx host nameupper>
+      //
+      //         Returns the host name in upper case
+      //
+      //      @<:lsx host ip>
+      //
+      //         Returns the host IP address
+      //
+      //      @<:lsx ROWS>
+      //
+      //         Returns the total count of rows of the current active loop (see LOOP, an RUN LOOP
+      //         commnads).
+      //
+      //      @<:lsx ROW>
+      //
+      //         Returns the current row (starting by 0) of the current active loop (see LOOP, an RUN LOOP commnads).
+      //
+      //      @<:lsx FIRSTROW>
+      //
+      //         Returns 1 if @<:lsx ROW> is the first one (0)
+      //
+      //      @<:lsx LASTROW>
+      //
+      //         Returns 1 if @<:lsx ROW> is the last one (@<:lsx ROWS> - 1)
+      //
+      //      @<:lsx paramcount>
+      //
+      //         Returns the current number of parameters of either the main call (command
+      //         line call of gastona) or the most recent call to LISTIX or GENERATE with parameters.
+      //
+      //      @<:lsx screenX>
+      //
+      //         Returns the width in pixels of the whole screen
+      //
+      //      @<:lsx screenY>
+      //
+      //         Returns the height in pixels of the whole screen
+      //
+
+   <examples>
+      gastSample
+
+      example listix primitives
+
+   <example listix primitives>
+      //#javaj#
+      //
+      //   <frames>
+      //      F, "example listix primitives"
+      //
+      //   <layout of F>
+      //      EVA, 10, 10, 6, 6
+      //
+      //        , X
+      //      X , oConsole
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      //
+      //      // lsx primitives sample
+      //      //
+      //      //
+      //      LOOP, EVA, primitivas
+      //      // @<desc> : [@<var>]
+      //
+      //   <primitivas>
+      //      desc                                , var
+      //      number of rows in the current table , @<:lsx ROWS>
+      //      current row of the current table    , @<:lsx ROW>
+      //      default lsx current date            , @<:lsx date>
+      //      standard 0 current date             , @<:lsx date0>
+      //      standard 1 current date             , @<:lsx date1>
+      //      standard 2 current date             , @<:lsx date2>
+      //      formated date                       , //@<:lsx date h 'o''clock' a, zzzz>
+      //      system property user                , @<:sys user.name>
+      //      system property home                , @<:sys user.home>
+      //      system current directory            , @<:sys user.dir>
+      //      system property temp dir            , @<:sys java.io.tmpdir>
+      //      system property file separator      , @<:sys file.separator>
+
+
+#**FIN_EVA#
+
+*/

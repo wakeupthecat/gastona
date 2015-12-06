@@ -1,0 +1,65 @@
+#javaj#
+
+   <frames>
+      FdirMe, Dir Me, 700, 500
+
+   <sysDefaultFonts>
+      Tahoma, 11, 1, *
+      Courier New, 13, 0, TextArea.font
+
+   <layout of FdirMe>
+      EVA, 10, 10, 7, 7
+
+      ---,  X
+         , carta
+         , lDirectorios escaneados
+         , layRoots
+       X , layFiles
+
+
+   <layout of carta>
+      MENU,
+
+<!      File, Scan new dir, menScanNewDir
+      File, Rescan dir  , menRescanDir
+      File, Remove scanned dir, menDelScanDir
+
+      Grupos, No Groupos                 , menLayNoGroups
+      Grupos, Groupos I (Ext Fecha Dir)  , menLayGroups
+      Grupos, Groupos II (Sospechosos)   , menLayGroupSame
+
+
+
+
+#listix#
+
+   <-- menRscanDir>   //@<-- bRescanDir>
+   <-- menDelScanDir> //@<-- bRemoveDir>
+
+   <-- menLayNoGroups>
+      JAVAJ, MASK, layFiles
+      MSG, DEACTIVATE GROUP SAME
+      MSG, DEACTIVATE GROUPS
+      @<refresh sFiles>
+
+   <-- menLayGroups>
+      MSG, DEACTIVATE GROUP SAME
+      MSG, ACTIVATE GROUPS
+
+   <-- menLayGroupSame>
+      MSG, DEACTIVATE GROUPS
+      MSG, ACTIVATE GROUP SAME
+
+
+   <main0>
+      SET PROP, gastona.defaultDB, data/dirme.db
+      LOAD, data, cache/lastData.txt
+      CHECK, FILE, data/dirme.db, GENERATE, data/dirme.db, void
+
+   <void>
+
+   <-- javaj exit>
+      DUMP, data, cache/lastData.txt
+
+#**#
+

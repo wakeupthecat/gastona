@@ -1,0 +1,37 @@
+/*
+   //(o) WelcomeGastona_source_javaj_variables sysDefaultFonts
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_ variables
+   <name>       layout of
+   <groupInfo>
+   <javaClass>
+   <importance> 9
+   <desc>       //To declare a layout or container
+
+   <help>
+      //
+      //  Variable to declare a layout or container. Many layouts can contain widgets as well as other
+      //  layouts (layout composition). The way this are declared as well as the way these components
+      //  are arranged is layout type dependent (see documentation of each layout).
+      //  The most flexible layout type is EVALAYOUT and other important ones are MENU, RADIO and TABBED.
+      //
+      //  Syntax:
+      //
+      //    <layout of CONTAINERNAME>
+      //       LAYOUT_TYPE, .... layout type dependent ....
+      //       .... layout type dependent ....
+      //       .... layout type dependent ....
+      //
+      //
+
+   <examples>
+      gastSample
+
+#** FIN_EVA#
+*/

@@ -1,0 +1,79 @@
+#data#
+
+#listix#
+
+   <print schema>
+      LSX, print schema (db), ""
+
+   <print schema (db)>
+      SETVAR, theDB, @<p1>
+      DB, @<theDB>, SCHEMA, theschema
+
+      //=================== Schema (short form) from @<theDB>
+      //
+      //
+      LSX, print short (schema), theschema
+      //
+      //
+      //=================== Schema (long form) from @<theDB>
+      //
+      //
+      LSX, print long (schema), theschema
+
+   <print short (schema)>
+      LOOP, EVA, theschema
+      @<oneTable1>
+      =,,
+
+   <print long (schema)>
+      LOOP, EVA, theschema
+      @<oneTable2>
+
+   <oneTable1>
+      @<tabType> @<tableName>  (
+      RUN LOOP,,
+            , WHILE, id
+            , LINK, ", "
+      @<columnName>
+      =,,
+      //)
+
+   <oneTable2>
+      //@<tabType> @<tableName> :
+      //
+      //@<see connections>
+      RUN LOOP,,
+            , WHILE, id
+      //   @<columnName>,
+      =,,
+      //
+      //
+
+
+   <! acording to field names
+   <!     __dbMore_connections (connName, sourceTable, sourceKey, targetTable, targetKey)
+   <!
+
+
+   <see connections>
+      <! store "tableName" separately because now it will be masked by the next loop!
+      SETVAR, theTableName, @<tableName>
+
+      <! loop of 1 to know if "__dbMore_connections" is there
+      LOOP, EVA, theschema
+          , FILTER, tableName, ==, __dbMore_connections
+          , FILTER, columnName, ==, connName
+      @<print connections>
+
+   <print connections>
+      LOOP, SQL, @<theDB>, //SELECT * FROM __dbMore_connections WHERE sourceTable = '@<theTableName>'
+      //   o--o Connection [@<connName>] to table [@<targetTable>] through (@<keys connection>)
+      =,,
+      //
+      //
+
+   <keys connection>
+      RUN LOOP,,
+            , WHILE, sourceTable
+            , LINK, ", "
+      //@<sourceKey>

@@ -1,0 +1,146 @@
+#javaj#
+
+   <frames>
+      FF, ARCess v0.3, 920, 650
+
+   <sysDefaultFonts>
+      Tahoma, 11, 1, *
+      Courier New, 14, 0, TextArea.font
+
+   <layout of FF>
+      EVA, 5, 5, 5, 5
+
+        RRR,   A    ,  X
+           , carta  ,  -
+         A , cabeza ,  -
+         10,
+         X , esplata, -
+
+   <layout of esplata>
+      SPLIT, X, framilia
+
+      ristra, tabas
+
+   <layout of cabeza>
+      EVA, 0, 0, 5, 5
+
+       ZZZ,   A           ,   X      ,     A       ,  A
+        22,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
+        22,  lSQLQuery    , eSQLQuery,  bRun       ,   +
+
+   <layout of tabas>
+      TABBED,
+
+      Table view, sTabala
+      Sql Assit , sqlAssist
+
+   <layout of ristra>
+      EVA
+
+        ZZZ, 100, X,
+         22, lTablas, -
+         X , sLasTablas, -
+          5,
+         22, lColumns    , -
+         X , aDeepColumns, -
+          5,
+         22, lListados, -
+         X , iDiscard , -
+          5,
+
+   <layout of carta>
+    MENU,
+
+      File, Open,        menuOpenFile
+      File, Exit,        menuExit
+
+
+   <MessageToMessage>
+
+      _lib db.sqlite.callStart             , gLuces L12
+      _lib db.sqlite.callEnd               , gLuces L11
+      _lib db.sqlite.callError             , gLuces L13
+
+    <sysDefaultImages>
+         javaj/img/column.gif, Tree.leafIcon
+         javaj/img/table.gif, Tree.rootIcon, Tree.secondRootIcon
+         javaj/img/tableconnection.gif, Tree.openIcon, Tree.closedIcon
+
+#data#
+
+   <aDeepColumns rootTitle> Deep columns
+   <aDeepColumns var> theDBDeepSchema
+   <aDeepColumns separator> " "
+
+   <!<aDeepColumns baseIcons>
+   <!<aTree baseIcons> A:/java/src/javaj/img/
+   <!<aTree endIcons> ""
+
+   <!<aDeepColumns folderIcons> book.png, table.gif, column.gif
+
+   <eDBName>
+
+   <theDBDeepSchema>
+
+   <bChooseFile>     Selec...
+   <bSave>           Salvar
+   <bRevert>         Revertir
+   <bRun>            Run
+
+   <bChooseFile Dialog> FILE
+
+   <bClear>          Clear
+
+#listix#
+
+   <main>
+      @<evaluateArguments>
+
+   <-- menuExit>
+      MSG, javaj doExit
+
+   <evaluateArguments>
+      IN CASE, @<:sys gastona.argumentCount>
+             , 0    , -->, eDBName,, ""
+             , ELSE , -->, eDBName,, @<p1>
+      @<update mainDatabase>
+
+
+   <sql tablas> //SELECT type,name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT name LIKE 'sqlite%'
+   <! AND NOT name LIKE "__dbMore%";
+
+   <update mainDatabase>
+      CHECK, !=, @<eDBName>, ""
+      SET PROP, gastona.defaultDB, @<eDBName>
+      -->, sLasTablas, sqlSelect, //@<sql tablas>
+      MSG, HAVE DB
+
+   <-- HAVE SCHEMA>
+		DBMORE, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
+      MSG, aDeepColumns data!
+
+   <-- bChooseFile droppedFiles>
+      SET TABLE, EVA, bChooseFile droppedFiles
+      //@<addBDNameFromDropped>
+      =,,
+      //@<-- eDBName>
+
+   <addBDNameFromDropped>
+      -->, eDBName,, @<fullPath>
+
+   <-- bChooseFile>
+      -->, eDBName,, @<bChooseFile chosen>
+      //@<-- eDBName>
+
+   <-- eDBName>
+      @<update mainDatabase>
+
+   <-- bRun>
+      @<-- eSQLQuery>
+
+   <-- eSQLQuery>
+      -->, sTabala, sqlSelect,      //@<eSQLQuery>
+
+   <-- sLasTablas>
+      -->, eSQLQuery, ,             //SELECT * FROM @<sLasTablas selected.name>
+      -->, sTabala, sqlSelect,      //SELECT * FROM @<sLasTablas selected.name>

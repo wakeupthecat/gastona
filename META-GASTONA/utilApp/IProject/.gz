@@ -1,0 +1,38 @@
+#data#
+
+   <documents to export>
+      name            , doorsDocument
+
+      tabTRSHMI       , "/NTG5_Headunit/04_TRS/TRS_NTG5HU_HMI"
+      tabTRS          , "/NTG5_Headunit/04_TRS/TRS_NTG5HU_Navigation-Asia"
+      tabCRS_Japan    , "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Navigation_Japan"
+      tabCRS          , "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Navigation"
+      tabCRS_Asia      , "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Navigation_Asia"
+      tabCRS_TrafficECE, "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Traffic_Information"
+      tabCRS_Traffic   , "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Traffic_Information_Asia"
+      tabCRS_Range     , "/NTG5_Headunit/01_CRS/RFQ/Headunit/FL_HU222_High_Dedicated_Short_Range_Communication"
+<!      tabCRS_FU       , "/NTG5_Headunit/01_CRS/RFQ/Fondunit/FL_FU_High_Navigation"
+<!      tabCRS_FUJapan  , "/NTG5_Headunit/01_CRS/RFQ/Fondunit/FL_FU_High_Navigation_Japan"
+      tabCTRS_AppAsia   , "/DC/05_CTRS/CTRS_Daimler_Application-Asia"
+      tabCTRS_Asia    , "/DC/05_CTRS/CTRS_Daimler_Nav-Asia"
+      tabCTRS_Traffic , "/DC/05_CTRS/CTRS_Daimler_Nav-Traffic-Information-Asia"
+      tabCTRS_Range   , "/DC/05_CTRS/CTRS_Daimler_Nav-DSRC-Asia"
+
+      tabCTRS_NavApp  , "/DC/05_CTRS/CTRS_Daimler_Navi_Controller"
+      tabFROP_Asia    , "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_Navigation_Asia"
+      tabFROP_Japan   , "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_Navigation Japan"
+      tabFROP_NaviECE , "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_Navigation"
+      tabFROP_Traffic    , "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_Traffic Information"
+      tabFROP_TrafficAsia, "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_Traffic_Information_Asia"
+      tabFROP_Range      , "/NTG5_Headunit/01_CRS/FROP/FeatureRollout_NTG5_DSRC"
+
+
+   <links to export>
+      doorsDocument
+
+      "/NTG5_Headunit/04_TRS/TRS_NTG5HU_Navigation-Asia"
+      "/NTG5_Headunit/04_TRS/TRS_NTG5HU_Navigation"
+      "/NTG5_Headunit/04_TRS/TRS_NTG5HU_HMI"
+      "/NTG5_Headunit/03_ARS/SWARS_NTG5HU_HMI-AR"
+      "/NTG5_Headunit/03_ARS/SWARS_NTG5HU_Software-Architecture"
+      "/NTG5_Headunit/03_ARS/SWARS_NTG5HU_Navigation-AR"

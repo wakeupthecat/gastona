@@ -1,0 +1,70 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_widget_General characteristics
+   <name>       droppable
+   <groupInfo>
+   <javaClass>
+   <importance> 3
+   <desc>       //Capability of dropping files or directories over widgets
+
+   <help>
+      //
+      //    Attributes: droppedFiles, droppedDirs
+      //    Messages  : droppedFiles, droppedDirs
+      //
+      //    The widgets with these attributes accept drag-and-drop of files and or directories.
+      //    For this characteristic only if the attributes exists (even with empty value) the
+      //    droppable characteristic is enabled.
+      //
+      //    When the user drop files or directories on the widget then the attributes are filled
+      //    with an Eva table with columns : pathFile, fileName, extension, fullPath, date and size
+      //    and the messages "widgetName droppedFiles" and / or "widgetName droppedDirs" are sent.
+      //
+      //    Once these messages are received it is up to the application to use this information. For
+      //    example
+      //
+      //       <-- myWidget droppedFiles>
+      //          // files has been dropped:
+      //          //
+      //          LOOP, EVA, myWidget droppedFiles
+      //          @<fullPath>
+      //
+      //    Note:
+      //    Unfortunatelly some common widgets are not able to be droppable due to some unresolved
+      //    technical issues. For example if making text widgets droppable then copy/paste text seems
+      //    not to work and tables seems only to accept drop on an element, thus empty tables would
+      //    not accept any drop.
+      //
+
+   <examples>
+      gastSample
+
+      dropping files sample
+
+   <dropping files sample>
+      //#javaj#
+      //
+      //    <frames> iResult, Dropping files sample, 400, 300
+      //
+      //#data#
+      //
+      //    <iResult droppedFiles>
+      //    <iResult visibleColumns> fullPath
+      //    <iResult var>   iResult droppedFiles
+      //
+      //#listix#
+      //
+      //    <-- iResult droppedFiles>
+      //       MSG, iResult data!
+      //
+
+#**FIN_EVA#
+
+*/

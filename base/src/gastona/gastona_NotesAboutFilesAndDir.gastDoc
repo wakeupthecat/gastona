@@ -1,0 +1,125 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    z Notes about development
+   <name>       " 1-Files and directories"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //Files and directories with Gastona
+
+   <help>
+      //
+      //   Accesing files either for reading or writing is needed in many applications.
+      //   Many widgets and commands in Gastona look for given files (including image files like
+      //   png, gif or jpeg files) in the following way
+      //
+      //    1) First as a file in the file system
+      //    2) Second as a java resource. If not found as a normal file the file is searched in the current
+      //       java class path. This java class path contains always gastona.jar, but it can be extended
+      //       (see javaj variable <external_libraries> or the command EXTERN). Usually the files found
+      //       as java resources are read only.
+      //    3) As url. If 1) and 2) does not successed then the file is tried to be opened as url.
+      //       Therefore, unless having problems accesing the url as stream due to firewalls etc,
+      //       url's can be used as source of files.
+      //
+      //    In order to access files into the file system, the path can be given either in absolute
+      //    or relative form. Following java properties describe files and directories of interest
+      //    and can be used in listix formats or commands to complete path of files:
+      //
+      //    Current gastona script
+      //
+      //        @<:sys gastona.gastFile.fromResource>
+      //          It will be set to "1" if the main Gastona script is loaded from a resource or URL
+      //          (points 2 and 3) and set to "0" otherwise
+      //
+      //        @<:sys gastona.gastFile.path>
+      //          Path (directory and file name) of the main Gastona script
+      //
+      //        @<:sys gastona.gastFile.dir>
+      //          Only directory path of the main Gastona script
+      //
+      //
+      //    Current directory
+      //
+      //        @<:sys user.dir>
+      //          Current directory for the script. All relative paths will be resolved from it.
+      //
+      //        @<:sys gastona.oldCurrentDir>
+      //          Only in Windows operative system it might differ from @<:sys user.dir>, and it is
+      //          the original current directory on starting the script. Gastona will change this to
+      //          the directory where the main gastona script is placed (@<:sys gastona.gastFile.dir>)
+      //          if : it is not the temporary directory and it is not related with a resource file
+      //          and the script does run on a Windows system.
+      //
+      //        @<:sys gastona.currentDir>
+      //          Should be the same as @<:sys user.dir> in all cases.
+      //
+      //
+      //    Other directories
+      //
+      //       @<:sys java.io.tmpdir>
+      //          Temporary directory. Note that Gastona creates its own temporary sub-directory
+      //          (gastonaTMP) which will be removed on closing the application.
+      //
+      //       @<:sys user.home>
+      //          User home directory
+      //
+
+   <examples>
+      gastSample
+
+      gastona files and dirs
+
+   <gastona files and dirs>
+      //
+      //#javaj#
+      //
+      //    <frames>
+      //      oConsole, "Gastona files and dirs"
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      //
+      //      // Current gastona script
+      //      //
+      //      //  @<@><:sys gastona.gastFile.fromResource>
+      //      //  [@<:sys gastona.gastFile.fromResource>]
+      //      //
+      //      //  @<@><:sys gastona.gastFile.path>
+      //      //  [@<:sys gastona.gastFile.path>]
+      //      //
+      //      //  @<@><:sys gastona.gastFile.dir>
+      //      //  [@<:sys gastona.gastFile.dir>]
+      //      //
+      //      // Current directory
+      //      //
+      //      //  @<@><:sys user.dir>
+      //      //  [@<:sys user.dir>]
+      //      //
+      //      //  @<@><:sys gastona.oldCurrentDir>
+      //      //  [@<:sys gastona.oldCurrentDir>]
+      //      //
+      //      //  @<@><:sys gastona.currentDir>
+      //      //  [@<:sys gastona.currentDir>]
+      //      //
+      //      // Other directories
+      //      //
+      //      //  @<@><:sys java.io.tmpdir>
+      //      //  [@<:sys java.io.tmpdir>]
+      //      //
+      //      //  @<@><:sys user.home>
+      //      //  [@<:sys user.home>]
+      //      //
+      //
+
+#**FIN_EVA#
+
+*/

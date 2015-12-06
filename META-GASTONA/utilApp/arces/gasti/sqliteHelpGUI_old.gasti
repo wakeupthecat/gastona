@@ -1,0 +1,138 @@
+#javaj#
+
+   <layout of sqlAssist>
+      EVALAYOUT, 10, 5, 5, 5
+        ZZZ,    A      ,   X,
+         A , radios    , -
+         X , iSQLCmds  , xSQLSyntax
+        100,      +    , paShortExam
+         A , bSqliteOrg,   +
+
+   <layout of paShortExam>
+      EVA,  5, 5, 5, 5
+
+           ,     X               ,   A
+         A ,    lShortExamples
+         A ,    iSQLCmdsExamples , bExecuteShort
+         A ,       +             , bAdvancedAssist
+         X ,       +             ,
+        22 ,    eSQL2Execute     , -
+
+   <layout of radios>
+      EVA,
+
+         ,    A       ,    A        ,   A
+         , raSqlGroups, raImportance, raOrder
+
+   <layout of raSqlGroups>
+      RADIO, X, Groups
+
+      rAllSec, rSchema, rData, rBatch, rMisc
+
+   <layout of raImportance>
+      RADIO, X, Frequency of use
+
+      rAllImp, rHigh, rMedium, rLow
+
+   <layout of raOrder>
+      RADIO, X, Order
+
+      rFrequency, rName
+
+
+#data#
+
+   <bSqliteOrg image> images/sqlite_p22.PNG
+
+   <bExecute>        Execute
+
+   <rAllSec>      All
+   <rAllImp>      All
+
+   <rFrequency selected>  1
+   <rAllSec selected>     1
+   <rHigh selected>       1
+
+   <bSqliteOrg>  //on line
+
+   <iSQLCmds visibleColumns>         name
+   <iSQLCmdsExamples visibleColumns> description
+
+
+   <iSQLCmds dbName var>         SQLSyntax.db
+   <iSQLCmdsExamples dbName var> SQLSyntax.db
+
+
+#listix#
+
+   <-- HELP DB READY>
+      SETVAR, filterSqlGroup, (1)
+      SETVAR, filterImportance, (importance+0 > 6)
+      SETVAR, orderBy, //ORDER BY importance+0 DESC
+
+      SET VAR, iSQLCmds dbName        , SQLSyntax.db
+      SET VAR, iSQLCmdsExamples dbName, SQLSyntax.db
+      @<update iSQLcmds>
+
+   <update iSQLcmds>
+      -->, iSQLCmds, sqlSelect, //SELECT * FROM tab_sqlite_commands WHERE @<filterSqlGroup> AND @<filterImportance> @<orderBy>
+
+   <update iSQLCmdsExamples>
+      CHECK, VAR, iSQLCmds selected.name
+      -->, iSQLCmdsExamples, sqlSelect, //SELECT * FROM tab_sqlite_examples WHERE command = '@<iSQLCmds selected.name>'
+
+   <-- iSQLCmds>
+      CHECK, VAR, iSQLCmds selected.sqliteHtmlName
+      -->, xSQLSyntax, var, help @<iSQLCmds selected.sqliteHtmlName>
+      @<update iSQLCmdsExamples>
+
+   <-- iSQLCmdsExamples>
+      CHECK, VAR, iSQLCmdsExamples selected.command
+      -->, eSQL2Execute,, //@<iSQLCmdsExamples selected.command> @<iSQLCmdsExamples selected.rest> ;
+
+   <-- bSqliteOrg>
+      CHECK, VAR, iSQLCmds selected.sqliteHtmlName
+      IN CASE, @<iSQLCmds selected.sqliteHtmlName>
+             , pragma, CALL, //CMD /C start "" "http://www.sqlite.org/@<iSQLCmds selected.sqliteHtmlName>.html"
+             , ELSE  , CALL, //CMD /C start "" "http://www.sqlite.org/lang_@<iSQLCmds selected.sqliteHtmlName>.html"
+
+   <-- rAllSec>      SETVAR, filterSqlGroup, (1)
+                     @<update iSQLcmds>
+   <-- rSchema>      SETVAR, filterSqlGroup, (sqlgroup = 'schema')
+                     @<update iSQLcmds>
+   <-- rData>        SETVAR, filterSqlGroup, (sqlgroup = 'data')
+                     @<update iSQLcmds>
+   <-- rBatch>       SETVAR, filterSqlGroup, (sqlgroup = 'batch')
+                     @<update iSQLcmds>
+   <-- rMisc>        SETVAR, filterSqlGroup, (sqlgroup = 'misc')
+                     @<update iSQLcmds>
+
+   <-- rAllImp>
+         SETVAR, filterImportance, (1)
+         @<update iSQLcmds>
+   <-- rHigh>
+         SETVAR, filterImportance, (importance+0 > 6)
+         @<update iSQLcmds>
+   <-- rMedium>
+         SETVAR, filterImportance, (importance+0 <= 6 AND importance+0 >= 4 )
+         @<update iSQLcmds>
+   <-- rLow>
+         SETVAR, filterImportance, (importance+0 < 4)
+         @<update iSQLcmds>
+
+   <-- rFrequency>
+         SETVAR, orderBy, //ORDER BY importance+0 DESC
+         @<update iSQLcmds>
+
+   <-- rName>
+         SETVAR, orderBy, //ORDER BY name
+         @<update iSQLcmds>
+
+
+   <-- bExecuteShort>
+      DATABASE, @<eDBName>, EXECUTE, @<eSQL2Execute>
+      @<update mainDatabase>
+
+   <-- bAdvancedAssist>
+      // leider nicht!
+   

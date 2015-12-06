@@ -1,0 +1,51 @@
+#javaj#
+
+   <frames>
+         F, Compare Directories demo, 600, 600
+
+   <layout of F>
+      EVA, 10, 10, 5, 5
+
+         ---, X              ,         , X
+            , lLeft directory,         , lRight directory
+            , eDirLeft       , bDirLeft, eDirRight      , bDirRight
+            , bCompare       , -       , -              , -
+            , lOnly on left  , -       , lOnly on right , -
+          X , tOnlyLeft      , -       , tOnlyRight     , -
+            , lSame in both  , -       , lDifferent     , -
+          X , tSame          , -       , tDifferents    , -
+
+#data#
+
+   <bDirLeft DIALOG>  DIR
+   <bDirRight DIALOG> DIR
+   <bDirLeft>  "..."
+   <bDirRight> "..."
+
+#listix#
+
+   <-- bDirLeft>
+      -->, eDirLeft,, @<bDirLeft chosen>
+
+   <-- bDirRight>
+      -->, eDirRight,, @<bDirRight chosen>
+
+   <-- bCompare>
+      SCAN, REMOVE
+          , PREFIX  , "left"
+      SCAN, REMOVE
+          , PREFIX  , "right"
+      SCAN, ADDFILES, , @<eDirLeft>
+          , PREFIX  , "left"
+      SCAN, ADDFILES, , @<eDirRight>
+          , PREFIX  , "right"
+
+      -->, tOnlyLeft  , sqlSelect, //SELECT subPath FROM left_all EXCEPT SELECT subPath FROM right_all
+      -->, tOnlyRight , sqlSelect, //SELECT subPath FROM right_all EXCEPT SELECT subPath FROM left_all
+      -->, tSame      , sqlSelect, //SELECT subPath FROM (@<IDENTIC FILES>)
+      -->, tDifferents, sqlSelect, //SELECT subPath FROM (@<COMMON FILES>) EXCEPT SELECT subPath FROM (@<IDENTIC FILES>)
+
+   <IDENTIC FILES> //SELECT subPath, date, size FROM left_all INTERSECT SELECT subPath, date, size FROM right_all
+   <COMMON FILES>  //SELECT subPath FROM left_all INTERSECT SELECT subPath FROM right_all
+
+#**#

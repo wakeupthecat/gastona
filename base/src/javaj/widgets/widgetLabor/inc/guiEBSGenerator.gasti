@@ -1,0 +1,69 @@
+#javaj#
+
+
+   <DefaultFonts>
+      Tahoma, 11, 1, *
+      Courier New, 14, 0, TextArea.font
+
+   <frames>
+         F, widget EBS generator, 800, 700
+         
+   <layout of F>
+      TABBED
+      
+      Attributes & Messages, layAttribAndMess
+      Extra Body,            layExtraBody
+      Documentation,         layDocu
+      
+      
+   <layout of layAttribAndMess>
+      EVA,10, 10,4,4
+      
+      , A, X
+      , lEBSName,  ePackageLastName
+      , lRootPath, ePackageRootPath
+      , lAuthor,   eAuthor
+      , lAttributes, -
+    X , tableAttributes, -
+      , lMessages, -
+    X , tableMessages, -
+      , lFullClassName, efullClassName
+      , bGenerate, bExploreGenerated
+      
+   <layout of layExtraBody>
+      EVA,10, 10,4,4
+      
+      , X
+      , lExtraImport
+    X , xExtraImport
+      , lExtraBody
+    X , xExtraBody
+    X , +
+    X , +
+    X , +
+
+    <layout of layDocu>
+      EVA,10, 10,4,4
+      
+      , X
+      , lJavaDocumentatioOfClass
+    X , xJavaDoc4Class
+
+    
+   <images>
+      bGenerate,          images/Linterna.gif
+      bExploreGenerated,  images/2Explorer.gif
+      
+#data#
+
+   <efullClassName>
+      @<ePackageRootPath>\javaj\widgets\@<ePackageLastName>\@<className>.java
+
+#listix#
+
+   <-- bGenerate>
+      GEN, @<efullClassName>, classBody
+         
+   <-- bExploreGenerated>
+      LAUNCH, //explorer.exe /n,/e,/select,"@<efullClassName>"
+   

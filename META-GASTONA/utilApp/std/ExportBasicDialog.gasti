@@ -1,0 +1,95 @@
+#javaj#
+
+   <layout of layExportBasic>
+        EVA, 5, 5, 5, 5
+
+           ,  X
+           , eExportBasicFields, rgExportBasicType, bExportBasic
+
+#data#
+
+   <rgExportBasicType orientation> X
+   <rgExportBasicType>
+      label  , ext , separ, preRow, postRow, head, tail
+
+      Html   , html, "<td>", "<tr><td>", "</tr>", @<ExportBasic headHtml>, @<ExportBasic tailHtml>
+      Excel  , xls , @<TAB>
+      Text   , txt , ", "
+
+   <rgExportBasicType selectedIndices>
+      index
+      0
+
+   <TAB> "	"
+
+   <bExportBasic> Export
+
+#listix#
+
+   <-- rgExportBasicType>
+      LSX, ExportBasic showFields
+
+   <-- bExportBasic>
+      LSX, ExportBasic doExport
+      LAUNCH, //CMD /C "@<ExportBasic fileName>"
+
+   <ExportBasic set (gridName dbName)>
+      VAR=, ExportBasic gridName, @<p1>
+      VAR=, ExportBasic gridDBName, @<p2>
+      @<ExportBasic showFields>
+
+   <ExportBasic sql base>
+      LSX, @<ExportBasic gridName> sqlSelect
+
+   <ExportBasic sql complete>
+      //SELECT * FROM (@<ExportBasic sql base>)
+      CHECK, VAR, @<ExportBasic gridName> sqlExtraFilter
+      " "
+      LSX, @<ExportBasic gridName> sqlExtraFilter
+
+   <ExportBasic showFields>
+      -->, eExportBasicFields,, @<ExportBasic showFields.gen>
+
+   <ExportBasic showFields.gen>
+      LOOP, SQL, @<ExportBasic gridDBName>, SELECT * FROM (@<ExportBasic sql base>) LIMIT 1
+          ,, LOOP, COLUMNS
+          ,,     , LINK, @<rgExportBasicType selected.separ>
+          ,, @<@><@<columnName>>
+
+   <ExportBasic create temp>
+      LSX, :lsx tmp @<rgExportBasicType selected.ext>
+
+   <ExportBasic doExport>
+      VAR=, ExportBasic fileName, @<ExportBasic create temp>
+      GENERATE, @<ExportBasic fileName>, ExportBasic formatGen
+
+   <ExportBasic formatGen>
+      @<rgExportBasicType selected.head>
+      LOOP, SQL, @<ExportBasic gridDBName>, @<ExportBasic sql complete>
+          ,, @<ExportBasic first time column names>@<rgExportBasicType selected.preRow>@<eExportBasicFields>@<rgExportBasicType selected.postRow>
+      @<rgExportBasicType selected.tail>
+
+   <ExportBasic first time column names>
+      CHECK, =, @<:lsx ROW>, 0
+      LSX, rgExportBasicType selected.preRow
+      LOOP, COLUMNS
+          , LINK, @<rgExportBasicType selected.separ>
+          ,, @<columnName>
+      LSX, rgExportBasicType selected.postRow
+      //
+
+   <ExportBasic headHtml>
+      //<html>
+      GEN,*, ccs style table gray
+         , LOAD DATA, META-GASTONA/utilApp/html/cssStyles.eva
+      //
+      //   <table>
+      //
+
+   <ExportBasic tailHtml>
+      //
+      //   </table>
+      //</html>
+      //
+
+#**#

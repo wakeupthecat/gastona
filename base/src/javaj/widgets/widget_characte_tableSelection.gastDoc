@@ -1,0 +1,149 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    javaj_widget_General characteristics
+   <name>       Table selection
+   <groupInfo>
+   <javaClass>
+   <importance> 8
+   <desc>       //Selection of row(s) on table data
+
+   <help>
+      //
+      //    Attributes: selected.COLUMNNAME, subTableSelection
+      //    Messages  : "", "2"  (empty message for selection and 2 for double click)
+      //
+      //    These attributes are filled by the widget when the user select either a sigle row or
+      //    multiple rows.
+      //
+      //    'selected.COLUMNNAME' in reallity refers to more attributes, as many attributes as columns
+      //    of the table. All them are set for a single row and in case of multi selection this will
+      //    be the first one selected.
+      //
+      //    'subTableSelection' is a single attribute containing an Eva table with the rows selected
+      //    where each row has as many columns as the table has.
+      //
+      //    The columns treated are all from the table, even those not visible (not in visibleColumns).
+      //    Both attributes work in the same way for Eva tables as for database tables.
+      //
+      //    Example:
+      //
+      //          Supose a widget 'tMyTable' with three columns and following data
+      //
+      //             <tMyTable>
+      //                id , name  , city
+      //                01 , BCN   , Barcelona
+      //                02 , HAM   , Hamburg
+      //                03 , STR   , Stuttgart
+      //                04 , SXF   , Berlin
+      //                05 , SZG   , Salzburg
+      //
+      //
+      //          Selecting the rows 01, 03 and 05 will produce the attributes
+      //
+      //             <tMyTable selected.id>     01
+      //             <tMyTable selected.name>   BCN
+      //             <tMyTable selected.city>   Barcelona
+      //
+      //             <tMyTable subTableSelection>
+      //                id , name  , city
+      //                01 , BCN   , Barcelona
+      //                03 , STR   , Stuttgart
+      //                05 , SZG   , Salzburg
+      //
+      //          Reacting to the selection and accesing these attributes can be done in different
+      //          ways, for example
+      //
+      //          <-- tMyTable>
+      //               // your first selected destination is @<tMyTable selected.city>
+      //               // All selected destinations:
+      //               LOOP, EVA, tMyTable subTableSelection
+      //               @<city> (@<name>)
+      //
+      //   Note that multi selection through the attribute 'subTableSelection' has the drawback of
+      //   memory consuming. This can be inacceptable for big selections, for example in a database
+      //   table the user could make a selection of millions of rows just with two clicks. For this
+      //   reason 'subTableSelection' is limited to 1000 rows.
+      //
+
+
+   <examples>
+      gastSample
+
+      selecting rows sample
+      selecting rows sample2
+
+   <selecting rows sample>
+      //#javaj#
+      //
+      //    <frames> F, Selecting rows sample
+      //
+      //    <layout of F>
+      //          EVA, 10, 10, 7, 7
+      //         , X
+      //         , lChoose destination
+      //      X  , tDestination
+      //         , oSal
+      //
+      //#data#
+      //
+      //    <tDestination>
+      //       id , name  , city
+      //       01 , BCN   , Barcelona
+      //       02 , HAM   , Hamburg
+      //       03 , STR   , Stuttgart
+      //       04 , SXF   , Berlin
+      //       05 , SZG   , Salzburg
+      //
+      //#listix#
+      //
+      //    <-- tDestination>
+      //       //
+      //       // First selected destination is @<tDestination selected.city>
+      //       // All selected destinations:
+      //       //
+      //       LOOP, EVA, tDestination subTableSelection
+      //       //   @<city> (@<name>)
+      //
+
+
+   <selecting rows sample2>
+      //#javaj#
+      //
+      //    <frames> F, Selecting rows sample2
+      //
+      //    <layout of F>
+      //          EVA, 10, 10, 7, 7
+      //         , X
+      //         , lChoose destination
+      //      X  , tDestination
+      //         , lChosen destinations
+      //         , iChosenList
+      //
+      //#data#
+      //
+      //    <tDestination>
+      //       id , name  , city
+      //       01 , BCN   , Barcelona
+      //       02 , HAM   , Hamburg
+      //       03 , STR   , Stuttgart
+      //       04 , SXF   , Berlin
+      //       05 , SZG   , Salzburg
+      //
+      //   <iChosenList var> tDestination subTableSelection
+      //   <iChosenList visibleColumns> city
+      //
+      //#listix#
+      //
+      //   <-- tDestination>
+      //      MSG, iChosenList data!
+
+#**FIN_EVA#
+
+*/

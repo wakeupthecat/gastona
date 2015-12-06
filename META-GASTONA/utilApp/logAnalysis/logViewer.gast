@@ -1,0 +1,95 @@
+#gastona#
+
+   <fusion>
+      META-GASTONA/utilApp/logAnalysis/reportListixFlow.gasti
+
+
+#javaj#
+
+   <frames>
+      Fmain, Analison
+
+   <layout of Fmain>
+      EVA, 10, 10, 6, 6
+
+      ,              , X
+      , bLoadLastLog ,
+    X , aTree        , sMainView
+      , oConson, -
+      , bRun         ,
+
+#data#
+
+   <sMainView dbName> logDatabase.db
+
+   <aTree>
+      node
+
+      arces
+      logs/Errors
+      logs/stackCalls
+      listix/flow formats
+      mensaka/agents
+      mensaka/messages
+      mensaka/lost messages
+      mensaka/flow sent messages
+      mensaka/flow detailed
+      reports/listix flow text
+      reports/listix flow html
+
+#listix#
+
+   <main0>
+      LOAD, data, @<:sys user.home>/.gastonaLocal
+      CHECK, VAR, tool gastona, BOX, 1, "Please congfigure <tool gastona> in "@<:sys user.home>/.gastonaLocal"
+      CHECK, VAR, tool gastona, BOX, 1, "Please congfigure <tool editor> in "@<:sys user.home>/.gastonaLocal"
+      RESUTIL, MINI TOOL, sqlite, muTool sqlite
+      SETVAR, tmp1, @<:lsx tmp>
+      CHECK, FILE, logDatabase.db, @<create logDataBas>
+
+   <-- bLoadLastLog>
+      CALL, //CMD /C del logDatabase.db
+      @<create logDataBas>
+
+   <create logDataBas>
+      GEN, @<tmp1>, load logfile
+      <! NOTE: option ON BATCH is needed (for windows) for the case that the temporary directory
+      <!       contains white spaces
+      CALL, //CMD /C "@<muTool sqlite>" logDatabase.db < "@<tmp1>"
+          , ON BATCH, 1
+
+      -->, sMainView, sqlSelect, //SELECT * FROM logMessages;
+
+   <-- aTree>
+      IN CASE, @<aTree selectedPath>
+             , logs/Errors   , -->, sMainView, sqlSelect, //SELECT * FROM logMessages WHERE clientId+0 != 0 AND level+0 < 10;
+             , logs/stackCalls, -->, sMainView, sqlSelect, //SELECT * FROM logStack4Errors;
+
+             , mensaka/agents             , -->, sMainView, sqlSelect, //SELECT agentId, componentName, objectToStr FROM logCustom_mensaka_sess_agents
+             , mensaka/messages           , -->, sMainView, sqlSelect, //SELECT msgId, msgText FROM logCustom_mensaka_sess_msgs
+             , mensaka/lost messages      , -->, sMainView, sqlSelect, //SELECT agentId, componentName, msgText FROM logCustom_mensaka_flow_lostMsgs LEFT JOIN logCustom_mensaka_sess_agents USING (agentId)
+             , mensaka/flow sent messages , -->, sMainView, sqlSelect, //SELECT agentTx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentTx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
+             , mensaka/flow detailed      , -->, sMainView, sqlSelect, //SELECT agentTx, agentRx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentRx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
+
+             , listix/flow formats, -->, sMainView, sqlSelect, //SELECT * FROM logCustom_listix_flow;
+
+   <-- aTree 2>
+      IN CASE, @<aTree selectedPath>
+             , arces , LAUNCH, //@<tool gastona> META-GASTONA/utilApp/arces/arces.gast logDatabase.db
+             , reports/listix flow text,  @<show report listix_flow text>
+             , reports/listix flow html,  @<show report listix_flow html>
+
+   <show report listix_flow html>
+      GEN, report_listix_flow.html, report listix_flow html
+      LAUNCH, //CMD /C start "" report_listix_flow.html
+
+   <show report listix_flow text>
+      GEN, report_listix_flow.html, report listix_flow text
+      CHECK, FILE, report_listix_flow.txt
+      LAUNCH, //@<tool editor> report_listix_flow.txt
+
+   <load logfile>
+      //begin;
+      //.read logSession.sql
+      //commit;
+      //

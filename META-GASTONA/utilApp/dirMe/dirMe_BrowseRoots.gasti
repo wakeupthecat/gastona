@@ -1,0 +1,87 @@
+#javaj#
+
+   <layout of layRoots>
+      EVA, 0, 0, 7, 7
+
+      ---,  X
+         , iRoots , botonada
+
+   <layout of botonada>
+      EVA, 4, 4, 4, 4
+
+      ,
+      , bNewDir    , gLus
+      , bRescanDir ,
+      , bRemoveDir , kExport
+
+
+   <MessageToMessage>
+
+      _lib db.sqlite.callStart  , gLus L12
+      _lib db.sqlite.callEnd    , gLus L11
+      _lib db.sqlite.callError  , gLus L13
+
+      ledMsg scanFiles_start  , gLus L22
+      ledMsg scanFiles_end    , gLus L21
+
+      ledMsg parsons_start    , gLus L32
+      ledMsg parsons_end      , gLus L31
+
+
+   <javaClass of gLus>  javaj.widgets.zLeds, 2
+
+#data#
+
+   <bNewDir Dialog> DIRS
+
+   <bNewDir image>    javaj/img/folder.png
+   <bRescanDir image> javaj/img/math.png
+   <bRemoveDir image> javaj/img/cancel.png
+
+   <bNewDir>    Scan dir
+   <bRescanDir> Rescan dir
+   <bRemoveDir> Borrar scan
+
+   <iRoots sqlSelect> //SELECT * FROM scan_roots WHERE rootLabel != 'paka'
+   <iRoots visibleColumns>    pathRoot
+
+#listix#
+
+   <-- bNewDir droppedFiles>
+      LOOP, EVA, bNewDir chosendroppedFiles
+      //@<addOnePath>
+      MSG, "iRoots data!"
+
+   <-- bNewDir>
+      LOOP, EVA, bNewDir chosen
+      //@<addOnePath>
+      MSG, "iRoots data!"
+
+   <addOnePath>
+      SCAN, ADDFILES,, @<fullPath>
+
+   <-- bRescanDir>
+      CHECK, EVA, iRoots selected.rootID, -->, bRescanDir, enabled, 0
+
+      SCAN, ADD FILES,, @<iRoots selected.pathRoot>
+      SETVAR, rootIDshow, @<iRoots selected.rootID>
+      MSG, iRoots data!
+      SETVAR, iRoots selected.rootID, @<rootIDshow>
+      @<refresh sFiles>
+
+   <-- bRemoveDir>
+      CHECK, EVA, iRoots selected.rootID, -->, bRemoveDir, enabled, 0
+
+      DATABASE,, EXECUTE, //DELETE FROM scan_files WHERE rootID = @<iRoots selected.rootID> ;
+      DATABASE,, EXECUTE, //DELETE FROM scan_roots WHERE rootID = @<iRoots selected.rootID> ;
+      MSG, iRoots data!
+
+   <-- iRoots>
+      CHECK, EVA, iRoots selected.rootID
+      MSG, NEW ROOT SELECTED
+      -->, bRescanDir, enabled, 1
+      -->, bRemoveDir, enabled, 1
+
+
+#**#
+

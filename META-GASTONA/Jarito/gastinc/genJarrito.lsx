@@ -1,0 +1,115 @@
+#formats#
+
+   <! ------- CONSTANTS AND VARIABLES
+   <! -------
+   <previous to jar>
+   <BASE DIR GASTONA> '..\..\
+   <BASE DIR CELTA>   '@<BASE DIR GASTONA>\base\src
+   <PATH FOR SOURCES> '@<BASE DIR GASTONA>\pc\src;@<BASE DIR GASTONA>\base\src;
+   <destDir>         '@<:sys java.io.tmpdir>jarraTMP4_@<jarName>_DIR
+   <manifestSource>  '@<destDir>/META-INF/MANIFEST.MF
+   <javac options>  '-nowarn -target 1.1
+
+   <! ------- MAIN
+   <! -------
+   <main>
+      @<previous to jar>
+      GEN, @<manifestSource>, manifestFile
+      'MONTANDO ...
+      '
+      '@<copias>
+      CALL, //cmd /C COPY @<BASE DIR GASTONA>\LICENSE*.txt "@<destDir>"
+      'COMPILANDO ...
+      '
+      '@<task javac>
+      'JARANDO ...
+      '
+      CALL, //CMD /C IF NOT EXIST "OUT" ( MKDIR OUT )
+      ZIP, ZIP, OUT/@<jarName>, @<destDir>
+      CALL, //CMD /C rmdir /S/Q "@<destDir>"
+      '
+      'ACABADO!
+      '
+
+   <! ------- TASKS (copy, generate, compile ...)
+   <! -------
+
+   <copias>
+      CALL, //CMD /C IF NOT EXIST "@<destDir>" ( MKDIR "@<destDir>" )
+      LOOP, EVA, traspasosTo
+         ,, IF, @<toSubDir>,
+         ,,   , ""         , SETVAR, copyTargetDir, @<fromSubDir>
+         ,,   , ELSE       , SETVAR, copyTargetDir, @<toSubDir>
+         ,, CALL, //CMD /C IF NOT EXIST "@<destDir>\@<copyTargetDir>" ( MKDIR "@<destDir>\@<copyTargetDir>" )
+         ,, CALL, //CMD /C COPY "@<BASE DIR GASTONA>\@<fromSubDir>\@<que>" "@<destDir>\@<copyTargetDir>@<rename>"
+
+   <compila java>
+      //@<tool javac> -sourcepath "@<destDir>";@<PATH FOR SOURCES> -classpath "@<destDir>" -d "@<destDir>" @<javac options>
+
+   <task javac>
+      LOOP, EVA, table task javac
+          ,, CALL, //@<compila java> @<BASE DIR CELTA>/@<source>
+
+   <install sqlite>    GEN, @<destDir>/META-GASTONA/muTools/muToolsManifest.eva, microToolInstaller void
+
+   <! ------- TEXTS
+   <! -------
+
+   <manifestFile>
+      'Manifest-Version: 1.0
+      'Main-Class: @<manifestClass>
+      'Created-By: Ant-onio Jar-rito (www.gastona.org)
+
+   <microToolInstaller void>
+
+      //#data#
+      //
+      //   <tableTools>
+      //      logicName , modul  , winOS        , linuxOS    , allOS
+      //
+      //   <module sqlite winOS>
+      //      fileName
+      //
+      //   <module sqlite linuxOS>
+      //      fileName
+      //
+
+#**#
+
+   <microToolInstaller 4 sqlite>
+
+      //#data#
+      //
+      //   <tableTools>
+      //      logicName , modul  , winOS        , linuxOS    , allOS
+      //
+      //      sqlite    , sqlite , sqlite.exe   , sqlite.bin ,
+      //
+      //   <module sqlite winOS>
+      //      fileName
+      //
+      //      sqlite.exe
+      //
+      //   <module sqlite linuxOS>
+      //      fileName
+      //
+      //      sqlite.bin
+      //
+
+<..........>
+
+   //   <win modul ctags>
+   //      fileName
+   //      ctags.exe
+   //
+   //   <module dot winOS>
+   //      fileName
+   //      dot.exe
+   //      freetype6.dll
+   //      jpeg.dll
+   //      libexpat.dll
+   //      libexpatw.dll
+   //      png.dll
+   //      z.dll
+   //      zlib1.dll
+   //

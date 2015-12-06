@@ -1,0 +1,48 @@
+#gastona#
+
+   <fusion>
+      inc\classEBSGenerator.gasti
+      inc\guiEBSGenerator.gasti
+
+# listix#
+# javaj#
+
+
+#data#
+
+   <ePackageLastName>  //tree
+   <eAuthor>           //Alejandro Xalabarder Aulet
+   <ePackageRootPath>  //D:\xala\java\celta\src
+
+   <tableAttributes>
+      name,      type,    line,    defaultValue, doc
+
+      separator  , string, CONTROL, "/", //Character to be used as node separator (or path separator)
+
+      dataColumn , string, DATA   , "" , //Column name of the data that contains the tree path information, if not given this will be the first column
+      dbName     , string, DATA   , "" , //If specified then it is the database name from which the data will be retrieved (see defaultDbName)
+      sqlSelect  , string, DATA   , "" , //If specified then the data will be retrieved from a database (see dbName)
+
+      baseIcons  , string, DATA   , ""     , //Base part of the path where the Icon for this node is to be found, the rest is found in the field "icon" and the attribute "extensionIcons". Note that this attribute will be applied to all nodes
+      endIcons   , string, DATA   , ".png" , //End of of the path where the Icon for this node is to be found. Note that this attribute will be applied to all nodes
+      disableIcons, bool , DATA   , "0"    , //Disable custom Icons for this tree (it might be more performant for big trees)
+
+      shortPath  , bool  , CONTROL, "1", //if 1 (true) the nodes with just one child are grouped using the nodeSeparator thus reducing nodes
+      rootPath   , string, CONTROL, "",  //String to be used as label of the root node in the tree as well as to build the fullpath
+      rootTitle  , string, CONTROL, "",  //String to be used as label of the root node in the tree but not to build the fullpath
+
+      expanded   , eva   , CONTROL, "" , //list of nodes that are expanded
+      selected   , eva   , CONTROL, "" , //table of one column "node" where the selected nodes are set
+
+   <tableMessages>
+      name,  doc
+
+
+   <xExtraImport>
+      //
+
+   <xExtraBody>
+      //
+
+   <xJavaDoc4Class>
+      //  Generic tree EvaBasedStructure (EBS) used in all tree zWidgets

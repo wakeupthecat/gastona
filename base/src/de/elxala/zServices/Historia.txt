@@ -1,0 +1,384 @@
+
+   NUEVO CONFIGURADOR
+
+   META-GAST/iToolsConfig.eva
+   o
+   META-GAST/iTools/manifest.eva
+
+
+      #data#
+
+         <tableTools>
+            logicName , modul  , binaryWin    , binaryLinux, binaryBoth
+
+            sqlite    , sqlite , sqlite.exe   , sqlite.bin ,
+            dot       , graphw , dot.exe      ,
+            neator    , graphw , neato.exe    ,
+            gastHelpDB, gastH  ,              ,            , gastonaHelp.db
+
+         <module win/sqlite>
+            fileName
+            sqlite.exe
+            daskljlas.ala
+
+         <module linux/sqlite>
+            fileName
+            sqlite.bin
+
+         <module win/graphw>
+            fileName
+            dot.exe
+            aa.dll
+            hordermore/handel.dll
+
+
+12.04.2009 00:20
+
+   renuevo concepto:
+
+
+   cosas claras:
+      - microToolInstaller no puede trabajar 100% con un jar y usar las utilidades zip para averiguar
+      directorios, subdirectorios etc.. por:
+         1) es muy laborioso (microToolInstaller debe ser más agil y no perder mucho tiempo parseando etc)
+         2) No es posible porque trabaja con java resources (todo lo que hay en classpath se podría utilizar)
+         3) Seguimos teniendo el problema de que el gastona.jar que se esta ejecutando es desconocido!!
+            Eso es intrínseco a la filosofía de classpath
+
+      - Podemos facilitar la lista de todos los ficheros de microtoolinstaller.eva en deploya_Gastona.gast
+         ahí se pueden simplemente copiar al directorio cache (el que se jarará) los módulos que deseemos
+         sobre iTools/win/x o iTools/linux/x o iTools/x (si es independiente de plataforma)
+         y damos las entradas clave
+
+            <minitools>
+               binary    , modul
+               sqlite.exe, sqlite
+               dot.exe   , graphwiz
+               neato.exe , graphwiz
+               ctags     , exuberantctags
+
+         a partir de eso se genera META-GAST/microtoolInstaller.eva
+
+         microtool acepta via static method un path cache, si se dá la instalación no será temporal sino
+         cache: <cachedir>/iTools/...
+
+      Una vez generado el jar, la policy de microtools es:
+
+         - obtención de local path itools
+               si tenemos cache path, ese + iTools
+               sino generar en temp un directorio temporal para toda la sesión
+                  <tmp>/iToolsTmpGGGGGG/...
+
+         - petición de tool
+               1) existe en el path el módulo que necesita ? --> no? => instalarlo
+               2) existe ahora el binario ? --> no ? => error fatal
+               3) si ? retornarlo
+
+
+      NUEVOS DIRECTORIOS
+      ---------------------------------
+         En jar
+
+            META-GAST/iTools/xxxx/...
+            META-GAST/iTools/iToolsManifest.eva
+            o
+            META-GAST/iToolsManifest.eva ?
+
+
+            NO SE HA SETADO microTools cacheDir ?
+               <tmp>/iToolsTmpGGGGG/...
+
+            SE HA SETADO microTools cacheDir ?
+               <cacheDir>/iTools/...
+
+
+
+
+
+12.04.2009 00:19
+
+
+
+----------DE DONDE Y QUE
+   logic name : sqlite
+                dot
+                neato
+                beato
+                gastonaHelp
+
+----------MODULO
+   soDependent : 0 o 1 (default 1)
+            si 0 se encuentra en itools/...
+            si 1 se encuentra en itools/linux o win
+
+   modul : sqlite
+           graphwiz
+
+         Define el subdirectorio de instalación dependiendo del sistema operativo
+         win o linux
+
+         itools/win/sqlite
+         itools/win/graphwiz
+         o
+         itools/linux/sqlite
+         itools/linux/graphwiz
+
+---------ejecutable final
+
+   finalBin: sqlite.exe (o sqlite.bin) a encontrarlo en el directorio de instalación
+             dot.exe    dot.bin
+             neato.exe  neato.bin
+
+
+----------A DONDE Y COMO
+
+   SIEMPRE SERA EN TEMPORAL!
+
+   0: SHARED KEPT: <temp>/gastonaTempKeep/itools/...
+   1: APP    KEPT: <temp>/<appName>/itools/...
+   2: NO KEPT    : <temp>/<temp for javaVM>/itools
+
+   3: HARDNAME   : C:\CACHE\ITOOLS\APP
+
+   DESDE GASTONA SE PUEDE FORZAR A 0, 1 o 2
+
+   CON property "itools.forcePolicy"
+
+
+
+----------A DONDE Y COMO
+
+   temporal keept : directorio <temp>/gastonaTempKeep/itools/win/sqlite no se borra al salir !
+                    Es el uso más rápido para utilidades que no cambian con el tiempo
+                    Problema solo cuando varias gast quieren usar expresamente distintas versiones
+
+                    usar <temp>/gastonaTempKeep o bien
+                    si <appName> dado ... (temp keept shared, temp keept app, temp delete)
+
+   temporal pure  : directorio exclusivo temporal, se intentará borrar todo cuando se salga
+                    Es lo más seguro, uso excusivo para el java VMachine que lo ha creado
+                    DEFAULT!!!
+
+   home     : <user home>/gastonaApps/<appName>/itools/win/sqlite
+
+               -- NO TENEMOS <appName> !
+
+   cache    : <app cache>/itools/win/sqlite
+
+               -- NO TENEMOS <app cache> !
+
+
+   local useHome : 1
+
+
+
+
+
+24.08.2008 20:54
+
+   Nueva versión renombrada a microToolInstaller.java
+   trabaja con directorio microToolInstaller.eva tambien en raiz
+
+
+
+19.11.2006 00:49
+   pruebas ... no definitivo
+
+
+
+-----------------------------------------
+   En el jar se pone los subdirectorios
+
+      internTool/win/sqlite
+               sqlite.exe
+
+      internTool/win/dot
+               dot.exe
+               freetype6.dll
+               jpeg.dll
+               libexpat.dll
+               libexpatw.dll
+               png.dll
+               z.dll
+               zlib1.dll
+
+      internTool/win/ctags
+               ctags.exe
+
+
+      internTool/linux/sqlite
+               sqlite.bin
+
+
+
+-----------------------------------------
+CONCEPTOS
+
+   nombre de tool:        por ejemplo "sqlite" sin exe o bin, el nombre concreto lo tiene que dar "ToolInstallUtil" (o como se llame!)
+
+   modulo de instalacion: por ejemplo "dotUtil" puede contener varias tools (dot.exe, neato.exe etc)
+                          físicamente es un directorio a instalar (no recursivo por ahora)
+
+                          para cada SO se resolvera el path (p.e. "internTools/win/" + "dotUtil")
+
+   binaryName:            Nombre del fichero ejecutable (sin path). por ejemplo: sqlite.exe, neato.exe etc
+
+   targetHomeSubDir:      Si está en blanco será un directorio temporal (por supuesto el nombre no importa!)
+                          Si NO está en blanco será un subdirectorio a partir del home del usuario, en ese
+                          caso debería un nombre "suficientemente único"
+                          por ejemplo:
+                              claraDiagram
+                              elxalaSqlite
+                              org.listix/sqlite
+                              org.javaj/sqlite
+
+   nombre fisico tool:    se forma a partir de targetHomeSubDir y binaryName
+                          por ejemplo tmp88172sqlite/sqlite.bin
+                                      tmp71722dotUtil/dot.exe
+                                      etc...
+                          lo debe generar ToolInstallUtil
+
+
+-----------------------------------------
+----------------------------------------- ToolInstallerV2.eva
+
+#intern tools#
+
+<ToolListWin>
+
+   logicalName,  binaryName, installModul, targetHomeSubDir
+
+   sqlite     ,  sqlite.exe,             ,                 ,
+   ctags      ,  ctags.exe ,             ,                 ,
+   dot        ,  dot.exe   , dotUtil     ,                 ,
+
+
+<ToolListLinux>
+
+   logicalName,  binaryName, installModul, targetHomeSubDir
+
+   sqlite     ,  sqlite.bin,             ,                 ,
+
+
+
+----------------------------------------- Forma Installator Listix
+
+   A PARTIR DEL FICHERO ToolInstallerV2.eva, QUE CADA APLICACION PUEDE
+   TENER EN EL DIRECTORIO RAIZ, GENERAR LAS COPIAS O COMANDOS JAR
+   PARA ANYADIR LOS internTool/modulos necesarios !
+
+#data#
+
+   <main>
+      SET TABLE, EVA, ToolListWin, intern tools, ToolInstallertV2.eva
+      CALL, cmd /C copy internTool/win/sqlite
+
+===================================================================================
+===================================================================================
+===================================================================================
+
+16.09.2006
+
+
+
+            [] 1.1 extracción automática de sqlite.exe o bin (EAS)
+
+            ....(1.1.1 y 1.1.2 más abajo)
+
+                  [] 1.1.3 Formato
+
+                        la unidad eva, cuyo nombre dependerá de la elección 1.1.1 A) o 1.1.1 B), tiene
+                        la siguiente estructura
+
+                           <HomeSubDirTarget>
+                              .mis_tools_instaladas
+
+                           <installable tools Windows>
+
+                              logicalName,  fromFilePath,   targetName,  extraCopies
+
+                              sqlite     ,  bin/sqlite.exe, sqlite.exe,
+                              ctgas      ,  bin/ctags.exe , ctags.exe ,
+                              dot        ,  bin/dot.exe   , dot.exe   ,  dotDlls
+
+
+
+                           <installable tools Linux>
+
+                              logicalName,  fromFilePath,   targetName,  extraCopies
+
+                              sqlite     , bin/sqlite.bin, bin/sqlite.bin
+
+                  [] 1.1.4 Installater
+
+                        a medida que el módulo va instalando las cosas forma la eva
+
+                           <installed>
+
+                              sqlite,  C:/Documentos/miuserhome/.mis_tools_instaladas/bin/sqlite.exe
+                              ctags,   C:/Documentos/miuserhome/.mis_tools_instaladas/bin/ctags.exe
+
+                        nótese que esto se hace siempre aunque la tool ya esté instalada, el procedimiento
+                        es:
+
+                              ---> recibir install info en la evaunit
+                              ---> recibir petición de tool (p.e. "ctags")
+
+                                    - sino está en installed, formar el nombre que le corresponde y
+                                      ponerla en installed
+                                    - mirar si existe el fichero que consta en installed
+
+                                    - si no está entonces proceder a instalarlo siguiendo la eva <instalable tools ...>
+
+                                    - retornar el fichero final
+
+
+            ....
+                  [] 1.1.1 por jar o por aplicación ?
+
+                     A) por jar: un fichero en el raiz del jar con nombre fijo
+                              (p.e. toolInstall.eva) con la unidad #data#
+                              conteniendo la información
+
+                     B) por app: una unidad eva (p.e. #toolInstall#) en el fichero
+                              javaj conteniendo la información
+
+                     C) ambos:
+                         C1) funcionando como una EvaROM, primero se carga A) y luego B)
+                             y A) se superpone a B)
+
+                                 (-) perdemos contol central
+                                 (+) podemos afinar versiones a instalar para cada app
+
+                         C2) si existe A) esta es la que cuenta y B) se ignora en caso de existir.
+                                 (+) contol central
+                             Permite cambiar fácilmente la filosofía de install permanente
+                             o simpre temporal y el nombre de instalacion para todas las aplicaciones
+                             beneficiándose todas de la misma instalación.
+
+                                 (+) apps mantienen su información completa
+                             En caso de separar la aplicación del resto del jar ésta continúa teniendo la información
+                             que ella necesita para la instalación.
+
+                  [] 1.1.2 una vez (p.e. en directorio user.home) o en cada llamada a la app en un temporal
+
+                     A) una vez (p.e. en directorio user.home)
+
+                        la ventaja es la rápidez de instalacion. Es bueno para:
+                          - usos de múltiples llamadas (p.e. llamar intensivamente en un proceso build a listix.jar)
+                          - multiples aplicaciones usan las mismas tools
+
+                     B) en cada llamada a la app en un temporal
+
+                        al lanzar la aplicacion aseguramos de que no se instala nada de nada
+                        en la máquina en donde corre.
+
+                           - lanzarla esporádicamente desde una página web
+                           - lanzarla desde un CDROM o Memory Stick en cualquier ordenador
+                             sin preocuparnos de desinstallar nada
+
+
+            ...
+
+
+
