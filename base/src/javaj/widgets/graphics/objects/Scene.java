@@ -26,73 +26,59 @@ import java.util.Vector;
 import de.elxala.math.space.*;
 import de.elxala.zServices.*;
 
+import javaj.widgets.gestures.*;
+
 public class Scene
 {
    private static logger log = new logger (null, "javaj.widgets.graphics.objects.Scene", null);
 
-   public List laEscena = new Vector ();             //vector<objectGraph>
+   public List arrEscena = new Vector ();             //vector<objectGraph>
 
    // pointers to current objects beeing changing
    //
-   public objectGraph [] currentObjChanging = new objectGraph[5];
+   public objectGraph [] currentObjChanging = new objectGraph[multiFingerTouchDetector.MAX_POINTERS];
 
-   private objectGraph currentObject = null;
+   public Scene ()
+   {
+      clearGraphic ();
+   }
 
    public void clearGraphic ()
    {
-      laEscena = new Vector();
-      currentObject = null;
+      arrEscena = new Vector();
+      ETHER_affected = false;
+      currentObjChanging = new objectGraph[multiFingerTouchDetector.MAX_POINTERS];
+      for (int ii = 0; ii < currentObjChanging.length; ii ++)
+         currentObjChanging[ii] = null;
    }
 
-   public void addObject (String name)
+   public void addObject (objectGraph obj)
    {
-      addObject (name, "1111", null);
+      arrEscena.add (obj);
    }
-
-   public void addObject (String name, String basicMov, uniRect posScale)
-   {
-      log.dbg (2, "addObject", name);
-      currentObject = new objectGraph ();
-      currentObject.name = name;
-      currentObject.movil.setBasicMovement (basicMov);
-      laEscena.add (currentObject);
-   }
-
-   public void addObject (String name, movable movil, expandable expander)
-   {
-      log.dbg (2, "addObject", name + " movil " + movil.toString ());
-      currentObject = new objectGraph ();
-      currentObject.name = name;
-      currentObject.movil = movil;
-      currentObject.expander = expander;
-      laEscena.add (currentObject);
-   }
-
-   public void addElement (paintableDimensionableElement ele)
-   {
-      if (currentObject == null)
-      {
-         log.err ("addElement", "adding an element with no object (no addObject before!)"    + this);
-         return;
-      }
-      currentObject.addElement (ele);
-   }
-
+   
    public uniRect bounds ()
    {
       uniRect bounder = null;
 
-      if (laEscena != null && laEscena.size () > 0)
+      if (log.isDebugging (4))
+         log.dbg (4, "bounds", "Escena " + arrEscena);
+//System.out.println ("bounds::Escena " + arrEscena);
+      if (arrEscena != null && arrEscena.size () > 0)
       {
-         for (int ss = 0; ss < laEscena.size (); ss ++)
+         if (log.isDebugging (4))
+            log.dbg (4, "bounds", "Escena with " + arrEscena.size () + " elements");
+//System.out.println ("bounds::Escena with " + arrEscena.size () + " elements");
+         for (int ss = 0; ss < arrEscena.size (); ss ++)
          {
-            objectGraph ob = (objectGraph) laEscena.get(ss);
-            for (int ee = 0; ee < ob.objElements.size (); ee ++)
-            {
-               if (bounder == null)
-                    bounder = new uniRect (ob.originalBounds);
-               else bounder.union (ob.originalBounds);
-            }
+            if (log.isDebugging (4))
+               log.dbg (4, "bounds", "object #" + ss);
+//System.out.println ("bounds::Escena object #" + ss);
+            objectGraph ob = (objectGraph) arrEscena.get(ss);
+            if (bounder == null)
+               bounder = new uniRect (ob.originalBounds);
+            else
+               bounder.union (ob.originalBounds);
           }
       }
 
@@ -102,24 +88,15 @@ public class Scene
 
    public void draw(uniCanvas canvas)
    {
-      if (laEscena != null && laEscena.size () > 0)
+      //..redFrame.. uniPaint paRojo = new uniPaint ();
+      //..redFrame.. paRojo.setColor (new uniColor(uniColor.RED));
+      if (arrEscena != null && arrEscena.size () > 0)
       {
-         log.dbg (2, "draw", "Escene of size " + laEscena.size ());
-         for (int ss = 0; ss < laEscena.size (); ss ++)
+         log.dbg (2, "draw", "Escene of size " + arrEscena.size ());
+         for (int ss = 0; ss < arrEscena.size (); ss ++)
          {
-            objectGraph ob = (objectGraph) laEscena.get(ss);
-            float desX = ob.tempTranslationX ();
-            float desY = ob.tempTranslationY ();
-
-            log.dbg (2, "draw", "obj [" + ob.name + "] temp translation " + desX + ", " + desY);
-            canvas.translate (desX, desY);
-            // theCanvas.drawRect (ob.originalBounds, paRojo);
-            for (int ee = 0; ee < ob.objElements.size (); ee ++)
-            {
-               paintableDimensionableElement grao = (paintableDimensionableElement) ob.objElements.get (ee);
-               grao.paintYou (canvas);
-            }
-            canvas.translate (-desX, -desY);
+            objectGraph ob = (objectGraph) arrEscena.get(ss);
+            ob.paintYou (canvas);
          }
       }
       else log.dbg (2, "draw", "Empty scene, do nothing");
@@ -127,58 +104,108 @@ public class Scene
 
    //private float refOffX = 0.f;
    //private float refOffY = 0.f;
-   private float refScaleX = 1.f;
+   public float refScaleX = 1.f;
    private float refScaleY = 1.f;
+   
+   //2013.01.27
+   // concept of "Ether" to move the whole scene in the screen
+   // only if any other object is affected or mask the movement of other object!
+   //
+   public float ETHER_pressX = 0.f;
+   public float ETHER_pressY = 0.f;
+   public float ETHER_desplazaX = 0.f;
+   public float ETHER_desplazaY = 0.f;   
+   public boolean ETHER_affected = false;
 
-   public boolean objectsGestureStart (vect3f [] arr_posIni, float scaleX, float scaleY, float offsetX, float offsetY)
+   public boolean objectsGestureStart (vect3f posIni, int indxFinger, float scaleX, float scaleY, float offsetX, float offsetY)
    {
-      if (arr_posIni.length == 0) return false;
-
-      float normX = arr_posIni[0].x / scaleX - offsetX;
-      float normY = arr_posIni[0].y / scaleY - offsetY;
+      float normX = posIni.x / scaleX + offsetX;
+      float normY = posIni.y / scaleY + offsetY;
 
       // detect start of gesture in any object
-      for (int ii = laEscena.size ()-1; ii >= 0; ii --)
+      for (int ii = arrEscena.size ()-1; ii >= 0; ii --)
       {
-         objectGraph o = (objectGraph) laEscena.get(ii);
+         objectGraph o = (objectGraph) arrEscena.get(ii);
 
          if (o.affectByPointer (normX, normY))
          {
             log.dbg (4, "onGestureStart(strokeDetector)", "object " + o.name + " start gesture");
-            currentObjChanging[0] = o;
-            currentObjChanging[1] = null;
+            currentObjChanging[indxFinger] = o;
 
             refScaleX = scaleX;
             refScaleY = scaleY;
             //refOffX = offsetX;
             //refOffY = offsetY;
+            ETHER_affected = false;
             return true;
          }
       }
+      refScaleX = scaleX;
+      refScaleY = scaleY;
+      ETHER_pressX = normX;
+      ETHER_pressY = normY;
+      ETHER_desplazaX = 0.f;
+      ETHER_desplazaY = 0.f;
+      ETHER_affected = true;
       return false;
    }
 
-   public void objectsGestureContinue (vect3f [] arr_posIni, vect3f [] arr_posNow)
+   public boolean objectsGestureContinue (fingerTouch [] fingers)
    {
-      objectGraph obj = currentObjChanging[0];
-      if (obj != null && arr_posIni.length > 0 && arr_posNow.length > 0)
+      boolean someoneMoved = false;
+      float lastDesplazaX = 0.f;
+      float lastDesplazaY = 0.f;
+      
+      for (int ii = 0; ii < fingers.length; ii ++)
       {
-         float desplazaX = (arr_posNow[0].x - arr_posIni[0].x) / refScaleX;
-         float desplazaY = (arr_posNow[0].y - arr_posIni[0].y) / refScaleY;
-
-         obj.affectContinue (desplazaX, desplazaY);
+         if (fingers[ii].isPressing ())
+         {
+            if (ii > currentObjChanging.length)
+            {
+               log.err ("objectsGestureContinue", "finger index = " + ii + " but objChanging size = " + currentObjChanging.length);
+               continue;
+            }
+            lastDesplazaX = fingers[ii].getDx ();
+            lastDesplazaY = fingers[ii].getDy ();
+            objectGraph obj = currentObjChanging[ii];
+            if (obj != null)
+            {
+               obj.affectContinue (lastDesplazaX / refScaleX, lastDesplazaY / refScaleY);
+               someoneMoved = true;
+            }
+         }
       }
+      if (!someoneMoved && ETHER_affected)
+      {
+         ETHER_desplazaX = lastDesplazaX / refScaleX;
+         ETHER_desplazaY = lastDesplazaY / refScaleY;
+      }
+      return someoneMoved;
+   }
+
+   public void objectsGestureEnd (int indxFinger)
+   {
+      objectGraph obj = currentObjChanging[indxFinger];
+      if (obj != null)
+      {
+         log.dbg (4, "objectsGestureEnd(indxFinger)", "object " + obj.name + " end affected");
+         obj.affectEnd ();
+      }
+      currentObjChanging[indxFinger] = null;
    }
 
    public void objectsGestureEnd ()
    {
-      objectGraph obj = currentObjChanging[0];
-      if (obj != null)
+      for (int ii = 0; ii < currentObjChanging.length; ii ++)
       {
-         log.dbg (4, "onGestureContinue(strokeDetector)", "object " + obj.name + " end affected");
-         obj.affectEnd ();
+         objectGraph obj = currentObjChanging[ii];
+         if (obj != null)
+         {
+            log.dbg (4, "onGestureContinue(strokeDetector)", "object " + obj.name + " end affected");
+            obj.affectEnd ();
+         }
+         currentObjChanging[ii] = null;
       }
-      currentObjChanging[0] = null;
+      ETHER_affected = false;
    }
-
 }

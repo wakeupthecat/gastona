@@ -24,33 +24,62 @@ public class textElement implements paintableDimensionableElement
    public String mText;
    public float x;
    public float y;
-   private uniPaint mPaint;
+   public boolean isAbotonado; // has a round rectangle
+   private String mStyleStr;
 
-   public textElement (String text, float posx, float posy, uniPaint pai)
+   // 09.11.2011 00:00
+   // Note that the bounds cannot be calculated without canvas and paint !!!!
+   // since java needs the canvas for the font metrics and android use the paint for it ?!?!?!?!
+   // (such a stupid dependency!)
+   private uniRect theBounds;
+
+   public textElement (String text, float posx, float posy, String pStyleStr, boolean abotonadoAspect)
    {
       mText = text;
       x = posx;
       y = posy;
-      mPaint = pai;
+      mStyleStr = pStyleStr;
+      isAbotonado = abotonadoAspect;
+      theBounds = new uniRect (posx, posy, 10.f * text.length (), 10.f); // aprox
    }
 
-   public uniPaint getPaint () { return mPaint; }
+   public uniPaint getPaint () 
+   { 
+      styleObject styleObj = styleGlobalContainer.getStyleObjectByName (mStyleStr);
+      return styleObj.hasStroke () ? styleObj.getStrokePaint (): new uniPaint ();
+   }
+   
    public void paintYou (uniCanvas here)
    {
-      here.drawText (mText, x, y, mPaint);
+      // GET SOME PAINT!
+
+      float marg = 0.f;
+      float hText = here.getTextHeight (getPaint ());
+      float wText = here.getTextWidth (mText, getPaint ());
+
+      if (isAbotonado)
+      {
+         marg = hText / 2.f;
+
+         uniPath recPath = new uniPath ();
+         recPath.getEdiPaths ().addRoundRect (new uniRect (false, x, y, wText + marg + marg, hText + marg + marg), 4, 4);
+         recPath.setStyle (mStyleStr);
+         here.drawPath (recPath);
+      }
+
+      theBounds.set (x, y, wText + marg + marg, hText + marg + marg);
+      here.drawText (mText, x + marg, y + marg + hText, getPaint ());
    }
 
    public void getBounds (uniRect rbounds)
    {
-      //rbounds.set (x, y, 10, 10);
-      rbounds.set (0f, 0f, 0f, 0f);
+      rbounds.set (theBounds);
    }
 
    public void unionBounds (uniRect bounds)
    {
       uniRect thisrect = new uniRect ();
-      //thisrect.set (x, y, 10, 10);
-      thisrect = new uniRect (bounds);
+      getBounds (thisrect);
       bounds.union (thisrect);
    }
 }

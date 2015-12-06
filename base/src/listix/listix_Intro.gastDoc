@@ -62,8 +62,8 @@
       // exact mechanism is explained in "Executing a listix format".
       //
       // Apart from the variables and the text generation, the rest can be done by commands. There are about
-      // 40 commands of very different proposes, from a simple calculation to a process that involve thousends
-      // of actions like scanning a directory or parsing a big file. A command has the generic syntax:
+      // 40 commands of very different proposes, from a simple calculation to a process that do a big job
+      // like scanning a directory or parsing a big file. A command has the generic syntax:
       //
       //       COMMANDNAME, parameter1, parameter2, ..., parameterN
       //                  , option1, optParam1, optParam2, ...
@@ -71,10 +71,12 @@
       //
       // having at least 1 parameter and 0 or more options.
       //
-      // All commands are documented separatelly. Maybe the most important ones are: SET VAR,
-      // LOOP TABLE, IN CASE, CALL, LAUNCH, MESSAGE and SET DATA! (also know as "-->"). There are
-      // also a couple of very powerful commands like DATABASE, SCAN and PARSONS that make incredibly
-      // easy things that usually are ardous tasks.
+      // All commands, its parameters and options are documented separatelly. Maybe the most important ones 
+      // are: SET VAR (or "VAR="), LOOP TABLE, IN CASE, CALL, LAUNCH, MESSAGE (alias "-->"). There are also 
+      // a couple of very powerful commands like DATABASE, SCAN, PARSONS and XMELON that make things, that 
+      // usually are ardous or difficult tasks, incredibly easy. Also a set of commands for TCP/IP communication 
+      // are available: UDP, HTTPREQUEST, MicoHTTPServer. The last one uses the power of text-generation from listix 
+      // to make possible writing a personal http server in a straighforward way.
       //
       // If COMMANDNAME is an empty string and it still has one or more parameters either it can be an
       // option of a previous command or it is simply a "void command" and it will be skiped (ignored)
@@ -90,14 +92,15 @@
       // listix in more simple way: text generation. And this is the way listix perform it
       //
       // Listix in reallity "execute variables", we call these variables listix formats or simply formats.
-      // A format has only two things text or commands, the text is generated and the commands are executed.
+      // A format may contain only two things: text and/or commands. Text elements are used for text generation
+      // and the commands are executed according to its semantics.
       //
       // ======== Executing a listix format =============
       //
       //    - A format is read row by row
       //
       //    - If the row has just one column then it is simply a text to generate (to be print out
-      //      somewhere), during the generation if the pattern "@<xxx>" is found, it has de meaning
+      //      somewhere), during this generation if the pattern "@<xxx>" is found, it has de meaning
       //      "execute the format xxx" before continue.
       //
       //    - If the row has more than one column then it is a listix command. The first column
@@ -195,8 +198,7 @@
       //       //  <table border=1>
       //       //
       //       LOOP, EVA, personajes
-      //       //    <tr><td> @<name> <td> @<level> </tr>
-      //       =,,
+      //           ,, //    <tr><td> @<name> <td> @<level> </tr>
       //       //
       //       //  </table>
       //       //</body></html>

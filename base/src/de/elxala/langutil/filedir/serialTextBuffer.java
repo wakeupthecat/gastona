@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 package de.elxala.langutil.filedir;
 
 import java.util.*;
+import java.lang.StringBuffer;
 import de.elxala.zServices.*;
 
 /**
@@ -27,11 +28,25 @@ import de.elxala.zServices.*;
    @author Alejandro Xalabarder Aulet
    @date   2010
 
-        A serialTextBuffer is an array of Strings that is virtually not limited since it would use
-   transparently a file if required. It can only be read through the method getNextLine ().
+        A serialTextBuffer is an array of Strings that is virtually not limited since, if required, a 
+        file would be used transparently. It can only be read through the method getNextLine ().
 
-   The idea is to have a general proupose text buffer that for small texts works totally in memory
+   The idea is to have a general propose text buffer that for small texts works totally in memory
    and that can also handle arbitrary big texts.
+
+      Example of use:
+
+      serialTextBuffer endlessStream = new serialTextBuffer ();
+
+      // writing something on the (i.e. a script or a HTTP response etc)
+      endlessStream.writeln ("line 1");
+      endlessStream.writeln ("line 2");
+
+      // readind the content
+      endlessStream.rewind ();   // not strictly needed
+      while (endlessStream.getNextLine ())
+         System.out.println (endlessStream.getLastReadLine());
+
 */
 public class serialTextBuffer
 {
@@ -49,6 +64,10 @@ public class serialTextBuffer
    protected List     strArr = new Vector ();
    protected int      nextLine2read = 0;
    protected String   lastReadLine = null;
+   protected int      lastIndxRead = 0; // only to read as binary file!
+   
+   protected StringBuffer   lastWriteLineWithNoReturn = new StringBuffer ();
+   protected String   lastWantedNewLineString = TextFile.RETURN_STR; // by defect is this, but if writeNewLine(arg) is called then it will take this value
 
    //file
    protected String   tmpFileName = null;
@@ -60,10 +79,58 @@ public class serialTextBuffer
       strArr = new Vector ();
       nextLine2read = 0;
       lastReadLine = null;
+      lastIndxRead = 0;
       currentState = STATE_IDDLE;
    }
 
+   public void write (String str)
+   {
+      writeString (str);
+   }
+
    public void writeln (String str)
+   {
+      writeString (str);
+      writeln ();
+   }
+
+   public void writeln ()
+   {
+      addLine2Array (lastWriteLineWithNoReturn.toString ());
+      lastWriteLineWithNoReturn = new StringBuffer ();
+   }
+   
+   protected void addLine2Array (String str)
+   {
+      log.dbg (2, "addLine2Array", "new line size " + str.length ());
+      strArr.add (str);
+      if (strArr.size () > MAX_LINES_KEEP)
+      {
+         log.dbg (2, "addLine2Array", "save into disk " + strArr.size () + " lines");
+         vuelca();
+
+         //ensure the the buffer is emptied!
+         strArr = new Vector ();
+      }
+   }
+
+   public void writeNewLine (final String newLineStr)
+   {
+      lastWantedNewLineString = newLineStr;
+      writeln ();
+   }
+
+   public void writeNewLine ()
+   {
+      writeln ();
+   }
+
+   //(o) devnote_algorithms_reading manually RT LF
+   
+   //(o) TODO_writing 13 and 10 separately REVIEW! (see note in urlUtil)
+   //    about habdling (13+10) when writing them separately (not in the same string)
+   //
+   public void writeString (String str)
    {
       if (currentState == STATE_READING)
       {
@@ -71,15 +138,40 @@ public class serialTextBuffer
          return;
       }
       currentState = STATE_WRITING;
-
-      strArr.add (str);
-      if (strArr.size () > MAX_LINES_KEEP)
+      
+      // add line and separate them if either [13 10] or [13] or [10] are present
+      //
+      int indxDone = 0;
+      int totLen = str.length ();
+      do 
       {
-         vuelca();
+         int pos13 = str.indexOf (TextFile.NEWLINE_RT13, indxDone);
+         int pos10 = str.indexOf (TextFile.NEWLINE_LF10, indxDone);
+         if (pos13 == -1 && pos10 == -1) break; // NO more return(s) in line
+         int first = (pos10 != -1 && (pos13 == -1 || pos10 < pos13)) ? pos10: pos13;
+         if (first == -1) 
+         {
+            // IMPOSIBLE!
+            log.severe ("writeln", "met impossible condition : pos10 " + pos10 + ", pos13 " + pos13);
+            break;
+         }
+         // return detectd, but first write remaining if not empty
+         //
+         if (lastWriteLineWithNoReturn.length () > 0)
+         {
+            addLine2Array (lastWriteLineWithNoReturn.toString ());
+            lastWriteLineWithNoReturn = new StringBuffer ();
+         }
 
-         //ensure the the buffer is emptied!
-         strArr = new Vector ();
-      }
+         // write until return
+         //
+         addLine2Array (str.substring (indxDone, first));
+         indxDone = first + ((pos13 != -1 && (pos13 + 1) == pos10) ? 2:1);
+
+      } while (indxDone < totLen);
+
+      log.dbg (2, "writeln", "append str from indx " + indxDone);
+      lastWriteLineWithNoReturn.append (str.substring(indxDone));
    }
 
    public void rewind ()
@@ -88,17 +180,58 @@ public class serialTextBuffer
       currentState = STATE_WRITING;
       nextLine2read = 0;
       lastReadLine = null;
+      lastIndxRead = 0;
+      txtFile.fclose (); // if it was open for read then close it now
    }
 
    public boolean getNextLine ()
    {
       lastReadLine = getNextLine2 ();
+      lastIndxRead = 0;
       return lastReadLine != null;
    }
 
    public String getLastReadLine ()
    {
       return lastReadLine;
+   }
+   
+   public int readBytes (byte[] cbuf)
+   {
+      int nread = 0;
+      if (lastReadLine == null) getNextLine ();
+      if (lastReadLine == null) return -1; // this is feof !
+      while (lastReadLine != null && nread < cbuf.length)
+      {
+         byte[] laliby = lastReadLine.getBytes();
+         while (nread < cbuf.length && lastIndxRead < laliby.length)
+            cbuf[nread++] = laliby[lastIndxRead++];
+
+         // require new line ?
+         if (lastIndxRead >= laliby.length)
+         {
+            getNextLine ();
+            // add return line feed if not eof !!
+            if (lastReadLine != null)
+               lastReadLine = lastWantedNewLineString + lastReadLine;
+         }
+      }
+      return nread;
+   }
+   
+   public String toTruncatedString (int maxBytes)
+   {
+      // can be very expensive if the text is huge!!
+
+      rewind ();
+      StringBuffer sbuff = new StringBuffer ();
+      while (maxBytes > 0 && getNextLine ())
+      {
+         maxBytes -= getLastReadLine ().length ();
+         sbuff.append ((sbuff.length () == 0 ? "": lastWantedNewLineString) + getLastReadLine ());
+      }
+
+      return sbuff.toString ();
    }
 
    public String toString ()
@@ -126,7 +259,7 @@ public class serialTextBuffer
       if (currentState == STATE_WRITING)
       {
          currentState = STATE_READING;
-         if (tmpFileName != null && !txtFile.fopen (tmpFileName, "r"))
+         if (tmpFileName != null && !txtFile.fopen (tmpFileName, "r", false))
          {
             log.err("getNextLine", "open to read [" + tmpFileName + "] failed");
             clear ();
@@ -139,33 +272,84 @@ public class serialTextBuffer
       if (tmpFileName != null)
       {
          if (txtFile.readLine ())
+         {
             return txtFile.TheLine ();
-
-         // end of file reached
-         freeFile ();
+         }
+         else
+         {
+            // end of file reached
+            freeFile ();
+            //TODO!!!! return null;
+            // WHY freeFile ???? what happens if rewind!!!
+            //2014.01.19 investigated (tested) without success :(
+            //           if we replace it with rewind it does not work!
+         }
       }
 
       // read from memory
       if (nextLine2read > strArr.size ()-1)
       {
-         rewind ();
-         return null;
+         if (nextLine2read == strArr.size () && lastWriteLineWithNoReturn.length () > 0)
+         {
+            nextLine2read ++;
+            return lastWriteLineWithNoReturn.toString ();
+         }
+         else
+         {
+            //rewind ();
+            return null;
+         }
       }
 
       // return it from memory
       return (String) strArr.get (nextLine2read ++);
    }
+   
+   public boolean writeContentIntoOpenedFile (TextFile fil2)
+   {
+      if (tmpFileName != null)
+      {
+         TextFile intfil = new TextFile ();
+         if (!intfil.fopen (tmpFileName, "r", false))
+         {
+            log.err("getNextLine", "open to read [" + tmpFileName + "] failed");
+            return false;
+         }
+         while (intfil.readLine ())
+            fil2.writeLine (intfil.TheLine ());
+
+      }
+      
+      for (int ii = 0; ii < strArr.size (); ii ++)
+      {
+         fil2.writeLine ((String) strArr.get (ii));
+      }
+      return true;
+   }
 
    private void vuelca ()
    {
-      if (!txtFile.fopen (getFileName (), "a"))
+      if (!txtFile.fopen (getFileName (), "a", false))
       {
          log.err("vuelca", "open to append [" + getFileName () + "] failed");
          return;
       }
 
       for (int ii = 0; ii < strArr.size (); ii ++)
-         txtFile.writeLine ((String) strArr.get (ii));
+      {
+         txtFile.writeString ((String) strArr.get (ii));
+         txtFile.writeNewLine (lastWantedNewLineString);
+      }
+
+
+// NOTA: si hacemos esto aqui => un read h�brido (parte grabado en fichero, parte en memoria) no lo va ha hacer bien
+//       cuando el vulca se ha hecho con un trozo de l�nea sin retorno
+//
+//        // Note: it is ok to write now the "no return" line and reset it
+//        //       because next time it has to be reset here.
+//       txtFile.write (lastWriteLineWithNoReturn);
+//       lastWriteLineWithNoReturn = "";
+
       txtFile.fclose ();
    }
 
@@ -199,7 +383,7 @@ public class serialTextBuffer
       String fileName = aa[0];
 
       TextFile fi = new TextFile ();
-      if (!fi.fopen (fileName, "r"))
+      if (!fi.fopen (fileName, "r", false))
       {
          System.out.println ("file [" + fileName + "] could not be opened!");
          return;
@@ -219,7 +403,7 @@ public class serialTextBuffer
       fileName = fileName + ".COPY4TEST";
       System.out.println ("leidas " + nl + " lines, writing on [" + fileName + "] ...");
 
-      if (!fi.fopen (fileName, "w"))
+      if (!fi.fopen (fileName, "w", false))
       {
          System.out.println ("file [" + aa[0] + "] could not be opened!");
          return;

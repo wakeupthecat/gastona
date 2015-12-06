@@ -34,8 +34,83 @@ public class utilSys
    public static final String dirSeparator = File.separator;
    public static final boolean isSysUnix = dirSeparator.equals ("/");
 
+   public static boolean isOSLinux ()    { return java.io.File.separatorChar == '/'; }
+   public static boolean isOSWindows ()  { return java.io.File.separatorChar == '\\'; }
+
+   public static boolean isAndroid ()    { return productSystem.isAndroid (); }
+   public static boolean isNotAndroid () { return !isAndroid (); }
 
    private static Map objectMap = new TreeMap ();
+
+   private static String sysOSname = null;
+   private static String sysOSarch = null;
+   private static String sysOSversion = null;
+   private static String sysOSstring = null;
+   private static boolean isWindows = true;
+   private static boolean isLinux = false;
+   private static boolean isARM = false;
+   private static boolean isMacOX = false;
+   private static boolean is64bit = false;
+
+   // return winOS, linuxOS, linuxOS64 or linuxArm
+   //        we are not interested in winOS64 because sqlite 32bits can be executed in this machines
+   //        but not in linux
+   public static String getSysString ()
+   {
+      if (sysOSname == null) getSysInfo ();
+      return sysOSstring;
+   }
+
+   public static boolean isOSNameWindows () { getSysInfo (); return isWindows; }
+   public static boolean isOSNameLinux   () { getSysInfo (); return isLinux; }
+   public static boolean isOSArchArm     () { getSysInfo (); return isARM; }
+   public static boolean isOSNameMacOX   () { getSysInfo (); return isMacOX; }
+
+   public static String launchOpenFileCommand ()
+   {
+      return utilSys.isOSWindows () ? "cmd /C start \"\"": "xdg-open";
+   }
+
+   public static String launchOpenFileCommand (String fileName)
+   {
+      String DQUOT = utilSys.isOSLinux () ? "": "\"";
+      return launchOpenFileCommand () + " " + DQUOT + fileName + DQUOT;
+   }
+
+   private static void getSysInfo ()
+   {
+      if (sysOSname != null) return;
+      sysOSname = System.getProperty ("os.name", "").toLowerCase ();
+      sysOSarch = System.getProperty ("os.arch", "").toLowerCase ();
+      sysOSversion = System.getProperty ("os.version", "").toLowerCase ();
+
+      isWindows = sysOSname.indexOf("windows") >= 0;
+      isLinux   = sysOSname.indexOf("linux") >= 0;
+      isARM     = sysOSarch.startsWith("arm");
+      isMacOX   = sysOSname.indexOf("mac ox") >= 0;
+
+      //import com.sun.servicetag.SystemEnvironment;
+      //...
+      //SystemEnvironment env = SystemEnvironment.getSystemEnvironment();
+      //final String envArch = env.getOsArchitecture();
+      // String envArch = SystemEnvironment.getSystemEnvironment().getOsArchitecture();
+
+      //remember: property "os.arch" returns bitness of JRE not of the machine!! but it is a good fallback
+      //
+      // is64bit = envArch != null ? envArch.indexOf ("64") >= 0: sysOSarch.endsWith("64");
+
+      // we rely on the JRE bitness! in general it should work
+      is64bit = sysOSarch.endsWith("64");
+
+      sysOSstring = isSysUnix ? "linuxOS": "winOS";
+
+      if (isWindows) sysOSstring = "winOS";
+      if (isLinux || isMacOX) sysOSstring = "linuxOS" + (is64bit ? "64": "");
+      if (isLinux && isARM) sysOSstring = "linuxArm";
+
+      // ! file separator taken from File.separator instead of property "file.separator"
+      //   (no special reason)
+   }
 
    public static void objectSacPut (String idString, Object obj)
    {
@@ -45,14 +120,6 @@ public class utilSys
    public static Object objectSacGet (String idString)
    {
       return objectMap.get (idString);
-   }
-
-   public static int objectSacGetInt (String idString, int defaultValue)
-   {
-      Object obj = objectMap.get (idString);
-      if (obj == null) return defaultValue;
-      int [] iarr = (int[]) obj;
-      return iarr.length > 0 ? iarr[0]: defaultValue;
    }
 
    public static void destroySac ()

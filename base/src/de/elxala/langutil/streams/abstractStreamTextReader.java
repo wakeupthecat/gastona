@@ -102,15 +102,6 @@ public abstract class abstractStreamTextReader extends Thread
 
    private static int MAX_STREAM_BUFFER = 1000;
 
-   //NOTE: This stream is planned to be used by windowing (e.g. sqlite)
-   //      an unlimited StreamTextBuffer should be implemented using a temporary file or like
-//!!   private static int LIMIT_BUFFERED_LINES = 3000;
-//NOTE 01.01.2010 15:53
-// No se puede dejar de leer el stream! eso bloquearía el proceso!
-// si se quiere implementar este límite debe simplemente dejar de anyadir lineas en textBuffer
-// pero continuar la lectura hasta el final!
-
-
    private InputStream INstream = null;
 
    private List textBuffer = null;
@@ -176,6 +167,8 @@ public abstract class abstractStreamTextReader extends Thread
 
       finished = true;
    }
+
+   //(o) devnote_algorithms_reading manually RT LF
 
    private void fillLine (char [] buffer, int size)
    {

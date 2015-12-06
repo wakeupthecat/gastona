@@ -22,52 +22,33 @@ import de.elxala.Eva.*;
 import de.elxala.langutil.*;
 import de.elxala.math.space.*;
 
-/**
-*/
-
-   //
-   //    <:PIZ Frame>
-   //        -14.1, 14.1               minX, maxX
-   //         -2.6, 2.6                minY, maxY
-   //         300, 600                 dx, dy
-   //           m, 10e-2,  -14, 1, 0
-   //        watt, 10e-6,  -2.5, .2, 0
-   //       polar, 0, 100                    coord. polares  tmin=0 tmax=100
-   //
-   //       unitsX, minRayX, incX, nFirstLargaX
-   //       unitsY, minRayY, incY, nFirstLargaY
+import de.elxala.zServices.*;
 
 /**
    @author Alejandro Xalabarder
    @date   2005
-   @lastupdate   10.11.2005 22:15
+   @lastupdate   30.10.2011 19:47
 
-   Class specialized in drawing coordinate systems, it handles the needed
-   data structure too.
+   Class specialized in drawing coordinate systems
 
 */
 class mathFunctionFrame
 {
+   private static logger log = new logger (null, "javaj.widgets.graphics.mathFunctionFrame", null);
+
    public static final String COORSYS_CARTESIAN   = "cartesianas";
    public static final String COORSYS_POLAR       = "polares";
    public static final String COORSYS_PARAMETRICS = "parametricas";
 
-   //public static int MAX_PTOS_X = 1300;   // ojo! si ponemos "final" habra' que compilar TODAS las clases que lo usan para que se enteren!!!
-   public static int MAX_PRECI1_X = 300;
-   public static int MAX_PRECI2_X = 700;
-   public static int MAX_PRECI3_X = 2000;
-   public static int DESIRED_PRECI = 2;   // 1: Draft 2:Normal 3:Extrem
-// public static int MAX_PTOS_X = 6;
-
    public double minX = -6., maxX = +6., minY = -2.5, maxY = 2.5;
    public double scaleX=1., scaleY=1.;
 
-   public int marco_dx = 100, marco_dy = 100;
-   public double tMin = -10., tMax = +10.;
-   public String CoordSys = COORSYS_CARTESIAN;
+   private int marco_dx = 100, marco_dy = 100;
+   private double tMin = -10., tMax = +10.;
+   private String CoordSys = COORSYS_CARTESIAN;
 
-   public String unitsX = "", unitsY = "", unitsT = "";   // p.e. "m"
-   public String sExpoX = "", sExpoY = "", sExpoT = "";   // p.e. "10e-2"
+   private String unitsX = "", unitsY = "", unitsT = "";   // p.e. "m"
+   private String sExpoX = "", sExpoY = "", sExpoT = "";   // p.e. "10e-2"
 
    public double rangX ()
    {
@@ -81,47 +62,34 @@ class mathFunctionFrame
 
    public int toPixelX (double xx)
    {
-      return (int) ((xx - minX) / scaleX);
+      return (int) ((xx - minX) * scaleX);
    }
 
    public int toPixelY (double yy)
    {
-      return (int) ((maxY - yy) / scaleY);
+      return (int) ((maxY - yy) * scaleY);
    }
 
 
    public double toRealX (int pixelsx)
    {
-      return minX + (double) pixelsx * scaleX;
+      return minX + (double) pixelsx / scaleX;
    }
 
    public double toRealY (int pixelsy)
    {
-      return maxY - (double) pixelsy * scaleY;
+      return maxY - (double) pixelsy / scaleY;
    }
 
    private void recalculaEscalas ()
    {
-      if ((maxX - minX) == 0. )  maxX = minX + 0.1;
-      if ((maxY - minY) == 0. )  maxY = minY + 0.1;
-      if ((maxX - minX) == 0. || (maxY - minY) == 0.)
-      {
-         System.err.println ("CrasoError (169);");
-         return;
-      }
-      if ((marco_dx-2) == 0 || (marco_dy-2) == 0)
-      {
-         System.err.println ("CrasoError (172);");
-         return;
-      }
-
-      scaleX = (double) ((maxX - minX) / (marco_dx-2));
-      scaleY = (double) ((maxY - minY) / (marco_dy-2));
+      scaleX = (maxX - minX) == 0 ? 1.: (double) ((marco_dx-2) / (maxX - minX));
+      scaleY = (maxY - minY) == 0 ? 1.: (double) ((marco_dy-2) / (maxY - minY));
    }
 
-   public void zoom (double miX, double maX, double miY, double maY)
+   public void setScaleByLimits (double miX, double maX, double miY, double maY)
    {
-      //android.util.Log.d ("soom", "   minX maxX minY maxY " + miX + ", " + maX + ", " + miY + ", " + maY);
+      log.dbg (2, "setScaleByLimits", "   minX maxX minY maxY " + miX + ", " + maX + ", " + miY + ", " + maY);
 
       minX = miX;
       maxX = maX;
@@ -130,12 +98,24 @@ class mathFunctionFrame
       recalculaEscalas ();
    }
 
+   public void setScaleAndOffsets (double pscalex, double pscaley, double minimX, double maximY)
+   {
+      log.dbg (2, "setScaleAndOffsets", "   scalex " + pscalex + " scaley " + pscaley + "offsetX (minX) " + minimX + " offsetY (maxY) " +  maximY);
+
+      scaleX = pscalex;
+      scaleY = pscaley;
+      minX = minimX;
+      maxX = minimX + marco_dx / scaleX;
+      minY = maximY - marco_dy / scaleY;
+      maxY = maximY;
+   }
+
    private double refMinX = 0., refMaxX = 0., refMinY = 1., refMaxY = 1.;
    private double refScaleX = 1., refScaleY = 1.;
 
    public void setReference4Gesture ()
    {
-      //android.util.Log.d ("soom", "   setReference4Gesture minX maxX minY maxY " + minX + ", " + maxX + ", " + minY + ", " + maxY);
+      log.dbg (2, "setReference4Gesture", "   minX maxX minY maxY " + minX + ", " + maxX + ", " + minY + ", " + maxY);
       refMinX = minX;
       refMaxX = maxX;
       refMinY = minY;
@@ -148,57 +128,15 @@ class mathFunctionFrame
 
    public void relativeTranslation(vect3f p1, vect3f p2)
    {
-      //android.util.Log.d ("soom", "   translation ...");
+      log.dbg (2, "relativeTranslation", "   translation ...");
 
       // add 0.01 to avoid raise conditions (factor 0 or infinite)
-      double desplazaX = (p1.x - p2.x) * refScaleX;
-      double desplazaY = (p2.y - p1.y) * refScaleY;
+      double desplazaX = (p1.x - p2.x) / refScaleX;
+      double desplazaY = (p2.y - p1.y) / refScaleY;
 
-      zoom (refMinX + desplazaX, refMaxX + desplazaX,
-            refMinY + desplazaY, refMaxY + desplazaY);
+      setScaleByLimits (refMinX + desplazaX, refMaxX + desplazaX,
+                        refMinY + desplazaY, refMaxY + desplazaY);
    }
-
-////////   /**
-////////      We give to rectangles in pixels, the first one is the reference and the second one the
-////////      desired result of the reference (tipically by a pinch or spread multi-touch)
-////////      Optionally we can sqare the rectagles in order to have no distorsion
-////////   */
-////////   public void zoomRectangular (Rect rRef, Rect rDest, boolean square)
-////////   {
-////////      // add 0.01 to avoid raise conditions (factor 0 or infinite)
-////////      double facZoomX = (rRef.right - rRef.left + .01) / (rDest.right - rDest.left + .01);
-////////      double facZoomY = (rRef.top - rRef.bottom + .01) / (rDest.top - rDest.bottom + .01);
-////////
-////////      android.util.Log.d ("soom", "facZoomX Y " + facZoomX + ", " + facZoomY);
-////////
-////////      if (square)
-////////      {
-////////         facZoomX = Math.max (facZoomX, facZoomY);
-////////         facZoomY = facZoomX;
-////////      }
-////////
-////////      // center in pixels of rectangle ref
-////////      //int cx = rRef.right + (int) ((rRef.right - rRef.left) / 2);
-////////      //int cy = rRef.bottom + (int) ((rRef.top - rRef.bottom) / 2);
-////////      int cx = (int) ((rRef.right - rRef.left) / 2);
-////////      int cy = (int) ((rRef.top - rRef.bottom) / 2);
-////////
-////////      android.util.Log.d ("soom", "   cx cy " + cx + ", " + cy);
-////////
-////////      // the Yreference and Xref has to be the same after scaling
-////////      double Xref = refMinX - cx * refScaleX;
-////////      double Yref = refMinY - cy * refScaleY;
-////////
-////////      android.util.Log.d ("soom", "   Xref Yref " + Xref + ", " + Yref);
-////////
-////////      double minX1 = Xref + cx * facZoomX * refScaleX;
-////////      double minY1 = Yref + cy * facZoomY * refScaleY;
-////////
-////////      double maxX1 = minX1 + (refMaxX - refMinX) * facZoomX;
-////////      double maxY1 = minY1 + (refMaxY - refMinY) * facZoomY;
-////////
-////////      zoom (minX1, maxX1, minY1, maxY1);
-////////   }
 
    public void set_dx_dy (int dx, int dy)
    {
@@ -314,7 +252,7 @@ class mathFunctionFrame
       main method of the class that draws a coordinate
       either horizontal or vertical
    */
-   public void drawCoordenada (uniCanvas can, uniPath pai, boolean Horiz)
+   public void drawCoordenada (uniCanvas can, uniPaint pai, boolean Horiz)
    {
       double maxo = (Horiz) ? maxX: maxY;
       double mino = (Horiz) ? minX: minY;
@@ -424,56 +362,5 @@ class mathFunctionFrame
         }
         tok += paso;
      }
-   }
-
-
-   // =====================================
-   // =====================================
-   // =====================================
-
-   /**
-      deserialize data structure
-   */
-   public void fromEva (Eva eva)
-   {
-      if (eva.rows () < 4) return;
-
-      minX = stdlib.atof (eva.getValue (0,0));
-      maxX = stdlib.atof (eva.getValue (0,1));
-      unitsX = eva.getValue (0, 2);
-
-      minY = stdlib.atof (eva.getValue (1,0));
-      maxY = stdlib.atof (eva.getValue (1,1));
-      unitsY = eva.getValue (1, 2);
-
-      tMin = stdlib.atof (eva.getValue (2,0));
-      tMax = stdlib.atof (eva.getValue (2,1));
-      unitsT = eva.getValue (2, 2);
-      if (tMin == tMax && tMax == 0.f)
-      {
-         tMin = -100.;
-         tMax = 100.;
-      }
-
-      marco_dx = stdlib.atoi (eva.getValue (3,0));
-      marco_dy = stdlib.atoi (eva.getValue (3,1));
-
-      CoordSys = eva.getValue (4,0);
-      if (CoordSys.trim ().length () == 0)
-         CoordSys = COORSYS_CARTESIAN;
-   }
-
-   /**
-      serialize data structure
-   */
-   public void toEva (Eva eva)
-   {
-      eva.clear ();
-      eva.addLine (new EvaLine (minX + ", " + maxX + ", " + unitsX));
-      eva.addLine (new EvaLine (minY + ", " + maxY + ", " + unitsY));
-      eva.addLine (new EvaLine (tMin + ", " + tMax + ", " + unitsT));
-      eva.addLine (new EvaLine (marco_dx + ", " + marco_dy));
-
-      eva.addLine (new EvaLine (CoordSys));
    }
 }

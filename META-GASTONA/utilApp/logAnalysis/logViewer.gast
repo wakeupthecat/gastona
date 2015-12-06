@@ -2,6 +2,7 @@
 
    <fusion>
       META-GASTONA/utilApp/logAnalysis/reportListixFlow.gasti
+      META-GASTONA/utilApp/std/ExportBasicDialog.gasti
 
 
 #javaj#
@@ -15,8 +16,9 @@
       ,              , X
       , bLoadLastLog ,
     X , aTree        , sMainView
+      ,  +           , layExportBasic
       , oConson, -
-      , bRun         ,
+      , bRun         , -
 
 #data#
 
@@ -36,13 +38,11 @@
       mensaka/flow detailed
       reports/listix flow text
       reports/listix flow html
+      mix/mix1
 
 #listix#
 
    <main0>
-      LOAD, data, @<:sys user.home>/.gastonaLocal
-      CHECK, VAR, tool gastona, BOX, 1, "Please congfigure <tool gastona> in "@<:sys user.home>/.gastonaLocal"
-      CHECK, VAR, tool gastona, BOX, 1, "Please congfigure <tool editor> in "@<:sys user.home>/.gastonaLocal"
       RESUTIL, MINI TOOL, sqlite, muTool sqlite
       SETVAR, tmp1, @<:lsx tmp>
       CHECK, FILE, logDatabase.db, @<create logDataBas>
@@ -58,24 +58,28 @@
       CALL, //CMD /C "@<muTool sqlite>" logDatabase.db < "@<tmp1>"
           , ON BATCH, 1
 
-      -->, sMainView, sqlSelect, //SELECT * FROM logMessages;
+      -->, sMainView data!, sqlSelect, //SELECT * FROM logMessages;
 
    <-- aTree>
       IN CASE, @<aTree selectedPath>
-             , logs/Errors   , -->, sMainView, sqlSelect, //SELECT * FROM logMessages WHERE clientId+0 != 0 AND level+0 < 10;
-             , logs/stackCalls, -->, sMainView, sqlSelect, //SELECT * FROM logStack4Errors;
+             , logs/Errors   , -->, sMainView data!, sqlSelect, //SELECT * FROM logMessages WHERE clientId+0 != 0 AND level+0 < 10;
+             , logs/stackCalls, -->, sMainView data!, sqlSelect, //SELECT * FROM logStack4Errors;
 
-             , mensaka/agents             , -->, sMainView, sqlSelect, //SELECT agentId, componentName, objectToStr FROM logCustom_mensaka_sess_agents
-             , mensaka/messages           , -->, sMainView, sqlSelect, //SELECT msgId, msgText FROM logCustom_mensaka_sess_msgs
-             , mensaka/lost messages      , -->, sMainView, sqlSelect, //SELECT agentId, componentName, msgText FROM logCustom_mensaka_flow_lostMsgs LEFT JOIN logCustom_mensaka_sess_agents USING (agentId)
-             , mensaka/flow sent messages , -->, sMainView, sqlSelect, //SELECT agentTx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentTx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
-             , mensaka/flow detailed      , -->, sMainView, sqlSelect, //SELECT agentTx, agentRx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentRx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
+             , mensaka/agents             , -->, sMainView data!, sqlSelect, //SELECT agentId, componentName, objectToStr FROM logCustom_mensaka_sess_agents
+             , mensaka/messages           , -->, sMainView data!, sqlSelect, //SELECT msgId, msgText FROM logCustom_mensaka_sess_msgs
+             , mensaka/lost messages      , -->, sMainView data!, sqlSelect, //SELECT agentId, componentName, msgText FROM logCustom_mensaka_flow_lostMsgs LEFT JOIN logCustom_mensaka_sess_agents USING (agentId)
+             , mensaka/flow sent messages , -->, sMainView data!, sqlSelect, //SELECT agentTx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentTx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
+             , mensaka/flow detailed      , -->, sMainView data!, sqlSelect, //SELECT agentTx, agentRx, componentName, msgId, msgText FROM (logCustom_mensaka_flow_sentMsgs LEFT JOIN logCustom_mensaka_sess_agents ON agentRx = agentId) LEFT JOIN logCustom_mensaka_sess_msgs USING (msgId) WHERE beginEnd='B'
 
-             , listix/flow formats, -->, sMainView, sqlSelect, //SELECT * FROM logCustom_listix_flow;
+             , listix/flow formats, -->, sMainView data!, sqlSelect, //SELECT * FROM logCustom_listix_flow;
+
+             , mix/mix1, -->, sMainView data!, sqlSelect, @<SQL mix1>
+
+      LISTIX, ExportBasic set (gridName dbName), sMainView, logDatabase.db
 
    <-- aTree 2>
       IN CASE, @<aTree selectedPath>
-             , arces , LAUNCH, //@<tool gastona> META-GASTONA/utilApp/arces/arces.gast logDatabase.db
+             , arces , GAST, //META-GASTONA/utilApp/arces/arces.gast logDatabase.db
              , reports/listix flow text,  @<show report listix_flow text>
              , reports/listix flow html,  @<show report listix_flow html>
 
@@ -86,10 +90,65 @@
    <show report listix_flow text>
       GEN, report_listix_flow.html, report listix_flow text
       CHECK, FILE, report_listix_flow.txt
-      LAUNCH, //@<tool editor> report_listix_flow.txt
+      LAUNCH, //report_listix_flow.txt
 
    <load logfile>
       //begin;
       //.read logSession.sql
       //commit;
       //
+
+
+   <SQL mix1>
+      // SELECT * FROM (
+      //
+      // SELECT
+      //    milliStamp,
+      //    "" AS mensaka,
+      //    "" AS listix,
+      //    "at "||context||" "||message AS errorTxt
+      //    FROM logMessages
+      //    WHERE level+0 < 10
+      //
+      // UNION
+      //
+      // SELECT
+      //    milliStamp,
+      //    "" AS mensaka,
+      //    "<"||value||">" AS listix,
+      //    "" AS errorTxt
+      //    FROM  logCustom_listix_flow
+      //
+      //    WHERE context = 'flow' AND message ='format'
+      //
+      // UNION
+      //
+      // SELECT
+      //    milliStamp ,
+      //    "" AS mensaka,
+      //    "    "||value AS listix,
+      //    "" AS errorTxt
+      //    FROM  logCustom_listix_flow
+      //
+      //    WHERE context = 'flow' AND message ='cmd'
+      //
+      //
+      // UNION
+      //
+      // SELECT
+      //    logCustom_mensaka_flow_sentMsgs.milliStamp AS milliStamp,
+      //    "Message "||logCustom_mensaka_flow_sentMsgs.message||" "||msg.msgText AS mensaka,
+      //    "" AS listix,
+      //    "" AS errorTxt
+      //
+      //    FROM
+      //
+      //    logCustom_mensaka_flow_sentMsgs ,
+      //    logCustom_mensaka_sess_msgs AS msg
+      //
+      //    WHERE
+      //
+      //    logCustom_mensaka_flow_sentMsgs.msgId == msg.msgId
+      //
+      // )
+      // ORDER BY milliStamp+0

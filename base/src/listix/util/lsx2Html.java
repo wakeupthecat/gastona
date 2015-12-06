@@ -48,8 +48,8 @@ public class lsx2Html
 
    private TextFile fix = new TextFile ();
 
-//   ESPAN = "<span style=\"font-family:Courier New; font-size:8pt; color:#800000\">"
-   private static final String ESPAN = "<span style=\"font-family:Courier New\">";
+//   ESPAN = "<span style=\"font-family:Consolas; font-size:8pt; color:#800000\">"
+   private static final String ESPAN = "<span style=\"font-family:Consolas New\">";
 
 
    public void start (String filename, String dataname, String formatname, String outputname)

@@ -26,6 +26,8 @@ import java.util.*;
 
 /**   ======== de.elxala.langutil.Cadena  ==========================================
    Alejandro Xalabarder
+   
+   23.11.2014        StringBuffer instead of StringBuffer (more performant if synchronization is not required)
 
    03.10.2005 14:53  Usar StringBuffer en setStrArray (performance)
                      reemplazar el uso de bigString con el de StringBuffer
@@ -735,4 +737,19 @@ System.out.println ("\n busca.length() = " + busca.length());
       return reto;
    }
    public static String [] simpleToArray (String simpleStringList) { return simpleToArray (simpleStringList, ","); }
+
+   
+   public static String [] simpleToArray (String [] stringAndSeparator) 
+   { 
+      String str = (stringAndSeparator != null && stringAndSeparator.length > 0) ? stringAndSeparator[0]: "";
+      String separ = (stringAndSeparator != null && stringAndSeparator.length > 1) ? stringAndSeparator[1]: ",";
+      return simpleToArray (str, separ); 
+   }
+
+   public static String linkStrings (String s1, String s2, String link)
+   { 
+      if (s1.length () == 0) return s2;
+      if (s2.length () == 0) return s1;
+      return s1 + link + s2;
+   }
 }

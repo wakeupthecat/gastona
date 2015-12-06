@@ -135,4 +135,8 @@ public class tableAccessEva extends tableAccessBase
    {
       return evaData.rows ();
    }
+
+   public void rowIsIncremented ()
+   {
+   }
 }

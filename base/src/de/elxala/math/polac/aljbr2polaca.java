@@ -1,6 +1,6 @@
 /*
 package de.elxala.math.polac;
-(c) Copyright 2006 Alejandro Xalabarder Aulet
+(c) Copyright 2006,2014 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -71,9 +71,9 @@ public class aljbr2polaca
 
    public String convert (String sAljbr)
    {
-      // CLEAR PILA : increi'ble que no exista el clear !!
-      while (!pilaStr.empty ()) pilaStr.pop ();
-
+      // CLEAR PILA
+      pilaStr = new Stack ();
+      
       sAljbr.toLowerCase ();
       sAljbr.trim ();
 
@@ -91,7 +91,7 @@ public class aljbr2polaca
    public String [] convertToArray (String sAljbr)
    {
       // CLEAR PILA : increi'ble que no exista el clear !!
-      while (!pilaStr.empty ()) pilaStr.pop ();
+      pilaStr = new Stack ();
 
       sAljbr.toLowerCase ();
       sAljbr.trim ();
@@ -121,10 +121,12 @@ public class aljbr2polaca
       while (!pilaOper.empty ())
       { // ' hay operadores
          String yo = "" + pilaOper.peek ();
-
+         
          l1 = NivelOperador(yo);
          l2 = NivelOperador(sOper);
-         if (l2 > l1) break;
+         if (l2 > l1) break;  // eg. "a + b * c" we cannot solve a+b yet!
+         if (l2 == 2 && l1 == 2) break; // eg. "--4" do not "chs 4 chs" but "4 chs chs"
+         
          pilaStr.push (pilaOper.pop ()); // ' hacer la operacio'n anterior
       }
       pilaOper.push (sOper);
@@ -172,15 +174,14 @@ public class aljbr2polaca
             {
                 case ' ':
                      recorro++;
-                     EraInicioAlgo = false;
                      break;
                 case ',':
                 case ';':
+                     PonOperadorSiHay(pilaOper);
                      recorro ++;
                      EraInicioAlgo = true;
                      break;
                 case '(':
-                     // 'EraInicioAlgo = True
                      if (EraFuncion)
                      {
                           String sFunc;

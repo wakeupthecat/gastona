@@ -1,9 +1,0 @@
-#gastona#
-
-   <sessionLog> c:\temp\ARCESLOG
-
-   <fusion>
-      META-GASTONA/utilApp/arces/arcesBASE.gasti
-      META-GASTONA/utilApp/arces/gasti/sqliteHelpData.gasti
-      META-GASTONA/utilApp/arces/gasti/sqliteHelpGUI.gasti
-

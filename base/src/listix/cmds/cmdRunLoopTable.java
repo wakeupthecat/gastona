@@ -29,7 +29,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 #gastonaDoc#
 
    <docType>    listix_command
-   <name>       RUN LOOP
+   <name>       PARTIAL LOOP
    <groupInfo>  lang_flow
    <javaClass>  listix.cmds.cmdRunLoopTable
    <importance> 7
@@ -37,49 +37,64 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // RUN LOOP continues a given loop changing the loop conditions for it. Note that is not really
-      // a nested loop (only continues, actually it does not start any loop). It is mainly thought for
-      // header-detail reports, where the table is suppossed to contain sorted header-detail information.
-      // It is a way to do such reports using just a single loop, for instance
-      // if we build the following table about sales of products (e.g. using SQL)
+      // PARTIAL LOOP or SUB LOOP continues a given loop changing the loop conditions for it. 
+      // Note that is not really a nested loop actually it does not start any loop but either:
+      //   continue the current one until one column change its value (option WHILE SAME)
+      //   or 
+      //   skips rows while a column has the same value (option ON DIFFERENT)
+      //
+      // It is mainly thought for header-detail reports, where the table is suppossed to contain sorted 
+      // header-detail information. Using PARTIAL LOOP command such reports can be done using just a single 
+      // loop, for instance if we build the following table about sales of products (e.g. using SQL)
       //
       //       customer, date, product, quantity, price, paid
       //
       // we could make a report with header "customer", sub-header "date" and detail "products"
-      // using a single loop. In this case this can also be achived using three nested loops, but
-      // this would result into "Number of customers" x "Number of dates per customer" loops!
+      // using a single loop. For example:
       //
-      // The RUN LOOP commands for this example would be
-      //
-      //    <format for report>
-      //       //Customer : @<customer>
-      //       //
-      //       RUN LOOP, format for header date,
-      //               , WHILE HEADER, customer
+      //    <main loop>
+      //       LOOP, SQL,, //SELECT * FROM orders
+      //          ,, //Customer : @<customer>
+      //          ,, //
+      //          ,, PARTIAL LOOP, format for header date,
+      //          ,,             , WHILE, customer
       //
       //    <format for header date>
-      //       //Date : @<date>
+      //       //  Date : @<date>
       //       //
-      //       RUN LOOP, format for products,
-      //               , WHILE HEADER, date
+      //       PARTIAL LOOP,,
+      //                   , WHILE, date
+      //                   ,, //    @<product>, @<quantity> x @<price> = @<paid>
       //
-      // The options WHILE HEADER and DIFFERENT HEADER become a single column name as parameter
+      //
+      // An alternative way would be doing three nested loops, for example
+      //
+      //    LOOP for all customers
+      //        LOOP for all dates of a customer
+      //           LOOP for all products in a date of a customer
+      //
+      // this would result into "Number of customers" x "Number of dates per customer" loops
+      // and therefore such number of sql queries as well (1). 
+      //
+      // The options WHILE HEADER and DIFFERENT HEADER have a single column name as parameter
       // but the meaning actually is "either the column or one of the previous columns keep/change its
       // values", therefore it is important that the table is sorted by the desired header and sub-headers.
       //
-      // The first argument of RUN LOOP is a format name (eva variable name), it can be left in blank
-      // if wanted to inline it, but note that still two columns are needed. For example
+      // The first argument of RUN LOOP is a format name (eva variable name) for the loop body, it can be left in blank
+      // if wanted to inline the body but still two columns are needed for the command. For example
       //
-      //       RUN LOOP,,
-      //       //inline format
-      //       //etc..
-      //       =,,
+      //       PARTIAL LOOP,,
+      //             ,, //inline format
+      //             ,, //etc..
       //
+      // (1) Nevertheless, it has to be say that it is still a more intiutive and readable solution that the one using 
+      //     PARTIAL LOOP. To improve the readbility of such constructions it could help having two separate commands, 
+      //     for instance: "SKIP ROWS WITH SAME" and "LOOP BODY WHILE" instead on only one command with two syntaxes.
       //
-
 
    <aliases>
          alias
+         "PARTIAL LOOP",
          "DO LOOP",
          "RUN TABLE",
          "RUN",
@@ -96,43 +111,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters                  , defVal, desc
-          1  , WHILE SAME  , fieldName                   ,       , //continue the sub-loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          1  , ON DIFFERENT, fieldName                   ,       , //make the sub-loop only on different values of fieldName (skip records with same value)
-          1  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          1  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
+          x  , WHILE SAME  , fieldName                   ,       , //continue the sub-loop while the value of fieldName remains the same (or until the value of fieldName changes)
+          x  , ON DIFFERENT, fieldName                   ,       , //make the sub-loop only on different values of fieldName (skip records with same value)
+          x  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
+          x  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
+          x  , IF 0 ROWS   , subcommand                  ,       , //Executed if the table to loop result in 0 rows (actually no loop at all)
 
 
    <examples>
       gastSample
 
-      simple run loop
       run loop agenda sample
-
-   <simple run loop>
-      //#javaj#
-      //
-      //   <frames> oConsole, "Simple RUN LOOP"
-      //
-      //#data#
-      //
-      //   <items>
-      //      NAME
-      //      one
-      //      two
-      //      three
-      //
-      //#listix#
-      //
-      //   <main0>
-      //      //The items are :
-      //      LOOP, EVA, items
-      //      @<run it>
-      //
-      //   <run it>
-      //      RUN LOOP, one item,
-      //              , LINK, ", "
-      //
-      //   <one item> //[@<NAME>]
 
    <run loop agenda sample>
       //#javaj#
@@ -156,36 +145,36 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main0>
-      //      //I have the telephone numbers of @<people>
+      //      //I have the telephone numbers of @<show people>
       //      //
       //      //Hier is my book:
       //      //
       //      @<show agenda>
       //
-      //   <people>
+      //   <show people>
       //      LOOP, EVA, telephones
       //          , DIFFERENT HEADER, NAME
       //          , LINK, ", "
-      //      @<NAME>
+      //          ,, @<NAME>
       //
       //   <show agenda>
       //      LOOP, EVA, telephones
-      //      //Telephones of @<NAME> :
-      //      //
-      //      //@<listOfAll>
-      //      //
-      //      //-----------------------
+      //          ,, //Telephones of @<NAME> :
+      //          ,, //
+      //          ,, //@<listOfAll>
+      //          ,, //
+      //          ,, //-----------------------
       //
       //   <listOfAll>
-      //      RUN LOOP,,
-      //              , WHILE HEADER, NAME
-      //      // @<KIND> : ( @<listOfPart> )
+      //      PARCIAL LOOP,,
+      //                  , WHILE, NAME
+      //                  ,, // @<KIND> : ( @<listOfPart> )
       //
       //   <listOfPart>
-      //      RUN LOOP,,
-      //              , WHILE HEADER, KIND
-      //              , LINK, ", "
-      //      //@<NUMBER>
+      //      PARCIAL LOOP,,
+      //                  , WHILE, KIND
+      //                  , LINK, ", "
+      //                  ,, //@<NUMBER>
 
 
 #**FIN_EVA#
@@ -206,6 +195,7 @@ public class cmdRunLoopTable implements commandable
       return new String [] {
           "RUN LOOP",
           "SUB LOOP",
+          "PARCIAL LOOP",
 
           "DO LOOP",
           "RUN TABLE",
@@ -231,8 +221,12 @@ public class cmdRunLoopTable implements commandable
       }
 
 
-      Eva inlineFormat = new Eva ("loop_embedded_format");
-      int indxPassOpt = cmdLoopTable.indxSkipingOptions(commands, indxComm, inlineFormat);
+      // Note: the names of this Evas are irrelevant, they are not used at all
+      Eva inHeadFormat = new Eva ("loop_head_format");  
+      Eva inlineFormat = new Eva ("loop_body_format");
+      Eva inTailFormat = new Eva ("loop_tail_format");
+      Eva inlineIf0RowFormat = new Eva ("loop_onNoRecord_format");
+      int indxPassOpt = cmdLoopTable.indxSkipingOptions(commands, indxComm, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
 
       if (inlineFormat.rows () > 0)
       {
@@ -244,7 +238,7 @@ public class cmdRunLoopTable implements commandable
          //
          that.log().dbg (4, "RUN LOOP", "embedded format");
          that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         runningTables.runLoopTable (that, inlineFormat);
+         runningTables.runLoopTable (that, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
          that.getTableCursorStack ().end_RUNTABLE ();
          return 1;
       }
@@ -273,7 +267,7 @@ public class cmdRunLoopTable implements commandable
             that.log().err ("RUN LOOP", "No body found for the loop, LOOP not performed!");
       }
 
-      int passRows = runningTables.runLoopTable (that, lsxFormatName, commands, indxPassOpt);
+      int passRows = runningTables.runLoopTableInlineAfterOptions (that, lsxFormatName, commands, indxPassOpt);
 
       that.getTableCursorStack ().end_RUNTABLE ();
 

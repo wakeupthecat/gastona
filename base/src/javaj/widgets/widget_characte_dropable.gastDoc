@@ -34,7 +34,7 @@
       //          // files has been dropped:
       //          //
       //          LOOP, EVA, myWidget droppedFiles
-      //          @<fullPath>
+      //              ,, @<fullPath>
       //
       //    Note:
       //    Unfortunatelly some common widgets are not able to be droppable due to some unresolved

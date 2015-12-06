@@ -39,26 +39,25 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Calls a java static method within the same java virtual machine where Listix is running.
       //  Through this command it is possible to customize a lot of functionality, from fast calculations
-      //  to long processes, the only limitation is the input parameters (String[]) and the output value
-      //  (String)(*).
+      //  to long processes, the only limitation is the input parameters (void or String[]).
       //
       //  The method to call has to have one of the following signatures
       //
-      //   1  public static void methodname ()
-      //   2  public static void methodname (String [])
-      //   3  public static String methodname ()
-      //   4  public static String methodname (String [])
+      //   1  public static String methodname ()
+      //   2  public static String methodname (String [])
+      //   3  public static String [] methodname ()
+      //   4  public static String [] methodname (String [])
       //   5  public static anotherType methodname ()
       //   6  public static anotherType methodname (String [])
       //
       //  Use the option "ARG TYPE, void" if the method has no arguments (1, 3, 5)
       //
-      //  If the method return's type is different from String or void (e.g. 5, 6) it will be ignored
-      //  and will not produce any error.
+      //  If the method return's type is different from String or String [] (e.g. 5, 6) the return value will be ignored
+      //  without producing any error.
       //
-      //  In the cases 3 and 4 the returned String will be printed out on the current listix
-      //  target (e.g. console, variable solving etc). Note that only the results of these methods
-      //  can be saved into a file (if the listix target is so) or into an Eva variable, for example
+      //  In the cases 1 to 4 the returned String(s) will be sent to the current listix
+      //  target (e.g. console, variable solving etc). Note though the difference between returning a String 
+      //  or String[] and just printing out values using System.out within the method, for example
       //
       //       ...
       //       SETVAR, myVar, @<call method>
@@ -129,10 +128,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       JAVA STATIC, listix.lsxWriter
       //       //
       //       //Calling the method de.elxala.langutil.filedir.naming::toVariableName
-      //       // to convert "This is%20%NOT(a valid \\//α) file name, is it?"
+      //       // to convert "This is%20%NOT(a valid \\//Γ‘) file name, is it?"
       //       // into a valid variable name (e.g. for a column in a table etc)
       //       //
-      //       JAVA, de.elxala.langutil.filedir.naming, toVariableName, //This is%20%NOT a valid (αι) file name, is it?
+      //       JAVA, de.elxala.langutil.filedir.naming, toVariableName, //This is%20%NOT a valid (Γ‘Γ©) file name, is it?
+      //       //
+      //       //Note : the last result can be obtained using the command STRCONV, TEXT-VARNAME
+      //       //
 
    <testing math expresion>
       //#javaj#
@@ -173,7 +175,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       X , xSQLFilter, -, -
       //
       //   <sysDefaultFonts>
-      //      Courier, 13, 0, TextArea
+      //      Consolas, 13, 0, TextArea
       //
       //#data#
       //
@@ -184,10 +186,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bGo>
-      //      -->, xSQLFilter,, @<solve>
+      //      -->, xSQLFilter data!,, @<solve>
       //
       //   <-- eAsisteStr>
-      //      -->, xSQLFilter,, @<solve>
+      //      -->, xSQLFilter data!,, @<solve>
       //
       //   <solve>
       //      JAVA STATIC, javaj.widgets.table.util.utilAsiste, getComposedWhereCondition, @<eAsisteStr>, desc
@@ -211,7 +213,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      rAny, rAll
       //
       //   <sysDefaultFonts>
-      //      Courier, 13, 0, TextArea
+      //      Consolas, 13, 0, TextArea
       //
       //#data#
       //
@@ -223,10 +225,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- allany>
-      //      -->, xSQLFilter,, @<solve>
+      //      -->, xSQLFilter data!,, @<solve>
       //
       //   <-- eAsisteStr>
-      //      -->, xSQLFilter,, @<solve>
+      //      -->, xSQLFilter data!,, @<solve>
       //
       //   <solve>
       //      JAVA STATIC, javaj.widgets.table.util.utilAsiste, @<method>, @<eAsisteStr>, desc, help
@@ -302,7 +304,7 @@ public class cmdJavaMain implements commandable
 
       // if option is "void" then set arguments to null
       String argumentType = cmd.takeOptionString("ARGTYPE", "String[]");
-      that.log().dbg(1, "JAVAMAIN", "className [" + className + "], public static method [" + mainMeth + " (" + argumentType + ")]");
+      that.log().dbg(2, "JAVAMAIN", "className [" + className + "], public static method [" + mainMeth + " (" + argumentType + ")]");
 
       //call the method
       //
@@ -312,8 +314,18 @@ public class cmdJavaMain implements commandable
       {
          if (retVal[0] instanceof String)
          {
-              that.log().dbg (2, "JAVAMAIN", "return string [" + retVal[0] + "]");
-              that.printTextLsx ((String) (retVal[0]));
+            that.log().dbg (2, "JAVAMAIN", "return string [" + retVal[0] + "]");
+            that.printTextLsx ((String) (retVal[0]));
+         }
+         else if (retVal[0] instanceof String[])
+         {
+            String [] arr = (String []) retVal[0];
+            that.log().dbg (2, "JAVAMAIN", "return string [] of size " + arr.length);
+            for (int ii = 0; ii < arr.length; ii ++)
+            {
+               that.printTextLsx (arr[ii]);
+               that.newLineOnTarget ();
+            }
          }
          else that.log().dbg (2, "JAVAMAIN", "return value of the called method [" + mainMeth + "] is not of type String, no return value");
       }

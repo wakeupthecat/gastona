@@ -23,8 +23,6 @@ import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 import de.elxala.db.utilEscapeStr;
 
-import de.elxala.mensaka.*;
-//import javaj.widgets.basics.*;
 import de.elxala.zServices.*;
 
 import java.util.*;
@@ -33,52 +31,20 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-import de.elxala.db.sqlite.*;
+import de.elxala.parse.xmelonSchema;
 
 /**
 */
 public class saXmelon
          extends DefaultHandler
-         implements ContentHandler ////loca////, Locator
+         implements ContentHandler, EntityResolver ////loca////, Locator
 {
+   private static logger log = new logger (null, "de.elxala.parse.xml.saXmelon", null);
+
    // sax parser reader
    //
    private XMLReader xmlReader = null;
-
-   // gastona logger
-   //
-   private logger log = new logger (this, "de.elxala.parse.xml.saXmelon", null);
-
-   // xml path control
-   //
-   private static final int cNODE=0;
-   private static final int cNAMESPACE=1;
-   private static final int cLOCALNAME=2;
-   private static final int cCOUNTER=3;
-
-   public sqlSolver cliDB = null;
-
-   class perFileStruc
-   {
-      public Eva currentPath = new Eva();
-      public int pathCounter = 0;
-      public String strData = "";
-   }
-
-   private static final long MIN_FILE_ID = 1000;
-   private static final long MIN_PAT_ID = 100;
-
-   class cacheableStruct
-   {
-      public long fileID = 0;
-      public String dbName = null;
-      public String tabPrefix = "xmelon";
-      public List patIDList = null;      // to store path+namespace ..
-      public int loadedIDs = 0;
-   }
-
-   private perFileStruc perFile = null;
-   private cacheableStruct cached = new cacheableStruct ();
+   private xmelonSchema xemi = new xmelonSchema ();
 
    /**
    */
@@ -87,15 +53,26 @@ public class saXmelon
       initOnce ();
    }
 
+   public InputSource resolveEntity (String publicId, String systemId)
+   {
+      log.dbg (5, "ignoring [" + publicId + "] [" + systemId + "]");
+      //return new InputSource(new java.io.ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+      return new InputSource(new java.io.ByteArrayInputStream(" ".getBytes()));
+      //return null;
+   }
+
    private void initOnce ()
    {
       if (xmlReader != null) return;
 
+      log.dbg (2, "initOnce", "getting XML reader");
       // prepare it as xml reader
       try
       {
          xmlReader = ( (SAXParserFactory.newInstance ()).newSAXParser () ).getXMLReader();
          xmlReader.setContentHandler (this);
+         xmlReader.setEntityResolver (this);
+
 ///loca/////         setDocumentLocator(loco);
       }
       catch (Exception e)
@@ -105,25 +82,7 @@ public class saXmelon
       }
    }
 
-   public void clearCache ()
-   {
-      cached = new cacheableStruct ();
-   }
-
-   private boolean checkMisprog (boolean sayAgain, String varName)
-   {
-      if (sayAgain)
-         log.severe ("out",  varName + " is null during operation, is saXmelon misprogrammed?");
-      return sayAgain;
-   }
-
-
-   private void out (String str)
-   {
-      if (checkMisprog (cliDB == null, "cliDB")) return;
-      cliDB.writeScript (str + "\n");
-   }
-
+   
 ///loca/////      private Locator loco = new LocatorImpl(this);
 
 ///loca/////   public int getColumnNumber()
@@ -146,77 +105,45 @@ public class saXmelon
 ///loca/////      return loco.getSystemId();
 ///loca/////   }
 
-   protected void initialScript (String dbName, String prefix)
-   {
-      if (checkMisprog (cliDB == null, "cliDB")) return;
-      if (checkMisprog (cached == null, "cached")) return;
-
-      //(o) listix_sql_schemas XMELON schema creation
-
-      if (cached.dbName == null || !cached.dbName.equals (dbName) ||
-          cached.tabPrefix == null || !cached.tabPrefix.equals (prefix)
-          )
-      {
-         cached.tabPrefix = prefix;
-         cached.dbName = dbName;
-         log.dbg (2, "initialScript", "ensure tables creation for prefix " + cached.tabPrefix + " in database " + cached.dbName);
-         cliDB.openScript ();
-         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + cached.tabPrefix + "_pathDef (patID int, pathStr);");
-         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + cached.tabPrefix + "_files (fileID int, timeParse, fullPath);");
-         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + cached.tabPrefix + "_data  (fileID int, patID int, patCnt int, AttOrData, nameNorm, nameOri, value);");
-         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + cached.tabPrefix + "_log   (fileID int, logMessage);");
-         cliDB.closeScript ();
-         cliDB.runSQL (cached.dbName);
-
-         // reset patIDList cache
-         cached.patIDList = null;
-
-         // get last fileID
-         cached.fileID = sqlUtil.getNextID(cached.dbName, cached.tabPrefix + "_files", "fileID", MIN_FILE_ID);
-      }
-      else cached.fileID ++;
-
-      if (cached.patIDList != null) return;
-
-      // ok, need the list if given
-
-      // get though script to avoid header
-//      cliDB.openScript ();
-//      cliDB.writeScript (".headers off;SELECT pathStr FROM " + cached.tabPrefix + "_pathDef ORDER BY patID;");
-//      cliDB.closeScript ();
-      cached.patIDList = cliDB.getSQL (dbName, ".headers off\nSELECT pathStr FROM " + cached.tabPrefix + "_pathDef ORDER BY patID;");
-      cached.loadedIDs = cached.patIDList.size ();
-      log.dbg (2, "initialScript", "obtained pathDef list of " + cached.loadedIDs + " elements");
-   }
-
-//   protected void vuelcaPathIDs ()
-//   {
-//      if (checkMisprog (cliDB == null, "cliDB")) return;
-//      if (checkMisprog (cached == null, "cached")) return;
-//   }
-
    public void parseFile (String fileToParse, String dbName, String tablePrefix)
    {
-      perFile = new perFileStruc ();
-
-      cliDB = new sqlSolver ();
-      initialScript (dbName, tablePrefix);
-      processOneFile (fileToParse);
-      cliDB = null;
+      parseFile (fileToParse, dbName, tablePrefix, false, null);
    }
 
-   private void processOneFile (String fileName)
+   /**
+      Parses the xml file 'fileToParse' and places the results in an xmelon
+      schema into the database dbName using 'tablePrefix' for naming the tables.
+   */
+   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
    {
-      if (checkMisprog (cliDB == null, "cliDB")) return;
-      if (checkMisprog (cached == null, "cached")) return;
+      parseFile (fileToParse, dbName, tablePrefix, keepCache, null);
+   }
 
-      cliDB.openScript ();
-      out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + cached.fileID + ", '" + cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileName + "');");
+   List subTagIgnoreList = new Vector ();
 
+   /**
+      Parses the xml file 'fileToParse' and places the results in an xmelon
+      schema into the database dbName using 'tablePrefix' for naming the tables.
+   */
+   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache, List ignoreSubTagList)
+   {
+      subTagIgnoreList = (ignoreSubTagList == null) ? new Vector (): ignoreSubTagList;
+
+      processOneFile (dbName, fileToParse, tablePrefix, keepCache);
+   }
+   
+   public void clearCache ()
+   {
+      xemi.clearCache ();
+   }
+
+   private void processOneFile (String dbName, String fileName, String tablePrefix, boolean keepCache)
+   {
+      TextFile textF = xemi.openDBforFile (dbName, fileName, tablePrefix);
+      if (textF == null) return;
       try
       {
-         // System.out.println ("Processing .. [" + fileName + "]");
-         xmlReader.parse (new org.xml.sax.InputSource (fileName));
+         xmlReader.parse (new org.xml.sax.InputSource (textF.getAsInputStream ()));
       }
       catch (Exception e)
       {
@@ -226,35 +153,9 @@ public class saXmelon
 
       // run the script even if there is some parse error
       // this way we can know the last succsessful record
-//      vuelcaPathIDs ();
-      cliDB.closeScript ();
-      cliDB.runSQL (cached.dbName);
-   }
-
-   /**
-      NOTE: Only call this function if a record is going to be stored
-   */
-   protected long getPathTypeIdentifier ()
-   {
-      if (checkMisprog (perFile == null, "perFile")) return -1;
-      if (checkMisprog (cached == null, "cached")) return -1;
-
-      String pathStr = "";
-      for (int ii = 0; ii < perFile.currentPath.rows (); ii ++)
-      {
-         pathStr += "/" + perFile.currentPath.getValue(ii, cNODE);
-      }
-      long indx = cached.patIDList.indexOf (pathStr);
-      if (indx == -1)
-      {
-         cached.patIDList.add (pathStr);
-         indx = cached.patIDList.size () - 1;
-         out ("INSERT INTO " + cached.tabPrefix + "_pathDef VALUES ("
-                  + (MIN_PAT_ID + indx) + ", '"
-                  + utilEscapeStr.escapeStr(pathStr) + "');");
-      }
-
-      return MIN_PAT_ID + indx;
+      xemi.closeDB ();
+      if (!keepCache)
+         xemi.clearCache ();
    }
 
    // o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
@@ -263,18 +164,27 @@ public class saXmelon
 
    public void startElement (String namespace, String localname,  String type, Attributes attributes) throws SAXException
    {
-      if (checkMisprog (perFile == null, "perFile")) return;
-      if (checkMisprog (cached == null, "cached")) return;
+      xemi.perFile.lastWasClosingTag = false;
 
-      EvaLine ele = new EvaLine();
+      // If any data found, store it as "free text"
+      // e.g.  <some> FREE TEXT <more> ...
+      xemi.storeTextDataIfAny ();
 
-      ele.setValue (type, cNODE);
-      ele.setValue (namespace, cNAMESPACE);
-      ele.setValue (localname, cLOCALNAME);
-      ele.setValue ("" + (perFile.pathCounter ++), cCOUNTER);
+      if (xemi.checkMisprog (xemi.perFile == null, "perFile")) return;
+      if (xemi.checkMisprog (xemi.cached == null, "cached")) return;
+
+      EvaLine ele = new EvaLine ();
+
+      ele.setValue (type, xemi.cNODE);
+      ele.setValue (namespace, xemi.cNAMESPACE);
+      ele.setValue (localname, xemi.cLOCALNAME);
+      ele.setValue ("" + (xemi.perFile.pathCounter ++), xemi.cCOUNTER);
+      ele.setValue ("" + xemi.getPathCounterParent (), xemi.cPARENT_COUNTER);
+      ele.setValue ("0", xemi.cHASDATA); // we don't know yet
+      ele.setValue ("0", xemi.cHASATTRIB); // we don't know yet
 
       // push element stack
-      perFile.currentPath.addLine (ele);
+      xemi.perFile.currentPath.addLine (ele);
 
       long pathTyId = -1;
 
@@ -283,68 +193,101 @@ public class saXmelon
       for (int ii = 0; ii < attributes.getLength (); ii ++)
       {
          if (pathTyId == -1)
-            pathTyId = getPathTypeIdentifier();
+            pathTyId = xemi.getPathTypeIdentifier();
 
-         out ("INSERT INTO " + cached.tabPrefix + "_data VALUES ("
-                 + cached.fileID + ", "
-                 + pathTyId + ", "
-                 + (perFile.pathCounter - 1) + ", "
-                 + "'A'" + ", '"
-                 + naming.toNameISO_9660Joliet (attributes.getQName (ii)) + "', '"
-                 + utilEscapeStr.escapeStr(attributes.getQName (ii)) + "', '"
-                 + utilEscapeStr.escapeStr(attributes.getValue (ii)) + "');");
+         xemi.perFile.currentPath.setValue ("1" , xemi.perFile.currentPath.rows ()-1, xemi.cHASATTRIB);
+         xemi.outData (pathTyId, attributes.getQName (ii), xemi.DATA_PLACE_ATTRIBUTE, attributes.getValue (ii));
       }
    }
 
    public void endElement (String namespace, String localname, String type) throws SAXException
    {
-      if (checkMisprog (perFile == null, "perFile")) return;
-      if (checkMisprog (cached == null, "cached")) return;
+      if (xemi.checkMisprog (xemi.perFile == null, "perFile")) return;
+      if (xemi.checkMisprog (xemi.cached == null, "cached")) return;
 
-      //TODO! check if namespace y localname is ok
-      //
-      // pop element stack
-      perFile.currentPath.removeLine (perFile.currentPath.rows ()-1);
+      boolean keepData = false;
 
-      if (perFile.strData.length () == 0) return;
-      if (perFile.currentPath.rows () == 0)
+      //System.out.println (" END ELEMENT [" + type + "] data [" + perFile.strData + "]" );
+
+      //check if text data
+      if (xemi.perFile.lastWasClosingTag)
       {
-         out ("INSERT INTO " + cached.tabPrefix + "_log VALUES (" + cached.fileID + ", 'unexpected data [" + utilEscapeStr.escapeStr(perFile.strData) + "] on root [" + utilEscapeStr.escapeStr(type) + "]');");
-         perFile.strData = "";
-         return;
+         log.dbg (2, "endElement", "lastWasClosingTag");
+         // If any data found, store it as "free text"
+         // e.g.  </more> FREE TEXT </some>
+         xemi.storeTextDataIfAny ();
+         xemi.perFile.currentPath.removeLine (xemi.perFile.currentPath.rows () - 1);
+      }
+      else
+      {
+         log.dbg (2, "endElement", "not lastWasClosingTag");
+
+         // decide if store the element in the current path or in the previous path
+         //
+
+         int lastIndx = xemi.perFile.currentPath.rows () - 1;
+         boolean hasAtt  = xemi.perFile.currentPath.getValue(lastIndx, xemi.cHASATTRIB).equals("1");
+         boolean hasData = xemi.perFile.currentPath.getValue(lastIndx, xemi.cHASDATA).equals("1");
+         boolean hasValue = xemi.perFile.strData.length () > 0;
+         boolean stored = false;
+
+         // if hasAtt is true and we end the tag with data
+         // then are two possible cases
+         //
+         //    hasData
+
+         if (subTagIgnoreList.contains (type))
+         {
+            log.dbg (2, "endElement", "ignoring tag sublevel " + type);
+            // System.out.println ("eliminello [" + type + "]");
+            keepData = true;
+            stored = true;
+         }
+         else if (hasValue && hasAtt)
+         {
+            log.dbg (2, "endElement", "data [" + xemi.perFile.strData + "] stored as attribute \"value\" (V)");
+            xemi.outData (xemi.getPathTypeIdentifier(), type + "_value", xemi.DATA_PLACE_VALUEATT, xemi.perFile.strData);
+            stored = true;
+
+            //Note : if aditionally hasData were true, we would have following case
+            //          <tagXY at1="aaa">
+            //             <field>bbbb</field>
+            //             data!!???
+            //          </tagXY>
+            // We store it as "attribute value", it could be considered as free text as well ...
+         }
+
+         // remove this path
+         xemi.perFile.currentPath.removeLine (xemi.perFile.currentPath.rows () - 1);
+
+         // only save data if there is any data at all!
+         if (hasValue && !stored)
+         {
+            log.dbg (2, "endElement", "data [" + xemi.perFile.strData + "] AS normal tag (T)");
+            xemi.outData (xemi.getPathTypeIdentifier(), type, xemi.DATA_PLACE_TAGVALUE, xemi.perFile.strData);
+         }
       }
 
-      // ++++ record the data
-      //
-      //(o) EN REALIDAD INTERESA EL ULTIMO PATH CON DATOS !!!!
-      int pathCntParent = stdlib.atoi (perFile.currentPath.getValue (perFile.currentPath.rows ()-1, cCOUNTER));
-      pathCntParent = -1; // esta mal!!!
-
-
-      long pathTyId = getPathTypeIdentifier();
-      out ("INSERT INTO " + cached.tabPrefix + "_data VALUES ("
-               + cached.fileID + ", "
-               + pathTyId + ", "
-               + pathCntParent + ", "
-               + "'D'" + ", '"
-               + naming.toNameISO_9660Joliet (type) + "', '"
-               + utilEscapeStr.escapeStr(type) + "', '"
-               + utilEscapeStr.escapeStr(perFile.strData) + "');");
-///loca/////      String loca = "[" + getSystemId() + "/" + getPublicId() + ":" + getLineNumber() + ":" + getColumnNumber()+ "]";
-///loca/////      outFitx.writeString ("INSERT INTO dadar VALUES (" + pathID + ", '" + type + "', '" + eData.getValue(0,0) + "'); " + loca + "\n");
-      perFile.strData = "";
+      if (keepData)
+      {
+         xemi.perFile.lastWasClosingTag = false;
+      }
+      else
+      {
+         xemi.perFile.lastWasClosingTag = true;
+         xemi.perFile.strData = "";
+      }
    }
 
    public void characters (char[] ch, int start, int len)
    {
-//      if (strData == null) strData = ""
-//      {
-//         out ("INSERT INTO " + cached.tabPrefix + "_log VALUES (" + fileID + ", 'date over data [" + strData + "]');");
-//      }
-
-      perFile.strData += (new String (ch, start, len)).trim ();
+      xemi.perFile.strData += (new String (ch, start, len)).trim ();
    }
 
+
+   // o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
+   // MAIN CALL
+   // o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o
 
    public static void main (String [] aa)
    {
@@ -376,7 +319,7 @@ public class saXmelon
          {
             System.out.println ("First parameter has to be either a non existing file or a sqlite3 database file!");
             System.out.println ("[" + outputDBName + "] seems to belong to another kind of file.");
-            System.out.println ("Take care and walk by the shadow! (leidos = " + leidos + " composasa [" + new String (magic) + "]");
+            System.out.println ("Take care and walk by the shadow (on a heavy sun)! (leidos = " + leidos + " composasa [" + new String (magic) + "]");
             System.exit (1);
          }
       }

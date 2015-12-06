@@ -6,11 +6,13 @@
 
 #gastona#
 
+   <LOG WAKEUP>
+
    <NO sessionLog> c:\temp\repasa
 
 #javaj#
 
-   <frames> F, Gastona Doc DB Generator
+   <frames> F, Gastona Doc DB Generator, 400
 
    <layout of F>
       EVA, 10, 10, 7, 7
@@ -23,7 +25,7 @@
 
 #data#
 <!   <eSource base directory> A:\java\src
-   <eSource base directory> A:\java\gastona\base\src
+   <eSource base directory> ..\..\..
    <eTarget database>       gastonaDoc.db
 
 
@@ -63,12 +65,16 @@
 #listix#
 
    <main0>
-      SETVAR, batchSQL, @<:lsx tmp>
+      <!VAR=, batchSQL, borcio.txt
+      VAR=, batchSQL, @<:lsx tmp>
       <! ... ? get arguments (sourceDir, targetDB)
 
-
    <-- bGenerate>
-      @<generateDB>
+      //generating Welcome database ...
+      LSX, generateDB
+      //
+      //well done!
+      //
 
    <generateDB>
       <! simplify db name
@@ -78,12 +84,11 @@
       GENERATE, @<db>, void
       DATABASE, @<db>, EXECUTE, @<sql gastonaDocCreate>
 
-      SCAN, ADD, @<db>, @<eSource base directory>, +E, java, +E, gastDoc, -D, srcPARKING, -D, tests, -D, NOPRODUCT, -D, nopublic
+      SCAN, ADD, @<db>, @<eSource base directory>, +E, java, +E, gastDoc, -D, META-GASTONA, -D, android, -D, srcPARKING, -D, tests, -D, NOPRODUCT, -D, nopublic
 
       GEN, @<batchSQL>, generateDoc
       DATABASE, @<db>, EXECUTE
               , FROM FILE, @<batchSQL>
-
 
    <generateDoc>
       //BEGIN;

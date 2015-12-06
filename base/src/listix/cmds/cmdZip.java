@@ -31,8 +31,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       ZIP
-   <groupInfo>  system_process
-   <javaClass>  listix.cmds.cmdScanFiles
+   <groupInfo>  system_files
+   <javaClass>  listix.cmds.cmdZip
    <importance> 5
    <desc>       //Zip utilities for compressing and extracting files in zip, jar or gzip formats
 
@@ -54,9 +54,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          3   ,    2      , //retrives the entries contents in a zip (jar) file
          4   ,    2      , //make a gzip file
          5   ,    2      , //un-gzips a file
-         6   ,    2      , //make a zip (jar) file from a list of files
 
-         7   ,    2      , //make a jar file with manifest from an entire directory
+<! NOT IMPLEMENTED!!!!
+<!         6   ,    2      , //make a zip (jar) file from a list of files
+<!         7   ,    2      , //make a jar file with manifest from an entire directory
 
 
    <syntaxParams>
@@ -86,15 +87,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          6   , zipFileName  ,        , //Filename for the desired zip or jar file
          6   , listFiles    ,        , //Name of the Eva table containing a list of all files to be zipped, this are to be found in the column named 'fileName'
 
-         7   , JAR DIR      ,        , //
-         7   , jarFileName  ,        , //Filename for the desired zip or jar file
-         7   , dirPath      ,        , //Directory to be zipped
-         7   , manifestClass,        , //Class name for the jar manifest (e.g. gastona.gastona)
+<! NOT IMPLEMENTED!!!!
+<!         7   , JAR DIR      ,        , //
+<!         7   , jarFileName  ,        , //Filename for the desired zip or jar file
+<!         7   , dirPath      ,        , //Directory to be zipped
+<!         7   , manifestClass,        , //Class name for the jar manifest (e.g. gastona.gastona)
 
-         8   , JAR FILES    ,        , //
-         8   , jarFileName  ,        , //Jar file name to be generated
-         8   , listFiles    ,        , //Name of the Eva table containing a list of all files to be zipped, this are to be found in the column named 'fileName'
-         8   , manifestClass,        , //Class name for the jar manifest (e.g. gastona.gastona)
+<! NOT IMPLEMENTED!!!!
+<!         8   , JAR FILES    ,        , //
+<!         8   , jarFileName  ,        , //Jar file name to be generated
+<!         8   , listFiles    ,        , //Name of the Eva table containing a list of all files to be zipped, this are to be found in the column named 'fileName'
+<!         8   , manifestClass,        , //Class name for the jar manifest (e.g. gastona.gastona)
 
    <options>
       synIndx, optionName, parameters, defVal, desc
@@ -104,6 +107,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       2      , BASE PATH ,  "filePath", "", //Specifies the base path where the files will be extracted
       5      , BASE PATH ,  "filePath", "", //Specifies the base path where the file will be extracted
       6      , BASE PATH ,  "filepath", "", //Specifies a base path for the source files specified in the parameter 'listFiles'. Note that this basepath will not appear in the generated zip file
+
+      4      , SET FILE DATE, "1/0"     , "1", //Set the file date to the gz file, thus it can be recovered when ungzipping it
+      5      , SET DATE     , "gz, now or yyyy-MM-dd HH:mm" , "gz", //To set the date time to the decompressed file. Default 'gz': same date-time as the gz file, 'now': current date-time or specify date-time
+
 
    <examples>
       gastSample
@@ -138,7 +145,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bPickFile>
-      //      -->, eZipFile,, @<bPickFile chosen>
+      //      -->, eZipFile data!,, @<bPickFile chosen>
       //      @<get Zip Entries>
       //
       //   <-- eZipFile>
@@ -147,8 +154,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <get Zip Entries>
       //      ZIP, GET ENTRIES, @<eZipFile>, tabEntries
       //      DATABASE,, CREATE TABLE, tabEntries
-      //      -->, aTree  , sqlSelect, //SELECT * FROM tabEntries ORDER BY fileName;
-      //      -->, sAsiste, sqlSelect, //SELECT * FROM tabEntries ORDER BY fileName;
+      //      -->, aTree data!, sqlSelect, //SELECT * FROM tabEntries ORDER BY fileName;
+      //      -->, sAsiste data!, sqlSelect, //SELECT * FROM tabEntries ORDER BY fileName;
       //
 
 #**FIN_EVA#
@@ -163,9 +170,11 @@ import de.elxala.Eva.*;
 import de.elxala.langutil.stdlib;
 import de.elxala.zServices.logger;
 import de.elxala.langutil.filedir.*;
+import de.elxala.langutil.DateFormat;
 import java.util.zip.*;
 import java.util.jar.*;
 import java.io.*;
+import java.net.URL;
 
 public class cmdZip implements commandable
 {
@@ -243,12 +252,15 @@ public class cmdZip implements commandable
       }
       else if (cmd.meantConstantString (oper, new String [] { "GZIP" } ))
       {
+         boolean setDateTimeFromOrigin = "1".equals (cmd.takeOptionString ("SETFILEDATE", "1"));
+
          // NOTE for GZIP zipFileName is the 1st parameter = file to zip!
-         gzip (zipFileName, secondParam);
+         gzip (zipFileName, secondParam, setDateTimeFromOrigin);
       }
       else if (cmd.meantConstantString (oper, new String [] { "UNGZIP" } ))
       {
-         ungzip (zipFileName, secondParam);
+         String dateTimeOpt = cmd.takeOptionString ("SETDATE", "gz");
+         ungzip (zipFileName, secondParam, dateTimeOpt);
       }
       else
       {
@@ -556,7 +568,7 @@ public class cmdZip implements commandable
       for (int ii = 0; ii < fileName.length (); ii ++)
       {
          char ica = fileName.charAt (ii);
-         if (" /\\.-+'!_~@€$§ß()".indexOf (ica) != -1) continue;
+         if (" /\\.-+'!_~@â‚¬$Â§ÃŸ()".indexOf (ica) != -1) continue;
          if ((ica >= '0' && ica <= '9') ||
              (ica >= 'A' && ica <= 'Z') ||
              (ica >= 'a' && ica <= 'z')) continue;
@@ -573,28 +585,49 @@ public class cmdZip implements commandable
    {
       boolean ok = true;
       byte [] buff = getBuffer ();
+      boolean targetIsOnMemory = TextFile.isMemoryFile (basePath);
 
       theLog.dbg (2, "ZIP", "unzip [" + ziFile + "] on [" + basePath + "]");
+
       try
       {
-         // Archiv öffnen und mit Stream verbinden
-         ZipInputStream in = new ZipInputStream(new FileInputStream(ziFile));
+         InputStream is = null;
 
+         File asfile = new File (ziFile);
+         if (asfile.exists ())
+         {
+            is = new FileInputStream(ziFile);
+         }
+         else
+         {
+            // try url
+            is = new URL(ziFile).openStream();
+         }
+         if (is == null)
+         {
+            theLog.err ("ZIP", "unzip cannot open [" + ziFile + "] as stream");
+            return;
+         }
+
+         // open zip stream
+         ZipInputStream in = new ZipInputStream(is);
+
+         // read all entries of the tip file
+         //
          ZipEntry entry;
-         // Alle Einträge des Archivs auslesen
          while ((entry = in.getNextEntry()) != null)
          {
-            String targetFileName = fileUtil.concatPaths (basePath, entry.getName());
+            String targetFileName = targetIsOnMemory ? basePath: fileUtil.concatPaths (basePath, entry.getName());
 
-            if (entry.isDirectory ())
+            if (entry.isDirectory () && !targetIsOnMemory)
             {
                //just create directory
                theLog.dbg (2, "ZIP", "create directory [" + targetFileName + "]");
-               if (!ensureTargetDirectories (targetFileName + "dum"))
+               if (!fileUtil.ensureDirsForFile (targetFileName + "dum"))
                {
                   theLog.dbg (0, "ZIP", "has to change path name [" + targetFileName + "]");
                   targetFileName = tryBetterFileName(targetFileName);
-                  if (!ensureTargetDirectories (targetFileName + "dum"))
+                  if (!fileUtil.ensureDirsForFile (targetFileName + "dum"))
                   {
                      theLog.dbg (2, "ZIP", "could not create directories [" + targetFileName + "]");
                      while (in.read(buff) != -1);
@@ -608,7 +641,6 @@ public class cmdZip implements commandable
                continue;
             }
 
-
             if (onlyThese != null && ! onlyThese.contains (entry.getName()))
             {
                while (in.read(buff) != -1);
@@ -621,25 +653,35 @@ public class cmdZip implements commandable
 //            else
 //               stdout.println(" Extracting: "+entry.getName());
 
-            if (!ensureTargetDirectories (targetFileName))
+            if (!fileUtil.ensureDirsForFile (targetFileName))
             {
                theLog.dbg (0, "ZIP", "has to change path name [" + targetFileName + "]");
                targetFileName = tryBetterFileName(targetFileName);
             }
 
-            if (ensureTargetDirectories (targetFileName))
+            if (fileUtil.ensureDirsForFile (targetFileName))
             {
                theLog.dbg (2, "ZIP", "unzipping [" + entry.getName() + "] on [" + targetFileName + "]");
-               FileOutputStream out = new FileOutputStream(targetFileName);
+
+               TextFile tfOutput = new TextFile ();
+               if (!tfOutput.fopen (targetFileName, "wb"))
+               {
+                  theLog.err ("ZIP", "target file [" + targetFileName + "] could not be opened for write");
+                  return;
+               }
+               boolean memoryFile = tfOutput.isMemoryFile ();
 
                int len = 0;
                while ((len = in.read(buff)) != -1)
-                  out.write(buff, 0, len);
-               out.close();
+                  tfOutput.writeBytes (buff, len);
+               tfOutput.fclose();
 
-               // set date
-               File fi = new File (targetFileName);
-               fi.setLastModified (entry.getTime ());
+               if (!memoryFile)
+               {
+                  // set date
+                  File fi = new File (targetFileName);
+                  fi.setLastModified (entry.getTime ());
+               }
             }
             else
             {
@@ -665,10 +707,17 @@ public class cmdZip implements commandable
    /**
       gzip method
    */
-   private boolean gzip (String fileToZip, String targetZip)
+   private boolean gzip (String fileToZip, String targetZip, boolean setDateTimeFromFile)
    {
       if (targetZip.length () == 0)
          targetZip = fileToZip + ".gz";
+
+      TextFile tfinput = new TextFile ();
+      if (!tfinput.fopen (fileToZip, "rb"))
+      {
+         theLog.err ("ZIP", "gzip source file [" + fileToZip + "] could not be opened for read");
+         return false;
+      }
 
       // OPEN GZ FILE TO WRITE
       //
@@ -691,17 +740,19 @@ public class cmdZip implements commandable
       //
       try
       {
-         FileInputStream in = new FileInputStream (fileToZip);
-
-         int len;
-         byte [] buff = getBuffer ();
-         while ((len = in.read (buff)) != -1)
+         InputStream in = tfinput.getAsInputStream ();
+         if (in != null)
          {
-            zipout.write (buff, 0, len);
-            //Feedback ...
-            //System.out.print (".");
+            int len;
+            byte [] buff = getBuffer ();
+            while ((len = in.read (buff)) != -1)
+            {
+               zipout.write (buff, 0, len);
+               //Feedback ...
+               //System.out.print (".");
+            }
+            in.close ();
          }
-         in.close ();
       }
       catch (IOException e)
       {
@@ -721,6 +772,13 @@ public class cmdZip implements commandable
       }
       //resetBuffer ();
 
+      if (setDateTimeFromFile)
+      {
+         File fiori  = new File (fileToZip);
+         File figzip = new File (targetZip);
+         figzip.setLastModified (fiori.lastModified ());
+      }
+
       theLog.dbg (4, "ZIP", "gzip " + ((ok) ? "well done.": "ended with errors!"));
       return ok;
    }
@@ -729,7 +787,7 @@ public class cmdZip implements commandable
    /**
       ungzip method
    */
-   private boolean ungzip (String oriZip, String targetFile)
+   private boolean ungzip (String oriZip, String targetFile, String dateTimeOption)
    {
       // form targetFile name if needed
       //
@@ -746,9 +804,16 @@ public class cmdZip implements commandable
          return false;
       }
 
-      if (! ensureTargetDirectories (targetFile))
+      if (! fileUtil.ensureDirsForFile (targetFile))
       {
          theLog.err ("ZIP", "cannot create directories for target file [" + targetFile + "]");
+         return false;
+      }
+
+      TextFile tfOutput = new TextFile ();
+      if (!tfOutput.fopen (targetFile, "wb"))
+      {
+         theLog.err ("ZIP", "target file [" + targetFile + "] could not be opened for write");
          return false;
       }
 
@@ -772,16 +837,17 @@ public class cmdZip implements commandable
       //
       try
       {
-         FileOutputStream out = new FileOutputStream (targetFile);
+         //!!! FileOutputStream out = new FileOutputStream (targetFile);
 
          int len;
          byte [] buff = getBuffer ();
          while ((len = zipin.read (buff)) != -1)
          {
-            out.write (buff, 0, len);
+            //!!! out.write (buff, 0, len);
+            tfOutput.writeBytes (buff, len);
             //(o) TODO_listix_cmd add Zip feedback ... System.out.print (".");
          }
-         out.close ();
+         tfOutput.fclose ();
       }
       catch (IOException e)
       {
@@ -800,59 +866,23 @@ public class cmdZip implements commandable
          theLog.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be closed" + e);
       }
 
+      if (! dateTimeOption.equalsIgnoreCase ("now"))
+      {
+         if (dateTimeOption.equalsIgnoreCase ("gz") || dateTimeOption.equalsIgnoreCase ("gzip"))
+         {
+            File figzip = new File (oriZip);
+            File fiori  = new File (targetFile);
+            fiori.setLastModified (figzip.lastModified ());
+         }
+         else
+         {
+            File fiori  = new File (targetFile);
+            fiori.setLastModified (DateFormat.getAsLong (dateTimeOption));
+         }
+      }
+
       theLog.dbg (4, "ZIP", "ungzip " + ((ok) ? "well done.": "ended with errors!"));
       //resetBuffer ();
       return ok;
-   }
-
-
-   /**
-      Ensure (try) the creation of all parent directories
-
-      @param filePath filename of a file which parents directories has to be created
-
-      @example
-            ensureTargetDirectories("dir1/subdir/final");
-            will try to create "dir1" and "dir1/subdir" directories
-   */
-   private boolean ensureTargetDirectories (String filePath)
-   {
-      //(o) TOSEE_listix solve in a base utility (i.e. in de.elxala.langutil.filedir) creating necessary directories (mkdirs)
-      //
-      //       Specifically
-      //          - react with log.err when mkdirs returns false
-      //          - catch SecurityException (see http://java.sun.com/j2se/1.4.2/docs/api/java/io/File.html#mkdirs())
-      //            and log err as well
-      //
-
-      // parece que lo siguiente retorna null, lo cual es una tonteri'a
-      //     new File ("") ==> null
-      //     (new File ("").getParentFile()) ==> null
-      // por lo cual usamos fileUtil.getParent
-      String patte = fileUtil.getParent(filePath);
-      if (patte.length () == 0)
-      {
-         return true;
-      }
-
-      File dirFile = new File (patte);
-      if (dirFile == null)
-      {
-         theLog.err ("ZIP", "target file [" + filePath + "] not a file?");
-         return false;  // not possible, not OK
-      }
-
-      if (dirFile.exists ())
-      {
-         theLog.dbg (10, "ZIP", "all directories exists for target file [" + filePath + "]");
-         return true;  // not neccesary, OK
-      }
-
-      if (dirFile.mkdirs ())
-      {
-         theLog.dbg (10, "ZIP", "directories for target file [" + filePath + "] created");
-         return true;
-      }
-      return false;
    }
 }

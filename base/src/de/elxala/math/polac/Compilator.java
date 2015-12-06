@@ -22,6 +22,7 @@ import java.util.*;
 import java.io.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.*;
+import de.elxala.langutil.filedir.*;
 
 /** Clase para hacer operaciones en notacio'n polaca inversa
 */
@@ -334,7 +335,7 @@ public class Compilator extends fyPrimitivas
       // ensure canonical file (if not getParent gets wrong!)
       {
          String cano = "";
-         File fil = new File (dirFile);
+         File fil = fileUtil.getNewFile (dirFile);
          try { cano = fil.getCanonicalPath (); } catch (Exception e) {};
          dirFile = cano;
       }
@@ -357,12 +358,12 @@ public class Compilator extends fyPrimitivas
          {
             // is it in this directory ?
             //
-            funfile = new File (baseRoot + "/" + fun.fname + ".fun");
+            funfile = fileUtil.getNewFile (baseRoot + "/" + fun.fname + ".fun");
             if (funfile.exists ()) break;  // found ! ok go on
 
             // is this directory, the root of the fun library ?
             //
-            File rootMark = new File (baseRoot + "/.rootFunLibrary");
+            File rootMark = fileUtil.getNewFile (baseRoot + "/.rootFunLibrary");
             if (rootMark.exists ()) break; // is not in the library (root of linrary reached!)
 
             // try with the parent directory

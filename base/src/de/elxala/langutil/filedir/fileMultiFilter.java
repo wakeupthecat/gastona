@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
 import java.util.regex.*;  // Pattern and Matcher
+import de.elxala.zServices.logger;
 
 
 /**	======== de.elxala.langutil.fileMultiFilter ==========================================
@@ -35,6 +36,9 @@ import java.util.regex.*;  // Pattern and Matcher
 
 public class fileMultiFilter implements FileFilter /* implements accept () */
 {
+   public static logger logStatic = new logger (null, "de.elxala.langutil.filedir.fileMultiFilter", null);
+   public logger log = logStatic;
+
    private static final int INCLUDE = 0;
    private static final int EXCLUDE = 1;
    private static final int N_CRITERIO = 2;
@@ -89,11 +93,12 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
    public void addCriteria (String optFilter, String textFilter)
    {
       if (optFilter == null || optFilter.length () == 0) return; // estas de cachondeo ...
+      if (textFilter == null || textFilter.length () == 0)  return; // no es valido
 
       int crite = (optFilter.charAt(0) == '+') ? INCLUDE: EXCLUDE;
       int parte = FILENAME;
 
-      char prime = (optFilter.length () == 1) ? 'E': optFilter.charAt(1);
+      char prime = (optFilter.length () <= 1) ? 'E': optFilter.charAt(1);
       switch (prime)
       {
          case 'D': parte = DIRECTORY; break;
@@ -137,21 +142,45 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
       return (crit == EXCLUDE);
    }
 
+   public String toString ()
+   {
+      String str = "[";
+      
+      for (int crit = INCLUDE; crit <= EXCLUDE; crit ++)
+         for (int parte = EXTENSION; parte <= FILENAME; parte ++)
+            if (filtrum[crit][parte] != null)
+               for (int ff = 0; ff < filtrum[crit][parte].size (); ff ++)
+                  str += (crit == INCLUDE ? "+": "-") +
+                         (parte == DIRECTORY ? "D": (parte == FILENAME ? "F": "E")) +
+                         " \"" + ((Pattern) filtrum[crit][parte].get (ff)) + "\", ";
+      str += "]";
+      return str;
+   }
+
    public boolean accept (boolean isDir, String parentPath, String fileName)
    {
       // check dir
       //
       if (! pasaFiltro (INCLUDE, DIRECTORY, parentPath)) return false;
       if (! pasaFiltro (EXCLUDE, DIRECTORY, parentPath)) return false;
-      if (isDir) return true;
+      if (isDir) 
+      {
+         log.dbg (4, "accept", "accepted directory parentPath [" +  parentPath + "]");
+         return true;
+      }
 
-      // check extension and fileName
+      // check extension
       //
+      //12.07.2012 make only files be affected by extension filter
       if (! pasaFiltro (INCLUDE, EXTENSION, fileName)) return false;
       if (! pasaFiltro (EXCLUDE, EXTENSION, fileName)) return false;
+
+      // check fileName
+      //
       if (! pasaFiltro (INCLUDE, FILENAME, fileName)) return false;
       if (! pasaFiltro (EXCLUDE, FILENAME, fileName)) return false;
 
+      log.dbg (4, "accept", "accepted file parentPath [" + parentPath + "] fileName [" + fileName + "]");
       // ha pasado todas las cribas!
       return true;
    }

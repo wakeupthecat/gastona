@@ -37,7 +37,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Invoques a format optionally with arguments or parameters. Parameters passed to the format
+      // Invoques a listix format optionally with arguments or parameters. Parameters passed to the format
       // are accessible using the variables @<p1>, @<p2> etc. These special variables are valid only
       // during the execution of the called format, they can be checked with the command "CHECK, VAR".
       // The command LISTIX is just another syntax of the command GENERATE. The idea is make posible
@@ -80,6 +80,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName, parameters, defVal, desc
+
+      1      , PARAMS        ,  "p1, [p2, ...]"            ,                 , //Set parameters for listix generation (accesibles through @<p1> @<p2> etc)
+      1      , LOAD FORMATS  ,  "file, evaUnit"            , "    , listix"  , //Specifies file and unit for the listix formats to be used in the generation
+      1      , LOAD DATA     ,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the data to be used in the generation
+      1      , SET VAR DATA  ,  "EvaName, value"           ,                 , //Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable 'EvaName' with the value 'value'
+      1      , PASS VAR DATA ,  "EvaName"                  ,                 , //If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)
+      1      , TARGET EVA    ,  "EvaName"                  ,                 , //Specifies the variable name where the listix generation will place the result
+      1      , NEW LINE      ,  "(NATIVE) / RT / LF / RTLF", NATIVE          , //Will generate the file using the new line character specified : NATIVE (default) is native to the system, RT return (ascci 13), LF line feed (ascci 10), RFLF return and line feed (13 + 10)
+      1      , APPEND        ,  "0 / 1"                    , 0               , //If 1 then the generation will be append at the end of the file
 
    <examples>
       gastSample
@@ -174,40 +183,103 @@ public class cmdListix implements commandable
          return 1;
       }
 
+      parameters4LsxGenerate PAOP = new parameters4LsxGenerate ();
+
+      PAOP.genMainFormat = cmd.getArg (0);
+
       // prepar params for the format
-      String [] params = new String [cmd.getArgSize () - 1];
+      PAOP.genParameters = new String [cmd.getArgSize () - 1];
       for (int ii = 1; ii < cmd.getArgSize(); ii ++)
       {
-         params[ii-1] = cmd.getArg (ii);
+         PAOP.genParameters[ii-1] = cmd.getArg (ii);
       }
 
-      // store the key stack level
-      //
-      int oldStackLevel = cmd.getListix ().getStackDepthZero4Parameters();
-      cmd.getListix ().setStackDepthZero4Parameters (cmd.getListix ().getTableCursorStack ().getDepth());
-
-      // push the parameters in the stack
-      //
-      boolean beenPushed = false;
-      if (params.length > 0)
+      if (!PAOP.evalOptions (cmd))
       {
-         cmd.getLog ().dbg (2, "LISTIX", "params length " + params.length);
-         cmd.getListix ().getTableCursorStack ().pushTableCursor(new tableCursor(new tableAccessParams (params)));
-         beenPushed = true;
+         cmd.getLog ().severe ("LISTIX", "RARRAR");
+         return 1;
       }
+
+
+      // ----------------------------------------------------------------------
+      // CALLING LISTIX WITH PARAMETER STACK PREPARATION AND RESTORE AT THE END
+      //
+/*
+   10.01.2012 00:17
+   FIX NOTA:
+   Si no quitamos la parte de stack el siguiente script da error
+
+ERROR(4) in listix_command : tableCursor::increment_RUNTABLE : tableCursor uninitialized (no set_RUNTABLE called)!
+LISTIX STACK:
+MENSAKA STACK:
+   0) [msg: [javaj show_frames] target: [class javaj.widgets.panels.zFrame oS]]
+
+
+
+#javaj#
+
+   <frames> oS
+
+#listix#
+
+   <varColumnatas>
+      name    , desc
+      nameA   , desc1
+      nameB   , desc2
+
+   <main>
+      LOOP, EVA, varColumnatas
+          ,, // , name = [@<name>] AS @<formed column name>
+
+
+   <formed column name>
+      LSX, toLegalName(n), pt_@<name>_@<desc>
+
+   <toLegalName(n)>
+      JAVA, de.elxala.langutil.filedir.naming, toVariableName, @<p1>
+
+*/
+
+
+////      // store the key stack level
+////      //
+////      int oldStackLevel = cmd.getListix ().getStackDepthZero4Parameters();
+////      cmd.getListix ().setStackDepthZero4Parameters (cmd.getListix ().getTableCursorStack ().getDepth());
+////
+////      // push the parameters in the stack
+////      //
+////      boolean beenPushed = false;
+////      if (PAOP.genParameters.length > 0)
+////      {
+////         cmd.getLog ().dbg (2, "LISTIX", "params length " + PAOP.genParameters.length);
+////         cmd.getListix ().getTableCursorStack ().pushTableCursor(new tableCursor(new tableAccessParams (PAOP.genParameters)));
+////         beenPushed = true;
+////      }
 
       // call the listix format
       //
-      cmd.getListix ().printLsxFormat (cmd.getArg (0));
+      //cmd.getListix ().printLsxFormat (PAOP.genMainFormat);
+      listix novoLsx = new listix (PAOP.genFormatsEvaUnit,
+                                   PAOP.genDataEvaUnit,
+                                   cmd.getListix().getTableCursorStack (),
+                                   PAOP.genParameters);
 
-      // restore the key stack level and pop the param table if needed
-      //
-      cmd.getListix ().setStackDepthZero4Parameters (oldStackLevel);
+      novoLsx.setNewLineString (PAOP.genNewLineString);
 
-      if (beenPushed)
-         cmd.getListix ().getTableCursorStack ().end_RUNTABLE ();
+      lsxWriter.makeFile (novoLsx,
+                          PAOP.genMainFormat,
+                          PAOP.genFileToGenerate,
+                          cmd.getListix().getGlobalFile (),
+                          cmd.getListix().getTargetEva (),
+                          PAOP.genAppendToFile);
+      novoLsx.destroy ();
 
-      cmd.checkRemainingOptions (true);
+////      // restore the key stack level and pop the param table if needed
+////      //
+////      cmd.getListix ().setStackDepthZero4Parameters (oldStackLevel);
+////
+////      if (beenPushed)
+////         cmd.getListix ().getTableCursorStack ().end_RUNTABLE ();
       return 1;
    }
 }

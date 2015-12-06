@@ -36,8 +36,8 @@ public class streamReader2TextList extends abstractStreamTextReader
    //      an unlimited StreamTextBuffer should be implemented using a temporary file or like
 //!!   private static int LIMIT_BUFFERED_LINES = 3000;
 //NOTE 01.01.2010 15:53
-// No se puede dejar de leer el stream! eso bloquearía el proceso!
-// si se quiere implementar este límite debe simplemente dejar de anyadir lineas en textBuffer
+// No se puede dejar de leer el stream! eso bloquearÃ­a el proceso!
+// si se quiere implementar este lÃ­mite debe simplemente dejar de anyadir lineas en textBuffer
 // pero continuar la lectura hasta el final!
 
    private List textBuffer = null;

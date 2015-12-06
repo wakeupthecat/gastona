@@ -31,19 +31,27 @@ import de.elxala.mensaka.*;
    microToolInstaller
 
 
-   14.10.2009 NOTE ABOUT OBTAINING CURRENT sqlite muTool !
+   20.07.2014 support Raspberry PI by including arm architecture checking
+              deprecate old getExeSqlite and do an exception only in case of Mac OX
+   
+
+   31.08.2013 Going back to the old approach since a instalation of Ubuntu DOES NOT INCLUDE sqlite3 by default!!!
+                Also the microtool concept has to be imposed, we want to pack ruby, lua, perl and python for linux as well
+                then these languages would be really part of gastona "out of the box" (at least gastona PC!)
+
+   14.10.2009 --OLD OLD OLD---- NOTE ABOUT OBTAINING CURRENT sqlite muTool !
    -------------------------------------------------------------------------------------------
 
    Due to problems with long temporary paths (e.g. in some windows XP anb Mac OS x), the feature
    microToolInstaller is not really used in the only microTool at the moment of gastona.jar (sqlite)
    See method microToolInstaller.getExeSqlite ()
 
-      - For linux and Mac OSx the tool is spected as default installed on /usr/bin/sqlite3
+      - For linux and Mac OSx the tool is expected as default installed on /usr/bin/sqlite3
         (no sqlite.bin jared anymore)
       - For windows it will be installed always and for all instances on %TEMP%\sqlite3.exe
         from the "jared" META-GASTONA/muTools/sqlite3.exe
 
-     NOTE: this new aproach obliges in Windows to check always the existence of sqlite3.exe
+     NOTE: this new approach obliges in Windows to check always the existence of sqlite3.exe
            before any call. For intance:
                - an application install it
                - another app found it (do not install it) and use it
@@ -108,7 +116,7 @@ import de.elxala.mensaka.*;
             #data#
 
                <tableTools>
-                  logicName , modul  , winOS    , linuxOS   , allOS
+                  logicName , modul  , winOS    , linuxOS   , linuxOS64, allOS
 
                   tool1     , myTool , tool1.exe, tool1.bin ,
                   tool2     , myTool , tool2.exe,           ,
@@ -175,7 +183,7 @@ public class microToolInstaller
    {
       if (! checkHavingInfo ()) return false;
 
-      Eva table = IInfoMain.getEva("tableTools");
+      Eva table = IInfoMain.getEva("tableTools"); // in reality binaryName
       if (table == null)
       {
          return false;
@@ -190,21 +198,40 @@ public class microToolInstaller
       String full = baseDir + osString + "/" + moduleName + "/" + binaryName;
       return full.replace ('/', File.separatorChar);
    }
+   
+   // 
+   // this method does not look up the intern tool configuration but 
+   // directly assigns the full path where the tool can be found
+   // toolPath empty or null removes the the tool full path
+   //
+   public static void assignPath4MuTool (String toolLogicName, String toolPath)
+   {
+      boolean unInstall = toolPath == null || toolPath.length () == 0;
+      int indx = installedTools.rowOf (toolLogicName);
+      if (indx != -1)
+      {
+         if (unInstall) 
+              installedTools.removeLine (indx);
+         else installedTools.setValue (toolPath, indx, 1);
+      }
+      else
+      {      
+         if (!unInstall) 
+            installedTools.addLine (new EvaLine (new String [] { toolLogicName , toolPath } ));
+      }
+      if (unInstall)
+           log.dbg (5, "assignPath4MuTool", "micro tool \"" + toolLogicName + "\" assumed to be installed into path \"" + toolPath + "\"");
+      else log.dbg (5, "assignPath4MuTool", "micro tool \"" + toolLogicName + "\" removed from list");
+   }
 
    public static String getExeToolPath (String toolLogicName)
    {
-      // 12.10.2009 18:20
-      // special case sqlite
-      // workaround to long temporary directories in XP and Mac OS X
-      // and save gastona.jar size since both linux and Mac OS X seems to contain /usr/bin/sqlite3
-      // per default installed!
-      if (toolLogicName.equalsIgnoreCase("sqlite"))
+      // 20.07.2014 still keep this hardcoding since it cannot be checked on MacOX with sqlite for linux (no Mac, no Mac virtual Box!)
+      //            (it worked well but then not anymore...)
+      if (utilSys.isOSNameMacOX () && toolLogicName.equalsIgnoreCase("sqlite"))
       {
-         return getExeSqlite ();
+         return "/usr/bin/sqlite3"; 
       }
-
-      if (! checkHavingInfo ()) return "";
-      log.dbg (5, "getExeToolPath", "micro tool \"" + toolLogicName + "\"");
 
       // already installed ? then return the full path
       //
@@ -216,6 +243,13 @@ public class microToolInstaller
          return fullpath;
       }
 
+      if (! checkHavingInfo ())
+      {
+         log.dbg (5, "getExeToolPath", "micro tool no configuration found, returning placebo \"" + toolLogicName + "\"");
+         return toolLogicName;
+      }
+      log.dbg (5, "getExeToolPath", "micro tool \"" + toolLogicName + "\"");
+
       // look up the table
       Eva table = IInfoMain.getEva("tableTools");
       if (table == null)
@@ -226,22 +260,22 @@ public class microToolInstaller
       int indx = table.rowOf (toolLogicName, table.colOf("logicName"), false);
       if (indx < 1)
       {
-         log.dbg (5, "getExeToolPath", "micro tool is not found in <tableTools> !");
-         return "";
+         log.dbg (5, "getExeToolPath", "micro tool not configured, returning placebo \"" + toolLogicName + "\"");
+         return toolLogicName;
       }
 
-      String OS = (utilSys.isSysUnix ? "linuxOS": "winOS");
+      String OSstring = utilSys.getSysString (); // either winOS, linuxOS, linux64 or linuxArm
       String nameModul =  table.getValue (indx, table.colOf ("modul"));
       String nameBinary = table.getValue (indx, table.colOf ("allOS"));
 
       if (nameBinary.length () > 0)
-           OS = "allOS";
-      else nameBinary = table.getValue (indx, table.colOf (OS));
+           OSstring = "allOS";
+      else nameBinary = table.getValue (indx, table.colOf (OSstring));
 
-      Eva evaModul = IInfoMain.getEva("module " + nameModul + " " + OS);
+      Eva evaModul = IInfoMain.getEva("module " + nameModul + " " + OSstring);
       if (evaModul == null)
       {
-         log.err ("getExeToolPath", "micro tool " + toolLogicName + " requires module " + "<module " + nameModul + " " + OS + "> which is not found!");
+         log.err ("getExeToolPath", "micro tool " + toolLogicName + " requires module " + "<module " + nameModul + " " + OSstring + "> which is not found!");
          return "";
       }
 
@@ -252,13 +286,13 @@ public class microToolInstaller
          // ok, then it should be easy to find ...
          String dirBase = installedModules.getValue (indxModule, 1);
 
-         String fullPath = finalFullPath (OS, nameModul, nameBinary);
+         String fullPath = finalFullPath (OSstring, nameModul, nameBinary);
          File este = new File (fullPath);
 
          if (este.exists ())
             return fullPath;
 
-         log.err ("getExeToolPath", "micro tool " + toolLogicName + " module " + "<modul" + OS + " " + nameModul + "> installed ok, but file " + fullPath + " not found!");
+         log.err ("getExeToolPath", "micro tool " + toolLogicName + " module " + "<modul" + OSstring + " " + nameModul + "> installed ok, but file " + fullPath + " not found!");
          return "";
       }
 
@@ -277,7 +311,7 @@ public class microToolInstaller
       // (do it below), the reason is that if it cannot be installed once why should be
       // tried more times ?
       //
-      String fullPath = finalFullPath (OS, nameModul, nameBinary);
+      String fullPath = finalFullPath (OSstring, nameModul, nameBinary);
       installedTools.addLine (new EvaLine (new String [] { toolLogicName , fullPath } ));
 
       // register the installation of the module
@@ -286,8 +320,8 @@ public class microToolInstaller
 
       for (int ii = 1; ii < evaModul.rows (); ii ++)
       {
-         String source = "META-GASTONA/muTools/" + OS + "/" + nameModul + "/" + evaModul.getValue (ii, 0);
-         String target = finalFullPath (OS, nameModul, evaModul.getValue (ii, 0));
+         String source = "META-GASTONA/muTools/" + OSstring + "/" + nameModul + "/" + evaModul.getValue (ii, 0);
+         String target = finalFullPath (OSstring, nameModul, evaModul.getValue (ii, 0));
          log.dbg (4, "getExeToolPath", "copying \"" + source + "\" to \"" + target + "\"");
 
          if (installFileFromJar (source, target, temporalPolicy))
@@ -385,36 +419,6 @@ public class microToolInstaller
 //
 //      return true;
 //   }
-
-   private static String getExeSqlite ()
-   {
-      String sqlitePath = (utilSys.isSysUnix) ?
-            "/usr/bin/sqlite3":
-            System.getProperty("java.io.tmpdir", ".") + "\\sqlite3.exe";
-
-      File fexe = new File (sqlitePath);
-      if (fexe.exists ())
-      {
-         log.dbg (2, "getExeSqlite", "file [" + sqlitePath + "] found, can use sqlite!");
-         return sqlitePath;
-      }
-
-      // not found, install it ?
-
-      if (!utilSys.isSysUnix)
-      {
-         // windows
-         if (installFileFromJar ("META-GASTONA/muTools/sqlite3.exe", fexe.getPath(), true))
-         {
-            log.dbg (2, "getExeSqlite", "file [" + sqlitePath + "] installed, can use sqlite!");
-            return fexe.getPath();
-         }
-      }
-
-      log.err ("getExeSqlite", "file [" + sqlitePath + "] not found, cannot use sqlite!");
-      return null;
-   }
-
 
    private static boolean fileExists (String path)
    {

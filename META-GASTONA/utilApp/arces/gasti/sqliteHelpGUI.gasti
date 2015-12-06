@@ -14,7 +14,6 @@
            ,     X               ,   A
          A ,    lShortExamples
          A ,    iSQLCmdsExamples , bExecuteShort
-         A ,       +             , bAdvancedAssist
          X ,       +             ,
         22 ,    eSQL2Execute     , -
 
@@ -30,42 +29,30 @@
    <rgSqlGroups orientation> X
    <rgSqlGroups titledBorder> Groups
    <rgSqlGroups>
-      label ,  filterSql
-      All   ,  //(1)
-      Schema,  //(sqlgroup = 'schema')
-      Data  ,  //(sqlgroup = 'data')
-      Batch ,  //(sqlgroup = 'data')
-      Misc  ,  //(sqlgroup = 'data')
-
-   <rgSqlGroups selectedIndices>
-      index
-      0
+      default, label ,  filterSql
+         1   , All   ,  //(1)
+             , Schema,  //(sqlgroup = 'schema')
+             , Data  ,  //(sqlgroup = 'data')
+             , Batch ,  //(sqlgroup = 'batch')
+             , Misc  ,  //(sqlgroup = 'misc')
 
    <rgImportance orientation> X
-   <rgImportance titledBorder> Groups
+   <rgImportance titledBorder> Importance
    <rgImportance>
-      label ,  filterSql
+      default, label ,  filterSql
 
-      All   ,  //(1)
-      High  ,  //(importance+0 > 6)
-      Medium,  //(importance+0 <= 6 AND importance+0 >= 4 )
-      Low   ,  //(importance+0 < 4)
-
-   <rgImportance selectedIndices>
-      index
-      1
+             , All   ,  //(1)
+        1    , High  ,  //(importance+0 > 6)
+             , Medium,  //(importance+0 <= 6 AND importance+0 >= 4 )
+             , Low   ,  //(importance+0 < 4)
 
    <rgOrder orientation> X
-   <rgOrder titledBorder> Groups
+   <rgOrder titledBorder> Order by
    <rgOrder>
-      label    , orderBy
+      default, label    , orderBy
 
-      Frequency, ORDER BY importance+0 DESC
-      Names     , ORDER BY name
-
-   <rgOrder selectedIndices>
-      index
-      1
+             , Frequency, ORDER BY importance+0 DESC
+         1   , Names     , ORDER BY name
 
 
    <bSqliteOrg image> images/sqlite_p22.PNG
@@ -84,27 +71,33 @@
 
 #listix#
 
+   <main>
+      MSG, rgSqlGroups select!, default, 1
+      MSG, rgImportance select!, default, 1
+      MSG, rgOrder select!, default, 1
+
+
    <-- HELP DB READY>
-      SETVAR, filterSqlGroup, (1)
-      SETVAR, filterImportance, (importance+0 > 6)
-      SETVAR, orderBy, //ORDER BY importance+0 DESC
+      VAR=, filterSqlGroup, (1)
+      VAR=, filterImportance, (importance+0 > 6)
+      VAR=, orderBy, //ORDER BY importance+0 DESC
       LSX, update iSQLcmds
 
    <update iSQLcmds>
-      -->, iSQLCmds, sqlSelect, //SELECT * FROM tab_sqlite_commands WHERE @<filterSqlGroup> AND @<filterImportance> @<orderBy>
+      -->, iSQLCmds data!, sqlSelect, //SELECT * FROM tab_sqlite_commands WHERE @<filterSqlGroup> AND @<filterImportance> @<orderBy>
 
    <update iSQLCmdsExamples>
       CHECK, VAR, iSQLCmds selected.name
-      -->, iSQLCmdsExamples, sqlSelect, //SELECT * FROM tab_sqlite_examples WHERE command = '@<iSQLCmds selected.name>'
+      -->, iSQLCmdsExamples data!, sqlSelect, //SELECT * FROM tab_sqlite_examples WHERE command = '@<iSQLCmds selected.name>'
 
    <-- iSQLCmds>
       CHECK, VAR, iSQLCmds selected.sqliteHtmlName
-      -->, xSQLSyntax, var, help @<iSQLCmds selected.sqliteHtmlName>
+      -->, xSQLSyntax data!, var, help @<iSQLCmds selected.sqliteHtmlName>
       LSX, update iSQLCmdsExamples
 
    <-- iSQLCmdsExamples>
       CHECK, VAR, iSQLCmdsExamples selected.command
-      -->, eSQL2Execute,, //@<iSQLCmdsExamples selected.command> @<iSQLCmdsExamples selected.rest> ;
+      -->, eSQL2Execute data!,, //@<iSQLCmdsExamples selected.command> @<iSQLCmdsExamples selected.rest> ;
 
    <-- bSqliteOrg>
       CHECK, VAR, iSQLCmds selected.sqliteHtmlName
@@ -113,21 +106,17 @@
              , ELSE  , CALL, //CMD /C start "" "http://www.sqlite.org/lang_@<iSQLCmds selected.sqliteHtmlName>.html"
 
    <-- rgSqlGroups>
-      SETVAR, filterSqlGroup, @<rgSqlGroups selected.filterSql>
+      VAR=, filterSqlGroup, @<rgSqlGroups selected.filterSql>
       LSX, update iSQLcmds
 
    <-- rgImportance>
-      SETVAR, filterImportance, @<rgImportance selected.filterSql>
+      VAR=, filterImportance, @<rgImportance selected.filterSql>
       LSX, update iSQLcmds
 
    <-- rgOrder>
-      SETVAR, orderBy, @<rgOrder selected.orderBy>
+      VAR=, orderBy, @<rgOrder selected.orderBy>
       LSX, update iSQLcmds
 
    <-- bExecuteShort>
       DATABASE, @<eDBName>, EXECUTE, @<eSQL2Execute>
-      @<update mainDatabase>
-
-   <-- bAdvancedAssist>
-      // leider nicht!
-   
+      LSX, update mainDatabase

@@ -153,4 +153,8 @@ public class tableAccessTextFile extends tableAccessBase
    {
       return currRow + 1;  // false rawRows but cannot be calculated (too expensive!)
    }
+
+   public void rowIsIncremented ()
+   {
+   }
 }

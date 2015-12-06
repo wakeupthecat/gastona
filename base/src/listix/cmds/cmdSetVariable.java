@@ -195,8 +195,7 @@ public class cmdSetVariable implements commandable
       // Set the first column value
       //
       Eva theVar = that.getSomeHowVarEva (variableName);
-      theVar.clear ();
-      theVar.setValue (value);
+      theVar.setValueVar (value);
 
       if (isFormula) return 1;   // if formula, all is done!
 

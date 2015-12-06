@@ -102,7 +102,7 @@ public class baseEBS
    // NOTE (C++) : this is NOT a copy constructor!
    public baseEBS (baseEBS ebs)
    {
-      setNameDataAndControl (ebs);
+      copyEBS (ebs);
    }
 
    public String  getName    ()   { return theName; }
@@ -135,7 +135,7 @@ public class baseEBS
 
    /**
    */
-   public void setNameDataAndControl (baseEBS ebs)
+   public void copyEBS (baseEBS ebs)
    {
       setNameDataAndControl (ebs.getName (), ebs.getData (), ebs.getControl ());
    }
@@ -145,7 +145,7 @@ public class baseEBS
       @arg pData     EvaUnit representing the data or null is this has not to be changed
       @arg pControl  EvaUnit representing the control or null is this has not to be changed
    */
-   public void setNameDataAndControl (String nameEBS, EvaUnit pData, EvaUnit pControl)
+   protected void setNameDataAndControl (String nameEBS, EvaUnit pData, EvaUnit pControl)
    {
       // Update firstTimeWithDataAndControl
       //
@@ -182,7 +182,7 @@ public class baseEBS
       {
          //quasi warning!
          // check change of container, usually should not happen but it is legal
-         log.dbg (0, "zWidget:" + theName, "change of " + contType + " container in widget !");
+         log.dbg (2, "zWidget:" + theName, "change of " + contType + " container in widget !");
       }
       else
          log.dbg (2, "zWidget:" + theName, "update " + contType + " received");
@@ -198,13 +198,13 @@ public class baseEBS
    {
       if (containerID != DATA && containerID != CONTROL)
       {
-         log.severe ("mustGetContainer", "wrong containerID " + containerID + ", it might be only either DATA(0) or CONTROL(1) !");
+         log.severe ("mustGetContainer", "wrong containerID " + containerID + " for [" + getName () + "], it might be only either DATA(0) or CONTROL(1) !");
          return EvaUnitFalsa;
       }
 
       if (EUContainers[containerID] == null)
       {
-         log.severe ("mustGetContainer", "container " + (containerID == DATA ? "DATA": "CONTROL") + " is required but it is null!");
+         log.severe ("mustGetContainer", "container " + (containerID == DATA ? "DATA": "CONTROL") + " for [" + getName () + "] is required but it is null!");
          return EvaUnitFalsa;
       }
       return EUContainers[containerID];
@@ -318,7 +318,8 @@ public class baseEBS
    */
    public void setSimpleAttribute (int containerID, String attName, String value)
    {
-      mustGetContainer (containerID).getSomeHowEva (evaName (attName)).setValue (value, 0, 0);
+      Eva var = mustGetContainer (containerID).getSomeHowEva (evaName (attName));
+      var.setValueVar (value);
    }
 
    /**
@@ -328,6 +329,16 @@ public class baseEBS
    public Eva getDataAttribute (String attName)
    {
       return getAttribute (DATA, false, attName);
+   }
+
+   /**
+      same as getDataAttribute (String attName) but
+      forcing the creation of the attribute if 
+      it does not exist
+   */
+   public Eva getEnsureDataAttribute (String attName)
+   {
+      return getAttribute (DATA, true, attName);
    }
 
 

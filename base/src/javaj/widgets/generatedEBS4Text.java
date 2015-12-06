@@ -63,6 +63,10 @@ public class generatedEBS4Text extends widgetEBS
    public static final String sMSG_SAVE = "save";
    public static final String sMSG_CLEAR = "clear";
    public static final String sMSG_GOTOLINE = "gotoLine";
+   public static final String sMSG_INSERT = "insert";
+   public static final String sMSG_NEWLINE = "newLine";
+   public static final String sMSG_UNDO = "undo";
+   public static final String sMSG_REDO = "redo";
 
    // Other variables
    //
@@ -138,6 +142,11 @@ public class generatedEBS4Text extends widgetEBS
    public int getLineToGo ()
    {
       return stdlib.atoi (getSimpleAttribute (CONTROL, sATTR_LINETOGO, "0"));
+   }
+
+   public boolean hasLineToGo ()
+   {
+      return getSimpleAttribute (CONTROL, sATTR_LINETOGO) != null;
    }
 
    /// setter for attribute lineToGo: line number to go on a message "goto"

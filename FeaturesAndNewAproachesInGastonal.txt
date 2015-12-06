@@ -1,4 +1,4 @@
-- Features and new developement
+- Notes about the many new approaches taken in gastona
 
    - Calling and deploying
 
@@ -17,17 +17,10 @@
          load and save either from file or database
 
    - Mensaka:
-         replacing the native java observer pattern, why ?
-
-         observable has to handle observers : it is not his task and nor his problem
-         interfaces to comply with the observer pattern are ardous and unflexible
-         observer has to reach the observable : difficult problem and hardly scalable
-
-         aproach:
 
          simple synchronous messaging with suscription
          data transmited via Eva Unit, very flexible and powerful
-            can be implemented with lack of interfaces but it can be "interfaced" as needed
+         can be implemented with lack of interfaces but it can be "interfaced" as needed
 
          cuasi blackboard data aproach (for widgets)
          Messaging is used by widgets but can be used for any class-to-class communication
@@ -39,7 +32,6 @@
          - Windowing transparentely all SQL select queries (application does not need LIMIT to be efficient)
          - Table Connection schema concept (deep table, deep select)
          - Default database and default Temporary database
-
 
     - GUI
 
@@ -68,8 +60,16 @@
          specially powerful commands:
 
          - SCAN FILES into db
-         - PARSE TEXT FILES using regular expressions into db
-         - PARSE XML into DB
+         - PARSE TEXT FILES using regular expressions into db (PARSONS)
+         - PARSE XML into DB (XMELON)
+         - PARSE JSON into Tables (JSON)
+         - MICOHTTP (an amazing hppt server!)
+
+   - NETWORK
+
+         - An engine like listix being in origin a text generator armed with the HTTP protocoll becomes
+           a powerful and easy to use http server that can be used not only as web server but for many
+           application where the communication between devices is required.
 
    - Java connection is total (indeed it was designed as a java development helper)
 
@@ -85,6 +85,7 @@
       - due to the powerful generator, it is possible to easily generate perl or whatever script and
         call it
       - eva format can be used as exange format with apps developed in other languages
+      - experimental commands RUBY, LUA and PERL. Currently only in PC version for windows :(
 
    - Log concept
 

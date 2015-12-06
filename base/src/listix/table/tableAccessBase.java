@@ -39,6 +39,7 @@ public abstract class tableAccessBase
 {
    public int currRow = zeroRow ();
    public int prevRow = zeroRow ();
+   // public int lastIncrementedPosition = 0;
 
 
    public abstract boolean isValid ();    /// if the table is valid (it is initialized etc)
@@ -46,6 +47,7 @@ public abstract class tableAccessBase
    public abstract boolean EOT ();        /// returns true if End Of Table
    public abstract int     rawRows ();    /// number of total rows (data + header)
    public abstract int     zeroRow ();    /// index of first data row
+   public abstract void rowIsIncremented (); // a new row is requested; oportunity to retrieve data if some cache mechanism is used
 
    /**
       sets the table data from the command 'wholeCommand', the parameter 'caller' could be
@@ -93,9 +95,10 @@ public abstract class tableAccessBase
    public boolean incrementRow ()
    {
       currRow ++;
+      rowIsIncremented ();
       return ! EOT ();
    }
-
+   
    /// decrements a row, jumping if needed the rows that have to be filtered
    public boolean decrementRow ()
    {

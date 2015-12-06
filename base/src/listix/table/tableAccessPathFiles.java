@@ -28,33 +28,100 @@ import de.elxala.Eva.*;
 
 public class tableAccessPathFiles extends tableAccessBase
 {
-   public Eva evaData = null;
+   protected boolean onlyDirectories = false;
 
-   private void getFiles (String dirPath, String [] ext, boolean recurse)
+   protected String [] columnNames = null;
+   protected Eva cacheEvaData = null;
+   protected EvaLine currentData = null;
+   protected int cacheIndx = 0;
+   protected int lastRequestedRow = 0;
+   protected boolean endOfListing = true;
+   protected pathGetFiles fileMotor = null;
+
+   protected listixCmdStruct lastCmdData = null;
+
+   private void startScanFiles (String dirPath, fileMultiFilter fil, boolean recurse)
    {
-      evaData = new Eva ("files");
-      evaData.addLine (new EvaLine (pathGetFiles.getRecordColumns ())); // "parentPath", "fileName", "extension", etc ...
+      clean ();
+      columnNames = pathGetFiles.getRecordColumns ();
+      cacheEvaData = new Eva (onlyDirectories ? "dirs": "files");
 
-      pathGetFiles moto = new pathGetFiles();
-      moto.initScan (dirPath, ext, recurse);
+      fileMotor = new pathGetFiles (onlyDirectories ? pathGetFiles.FOR_DIRECTORIES: pathGetFiles.FOR_FILES);
+      fileMotor.initScan (dirPath, "", recurse, fil);
+      currRow =  0;
+      lastRequestedRow = 0;
+      loadNextFiles ();
+      endOfListing = cacheEvaData.rows () == 0;
+   }
 
-      List cosas = null;
-      do
+   private boolean prepareRow (int row)
+   {
+      if (row == lastRequestedRow)
+         return true;
+
+      if (endOfListing)
       {
-         cosas = moto.scanN (100);
-         for (int jj = 0; jj < cosas.size (); jj++)
-         {
-            String [] record = (String []) cosas.get (jj);
-            evaData.addLine (new EvaLine (record));
-         }
+         lastCmdData.getLog().dbg (4, "prepareNextRow (" + row  + "), endOfListing is true");
+         return false;
       }
-      while (cosas.size () > 0);
+
+      if (row != lastRequestedRow + 1)
+      {
+         lastCmdData.getLog().warn ("prepareNextRow (" + row  + ") but lastRequestedRow = " + lastRequestedRow + ", pathFiles has to be accessed sequentially!");
+         return false;
+      }
+
+      lastRequestedRow = row;
+      if (cacheIndx + 1 < cacheEvaData.rows ())
+      {
+         cacheIndx ++;
+         lastCmdData.getLog().dbg (4, "prepareNextRow (" + row  + "), increase cache index to " + cacheIndx);
+         return true;
+      }
+      return loadNextFiles ();
+   }
+
+
+   private boolean loadNextFiles ()
+   {
+      cacheIndx = 0;
+      List cosas = null;
+      cacheEvaData =  new Eva ("files");
+      cosas = fileMotor.scanN (100);
+
+      lastCmdData.getLog().dbg (4, "loadNextFiles, new scan result in " + cosas.size () + " new files");
+      for (int jj = 0; jj < cosas.size (); jj++)
+      {
+         String [] record = (String []) cosas.get (jj);
+         cacheEvaData.addLine (new EvaLine (record));
+      }
+      //lastCmdData.getLog().dbg (4, "VALUO VALUO [" +  cacheEvaData.getValue (0, 0) + "] rows " + cacheEvaData.rows ());
+
+      endOfListing = cacheEvaData.rows () == 0;
+      return !endOfListing;
+   }
+
+   private void addExtensions (fileMultiFilter filtrum, String extOrExts)
+   {
+      // each string will be splited by comma as well
+      // so making possible to give all extensions in the firt argument
+      //
+      // we trim only if found comma separated values, the reason is to
+      // allow in other cases including blanks, it sounds weird but it could be possible, for example
+      //    EXT, " weird"
+      //
+      // to include the file "soso. weird"
+      //
+      String[] extext = extOrExts.split(",");
+      for (int ee = 0; ee < extext.length; ee ++)
+         filtrum.addCriteria ("+", extext.length == 1 ? extext[ee]: extext[ee].trim ());
    }
 
    //    SET TABLE, FILES, path, extension, extension
    //
    public boolean setCommand (listixCmdStruct cmdData)
    {
+      lastCmdData = cmdData;
       if (!cmdData.checkParamSize (2, 99999))
          return false;
 
@@ -63,36 +130,69 @@ public class tableAccessPathFiles extends tableAccessBase
       String typeTable   = cmdData.getArg(0);
       String dirPath     = cmdData.getArg(1);
 
-      // decalar extensiones
-      //
-      String [] ext = new String [cmdData.getArgSize () - 2];
-      for (int aa = 2; aa < cmdData.getArgSize (); aa ++)
-      {
-         ext[aa-2] = cmdData.getArg(aa);
-      }
+      fileMultiFilter filtrum = new fileMultiFilter ();
 
       boolean recursive = "1".equals (cmdData.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1"));
+      String [] extList = cmdData.takeOptionParameters(new String [] { "EXTENSIONS", "EXT" });
 
-      // set data
-      getFiles (dirPath, ext, recursive);
+      // get extensions and other filters
+      //
 
+      // add extensions from arguments to filter
+      //
+      for (int aa = 2; aa < cmdData.getArgSize (); aa ++)
+      {
+         addExtensions (filtrum, cmdData.getArg(aa));
+      }
+
+      if (extList != null)
+         for (int oe = 0; oe < extList.length; oe ++)
+         {
+            addExtensions (filtrum, extList[oe]);
+         }
+
+      // get option FILTERS, opt, exp, opt, exp ...
+      //
+      String [] optArr = cmdData.takeOptionParameters("FILTERS");
+      if (optArr != null)
+      {
+         for (int ff = 0; ff+1 < optArr.length; ff += 2)
+         {
+            filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
+         }
+      }
+
+      lastCmdData.getLog().dbg (2, "setCommand dirPath [" + dirPath + "] filtrum [" + filtrum + "] recursive " + recursive);
+      startScanFiles (dirPath, filtrum, recursive);
       currRow = zeroRow ();
 
       return true;
    }
 
+   public void rowIsIncremented ()
+   {
+      //lastCmdData.getLog().dbg (0, "JEURGASS!");
+      prepareRow (currRow);
+   }
+
    public void clean ()
    {
+      columnNames = null;
+      cacheEvaData = null;
+      currentData = null;
+      cacheIndx = 0;
+      endOfListing = true;
+      fileMotor = null;
    }
 
    public int zeroRow ()
    {
-      return 1;
+      return 0;
    }
 
    public boolean isValid ()
    {
-      return evaData != null;
+      return cacheEvaData != null;
    }
 
    public boolean BOT ()
@@ -102,36 +202,49 @@ public class tableAccessPathFiles extends tableAccessBase
 
    public boolean EOT ()
    {
-      return (evaData == null || currRow >= evaData.rows () || evaData.rows () < 2);
+      return (cacheEvaData == null || cacheEvaData.rows () == 0 || endOfListing);
    }
 
    public int columns ()
    {
-      return evaData.cols (0);
+      return columnNames == null ? 0: columnNames.length;
    }
 
-   public String colName  (int colIndex)
+   public String colName  (int colIndx)
    {
-      return evaData.getValue (0, colIndex);
+      return (columnNames == null || colIndx < 0 || colIndx >= columnNames.length) ? "": columnNames[colIndx];
    }
 
    public int colOf (String colName)
    {
-      return evaData.colOf (colName);
+      if (columnNames == null) return -1;
+      for (int ii = 0; ii < columnNames.length; ii ++)
+         if (colName.equals(columnNames[ii]))
+            return ii;
+      return -1;
    }
 
    public String getName ()
    {
-      return evaData.getName ();
+      return cacheEvaData.getName ();
    }
 
    public String getValue (int row, int col)
    {
-      return evaData.getValue (row, col);
+      prepareRow (row);
+      if (!EOT ())
+      {
+         //lastCmdData.getLog().dbg (2, "tableAccessPathFiles getValue (" + row + ", " + col + ") cacheIndx " + cacheIndx + " rows " + cacheEvaData.rows () + " VAL00 ]" + cacheEvaData.getValue (0, 0) + "[");
+         String val = cacheEvaData.getValue (cacheIndx, col);
+         return val;
+      }
+      return "";
    }
 
    public int rawRows ()
    {
-      return evaData.rows ();
+      if (lastCmdData != null)
+         lastCmdData.getLog().warn ("rawRows for tableAccessPathFiles is not supported!");
+      return cacheEvaData.rows () + 1;
    }
 }

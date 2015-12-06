@@ -21,110 +21,6 @@ package de.elxala.mensaka;
 /**   ======== de.elxala.langutil.MensakaPaket ==========================================
    @author Alejandro Xalabarder 25.02.2003 16:39
 
-   06.08.2004 21:57: nuevo package de.elxala.mensaka
-   05.04.2009 10:51
-
-      Rework MessageLogging
-
-         flowLogger.registerNewMessage (vec_msgText.size ()-1, sMsg);
-         flowLogger.suscribedMessage (theTarget, msgIndx);
-         flowLogger.packetLost (hand, pk);
-
-         flowLogger.startMessage (hand, pk);
-            flowLogger.logMessageEntry (hand, obj, pk);
-            flowLogger.logMessageExit ();
-         flowLogger.endMessage ();
-
-
-      Problema en la obtencion de nombres
-      ---------------------------------------------
-
-      En general la obtencion de nombres de cualquier objeto es sencilla
-
-      ::checkName
-         if (objectName != null) return; // ok we already have it
-
-         objectName = objectRef.toString ();
-         if (objectRef instanceof java.awt.Component)
-         {
-            componentName = ((java.awt.Component) objectRef).getName ();
-         }
-
-      El problema es que
-         - no es "barata"
-         - solo se necesita si estamos debugeando
-         - hay problemas para cachearla tanto en MensakaTargets (receptores) como en MensakaHandles (emisores)
-
-      problema en MensakaTarget
-      ---------------------------------------------
-
-         MensakaTarget es un interface
-               => no podemos hacer metodos base (checkNames, getMainName etc)
-               => podemos exigir "abstract String getTargetName ()" pero
-                     + trabajo para el programador
-                     + el programador puede poner cualquier cosa
-
-         una clase MensakaTargetNamed que se construya con MensakaTarget no sirve porque
-               => si hacemos una lista de MensakaTargetNamed como encontramos facilmente un MensakaTarget ?
-                  Ver en metodo ::suscribe (MensakaTarget theTarget ...
-                     // get the indx of the target in the list of targets
-                     int tarindx = laListaTargets.l_objSubscritos.indexOf(theTarget);
-
-               => si ampliamos class list_Targets con otro array de nombres
-
-                     private static class list_Targets
-                     {
-                        /// vector of suscriptors of a particular message
-                        List / * vector<MensakaTarget> * /      l_objSubscritos = new Vector ();
-                        List / * vector<MensakaTargetNamed> * / l_objSubscritosNamed = new Vector ();
-                        ...
-
-                   resulta estructuralmente redundante y además debemos saber cuando obtener los nombres
-                   if (logging) ...
-                   más aun redundante si tenemos en cuenta que muchos targets están suscritos a más de un mensaje
-
-
-      problema en MessageHandle (emisores de mensajes)
-      ---------------------------------------------
-
-            => principalmente el problema esta en el método sendPacket (String msgId, EvaUnit pk)
-
-                  public static int sendPacket (String msgId, EvaUnit pk)
-                  {
-                     MessageHandle hndMSG = new MessageHandle (jsys.getCallerButNotMe (), msgId);
-
-                     return sendPacket (hndMSG, pk);
-                  }
-
-               -- gestionar la obtención del nombre en MessageHandle puede llevar a un exceso de trabajo
-                  obteniendo el nomnbre siempre del mismo source!
-               -- jsys.getCallerButNotMe () ya es de por sí caro
-               -- si obligamos a sendPacket (Object obj, String msgId, EvaUnit pk)
-                     + trabajo para el programador
-                     + el programador puede poner cualquier cosa
-
-
-
-      posible solución
-      ---------------------------------------------
-
-            Solo MensakaProtokolling mantiene una lista de "Agentes" source & targets juntos
-
-            List / * vector<Object> * /  l_agentes = new Vector ();
-
-            - esta lista se llena facilmente accediento por object reference
-            - solo se buscan los nombres de un agent una vez en la vida
-            - se puede hacer una tabla en logger
-            - se referencian las cosas por indxAgent (p.e. indxAgentTarget, indxAgentSource)
-
-            Contras
-
-            - si el programador utiliza una técnica como
-
-                  (new bobalicon()).sendPacket ("blah", ...)
-
-              la lista puede crecer indefinidamente
-              (SOLUCION: limitar la lista a 1000 o 2000 y punto!)
 */
 
 import de.elxala.langutil.*;
@@ -133,6 +29,7 @@ import de.elxala.Eva.*;
 import de.elxala.zServices.logger;
 import java.util.*;
 import javaj.widgets.basics.*;
+import javaj.widgets.basics.zWidgetUtil; //(o) NOTES_java_javac if not explicit imported then it is not compiled (???!!)
 
 public class Mensaka
 {
@@ -140,13 +37,20 @@ public class Mensaka
    protected static logger log = new logger (new Mensaka(), "mensaka", null);
    protected static MensakaLogFlow flowLogger = new MensakaLogFlow();
 
+   // class globalSafeParameters
+   // {
+      // public String [] parametersPtr = null;
+
+      // void assign (String [] par) { parametersPtr = par; }
+   // };
+
    // struct ...
    private static class list_Targets
    {
-      /// vector of suscriptors of a particular message
+      /// vector of subscriptors of a particular message
       List /* vector<MensakaTarget> */      l_objSubscritos = new Vector ();
 
-      /// each suscriptor wants to receive the message with a particular int (mappedID)
+      /// each subscriptor wants to receive the message with a particular int (mappedID)
       List /* vector<int [1]> */       l_mappedID = new Vector ();
    };
 
@@ -233,12 +137,12 @@ public class Mensaka
 
 
    /**
-      Sends the message 'msgId' with data 'pk' to all the suscribers of this message.
-      Everybody (every method in every class) can send such a packet, even no suscribers for this
-      message are needed. In case there are no suscribers for this message at that moment then
+      Sends the message 'msgId' with data 'pk' to all the subscribers of this message.
+      Everybody (every method in every class) can send such a packet, even no subscribers for this
+      message are needed. In case there are no subscribers for this message at that moment then
       the message is lost (not obviously!) and the function returns 0.
 
-      @return the number of suscribers for this message THAT HAVE RETURN true in its method takePacket
+      @return the number of subscribers for this message THAT HAVE RETURN true in its method takePacket
 
       Example:
          Mensaka.sendPacket ("hello world packettery", null);
@@ -257,14 +161,14 @@ public class Mensaka
 
 
    /**
-      Returns true if the message related with the handle 'handle' has, at least, one suscriber.
+      Returns true if the message related with the handle 'handle' has, at least, one subscriber.
       This fucntion is intented to avoid filling the data into EvaUnit for
       that processes that are going to send a packet and are not sure if any
       other process is going to listen them. (e.g. DEBUG_MSG)
 
       Example:
 
-         if (Mensaka.hasSuscribers (handle))
+         if (Mensaka.hasSubscribers (handle))
          {
             // prepar pData ...
             Mensaka.sendPacket (handle, pData);
@@ -273,10 +177,10 @@ public class Mensaka
 
       @param handle of the message to check
 
-      return true if, at this time, the checked message has at least one suscriber to it
+      return true if, at this time, the checked message has at least one subscriber to it
 
    */
-   public static boolean hasSuscribers (MessageHandle handle)
+   public static boolean hasSubscribers (MessageHandle handle)
    {
       validateHandle (handle);
 
@@ -289,7 +193,7 @@ public class Mensaka
    /**
       for flowLogger
    */
-   protected static int getNumberOfSuscribers(MessageHandle handle)
+   protected static int getNumberOfSubscribers(MessageHandle handle)
    {
       validateHandle (handle);
 
@@ -299,31 +203,15 @@ public class Mensaka
       return targs.l_objSubscritos.size ();
    }
 
-   private static String [] currentMessageParameters = null;
-
-   /*
-      07.06.2011 23:45 New mensaka with parameters!
-   */
-   public static String [] getCurrentPacketParameters ()
+   public static int sendPacket (MessageHandle hand, EvaUnit pk)
    {
-      return currentMessageParameters;
-   }
-
-   /*
-      07.06.2011 23:45 New mensaka with parameters!
-   */
-   public static int sendPacket (MessageHandle hand, EvaUnit pk, String [] parameters)
-   {
-      currentMessageParameters = parameters;
-      int ret = sendPacket (hand, pk);
-      currentMessageParameters = null;
-      return ret;
+      return sendPacket (hand, pk, new String [0]);
    }
 
    /**
       to send a message using a valid message handle
    */
-   public static int sendPacket (MessageHandle hand, EvaUnit pk)
+   public static int sendPacket (MessageHandle hand, EvaUnit pk, String [] parameters)
    {
       validateHandle (hand);
       if (! isValidHandle (hand))
@@ -341,7 +229,7 @@ public class Mensaka
          return 0;
       }
 
-      // get the list of suscribers
+      // get the list of subscribers
       //
       list_Targets targs = (list_Targets) vec_targets.get (hand.mskMenssageIndex);
 
@@ -369,16 +257,16 @@ public class Mensaka
 
       //Important! get the size here to prevent recursion risk
       //           01.11.2010 21:17 It happened when calling gastona.gastona from a gast script
-      int nSuscribed = targs.l_objSubscritos.size ();
+      int nsubscribed = targs.l_objSubscritos.size ();
 
-      for (int ii = 0; ii < nSuscribed; ii ++)
+      for (int ii = 0; ii < nsubscribed; ii ++)
       {
          obj = (MensakaTarget) targs.l_objSubscritos.get (ii);
 
          int [] matmap = (int []) targs.l_mappedID.get(ii);
          if (matmap == null)
          {
-            log.fatal ("sendPacket", "Fail mapping of suscribers (mensaka intern!)");
+            log.fatal ("sendPacket", "Fail mapping of subscribers (mensaka intern!)");
          }
          else
             mappo = matmap[0];
@@ -391,7 +279,7 @@ public class Mensaka
          lastMsgTarget = obj;
 
          // physically send the message! call to takePacket
-         if (obj.takePacket (mappo, pk)) count ++;
+         if (obj.takePacket (mappo, pk, parameters)) count ++;
 
          //(o) TODO_listix implement stack message ?
          // POP stackMessages ()
@@ -400,7 +288,7 @@ public class Mensaka
          flowLogger.logMessageExit (hand, obj, pk);
       }
 
-      if (nSuscribed != targs.l_objSubscritos.size ())
+      if (nsubscribed != targs.l_objSubscritos.size ())
       {
          log.warn ("sendPacket", "Notifications the same message (\"" + hand.mskMessageText + "\") while dispatching it!");
       }
@@ -450,9 +338,9 @@ public class Mensaka
 
       if (! isValidHandle (handle))
       {
-         // the message is not there! then add new message and new list of suscribers
+         // the message is not there! then add new message and new list of subscribers
          // we will save time each time the message is sent because it has a valid handle.
-         // that does not mean that the message couldn't be lost (no suscribers)!
+         // that does not mean that the message couldn't be lost (no subscribers)!
          //
          handle.mskMenssageIndex = registerNewMessage (handle.mskMessageText);
       }
@@ -500,7 +388,7 @@ public class Mensaka
    }
 
    /**
-      Suscribes an object of a class (that implements MensakaTarget) to receive a specific
+      Subscribes an object of a class (that implements MensakaTarget) to receive a specific
       message 'msgId'
 
       @param theTarget the class that implements MensakaTarget and want to receive the message 'msgID'
@@ -513,7 +401,7 @@ public class Mensaka
 
          int MSG_BYE_BYE = 55;
 
-         Mensaka.suscribe (this, MSG_BYE_BYE, "adios");
+         Mensaka.subscribe (this, MSG_BYE_BYE, "adios");
 
          // implementation od MensakaTarget
          public boolean takePacket (int mappedMsg, EvaUnit pk) {
@@ -527,25 +415,25 @@ public class Mensaka
          }
 
     */
-   public static void suscribe (MensakaTarget theTarget, int mappId, String msgId)
+   public static void subscribe (MensakaTarget theTarget, int mappId, String msgId)
    {
       String ello = msgId; //(o) mensaka_MessageCase //.toLowerCase ();
 
-      log.dbg (2, "suscribe", "message [" + msgId + "] with mappId " + mappId);
+      log.dbg (2, "subscribe", "message [" + msgId + "] with mappId " + mappId);
 
       // get the message indx
       int msgIndx = vec_msgText.indexOf (ello);
       if (msgIndx != -1)
       {
          // get the list of targets of this message
-         log.dbg (2, "suscribe", "message alredy registered with msgIndex " + msgIndx);
+         log.dbg (2, "subscribe", "message alredy registered with msgIndex " + msgIndx);
       }
       else
       {
-         // the message is not there! then add new message and new list of suscribers
+         // the message is not there! then add new message and new list of subscribers
          msgIndx = registerNewMessage (ello);
 
-         log.dbg (2, "suscribe", "message is new, get the msgIndex " + msgIndx);
+         log.dbg (2, "subscribe", "message is new, get the msgIndex " + msgIndx);
       }
 
       list_Targets laListaTargets = (list_Targets) vec_targets.get(msgIndx);
@@ -556,12 +444,12 @@ public class Mensaka
       int tarindx = laListaTargets.l_objSubscritos.indexOf(theTarget);
       if (tarindx == -1)
       {
-         // it was not suscribed ==> suscribirlo
+         // it was not subscribed ==> subscribirlo
          addIt = true;
       }
       else
       {
-         // ya estaba suscrito pero si el mappId es diferente lo suscribimos
+         // ya estaba subscrito pero si el mappId es diferente lo subscribimos
          // puede ser u'til para robots que mapean mensajes pues el target siempre sera' el
          // robot pero puede que el mismo mensaje tenga varios destinatarios
          //
@@ -571,18 +459,18 @@ public class Mensaka
 
       if (addIt)
       {
-         log.dbg (2, "suscribe", "message added");
+         log.dbg (2, "subscribe", "message added");
          laListaTargets.l_objSubscritos.add (theTarget);
          laListaTargets.l_mappedID.add (new int [] { mappId });
 
-         flowLogger.suscribedMessage (theTarget, msgIndx);
+         flowLogger.subscribedMessage (theTarget, msgIndx);
       }
-      else log.dbg (2, "suscribe", "message was alredy suscribed with the same mappId!");
+      else log.dbg (2, "subscribe", "message was alredy subscribed with the same mappId!");
 
       return;
    }
 
-   public static void unsuscribe (String senderName, MensakaTarget theTarget)
+   public static void unsubscribe (String senderName, MensakaTarget theTarget)
    {
       // get indx of the message
       int indx1 = vec_msgText.indexOf (senderName); //(o) mensaka_MessageCase //.toLowerCase ());
@@ -594,13 +482,13 @@ public class Mensaka
       int indx2 = targets.l_objSubscritos.indexOf(theTarget);
       if (indx2 != -1)
       {
-         // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next suscribers)
+         // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next subscribers)
          targets.l_mappedID.set(indx2, null);
 //         // remove target and map associated
 //         targets.l_objSubscritos.remove (indx2);
 //         targets.l_mappedID.remove (indx2);
 //
-//         // if there are no more targets suscribed then remove the message and the list (void) itself as well
+//         // if there are no more targets subscribed then remove the message and the list (void) itself as well
 //         if (targets.l_objSubscritos.size () == 0)
 //         {
 //            vec_msgText.remove (indx1);
@@ -608,12 +496,12 @@ public class Mensaka
 //         }
       }
       else {
-         // this target was not suscribed!
+         // this target was not subscribed!
       }
    }
 
 
-   public static void unsuscribe (MensakaTarget theTarget)
+   public static void unsubscribe (MensakaTarget theTarget)
    {
 
       for (int ii = 0; ii < vec_targets.size (); ii ++)
@@ -622,13 +510,13 @@ public class Mensaka
          int indx2 = targets.l_objSubscritos.indexOf(theTarget);
          if (indx2 != -1)
          {
-            // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next suscribers)
+            // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next subscribers)
             targets.l_mappedID.set(indx2, null);
    //         // remove target and map associated
    //         targets.l_objSubscritos.remove (indx2);
    //         targets.l_mappedID.remove (indx2);
    //
-   //         // if there are no more targets suscribed then remove the message and the list (void) itself as well
+   //         // if there are no more targets subscribed then remove the message and the list (void) itself as well
    //         if (targets.l_objSubscritos.size () == 0)
    //         {
    //            vec_msgText.remove (indx1);

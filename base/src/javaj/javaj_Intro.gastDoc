@@ -16,31 +16,13 @@
 
    <help>
       //
-      // Javaj is the responsible of the user interface of a Gastona application. That means
-      // all that is visible in the application and might allow user interaction.
+      // Javaj is the responsible of the graphical user interface (GUI) of a Gastona application. GUI means in 
+      // few words all that is visible and might allow user interaction. This includes Frames
+      // or windows, widgets like buttons, lists etc and a very important element : the layout.
+      // Layouts handle the position and size of the widgets. Its definition acts as both : a declaration of
+      // widgets and rules for its positioning and size.
       //
-      // The job of Javaj is simply building frames placing on it the desired widgets. To do that it
-      // starts with the variable <frames> (no frames no fun!) where the main frame and optionally other
-      // secondary frames are declared using a name. The main elements that javaj handle are:
-      //
-      //    - frames, which are windows (main window or secondary dialogs)
-      //    - layouts or containers, they contain usually widgets but might contain also other layouts
-      //      when a layout contain another layout it is called "layout composition"
-      //    - final widgets, these can be from a button to a more complex dialog
-      //
-      // All these elements need a unique name in order to be able to identify each one for communication
-      // and other proposes. The name might contain spaces and other characters.
-      //
-      // To define all this elements, just follow this rules
-      //
-      //    -- Want a frame ? => add a row in the variable <frames>
-      //    -- Want a container or layout ? => declare the variable <layout of MYLAYOUTNAME>
-      //    -- Want a widget ? => write its name within a layout
-      //
-      // Isn't a frame a layout or container ? Very often, that is way we usually will use its
-      // name in both the variable <frames> and the related <layout of ...>
-      //
-      // Example:
+      // A simple example containing all these elements can be
       //
       //    #javaj#
       //
@@ -48,12 +30,32 @@
       //          myFirstFrame, "Title of my first frame"
       //
       //       <layout of myFirstFrame>
-      //          PANEL
+      //          PANEL, Y
       //
       //          lMy first label, bMy first button
+      // ----------
+      // The job of Javaj is simply building frames placing on it the desired widgets. To do that it
+      // starts with the variable <frames> (no frames no fun!) where the main frame and optionally other
+      // secondary frames are declared using a name. The main elements that javaj handle are:
+      //
+      //    - frames, which are windows (main window or secondary dialogs)
+      //    - layouts or containers, they contain usually widgets but might contain also other layouts
+      //     (layout composition)
+      //    - final widgets, these can be from a button to a more complex dialog
+      //
+      // All these elements need a unique name in order to be able to identify each one for communication
+      // and other proposes. Note that, unlike most programming languages, the name might contain spaces 
+      // and other characters.
+      //
+      // To define all this elements, just follow this rules
+      //
+      //    -- Want a frame ? => add a row in the variable <frames>
+      //    -- Want a container or layout ? => declare the variable <layout of MYLAYOUTNAME>
+      //    -- Want a widget ? => write its name within a layout
       //
       // This creates a frame called "myFirstFrame" and layouting it using the layout type PANEL
       // that contains two widgets : a label called "lMy first label" and a button called "bMy first button"
+      // ----------
       //
       // All javaj widgets have associated a prefix (usually one character) to facilitate its declaration
       //

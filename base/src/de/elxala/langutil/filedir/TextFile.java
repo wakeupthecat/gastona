@@ -37,6 +37,7 @@ package de.elxala.langutil.filedir;
 import java.io.*;
 import java.util.List;
 import java.util.Vector;
+import java.lang.StringBuffer;
 
 import java.io.InputStream;   // for files from jar file (resources)
 import java.net.URL;
@@ -83,7 +84,8 @@ public class TextFile
 
    public static final String NEWLINE_NATIVE = System.getProperty("line.separator", "\n");
    public static final String NEWLINE_RTLF   = new String (new byte [] {13, 10});
-   public static final String NEWLINE_LF     = new String (new byte [] {10});
+   public static final String NEWLINE_RT13   = new String (new byte [] {13});
+   public static final String NEWLINE_LF10   = new String (new byte [] {10});
 
 //(o) elxala_TextFile preparation for opneAs parameter (file system --> java resource --> url)
 //    (maybe has no interest at all to make it parametrizable, the default behaviour should be good enough)
@@ -100,15 +102,14 @@ public class TextFile
    private BufferedReader  m_br;
    private FileWriter      m_fw;
    private BufferedWriter  m_bw;
+   private serialTextBuffer m_fmem = null;
 
    private FileOutputStream m_fos = null;
    private FileInputStream  m_fis = null;
 
    private InputStream     m_stream = null;
-   private static final int MAX_STREAM_BUFFER = 2000;
-   private byte [] m_streamBuffer = null;
-   private int m_streamBufferSize = 0;
-   private int m_streamIndxRead = 0;
+   private Reader          m_streamCharReader = null;
+
    private boolean trece = false;
 
    private String   m_Line;
@@ -128,7 +129,7 @@ public class TextFile
       log = specialLogger;
    }
 
-   void initStatic ()
+   private void initStatic ()
    {
       if (logStatic == null)
       {
@@ -157,8 +158,23 @@ public class TextFile
       return m_bw;
    }
 
+   public static boolean isMemoryFile (String fileName)
+   {
+      return fileName.startsWith (":mem ") || fileName.startsWith (":(mem) ");
+   }
+
+   public boolean isMemoryFile ()
+   {
+      return m_fmem != null;
+   }
+
 //(o) elxala_TextFile preparation for opneAs parameter (file system --> java resource --> url)
 //   public boolean fopen (final String nom, final String modo, int tryOpenAs)
+
+   public boolean fopen (String nom, String modo)
+   {
+      return fopen (nom, modo, true);
+   }
 
    /**
    *  fopen abre un fichero secuencial al viejo estilo C
@@ -170,41 +186,76 @@ public class TextFile
    *        "a" (que es en realidad "at")
    *        "w!" (lo abre como "w" pero en cada escritura cierra y abre el fichero con "a")
    */
-   public boolean fopen (final String nom, final String modo)
+   public boolean fopen (String nom, String modo, boolean allowMemFile)
    {
       boolean bRet = true; // by the moment
       boolean forRead = modo.equals ("r") || modo.equals ("rb");
 
       fclose ();
       m_feof = false;      // by the moment
-
       m_FileName = nom;
+
+      // first check for memory files
+      if (allowMemFile && isMemoryFile (nom))
+      {
+         if (modo.startsWith("w"))
+         {
+            // create new memory file
+            //
+            log.dbg (5, "fopen", "file [" + m_FileName + "] open for write as memory file");
+            m_fmem = new serialTextBuffer ();
+            utilSys.objectSacPut ("memFile." + nom, m_fmem);
+         }
+         else // if (modo.startsWith("b"))
+         {
+            // open an existent memory file (read mode)
+            //
+            m_fmem = (serialTextBuffer) utilSys.objectSacGet ("memFile." + nom);
+            if (m_fmem == null)
+            {
+               log.err ("fopen", "file [" +  nom  + "] mode \"" + modo + "\" not found in memory!");
+               return false;
+            }
+            m_fmem.rewind ();
+
+            log.dbg (5, "fopen", "file [" + m_FileName + "] open for read as memory file");
+         }
+         //else if (modo.startsWith("rb"))
+         //{
+         //   log.err ("fopen", "file [" + m_FileName + "] memory files cannot be open binary (currently only text file)!");
+         //   return false;
+         //}
+         return true;
+      }
+
+      // Note: resolveCurrentDirFileName is important for android (in pc returns the parameter nom unchanged)
+      String placedName = fileUtil.resolveCurrentDirFileName (nom);
 
       try
       {
          if (modo.equals ("r"))
          {
-            m_fr = new FileReader (nom);
+            m_fr = new FileReader (placedName);
             m_br = new BufferedReader (m_fr, 8192);
          }
          else if (modo.equals ("rb"))
          {
-            m_fis = new FileInputStream (nom);
+            m_fis = new FileInputStream (placedName);
          }
          else if (modo.equals ("w") || modo.equals ("w!"))
          {
-            m_fw = new FileWriter (nom);
+            m_fw = new FileWriter (placedName);
             m_bw = new BufferedWriter (m_fw);
 
             m_ModeSure = modo.equals ("w!");
          }
          else if (modo.equals ("wb"))
          {
-            m_fos = new FileOutputStream (nom);
+            m_fos = new FileOutputStream (placedName);
          }
          else if (modo.equals ("a"))
          {
-            m_fw = new FileWriter (nom, true);
+            m_fw = new FileWriter (placedName, true);
             m_bw = new BufferedWriter (m_fw);
          }
          else
@@ -218,10 +269,10 @@ public class TextFile
       {
          bRet = false;
          if (forRead)
-         // not a bug, just first attempt failed. TextFile accepts files in own jar or other classpath location
-         log.dbg (5, "fopen", "file [" + m_FileName + "] not found in normal path, now try to open it as java resource (or url)");
+            // not a bug, just first attempt failed. TextFile accepts files in own jar or other classpath location
+            log.dbg (5, "fopen", "file [" + placedName + ")] not found in normal path, now try to open it as java resource (or url)");
          else
-            log.dbg (5, "fopen", "error opening file [" + m_FileName + "] for output. " + e);
+            log.dbg (5, "fopen", "error opening file [" + placedName + "] for output. " + e);
 
       }
       catch (Exception e)
@@ -229,66 +280,57 @@ public class TextFile
          m_feof = true;
          bRet = false;
 
-         // AFINAR Exceptions aqui' ! permitir file not found etc
-         log.err ("fopen", "file [" + m_FileName + "] causes an exception " + e.toString ());
+         log.err ("fopen", "file [" + placedName + "] causes an exception " + e.toString ());
       }
 
       if (!forRead) return bRet;
       if (bRet)
       {
-         log.dbg (5, "fopen", "file [" + m_FileName + "] opened from file system");
+         log.dbg (5, "fopen", "file [" + placedName + "] opened from file system");
          return true;
       }
 
-      // 2nd chance, search in resources (e.g. files in jar file)
+      // 2nd chance, search in resources (e.g. files in jar file or in assets directory (android))
       //
-      URL aurl = javaLoad.getResource (nom);
-      if (aurl == null)
+      InputStream is1 = javaLoad.openResource (nom);
+      if (is1 != null)
       {
-         log.dbg (5, "fopen", "file [" + m_FileName + "] not found also as java resource");
-//+++log.err ("fopen", "file [" + m_FileName + "] is NO java resource ");
+         // System.out.println ("OUT:textFile HABEMUS RESORSO! [" + m_FileName + "]");
+
+         log.dbg (5, "fopen", "file [" + m_FileName + "] opened from resource file system");
+         return assignOpenInputStream (is1, modo);
       }
-      else
-      {
-         log.dbg (5, "fopen", "file [" + m_FileName + "] opened as java resource");
-//+++log.err ("fopen", "file [" + m_FileName + "] SIIIN java resource ");
-      }
+      // else System.out.println ("OUT:textFile GOSAL POSAL RESORSO! [" + nom + "]");
 
       // 3nd chance!, search as pure URL
       //
+      URL aurl = null;
+      if (!fileUtil.looksLikeUrl (nom))
+         return bRet;
+
+      try { aurl = new URL (nom); }
+      catch (Exception e)
+      {
+         log.dbg (5, "fopen", "url exception " + e.toString ());
+      }
       if (aurl == null)
       {
-         try { aurl = new URL (nom); }
-         catch (Exception e)
-         {
-            log.dbg (5, "fopen", "url exception " + e.toString ());
-//+++log.err ("fopen", "file [" + m_FileName + "] causes an url exception " + e.toString ());
-         }
-         if (aurl == null)
-         {
-            log.dbg (5, "fopen", "file [" + m_FileName + "] not found also as url");
-//+++log.err ("fopen", "file [" + m_FileName + "] NOL urls machos");
-            return false;
-         }
-         else
-         {
-//+++log.err ("fopen", "file [" + m_FileName + "] SIIIIL urls cander");
-            log.dbg (5, "fopen", "file [" + m_FileName + "] opened as url");
-         }
+         log.dbg (5, "fopen", "file [" + m_FileName + "] finally not found neither as url");
+         return false;
+      }
+      else
+      {
+         log.dbg (5, "fopen", "file [" + m_FileName + "] opened as url");
       }
 
       m_feof = false;      // by the moment
       m_FileName = nom;
       bRet = true;
 
+      InputStream is2 = null;
       try
       {
-         m_stream = aurl.openStream ();
-         m_streamBuffer = new byte [MAX_STREAM_BUFFER + 1]; // +1 just for "C historic reasons"
-         m_streamIndxRead = 0;
-         m_streamBufferSize = 0;
-
-//+++log.err ("fopen", "file [" + m_FileName + "] tenems un url distint de null " + (m_stream != null));
+         is2 = aurl.openStream ();
       }
       catch (Exception e)
       {
@@ -297,8 +339,32 @@ public class TextFile
          log.err ("fopen", "exception while trying to open [" + nom + "] as stream! " + e.toString ());
       }
 
-//+++log.err ("fopen", "RETOTO [" + m_FileName + "] " + bRet);
-      return bRet;
+      return assignOpenInputStream (is2, modo);
+   }
+
+   private boolean assignOpenInputStream (InputStream is, String modo)
+   {
+      if (is == null) return false;
+
+      m_stream = is;
+      if (modo.equals ("r"))
+      {
+         // if read in text mode better use buffered reader ! (performs much better than do it "per hand" !)
+         //
+         m_br = new BufferedReader (new InputStreamReader (m_stream), 8192);
+         m_stream = null;
+      }
+      return m_stream != null || m_br != null;
+   }
+
+   public InputStream getAsInputStream ()
+   {
+      if (m_fis != null) return m_fis;
+      if (m_stream != null) return m_stream;
+      if (m_fmem != null) return new serialTextBufferInputStreamWrapper (m_fmem);
+
+      log.err ("getAsInputStream", "cannot obtain an InputStream from [" + m_FileName + "]");
+      return null;
    }
 
    /**
@@ -322,56 +388,46 @@ public class TextFile
       return (m_stream != null);
    }
 
-   private int readACharFromJar ()
-   {
-      if (m_streamIndxRead < m_streamBufferSize)
-         return m_streamBuffer[m_streamIndxRead++];
+   //(o) devnote_algorithms_reading manually RT LF
 
-      m_streamIndxRead = 0;
-      m_streamBufferSize = -1;
-      try
-      {
-         m_streamBufferSize = m_stream.read (m_streamBuffer, 0, MAX_STREAM_BUFFER);
-      }
-      catch (Exception e)
-      {
-         log.err ("readACharFromJar", "file [" + m_FileName + "] causes an exception " + e.toString ());
-      }
-
-      if (m_streamBufferSize < 1)
-         return m_streamBufferSize; // either -1 (end of stream) or 0 (not yet ... wait)
-
-      return m_streamBuffer[m_streamIndxRead++];
-   }
-
-   private boolean readLineFromJar ()
+   private boolean readLineFromStream ()
    {
       // read from a FileStream
       m_Line = "";
+      StringBuffer baf = new StringBuffer ();
 
-      int charo = readACharFromJar ();
-      if (charo < 0)
+      int charo = -1;
+
+      try
       {
-         m_feof = true;
-         return false;
-      }
-
-      while (charo >= 0)
-      {
-         if (charo == 13) break;
-         if (charo == 10 && !trece) break;
-
-         if (charo != 10)
+         charo = m_stream.read ();
+         if (charo == -1)
          {
-            m_Line += (char) charo;
+            m_feof = true;
+            return false;
          }
-         trece = false;
 
-         charo = readACharFromJar ();
+         do
+         {
+            if (charo == 13) break;
+            if (charo == 10 && !trece) break;
+
+            if (charo != 10)
+            {
+               baf.append ((char) charo);
+            }
+            trece = false;
+            charo = m_stream.read ();
+         } while (charo != -1);
       }
-      trece = (charo == 13);
+      catch (Exception e)
+      {
+         log.err ("readLineFromStream", "file [" + m_FileName + "] causes an exception " + e.toString ());
+      }
 
+      trece = (charo == 13);
       m_feof = (charo == -1);
+      m_Line = baf.toString ();
       return m_Line.length () > 0 || !m_feof;
    }
 
@@ -380,9 +436,21 @@ public class TextFile
    */
    public boolean readLine ()
    {
+      // check read line from memory file
+      if (m_fmem != null)
+      {
+         if (m_fmem.getNextLine ())
+         {
+            m_Line = m_fmem.getLastReadLine();
+            return true;
+         }
+         m_feof = true;
+         return false;
+      }
+
       if (isStream ())
       {
-         return readLineFromJar ();
+         return readLineFromStream ();
       }
 
       if (feof ())
@@ -411,6 +479,10 @@ public class TextFile
    {
       int quant = 0;
 
+      if (m_fmem != null)
+      {
+         return m_fmem.readBytes(cbuf);
+      }
       if (m_stream != null)
       {
          try
@@ -422,18 +494,17 @@ public class TextFile
             log.err ("readBytes", "exception reading the file [" +  m_FileName  + "] as url " + e.toString ());
             return quant;
          }
-
          m_feof = (quant < 1);
          return quant;
       }
 
       if (feof ())
-         return quant;
+         return -1;
 
       if (m_fis == null)
       {
          log.err ("readBytes", "file [" + m_FileName + "] was not open for reading in binary mode (\"rb\")!");
-         return quant;
+         return -1;
       }
 
       try
@@ -456,6 +527,11 @@ public class TextFile
    */
    public boolean writeLine (final String line)
    {
+      if (m_fmem != null)
+      {
+         m_fmem.writeln (line); // in memory files there are no \n but array of lines
+         return true;
+      }
       return writeString (line + RETURN_STR);
    }
 
@@ -464,6 +540,11 @@ public class TextFile
    */
    public boolean writeString (final String line)
    {
+      if (m_fmem != null)
+      {
+         m_fmem.write (line);
+         return true;
+      }
       if (m_bw == null)
       {
          log.err ("writeString", "file [" + m_FileName + "] not open for write!");
@@ -482,6 +563,18 @@ public class TextFile
          log.err ("writeString", "Exception writing into the file [" + m_FileName + "] " + e.toString ());
          return false;
       }
+   }
+
+   public boolean writeNewLine (final String use4RFLF)
+   {
+      if (m_fmem != null)
+      {
+         m_fmem.writeNewLine (use4RFLF);
+         return true;
+      }
+
+      // not a memory file ...
+      return writeString (use4RFLF);
    }
 
    /**
@@ -503,21 +596,34 @@ public class TextFile
    }
 
 
-   /**
-   *  escribe una nueva linea (sin retorno de carro!)
-   */
+   public boolean writeBytes (byte [] data)
+   {
+      return writeBytes (data, data.length);
+   }
+
    public boolean writeBytes (byte [] data, int len)
    {
+      return writeBytes (data, 0, len);
+   }
+
+   public boolean writeBytes (byte [] data, int offset, int len)
+   {
       if (len < 1) return false;
-      if (m_fos == null)
+      if (m_fos == null && m_fmem == null)
       {
          log.err ("writeBytes", "file [" + m_FileName + "] was not open for writing in binary mode (\"wb\")");
          return false;
       }
 
+      if (m_fmem != null)
+      {
+         m_fmem.write (new String (data, offset, len));
+         return true;
+      }
+
       try
       {
-         m_fos.write (data, 0, len);
+         m_fos.write (data, offset, len);
       }
       catch (Exception e)
       {
@@ -578,34 +684,60 @@ public class TextFile
       m_fos = null;
       m_fis = null;
 
+      if (m_fmem != null)
+      {
+         // NOTE: memory files are not deleted in this class!
+         //       in the same way as we don't delete normal files when closing them
+         // DO NOT !!! m_fmem.clear ();
+         // the object m_fmem has to be kept in objectSac ("fileMem.:(mem)XXX") with its contents
+         m_fmem = null;
+      }
+
       m_ModeSure = false;
    }
 
 
    /**
-      Lee un fichero de texto y lo retorna en la Cadena 'contenido'
+      Lee un fichero de texto y lo retorna en un StringBuffer
       Retorna true si se ha podido leer.
    */
-   public static boolean readFile (String Nombre, Cadena contenido)
+   public static StringBuffer readFileIntoStringBuffer (String Nombre)
    {
+      return readFileIntoStringBuffer (Nombre, RETURN_STR);
+   }
+
+   public static StringBuffer readFileIntoStringBuffer (String Nombre, String lineSeparator)
+   {
+      StringBuffer contenido = new StringBuffer ();
       TextFile fix = new TextFile ();
 
       if (!fix.fopen (Nombre, "r"))
       {
          logStatic.err ("readFile", "cannot read the file [" + Nombre + "] !");
-         return false;
+         return null;
       }
 
-      contenido.setStr ("");
-      while (fix.readLine ())
-      {
-         contenido.o_str += fix.TheLine();
-         contenido.o_str += RETURN_STR;
-      }
+      StringBuffer sb = fix.readAllIntoStringBuffer (lineSeparator);
       fix.fclose ();
-      return true;
+      return sb;
    }
 
+   public StringBuffer readAllIntoStringBuffer ()
+   {
+      return readAllIntoStringBuffer (RETURN_STR);
+   }
+
+   public StringBuffer readAllIntoStringBuffer (String lineSeparator)
+   {
+      StringBuffer contenido = new StringBuffer ();
+
+      int lineNr = 0;
+      while (readLine ())
+      {
+         contenido.append (((lineNr++ != 0) ? lineSeparator: "") + TheLine());
+      }
+      return contenido;
+   }
 
    /**
       Lee un fichero de texto y lo retorna en un array de String. Si el
@@ -637,9 +769,11 @@ public class TextFile
    {
       TextFile fix = new TextFile ();
 
+      if (logStatic != null) logStatic.dbg (2, "writeFile", "opening [" + Nombre + "]");
       if (!fix.fopen (Nombre, "w"))
          return false;
 
+      if (logStatic != null) logStatic.dbg (2, "writeFile", "writing " + contents.length + " lines");
       for (int ii = 0; ii < contents.length; ii++)
       {
          if (addReturn)

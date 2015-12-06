@@ -2,7 +2,7 @@
 
    <sysDefaultFonts>
       <!Tahoma, 12, 1, *
-      Courier New, 12, 0, TextArea.font
+      Consolas, 12, 0, TextArea.font
 
    <frames>
       F      , Compare Directories, 600, 600
@@ -57,7 +57,7 @@
 
 
    <-- tDiferents>
-      -->, bDiffFiles, enabled, 1
+      -->, bDiffFiles control!, enabled, 1
 
    <-- bDiffFiles>
       CHECK, VAR, tool diffFiles, @<tool Diff required>
@@ -109,32 +109,28 @@
       //ECHO =====================================
       //
       LOOP, SQL,, @<sql OnlyLeftFiles>
-      //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
-      =,,
+         ,, //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
       //
       //
       //ECHO ONLY RIGHT FILES (delete them from right side)
       //ECHO ================================================
       //
       LOOP, SQL,, @<sql OnlyRightFiles>
-      //DEL "@<eDirRight>\@<subPath>"
-      =,,
+          ,, //DEL "@<eDirRight>\@<subPath>"
       //
       //
       //ECHO DIFFERENT FILES (copy them to right)
       //ECHO ====================================
       //
       LOOP, SQL,, @<sql DifferentFiles>
-      //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
-      =,,
+          ,, //COPY "@<eDirLeft>\@<subPath>" "@<eDirRight>\@<subPath>"
       //
       //
       //ECHO IDENTIC FILES (delete from left)
       //ECHO ====================================
       //
       LOOP, SQL,, @<sql SameFiles>
-      //DEL "@<eDirLeft>\@<subPath>"
-      =,,
+          ,, //DEL "@<eDirLeft>\@<subPath>"
 
 
    <updateIgualsAndDiff>

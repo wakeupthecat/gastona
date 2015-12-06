@@ -1,0 +1,76 @@
+
+
+
+#listix#
+
+   <RET>
+      //
+      //
+
+   <! Important : argument is a table with consecutive rowid !!
+   <fabricaSQL SELECT_DELTA_TABLE (db frishtable)>
+      //SELECT
+      //
+      LOOP, SQL,@<p1>, //SELECT * FROM @<p2> LIMIT 1
+          ,, LOOP, COLUMNS
+          ,,     , LINK, //,@<RET>
+          ,,     ,, //    a.@<columnName> AS from_@<columnName>, b.@<columnName> AS to_@<columnName>
+      //
+      //   FROM
+      //       @<p2> AS a,
+      //       @<p2> AS b
+      //   WHERE a.rowid = b.rowid-1
+
+   <*DOC fabricaSQL SELECT_DELTA_TABLE (frishtable)>
+      //Builds a sql select which is the "delta" of 
+      //Builds a sql select that returns a table containing one row less than 
+      //'frishtable' having in each register all values 
+      //from the eva variable 'eva'. A new column rowid is added automatically.
+      //
+      
+   
+   <fabricaSQL SELECT_DELTA_TABLE (frishtable)>
+      LSX, fabricaSQL SELECT_DELTA_TABLE (db frishtable), "", @<p1>
+      
+   <*DOC fabricaSQL SELECT from eva col>
+      //Builds a sql select that returns a table containing the column 'col'
+      //from the eva variable 'eva'. A new column rowid is added automatically.
+      //
+
+   <fabricaSQL SELECT from eva col>
+      LSX, fabricaSQL SELECT from eva col field, @<p1>, @<p2>, @<p2>
+
+   <*DOC fabricaSQL SELECT from eva col field>
+      //Builds a sql select that returns a table containing the column 'col'
+      //renamed to 'field' from the eva variable 'eva'. A new column rowid is added automatically.
+      //
+
+   <fabricaSQL SELECT from eva col field>
+      //SELECT
+      LOOP, EVA,  @<p1>
+          , LINK, " UNION SELECT "
+          ,, "@<:lsx ROW> AS rowid, "
+          ,, //"
+          ,, LSX, @<p2>
+          ,, // AS @<p3>"
+
+
+   <*DOC fabricaSQL SELECT from eva>
+      //Builds a sql select that returns the table given in 'eva'.
+      //A new column rowid is added automatically
+      //
+   
+   <fabricaSQL SELECT from eva>
+      "SELECT "
+      LOOP, EVA,  @<p1>
+          , LINK, " UNION SELECT "
+          ,, "@<:lsx ROW> AS rowid, "
+			 ,, LOOP, COLUMNS
+          ,,     , LINK, ", "
+          ,,     ,, //"@<columnValue>" AS @<columnName> 
+
+      
+   <fabricaSQL SELECT DELTA from eva>
+      LSX, fabricaSQL SELECT_DELTA_TABLE (frishtable), "(@<fabricaSQL SELECT from eva>)"
+
+      

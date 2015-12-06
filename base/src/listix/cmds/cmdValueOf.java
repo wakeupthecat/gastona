@@ -61,6 +61,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
+      1      , SOLVE VAR   , 1 / 0   ,  1, //Default is 1, if set to 0 the content of the variable will be treat as text (no solving variables like @<myvar>)
+      1      , AS TEXT     , 0 / 1   ,  0, //Default is 0, setting to 1 has the same effect as set SOLVE VAR to 0
 
    <examples>
       gastSample
@@ -109,7 +111,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <tRecords>
       //       id, Name     , City     ,  WhatIs
       //       71, Abelardo , Plasencia,  Casino
-      //       61, Renate   , Göttingen,  Bäckerei
+      //       61, Renate   , GÃ¶ttingen,  BÃ¤ckerei
       //       81, Sergej   , Riga     ,  Buro
       //       16, Suelen   , Nagoya   ,  Suzuki Partner
       //
@@ -186,16 +188,35 @@ public class cmdValueOf implements commandable
    */
    public int execute (listix that, Eva commandEva, int indxComm)
    {
-      String refToSolve = that.solveStrAsString (commandEva.getValue (indxComm, 1));
+      listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
+
+      String refToSolve = cmd.getArg(0);
+
+      boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
+                            ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
+
+      that.solveStrAsString (refToSolve);
 
       // System.out.println ("me vengo refiriendo a que [" + valor + "]");
       // System.exit (0);
 
       // retFormat = solveLsxFormatAsEva (valor);
       // valor = retFormat.getValue ();
-      if (! that.printLsxFormat (refToSolve))
+      Eva srcEva = that.getReadVarEva (refToSolve);
+      if (srcEva == null)
       {
-         that.log().err ("VALUEOF", "listix format [" + refToSolve + "] not found while running " + commandEva.getName ());
+         that.log().err ("VALUEOF", "Variable \"" + refToSolve + "\" could not be found!");
+         return 1;
+      }
+      if (OptSolveVar)
+         that.printLsxFormat (refToSolve);
+      else
+      {
+         for (int rr = 0; rr < srcEva.rows (); rr ++)
+         {
+            if (rr > 0) that.newLineOnTarget ();
+            that.writeStringOnTarget (srcEva.getValue (rr, 0));
+         }
       }
 
       return 1;

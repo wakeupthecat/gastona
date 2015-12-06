@@ -263,12 +263,15 @@ public class fieldConnector1
       // for all fields
       for (int cc = deepTableIndx0; cc < evaColumns.rows (); cc ++)
       {
-         if (log.isDebugging (4))
-            log.dbg (4, "resolveConnections", "new deep column [" + addBase + evaColumns.getValue (cc, 0) + "]");
-         List currConnArray = Cadena.simpleToList(addBase + evaColumns.getValue (cc, 0), " "); // e.g. "persona pare name"
+         String deepColumn  = evaColumns.getValue (cc, 0); // e.g. "persona pare name"
          String columnAlias = evaColumns.getValue (cc, 1); // e.g. "elmeupare"
          String groupFunc   = evaColumns.getValue (cc, 2); // e.g. "MAX"
          String groupHaving = evaColumns.getValue (cc, 3); // e.g. "> 10"
+
+         List currConnArray = Cadena.simpleToList(addBase + deepColumn, " "); // e.g. "persona pare name"
+
+         if (log.isDebugging (4))
+            log.dbg (4, "resolveConnections", "new deep column [" + addBase + deepColumn + "] alias [" + columnAlias + "] groupOp [" + groupFunc + "] groupHaving [" + groupHaving + "]");
 
          if (groupFunc.length () > 0)
             bGrouping = true;
@@ -368,6 +371,8 @@ public class fieldConnector1
          String colName = (String) currConnArray.get(1); // e.g. "nombre"
          String nameQuali = tab + "." + colName;         // e.g. "persona_pare.nombre"
 
+         //System.out.println ("GARGOS [" + nameQuali + "]");
+
          // control alias
          //
          if (columnAlias.length () == 0)
@@ -383,7 +388,9 @@ public class fieldConnector1
          }
          else
          {
-            nameQuali = groupFunc + "(" + nameQuali + ")";
+            //nameQuali = groupFunc + "(" + nameQuali + ")";
+            nameQuali = groupFunc + "(" + shortAlias (firstTable, nameQuali) + ")";
+
             if (groupHaving.length () > 0)
             {
                if (resultStringHaving.length () > 0) resultStringHaving += " AND ";
@@ -478,7 +485,7 @@ public class fieldConnector1
 
 03.12.2009 00:38
 
-   Sí que funciona!
+   SÃ­ que funciona!
 
 ----- Conexiones
 

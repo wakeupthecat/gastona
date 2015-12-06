@@ -56,13 +56,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName, parameters, defVal, desc
-          1  , SOLVE LSX , 1 / 0    ,    1  , If false (0) the values parameters will be set without any listix resolve (variables @<..>) at all
 
    <examples>
       gastSample
-      adding records
+      adding numerical records
 
-   <adding records>
+   <adding numerical records>
       //#javaj#
       //
       //   <frames> tTable, "listix command ADD NUM TO VAR example"
@@ -72,8 +71,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <main0>
       //      SET VAR, tTable, x, sin(x)
       //      LOOP, FOR, ii, 1, 20
-      //      @<addPar>
-      //      =,,
+      //          ,, @<addPar>
       //      MSG, tTable data!
       //
       //    <addPar>

@@ -1,0 +1,89 @@
+#listix#
+
+
+   <dotGraph lsxLogic>
+      //digraph aso
+      //{
+      //
+      //    rankdir=LR;
+      //    node [shape=box];
+      //
+      LOOP, SQL,, //SELECT * FROM listixFormatsExt
+          ,, //   node [shape=@<theShape> label="@<formatName>@<extraInfo>"] @<formatID> ;
+      //
+      //
+      LOOP, SQL,, //SELECT * FROM listixCalledo
+          ,, //   @<callerID> -> @<calledID>
+      //
+      //}
+      //
+
+   <theShape>
+      IF, @<isSingle>, =, 1, parallelogram
+      IF, @<isText>, =, 1, note
+      IF, @<isOnlyCmd>, =, 1, tab
+      IF, @<isMixed>, =, 1, component
+
+
+   <extraInfo> @<extraInfo 00>
+
+   <extraInfo 00> //
+
+   <extraInfo 01>
+      IF, @<isSingle>, =, 1,  //
+      IF, @<isText>, =, 1,    //\n@<nrows>
+      IF, @<isOnlyCmd>, =, 1, //\n/ @<nCommands>
+      IF, @<isMixed>, =, 1  , //\n@<nrows> / @<nCommands>
+
+
+   <extraInfo 02>
+      IF, @<isSingle>, =, 1,  //
+      IF, @<isText>, =, 1,    //\nx @<nrows>
+      IF, @<isOnlyCmd>, =, 1, //\n@<lista comandos>
+      IF, @<isMixed>, =, 1  , //\nx @<nrows>\n@<lista comandos>
+
+   <extraInfo 03>
+      IF, @<isSingle>, =, 1,  //\n@<lista texto>
+      IF, @<isText>, =, 1,    //\n@<lista texto>
+      IF, @<isOnlyCmd>, =, 1, //\n@<lista texto>
+      IF, @<isMixed>, =, 1  , //\n@<lista texto>
+
+   <lista texto>
+      LOOP, SQL,, //SELECT * FROM eva_evaData WHERE evaName == '@<formatNameCoded>' ORDER BY row, col
+          , LINK, "\n"
+          ,, @<una linea>
+
+   <una linea>
+      RUN LOOP,,
+              , WHILE, row
+              , LINK, ", "
+              ,, //[
+              ,, STRCONV, STRE-TEXT, value
+              ,, //]
+
+   <lista comandos>
+      LOOP, SQL,, @<sql lista comandos>
+          , LINK, "\n"
+          ,, @<commName>
+
+   <sql lista comandos>
+      //SELECT
+      //    evaName,
+      //    row,
+      //    COUNT(col) AS ncols,
+      //    MAX(CASE WHEN col=0 THEN value END) AS commName            
+      // FROM eva_evaData
+      // WHERE evaName == '@<formatNameCoded>'
+      // GROUP BY evaName, row
+
+
+   <formatNameCoded>
+      STRCONV, TEXT-STR, formatName
+
+   <formatID>  LISTIX, name(s), @<formatName>
+   <callerID>  LISTIX, name(s), @<callerFormat>
+   <calledID>  LISTIX, name(s), @<calledFormat>
+
+   <name(s)>
+      JAVA, de.elxala.langutil.filedir.naming, toVariableName, @<p1>
+

@@ -27,7 +27,7 @@ import de.elxala.langutil.filedir.*;
 import de.elxala.langutil.graph.*;
 import de.elxala.Eva.*;
 import de.elxala.db.sqlite.*;
-import de.elxala.zServices.logger;
+import de.elxala.zServices.*;
 
 import listix.table.*;
 import listix.cmds.*;
@@ -113,6 +113,8 @@ public class listix
 
    private tableCursorStack tablon = null;
 
+   private boolean loopIsBroken = false;
+
 
    // this variable is exclusively thought to find parameters in calls like LISTIX or GENERATE
    // or the parameters of the main application which are passed to listix main procedures (formats)
@@ -153,7 +155,7 @@ public class listix
       Note: be sure call destroy() method (or restoreStack()) specially if created with an already
       initialized tableCursorStack
    */
-   public void init (EvaUnit lsxFormats, EvaUnit lsxData, tableCursorStack tableTable, String newLineString, String [] params)
+   public synchronized void init (EvaUnit lsxFormats, EvaUnit lsxData, tableCursorStack tableTable, String newLineString, String [] params)
    {
       theNewLineString = newLineString;
       globData = lsxData;
@@ -184,12 +186,12 @@ public class listix
       return cyclicControl.getLastFormatStack ();
    }
 
-   public void destroy ()
+   public synchronized void destroy ()
    {
       restoreStack ();
    }
 
-   public void restoreStack ()
+   public synchronized void restoreStack ()
    {
       while (tablon.getDepth() > stackAtBeginning)
          tablon.popTableCursor ();
@@ -200,7 +202,7 @@ public class listix
       return "0.36.090612";
    }
 
-   public int getStackDepthZero4Parameters ()
+   public synchronized int getStackDepthZero4Parameters ()
    {
       return stackDepthZero;
    }
@@ -216,7 +218,7 @@ public class listix
       Note that this cannot be performed automatically by this class (listix)
       A bad use of this method might produce that the primitive variable @<:listix paramCount> returns a wrong value!
    */
-   public void setStackDepthZero4Parameters (int newValue)
+   public synchronized void setStackDepthZero4Parameters (int newValue)
    {
       //trace who is doing this ?
       stackDepthZero = newValue;
@@ -224,12 +226,28 @@ public class listix
 
    /// return the logger object for the listix commands
    ///
-   public logger log ()
+   public synchronized logger log ()
    {
       return log_ext;
    }
 
-   private String badVariableValue (String varName)
+
+   public synchronized void loopStarts ()
+   {
+      loopIsBroken = false;
+   }
+
+   public synchronized boolean loopBroken ()
+   {
+      return loopIsBroken;
+   }
+
+   public synchronized void loopDoBreak ()
+   {
+      loopIsBroken = true;
+   }
+
+   private synchronized String badVariableValue (String varName)
    {
       //Note : the symbol '?' is used because it is an invalid file name character
 
@@ -245,28 +263,28 @@ public class listix
       Set the new line string for this listix object 'nlStr', except if this is null
       in which case the call has no effect.
    */
-   public void setNewLineString (String nlStr)
+   public synchronized void setNewLineString (String nlStr)
    {
       if (nlStr != null)
          theNewLineString = nlStr;
    }
 
-   public void addInternCommand (commandable cmdToAdd)
+   public synchronized void addInternCommand (commandable cmdToAdd)
    {
       comino.loadCommandable (cmdToAdd);
    }
 
-   public EvaUnit getGlobalData ()
+   public synchronized EvaUnit getGlobalData ()
    {
       return globData;
    }
 
-   public EvaUnit getGlobalFormats ()
+   public synchronized EvaUnit getGlobalFormats ()
    {
       return globFormats;
    }
 
-   public TextFile getGlobalFile ()
+   public synchronized TextFile getGlobalFile ()
    {
       return globFile;
    }
@@ -276,7 +294,7 @@ public class listix
 //      return comino;
 //   }
 
-   public String getDefaultDBName ()
+   public synchronized String getDefaultDBName ()
    {
       String defDB = sqlUtil.getGlobalDefaultDB ();
       if (defDB == null || defDB.equals(""))
@@ -289,33 +307,33 @@ public class listix
       return defDB;
    }
 
-   public String createTempFile (String extension)
+   public synchronized String createTempFile (String extension)
    {
       String sExt = (extension != null && extension.length() > 0) ? ("." + extension): ".tmp";
       return fileUtil.createTemporal ("lsxTmpFile", sExt);
    }
 
-   public void setGlobalData (EvaUnit lsxData)
+   public synchronized void setGlobalData (EvaUnit lsxData)
    {
       globData = lsxData;
    }
 
-   public void setGlobalFormats (EvaUnit lsxFormats)
+   public synchronized void setGlobalFormats (EvaUnit lsxFormats)
    {
       globFormats = lsxFormats;
    }
 
-   public tableCursorStack getTableCursorStack ()
+   public synchronized tableCursorStack getTableCursorStack ()
    {
       return tablon;
    }
 
-   public boolean openTargetFile (String fileName)
+   public synchronized boolean openTargetFile (String fileName)
    {
       return openTargetFile (fileName, false);
    }
 
-   public boolean openTargetFile (String fileName, boolean append)
+   public synchronized boolean openTargetFile (String fileName, boolean append)
    {
       if (CAPTURE_FILES)
       {
@@ -353,13 +371,13 @@ public class listix
       return globFile.fopen (fileName, (append) ? "a": "w");
    }
 
-   public void assignTargetFile (TextFile openedFile)
+   public synchronized void assignTargetFile (TextFile openedFile)
    {
       globFile = openedFile;
       openByMe = false;
    }
 
-   public void closeTargetFile ()
+   public synchronized void closeTargetFile ()
    {
       if (openByMe && ! CAPTURE_FILES && globFile != null)
       {
@@ -367,24 +385,24 @@ public class listix
       }
    }
 
-   public void setTargetEva (Eva evaTarget)
+   public synchronized void setTargetEva (Eva evaTarget)
    {
       globTargetEva = evaTarget;
       if (usingTargetStrBuffer && globTargetStrBuffer != null)
          log.err ("setTargetEva", "globTargetStrBuffer is not null, cannot change listix target!");
    }
 
-   public Eva getTargetEva ()
+   public synchronized Eva getTargetEva ()
    {
       return globTargetEva;
    }
 
-   public void endTargetEva ()
+   public synchronized void endTargetEva ()
    {
       globTargetEva = null;
    }
 
-   public boolean checkGlobs ()
+   public synchronized boolean checkGlobs ()
    {
       if (globData != null && globFormats != null) return true;
       if (globData == null)
@@ -403,7 +421,7 @@ public class listix
       data unit and if not found in formats unit. If finally it is not
       found returns null
    */
-   public Eva getVarEva (String name)
+   public synchronized Eva getVarEva (String name)
    {
       if (! checkGlobs ()) return null;
 
@@ -421,12 +439,12 @@ public class listix
 
 
    /**
-      special method to get an eva value for a read operation acording to the listix criterium
+      special method to get an eva value for a read operation according to the listix criterium
       that is : first primitive, second table column value, else real eva variable.
       If 'name' is a read only value (listix primitive or table column value) a new eva is created
       and the value is placed there, otherwise the eva returned is the same as the function 'getVarEva' would return.
    */
-   public Eva getReadVarEva (String name)
+   public synchronized Eva getReadVarEva (String name)
    {
       if (! checkGlobs ()) return null;
 
@@ -442,7 +460,7 @@ public class listix
       data unit and if not found in formats unit. If finally it is not
       found creates a new Eva variable with that name in data unit
    */
-   public Eva getSomeHowVarEva (String name)
+   public synchronized Eva getSomeHowVarEva (String name)
    {
       Eva eva = getVarEva (name);
       if (eva == null)
@@ -454,7 +472,7 @@ public class listix
 
    //(o) listix_core_primitiveVariables listix::valPrimitive where the variable @<:xxx> are solved
    //
-   private String valPrimitive (String name)
+   private synchronized String valPrimitive (String name)
    {
       if (name.length () == 0 || (name.charAt (0) != ':' && ! name.equals("@")) )
          return null;
@@ -522,16 +540,35 @@ public class listix
             return createTempFile (null);
          }
 
-         //create temporal file
+         //create temporal file (accept ":lsx tmp", ":lsx tmp extension" or with "temp"
          //
-         if (lowName.equals ("tmp") || lowName.startsWith ("tmp "))
+         if (lowName.equals("tmp")   || lowName.startsWith ("tmp ") ||
+             lowName.equals("temp ") || lowName.startsWith ("temp "))
          {
-            // create a tmp file
-            String ext = name.substring ("tmp".length ());
-            if (ext.length () > 0) ext = ext.substring (1); // remove " "
+            String ext = "";
+            if (lowName.startsWith ("temp ")) ext = name.substring ("temp ".length ());
+            if (lowName.startsWith ("tmp "))  ext = name.substring ("tmp ".length ());
             return createTempFile (ext);
          }
 
+         //return date
+         //
+         if (lowName.startsWith ("clock"))
+         {
+            String pattern = name.substring ("clock".length ());
+            if (pattern.length () == 0)
+            {
+               return "" + (System.currentTimeMillis () - de.elxala.zServices.logServer.getMillisStartApplication ());
+            }
+            else if (pattern.equals("0"))
+            {
+               return "" + System.currentTimeMillis ();
+            }
+            else if (pattern.equals("1"))
+            {
+               return "" + de.elxala.zServices.logServer.getMillisStartApplication ();
+            }
+         }
          //return date
          //
          if (lowName.startsWith ("date"))
@@ -597,17 +634,27 @@ public class listix
             return "" + de.elxala.langutil.graph.sysMetrics.getScreenPixelHeight();
          }
 
-         try {
-            if (lowName.equals("host nameupper")) return "" + java.net.InetAddress.getLocalHost().getHostName().toUpperCase ();
-            if (lowName.equals("host name")) return "" + java.net.InetAddress.getLocalHost().getHostName();
-            if (lowName.equals("host ip")) return "" + java.net.InetAddress.getLocalHost().getHostAddress();
+         try
+         {
+            if (lowName.equals("host nameupper")) return "" + uniUtil.getThisHostName().toUpperCase ();
+            if (lowName.equals("host name")) return "" + uniUtil.getThisHostName();
+            if (lowName.equals("host ip")) return uniUtil.getThisIpAddress ();
          }
          catch (Exception e) { return ""; }
 
-                  // false :listix command
+         // false :listix command
          //
          log.err ("valPrimitive", "unknown \":listix\" primitive [" + name + "] it not equal to lowName (" + lowName + ")");
          return badVariableValue (name);
+      }
+
+      if (lowName.startsWith (":mutool "))
+      {
+         return microToolInstaller.getExeToolPath(name.substring (":mutool ".length ()));
+      }
+      if (lowName.startsWith (":microtool "))
+      {
+         return microToolInstaller.getExeToolPath(name.substring (":microtool ".length ()));
       }
 
       if (lowName.startsWith (":sys ") || lowName.startsWith (":prop "))
@@ -630,14 +677,14 @@ public class listix
       'lsxFormat' name of the format to determine
       'retEva'    has to be dimensioned with size 1, returns in index 0 the contents of the format as Eva
    */
-   public boolean formatIsValue (String lsxFormat, Eva [] retEva)
+   public synchronized boolean formatIsValue (String lsxFormat, Eva [] retEva)
    {
       String valor = valPrimitive (lsxFormat);
 
       if (valor != null)
       {
          retEva[0] = new Eva ("variable " + lsxFormat); // any name ...
-         retEva[0].setValue (valor);
+         retEva[0].setValueVar (valor);
          return true;
       }
 
@@ -658,7 +705,7 @@ public class listix
       if (deTabla != null)
       {
          retEva[0] = new Eva ("field " + lsxFormat); // any name ...
-         retEva[0].setValue (deTabla);
+         retEva[0].setValueVar (deTabla);
          return true;
       }
 
@@ -669,7 +716,7 @@ public class listix
       'lsxFormat' name of the format to determine
       'retEva'    has to be dimensioned with size 1, returns in index 0 the contents of the format as Eva
    */
-   public boolean formatIsListixFormat (String lsxFormat, Eva [] retEva)
+   public synchronized boolean formatIsListixFormat (String lsxFormat, Eva [] retEva)
    {
       retEva[0] = getVarEva (lsxFormat);
 
@@ -698,7 +745,7 @@ public class listix
             '31.08.2008 11:30
 
    */
-   public Eva solveLsxFormatAsEva (String lsxFormat)
+   public synchronized Eva solveLsxFormatAsEva (String lsxFormat)
    {
       Eva eraEva = globTargetEva;
       Eva result = new Eva ();
@@ -723,7 +770,7 @@ public class listix
             'today is 31.08.2008 11:30 and current name is "braulio"
 
    */
-   public Eva solveStrAsEva (String str)
+   public synchronized Eva solveStrAsEva (String str)
    {
       Eva eraEva = globTargetEva;
       Eva result = new Eva ();
@@ -735,14 +782,14 @@ public class listix
       return result;
    }
 
-   public String solveStrAsString (String str)
+   public synchronized String solveStrAsString (String str)
    {
       // returns the solved espression as a text, that is a String
       // that might contain return and line feed characters
       return solveStrAsEva (str).getAsText ();
    }
 
-   public String solveStrAsStringFast (String str)
+   public synchronized String solveStrAsStringFast (String str)
    {
       globTargetStrBuffer = new StringBuffer ();
       usingTargetStrBuffer = true;
@@ -753,7 +800,7 @@ public class listix
 
    // prints a listix format with name 'lsxFormat'
    //
-   public boolean printLsxFormat (String lsxFormat)
+   public synchronized boolean printLsxFormat (String lsxFormat)
    {
       if (globData == null || globFormats == null)
       {
@@ -831,14 +878,14 @@ public class listix
    // utility for commands (e.g. cmdListix) and other communication mechanisms
    // calls a format with parameters
    //
-   public boolean printLsxFormat (String lsxFormat, String [] parameters)
+   public synchronized boolean printLsxFormat (String lsxFormat, String [] parameters)
    {
       //09.01.2011 23:16
       //Nota!:
-      //    Metodo sacado de cmdListix, se podrÌa reescribir y hacer privada setStackDepth4Parameters
+      //    Metodo sacado de cmdListix, se podr√≠a reescribir y hacer privada setStackDepth4Parameters
       //    etc.
       //Pregunta:
-      //    Como es que cmdGenerate no usa esta funciÛn cuando pasa par·metros ??? (porque siempre
+      //    Como es que cmdGenerate no usa esta funci√≥n cuando pasa par√°metros ??? (porque siempre
       //    utiliza un nuevo listix ?)
       //
 
@@ -873,7 +920,7 @@ public class listix
 
    // to facilitate other commands the execution of subcommands (i.e. command "IN CASE")
    //
-   public void executeSingleCommand (Eva evaCommand)
+   public synchronized void executeSingleCommand (Eva evaCommand)
    {
       log_flow.dbg (FLOWLEVEL_2, "flow", "subCmd", new String [] { evaCommand.getValue (0, 0), "" + ciclon.depth () });
       comino.treatCommand (this, evaCommand, 0);
@@ -883,10 +930,11 @@ public class listix
 
    // prints a listix format previously loaded in an Eva variable
    //
-   public void doFormat (Eva eFormat)
+   public synchronized void doFormat (Eva eFormat)
    {
       boolean needReturn = false;
       int rr = 0;
+      if (eFormat == null) return;
       while (rr < eFormat.rows ())
       {
          // is it a text ? or a command
@@ -894,7 +942,12 @@ public class listix
          if (eFormat.cols (rr) > 1)
          {
             log_flow.dbg (FLOWLEVEL_2, "flow", "cmd", new String [] { eFormat.getValue (rr, 0), "" + ciclon.depth () });
+
+            //(o) DOC/listix/executing a command/1 listix identifies a command
+            //    While "doing" a format (listix variable) a command is found and it lauches its execution
+            //
             rr += comino.treatCommand (this, eFormat, rr);
+
             //log_flow.dbg (FLOWLEVEL_2, "flow", "cmdEnd", new String [] { eFormat.getValue (rr, 0), "" + ciclon.depth () });
 
             needReturn = false;   // with the break wouldn't be necessary but ...
@@ -929,7 +982,7 @@ public class listix
 //      out/dev/@<name>.dev,  devTemplate, formats, devProy.listix
 //
 
-   public void printTextLsx (String text)
+   public synchronized void printTextLsx (String text)
    {
       String line = text;
       int [] ini_fin = new int [4];       // contain start pos and end pos (+1)
@@ -950,7 +1003,7 @@ public class listix
          writeStringOnTarget (line);
    }
 
-   public int countLsxFormatWhileText (Eva eFormat, int fromRow)
+   public synchronized int countLsxFormatWhileText (Eva eFormat, int fromRow)
    {
       int kuenta = 0;
       for (int rr = fromRow; rr < eFormat.rows (); rr ++)
@@ -961,7 +1014,7 @@ public class listix
       return kuenta;
    }
 
-   public int printLsxFormatWhileText (Eva eFormat, int fromRow)
+   public synchronized int printLsxFormatWhileText (Eva eFormat, int fromRow)
    {
       int kuenta = 0;
       for (int rr = fromRow; rr < eFormat.rows (); rr ++)
@@ -986,7 +1039,7 @@ public class listix
    */
    private static boolean found_VARIABLE_EVA (String where, int [] ini_fin)
    {
-      //(o) javaTemas_Patterns&Matchers truco para detectar algunos casos con "no caracter" delante
+      // TOSEE_listix_kern truco para detectar algunos casos con "no caracter" delante
       // we add " " at the begining to avoid the case "@(algo) ..." which not has the "no" @ first !
 
       Matcher esta = PATT_LSX_VARIABLE_EVA.matcher (where);
@@ -1006,9 +1059,15 @@ public class listix
 
    // writing on target (either an eva or a file)
    //
-   public void writeStringOnTarget (String str)
+   public synchronized boolean writeStringOnTarget (String str)
    {
       int iMark = 0;  //String dbgMark = "?";
+
+      if (str == null)
+      {
+         log.severe ("writeStringOnTarget", "null given as argument");
+         return false;
+      }
 
       if (usingTargetStrBuffer && globTargetStrBuffer != null)
       {
@@ -1027,24 +1086,24 @@ public class listix
                currRow = (currRow < 0) ? 0: currRow;
                String line = evaCurrentCaptureFile.getValue(currRow);
                line += str;
-               evaCurrentCaptureFile.setValue(line, currRow);
+               evaCurrentCaptureFile.setValueRow(line, currRow);
             }
             else
             {
                log.severe ("writeStringOnTarget", "CAPTURE_FILES is TRUE but cannot write the output on target");
-               return;
+               return false;
             }
          }
          else if (globFile == null)
          {
-            // output to the standard strout
+            // output to the standard stdout
             iMark = 2; // dbgMark = "Out"; // stdout
             System.out.print (str);
          }
          else if (globFile.feof ())
          {
             log.err ("writeStringOnTarget", "Attempt to write on file but no file specified or it has been closed!");
-            return;
+            return false;
          }
          else
          {
@@ -1066,9 +1125,10 @@ public class listix
          String dbgMark = (iMark == 0) ? "?": (iMark == 1) ? "Cap": (iMark == 2) ? "Out" : (iMark == 3) ? "File": "Var";
          log_flow.dbg (FLOWLEVEL_3, "print", dbgMark, new String [] { str, "" + ciclon.depth () });
       }
+      return true;
    }
 
-   public void newLineOnTarget ()
+   public synchronized void newLineOnTarget ()
    {
       if (usingTargetStrBuffer && globTargetStrBuffer != null)
       {
@@ -1082,6 +1142,10 @@ public class listix
                  evaCurrentCaptureFile.addRow ("");
             else log.severe ("newLineOnTarget", "CAPTURE_FILES is TRUE but cannot write the output on target");
          }
+         else if (globFile != null && !globFile.feof ())
+         {
+            globFile.writeNewLine (theNewLineString);
+         }
          else writeStringOnTarget (theNewLineString);
       }
       else globTargetEva.setValue ("", globTargetEva.rows (), 0);
@@ -1089,4 +1153,22 @@ public class listix
 }
 
 /*
+
+just allow a thread (e.g. gui thread) to use listix at a time
+this can block entrant
+   - tcp/ip communications
+   - timer callbacks
+
+
+
+Reentrant Synchronization
+
+Recall that a thread cannot acquire a lock owned by another thread.
+But a thread can acquire a lock that it already owns. Allowing a thread
+to acquire the same lock more than once enables reentrant synchronization.
+This describes a situation where synchronized code, directly or indirectly,
+invokes a method that also contains synchronized code, and both sets of code use
+the same lock. Without reentrant synchronization, synchronized code would have to
+take many additional precautions to avoid having a thread cause itself to block.
+
 */

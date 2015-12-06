@@ -169,4 +169,8 @@ public class tableColumns extends tableAccessBase
       //System.err.println ("tus propias ros son " + refLoopTable.columns ());
       return refLoopTable.columns ();
    }
+
+   public void rowIsIncremented ()
+   {
+   }
 }

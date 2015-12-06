@@ -1,0 +1,267 @@
+#gastona#
+
+   <LOG WAKEUP>
+
+   <fusion>
+      META-GASTONA/utilApp/editor/EmergencyEditor.gasti
+      META-GASTONA/utilApp/editor/javaErrorsClickAndGo.gasti
+
+#javaj#
+
+   <frames> layBuild, Generador de gastona APK, 700, 500
+
+   <layout of layBuild>
+      EVA, 10, 10, 5, 5
+
+         ,    X
+         , nameConfig
+         , botona
+       X , layConsolas
+
+
+   <layout of nameConfig>
+      EVA, 3, 3, 6, 6
+
+         ,             , X
+         , lConfig name, lConfigName
+
+
+   <layout of botona>
+      EVA, 2, 2, 6, 6
+
+         , , , X
+         , bCompila, bPakApk, , bInstall, bUninstall, bToDropbox
+         , lBinary Archive, eBinaryArchive, -
+         , lSignature Arguments, eSignatureArgs, -, -, -, -
+         , bOneBatch, -     , , kShow Historic apks, kGenerate batchs, -
+
+   <layout of layHitoric>
+      EVA, 10, 10, 5, 5
+
+      , X
+    X , iHitoricApks
+      , bInstall historic
+
+   <layout of layConsolas>
+      EVA, 4, 4, 4, 4
+
+         , X
+       X , o1Console
+       X , layJavaErrorsClickAndGo
+
+   <sysDefaultFonts> Consolas, 12, 0, TextArea
+
+#data#
+
+
+   <DIR android>       //\pavoTools\android-sdk
+   <DIR harmonySDK>    //\pavoTools\harmony-5.0-jdk
+   <DIR javac high1.5> //\pavoTools\jdk1.7.0_04
+   <DIR projPath>      //C:\tmp\apkproduct
+
+   <kGenerate batchs selected> 0
+   <kShow Historic apks selected> 0
+
+   <iHitoricApks sqlSelect> //SELECT * FROM scan_all ORDER BY date DESC
+   <iHitoricApks visibleColumns> fileName
+
+   <PACKAGE DOMAIN> //@<ePackageDomain>
+   <PACKAGE PATH>
+      LOOP, SQL,, //SELECT REPLACE("@<ePackageDomain>", ".", "\") AS value
+          ,, @<value>
+
+   <PATH FOR SOURCES>
+      LOOP, EVA, TABLE SOURCEDIRS
+         , LINK, ";"
+         ,, @<path>
+
+   <ANDROID TARGET> //android-15
+      <! NOTE: list all android targets with "android list targets"
+      <!       the target "android-8" or id 7 is "Android 2.2" target
+
+   <DIR ANDROID+TARGET> //@<DIR android>\platforms\@<ANDROID TARGET>
+
+   <BATCH_NEWPROJ>
+      //@<DIR android>\tools\android create project --target @<ANDROID TARGET> --name @<p1> --path @<DIR projPath>\@<p1> --activity @<p1>Actor --package @<PACKAGE DOMAIN>.@<p1>
+
+   <TMPBATCH_1_JAVAC>
+      //SET PATH=@<DIR javac high1.5>\bin;@<DIR javac high1.5>\jre\bin;
+      //rmdir /S/Q @<DIR projPath>\@<p1>\out
+      //mkdir @<DIR projPath>\@<p1>\out
+      //javac -source 1.5 -target 1.5 -sourcepath @<PATH FOR SOURCES> -d @<DIR projPath>\@<p1>\out -classpath "@<DIR ANDROID+TARGET>/android.jar";@<DIR projPath>\@<p1>\out @<eMainClass>
+
+   <TMPBATCH_2_DEX>
+      //SET PATH=@<DIR javac high1.5>\jre\bin;@<DIR android>\platform-tools
+      //dx --dex --output=@<DIR projPath>\@<p1>\bin\classes.dex @<DIR projPath>\@<p1>\out
+
+   <TMPBATCH_3_PAK>
+      //SET PATH=@<DIR android>\platform-tools
+      //aapt p -f -M @<ANDROID MANIFEST> -S @<BASE DIR RES> @<ASSETS_DIR> -I "@<DIR ANDROID+TARGET>/android.jar" -F @<DIR projPath>/@<p1>/bin/resources.ap_
+
+   <ASSETS_DIR>
+      CHECK, VAR, BASE DIR ASSETS
+      CHECK, DIR, @<BASE DIR ASSETS>
+      //-A @<BASE DIR ASSETS>
+
+   <TMPBATCH_4_APK>
+      //ECHO  =================== START == BATCH4 APK(@<p1>)
+      //SET PATH=%PATH%;@<DIR android>\tools;@<DIR javac high1.5>\bin
+      //SET PROJ=@<DIR projPath>\@<p1>
+      //call apkbuilder %PROJ%\bin\@<p1>_UNALIGN.apk -v -u -z %PROJ%\bin\resources.ap_ -f %PROJ%\bin\classes.dex
+      <! NOTE: if needed libraries -rf %PROJ%\libras en donde libras es un directorio que contiene "lib"
+      //jarsigner -verbose @<eSignatureArgs> %PROJ%\bin\@<p1>_UNALIGN.apk gastonaKey
+      //if exist %PROJ%\bin\@<p1>.apk del %PROJ%\bin\@<p1>.apk
+      //zipalign -v 4 %PROJ%\bin\@<p1>_UNALIGN.apk %PROJ%\bin\@<p1>.apk
+      //copy %PROJ%\bin\@<p1>.apk @<eBinaryArchive>\@<:lsx date yyyyMMdd>_REL_@<p1>.apk
+      //ECHO  =================== END == BATCH4 APK(@<p1>)
+
+   <LANZA_BATCH>
+      IN CASE, @<kGenerate batchs selected>
+        , 1   , VAR=, BATCHFILENAME, @<p1>.bat
+        , ELSE, VAR=, BATCHFILENAME, @<:lsx tmp bat>
+      GEN, @<BATCHFILENAME>, @<p1>
+         , PARAMS, @<p2>
+      CALL, //CMD /C @<BATCHFILENAME>
+
+#listix#
+
+
+
+   <main0>
+      LOAD, data, GASTONA_ANDROID_CONFIG.gasti
+      VAR=, lConfigFile, GASTONA_ANDROID_CONFIG.gasti
+      VAR=, lConfigName, @<APKGENCONFIG_NAME>
+
+      CHECK, DIR, @<eBinaryArchive>, BOX, E, //Binary archive does not exist! please create it
+
+      LOAD, data, @<:sys user.home>/.gastonaLocal
+      @<check environ>
+      SCAN, ADD FILES,, @<eBinaryArchive>, +, apk
+
+   <show consola>
+      IN CASE, @<kShow Historic apks selected>
+             , 0, JAVAJ, MASK, layGoError, layConsolas
+             , 1, JAVAJ, MASK, layGoError, layHitoric
+
+
+   <-- kShow Historic apks>
+      LSX, show consola
+
+   <-- iHitoricApks 2>
+      LSX, -- bInstall historic
+
+   <-- bInstall historic>
+      CHECK, VAR, iHitoricApks selected.fullPath
+      @<clean console>
+      CALL, //@<adb.exe> uninstall @<PACKAGE DOMAIN>
+      CALL, //@<adb.exe> install @<iHitoricApks selected.fullPath>
+
+
+   <void>
+   <check environ>
+      CHECK, VAR, DIR android, @<malamente>
+      CHECK, VAR, DIR harmonySDK, @<malamente>
+      VAR=, adb.exe, //@<DIR android>\platform-tools\adb.exe
+      GEN, "@<DIR projPath>\.lastUsed", void
+
+
+   <malamente>
+      BOX, E, //Expected variables <DIR android> and/or <DIR harmonySDK> not found!
+      MSG, javaj doExit
+
+
+   <clean console>
+      LSX, show consola
+      MSG, o1Console clear
+      LSX, javaErrorsClickAndGo::clear
+
+   <-- bCompila>
+      LSX, clean console
+      LSX, STEP_BEFORE_COMPILATION
+      LSX, COPY_ASSETS
+      LSX, LANZA_BATCH, TMPBATCH_1_JAVAC, @<eProyecto>
+      LSX, javaErrorsClickAndGo::parseErrors
+      LSX, informe java no compilados, @<eProyecto>
+
+   <COPY_ASSETS>
+      CHECK, VAR, BASE DIR ASSETS
+      CHECK, VAR, TABLE COPY ASSETS
+      LOOP, VAR, TABLE COPY ASSETS
+          ,, LOOP, FILES, @<srcpath>
+          ,,     ,, FILEUTIL, COPY, @<fullPath>, @<BASE DIR ASSETS>/@<destsubpath>/@<fullSubPath>
+   
+   <informe java no compilados>
+      SCAN, ADD FILES,, @<DIR projPath>\@<p1>\out, +E, class
+      LOOP, EVA, TABLE SOURCEDIRS
+          ,, SCAN, ADD FILES,, @<path>, +E, java
+      //
+      //Lista de ficheros java no usados de base:
+      //
+      LOOP, SQL,, //@<java names base> EXCEPT @<class names>
+          ,, //  @<name>.java
+      //
+      //Lista de ficheros java no usados de android:
+      //
+      LOOP, SQL,, //@<java names android> EXCEPT @<class names>
+          ,, //  @<name>.java
+
+   <class names> //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-6) AS name FROM scan_all WHERE extension = "class"
+   <java names base>    //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel LIKE "%base%"
+   <java names android> //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel LIKE "%android%"
+
+
+   <-- bPakApk>
+      @<clean console>
+
+      CALL, //CMD /C copy @<ANDROID MANIFEST> @<DIR projPath>\@<eProyecto>
+      CALL, //CMD /C rmdir /S/Q @<DIR projPath>\@<eProyecto>\bin
+      CALL, //CMD /C mkdir @<DIR projPath>\@<eProyecto>\bin
+      //
+      //dex ...
+      LISTIX, LANZA_BATCH, TMPBATCH_2_DEX, @<eProyecto>
+      //
+      //pak ...
+      LISTIX, LANZA_BATCH, TMPBATCH_3_PAK, @<eProyecto>
+      //
+      //apk ...
+      LISTIX, LANZA_BATCH, TMPBATCH_4_APK, @<eProyecto>
+      //
+      //scaning apk archive ...
+      SCAN, ADD FILES,, @<eBinaryArchive>, +, apk
+      //done.
+      //
+      MSG, iHitoricApks data!
+
+   <-- bInstall>
+      @<clean console>
+      CALL, //@<adb.exe> uninstall @<PACKAGE DOMAIN>
+      CALL, //@<adb.exe> install @<DIR projPath>\@<eProyecto>\bin\@<eProyecto>.apk
+
+   <-- bToDropbox>
+      CALL, //CMD /C COPY @<DIR projPath>\@<eProyecto>\bin\@<eProyecto>.apk @<:sys user.home>\Dropbox\apks
+
+   <-- bUninstall>
+      @<clean console>
+      CALL, //@<adb.exe> uninstall @<PACKAGE DOMAIN>
+
+
+   <-- bOneBatch>
+      @<clean console>
+      //echo ======== Compilation
+      //
+      LISTIX, TMPBATCH_1_JAVAC, @<eProyecto>
+      //
+      //echo ======== Packaging
+      //
+      //CMD /C copy @<ANDROID MANIFEST> @<DIR projPath>\@<eProyecto>
+      LISTIX, TMPBATCH_2_DEX, @<eProyecto>
+      //
+      //
+      LISTIX, TMPBATCH_3_PAK, @<eProyecto>
+      //
+      //
+      LISTIX, TMPBATCH_4_APK, @<eProyecto>
+      //
+      //
+
+#**#

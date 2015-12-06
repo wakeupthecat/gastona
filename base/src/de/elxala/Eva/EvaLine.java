@@ -44,7 +44,7 @@ import de.elxala.langutil.*;
 
    02.02.2005 12:00 EVA Text File Specification v1.0
 */
-public class EvaLine
+public class EvaLine implements java.io.Serializable
 {
    private String [] arr_Column = null;
 
@@ -103,6 +103,18 @@ public class EvaLine
    public void clear ()
    {
       arr_Column = new String [] {""};
+   }
+   
+   public void copy (EvaLine eline2)
+   {
+      arr_Column = new String [] {""};
+      if (eline2 == null) return;
+      
+      arr_Column = new String [eline2.arr_Column.length];
+      for (int ii = 0; ii < arr_Column.length; ii ++)
+      {
+         arr_Column[ii] = eline2.arr_Column[ii];
+      }
    }
 
    /**
@@ -208,6 +220,30 @@ public class EvaLine
       if (ncol < cols () && ncol >= 0)
          return arr_Column [ncol];
       else return "";
+   }
+
+   /**
+      Returns the double at position 'ncol' or 0.f if the column does not exist or has no numeric value
+   */
+   public float getFloat (int ncol)
+   {
+      return (float) stdlib.atof (getValue (ncol));
+   }
+
+   /**
+      Returns the double at position 'ncol' or 0.f if the column does not exist or has no numeric value
+   */
+   public double getDouble (int ncol)
+   {
+      return stdlib.atof (getValue (ncol));
+   }
+
+   /**
+      Returns the int at position 'ncol' or 0 if the column does not exist or has no numeric value
+   */
+   public int getInt (int ncol)
+   {
+      return stdlib.atoi (getValue (ncol));
    }
 
    /**

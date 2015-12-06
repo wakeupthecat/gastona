@@ -91,8 +91,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          5   ,   3       , //Converts 'stringSource' into a text, the result will be placed in the variable 'EvaTarget' if given
          6   ,   3       , //Converts the string contained in the variable 'EvaSource' into a text, the result will be placed in the variable 'EvaTarget' if given. Note that the source string is treated simply as string and no listix "@" replacement is done, in oder to use this replacements use "GEN EVA" instead of STRE-TEXT
          7   ,   3       , //Converts the text given in 'EvaSource' into a string, the result is printed out into the current file or standard output or place into the Eva 'EvaTarget' if given
-         8   ,   3       , //Converts the string date 'dateAsString' (greater than 1970-01-01) into a long value
-         9   ,   3       , //Converts the date 'milisecSince1970' given as long into a string date
+         8   ,   3       , //Converts the string UTC date 'dateAsString' (greater than 1970-01-01) into a long value
+         9   ,   3       , //Converts the UTC date 'milisecSince1970' given as long into a string date
         10   ,   3       , //Formats 'number' to a fix point of 'nDecimals'
         11   ,   3       , //Formats 'number' to a typical engineer format
         12   ,   3       , //Converts the Eva variable 'EvaSource' into a text placing it into 'EvaTarget'
@@ -103,6 +103,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
         17   ,   3       , //Solve whenever possible the relative path symbols (. and ..) from a path
         18   ,   3       , //Concat to paths using the native directory separator if needed
         19   ,   3       , //Returns the canonical path from a one given (see java )
+        20   ,   3       , //Converts a text into a valid name for a variable, file name, sql column name etc (i.e. ISO 9660 Joliet compliant)
+        21   ,   3       , //Encode a string using a encoding model (e.g. UTF-8)
+        22   ,   3       , //Encode a text from a given variable using a encoding model (e.g. UTF-8)
+        23   ,   3       , //Encode a text from file using a encoding model (e.g. UTF-8)
+        24   ,   3       , //Decode a string using a encoding model (e.g. UTF-8)
+        25   ,   3       , //Decode the content of a variable using a encoding model (e.g. UTF-8)
+        26   ,   3       , //Escape a string using a escape style (supported HTML and LATEX)
+        27   ,   3       , //Unescape a string using a escape style (supported HTML and LATEX)
+        28   ,   3       , //Xor encryption with shift mechanism
+        29   ,   3       , //Generate java script code for painting a specific scence where using "trazos"
+        30   ,   3       , //Saves into a file an image given by paths
 
    <syntaxParams>
       synIndx, name         , defVal, desc
@@ -134,8 +145,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       8      , DATE-LONG     ,    , //
       8      , dateAsString  ,    , //Date given in the format "yyyy-MM-dd HH:mm:ss S" (year-month-day hour:minute:second milliseconds)
-
-
 
       9      , LONG-DATE           ,     , //
       9      , milisecSince1970    ,     , //Date given as a long representing the milliseconds from 1-Jan-1970
@@ -175,13 +184,86 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       19     , PATH-CANONICAL   ,      , //
       19     , filePath         ,      , //Path to be converted into canonical path
 
+      20     , TEXT-VARNAME     ,      , //
+      20     , text             ,      , //text to be converted
+
+      21     , ENCODE STR       ,       , //
+      21     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      21     , stringToEncode   ,       , //String to be encoded
+
+      22     , ENCODE VAR       ,       , //
+      22     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      22     , evaSource        ,       , //Name of Eva variable containing the text to be encoded
+
+      23     , ENCODE FILE      ,       , //
+      23     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      23     , fileName         ,       , //Name of file containing the text to be encoded
+
+      24     , DECODE STR       ,       , //
+      24     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      24     , stringToDecode   ,       , //String to be decoded
+
+      25     , DECODE VAR       ,       , //
+      25     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      25     , evaSource        ,       , //Name of Eva variable containing the text to be decoded
+
+      26     , ESCAPE STR       ,       , //
+      26     , escapeStyle      ,       , //Supported escape styles HTML and LATEX, for URL use ENCODE STR, for exaple "ENCODE STR, UTF-8"
+      26     , stringToEscape   ,       , //String to be escaped
+
+      27     , UNESCAPE STR    ,       , //
+      27     , escapeStyle     ,       , //Supported escape styles HTML and LATEX, for URL use ENCODE STR, for exaple "ENCODE STR, UTF-8"
+      27     , stringToUnescape,       , //String to be unescaped
+
+      28     , XOR ENCRYPT     ,       , //
+      28     , keyString       ,       , //String containig the key
+      28     , offset1         , 0     , //Offset used to shift the key
+      28     , mult            , 0     , //Multiplier to shift the key
+      28     , offset2         , 0     , //Second offset used to shift the key
+
+      29     , TRAZOS-JS       ,       , //
+      29     , evaName         ,       , //Variable name (eva) containing the trazos
+      29     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trazos2D.js is included
+      29     , canvasX         , 0     , //If > 0 width of canvas where the image has to fit
+      29     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
+      29     , offset0         , 0     , //If 1 then clear the offsets to 0, 0
+
+      
+      30     , 2DPATHS-FILE    ,       , //
+      30     , evaName         ,       , //Variable name (eva) containing the 2d paths
+      30     , imageFilename   , 1     , //Target file name for image
+      30     , fileType        , 0     , //File type, default is "png"
+      30     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
+      30     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
+
+<! XOR ENCRYPT, KEY, offset1, mult, offset2
+<!            , IN FILE KEY,
+<!            , IN STR, asdkljflfskdj ldksjlskd
+<!            , IN VAR, lalala
+<!            , IN FILE, c:\temparito.txt
+<!            , OUT VAR, lololo
+<!            , OUT FILE, :mem encripa
+
+
+
    <options>
       synIndx, optionName  , parameters, defVal, desc
+      22     , SOLVE VAR   , 1 / 0   ,  1, //Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal
+      23     , SOLVE VAR   , 1 / 0   ,  1, //Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal
+      25     , SOLVE VAR   , 1 / 0   ,  1, //Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal
+
+      28     , *IN FILE KEY, filename, , //NOT IMPLEMENTED!  file to be used as key
+      28     , IN STR      , string  , , //Input string with the message to be en/de-crypted
+      28     , IN VAR      , variable name  , , //Input variable name containing the message to be en/de-crypted
+      28     , *IN FILE     , file name      , , //NOT IMPLEMENTED! Input file name containing the message to be en/de-crypted
+      28     , *OUT VAR     , variable name  , , //NOT IMPLEMENTED! Variable to put the output
+      28     , *OUT FILE    , file name      , , //NOT IMPLEMENTED! File name to put the output
 
    <examples>
       gastSample
       STRCONV basicSample
       Listix interactive sample
+      caballoJs
 
 
    <STRCONV basicSample>
@@ -219,10 +301,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       //
       //       //Normalizing a path =
       //       STRCONV, PATH-SOLVE, '/firsr/second/./ignorethis/removeit/../.././third/./final/byedir/..
+      //       //
+      //       //Building a valid file name from a text =
+      //       STRCONV, TEXT-VARNAME, 'This is%20%NOT a valid (��) file name, is it?
       //
-      //	<aweek ago>  =, along - 1000*3600*24*7
+      //   <aweek ago>  =, along - 1000*3600*24*7
       //
-      //	<along>	STRCONV, DATE-LONG, @<ahora>
+      //   <along>  STRCONV, DATE-LONG, @<ahora>
 
    <Listix interactive sample>
       //#javaj#
@@ -239,23 +324,62 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //     X , oConsole
       //
       //    <sysDefaultFonts>
-      //       Courier, 15, 0, TextField
+      //       Consolas, 15, 0, TextArea
       //
       //#data#
       //
       //   <xText>
       //      //LOOP, FOR, ii, 1, 3
-      //      //"Hola @<:sys user.name>, que tal andas"
+      //      //    ,, //Hola @<:sys user.name>, que tal andas
       //
       //#listix#
       //
       //   <-- bRun>
-      //      @<convert text into eva>
-      //      @<launch new format>
+      //      LSX, convert text into eva
+      //      LSX. launch new format
       //
       //   <convert text into eva> STRCONV, TEXT-EVA, xText, my new format
-      //   <launch new format>     @<my new format>
+      //   <launch new format>     LSX, my new format
 
+   <caballoJs>
+      //#javaj#
+      //
+      //   <frames> main, Converting trazos to javascript canvas
+      //
+      //   <layout of main>
+      //    EVA, 10, 10, 7, 7
+      //
+      //       , X
+      //       , lTrazos
+      //     X , xTrazos
+      //       , bRun
+      //     X , oConsole
+      //
+      //    <sysDefaultFonts>
+      //       Consolas, 14, 0, TextArea
+      //
+      //#data#
+      //
+      //   <xTrazos>
+      //       //defstyle, piel, "fc:+255127039"
+      //       //defstyle, pelo, "fc:+234234234"
+      //       //
+      //       //z ,238, 121, "piel", //jau,84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
+      //       //z ,196, 223, "piel", //jau,-43,-81,-10,-36,9,-19,39,8,64,37
+      //       //z ,155,  84, "piel", //jau,-47,7,-34,48,-16,29,20,19,36,-29,40,-15
+      //       //z ,468, 148, "piel", //jau,26,22,14,27,1,46,-5,49,12,56,-12,73,-7,33,-25,0,13,-32,-10,-93,-45,-57,-16,-49
+      //       //z ,196, 213, "piel", //jau,4,52,29,42,18,65,0,54,-12,28,10,4,18,-1,-2,-18,11,-18,-4,-85,5,-86
+      //       //z ,473, 152, "pelo", //jau,51,14,23,59,8,86,-10,0,-3,27,-12,-28,5,38,-11,-2,-6,-37,5,-80,-11,-45,-19,-14
+      //       //z ,128,  83, "piel", //jau,-22,-23,3,31
+      //       //z ,123,  83, "pelo", //jau,44,-3,65,19,28,27,30,25,-20,19,6,13,-15,-3,-7,-26,-13,7,-17,-24,-28,-28,-21,4,-23,-20,-31,-9
+      //
+      //#listix#
+      //
+      //   <-- bRun>
+      //      MSG, oConsole clear
+      //      STRCONV, TEXT-EVA, xTrazos, varTrazos
+      //      STRCONV, TRAZOS-JS, varTrazos, 0, 1000, 1000, 1
+      //
 
 #**FIN_EVA#
 */
@@ -269,6 +393,11 @@ import de.elxala.Eva.*;
 
 import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
+import de.elxala.langutil.DateFormat;
+import de.elxala.db.*;
+
+import java.awt.image.*;
+import de.elxala.langutil.graph.*;
 
 public class cmdStrconvert implements commandable
 {
@@ -284,6 +413,110 @@ public class cmdStrconvert implements commandable
           "STRCONVERT",
        };
    }
+
+   protected strEncoder encoderHTML = null;
+   protected strEncoder encoderLATEX = null;
+
+   protected strEncoder getHtmlEncoder ()
+   {
+      if (encoderHTML != null) return encoderHTML;
+
+      encoderHTML = new strEncoder ();
+
+      // date 2014.05.18 16:39
+      // NOTE: this has to be edited using UTF-8!
+      //
+      encoderHTML.addStrPairs (new String [] {
+               "&", "&amp;",
+               "<", "&lt;",
+               ">", "&gt;",
+               "\"", "&quot;",
+               //" ", "&nbsp;",
+
+               "¦", "&brvbar;",
+               "¡", "&iexcl;",
+               "°", "&deg;",
+
+               "æ", "&aelig;",
+               "ç", "&ccedil;",
+               "ñ", "&ntilde;",
+
+               "ý", "&yacute;",
+               "ð", "&eth;",
+               "þ", "&thorn;",
+
+               "¿", "&iquest;",
+               "º", "&ordm;",
+
+               "à", "&agrave;",
+               "á", "&aacute;",
+               "â", "&acirc;",
+               "ä", "&auml;",
+               "å", "&aring;",
+
+               "è", "&egrave;",
+               "é", "&eacute;",
+               "ê", "&ecirc;",
+               "ë", "&euml;",
+
+               "ì", "&igrave;",
+               "í", "&iacute;",
+               "î", "&icirc;",
+               "ï", "&iuml;",
+
+               "ò", "&ograve;",
+               "ó", "&oacute;",
+               "ô", "&ocirc;",
+               "ö", "&ouml;",
+               "õ", "&otilde;",
+               "ø", "&oslash;",
+
+               "ù", "&ugrave;",
+               "ú", "&uacute;",
+               "û", "&ucirc;",
+               "ü", "&uuml;",
+
+              });
+      return encoderHTML;
+   }
+
+   protected strEncoder getLatexEncoder ()
+   {
+      if (encoderLATEX != null) return encoderLATEX;
+
+      encoderLATEX = new strEncoder ();
+      encoderLATEX.addStrPairs (new String [] {
+            "\\", "\\textbackslash",
+            "#", "\\#",
+            "$", "\\$",
+            "%", "\\%",
+            "&", "\\&",
+            "^", "\\textasciicircum",
+            "_", "\\_",
+            "~", "\\textasciitilde",
+            "<", "$<$",
+            ">", "$>$",
+            "{", "\\{",
+            "}", "\\}"
+            });
+
+/*
+#listix#
+
+	<head_desc>
+		// <Extracts> #the# {schema} of & the data_base (only table & $ % ^structure) )
+
+
+	<main>
+		STRCONV, ESCAPE, LATEX, @<head_desc>
+
+*/
+
+      //no encontrado para � � y �
+      return encoderLATEX;
+   }
+
+
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -306,18 +539,22 @@ public class cmdStrconvert implements commandable
       // "STRCONV", "LONG-DATE", "milisecSince1970"  } ));
       // "STRCONV", "NUM-FIX", "number", "nDecimals"  } ));
       // "STRCONV", "NUM-ENG", "string"  } ));
+      listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      String oper = that.solveStrAsString (commands.getValue (indxComm, 1)).toUpperCase ();
-      String p1   = that.solveStrAsString (commands.getValue (indxComm, 2));
-      String p2   = that.solveStrAsString (commands.getValue (indxComm, 3));
-      String p3   = that.solveStrAsString (commands.getValue (indxComm, 4));
+      String oper = cmd.getArg(0).toUpperCase ();
+      String p1   = cmd.getArg(1);
+      String p2   = cmd.getArg(2);
+      String p3   = cmd.getArg(3);
       String strResult = "";
+
+      boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
+                            ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
 
       if (oper.equals ("SUBSTR"))
       {
          int offset0 = Math.max (stdlib.atoi (p2)-1, 0);
          int lenmax  = Math.min (stdlib.atoi (p3), p1.length () - offset0);
-         if (lenmax <= 0) lenmax = offset0 + 1;
+         if (lenmax <= 0) lenmax = p1.length() - offset0;
 
          that.log().dbg(2, "STRCONV", "SUBSTR offset0 = " + offset0 + " lenmax = " + lenmax);
 
@@ -333,6 +570,129 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("LOWER"))
          strResult = p1.toLowerCase ();
+      else if (oper.equals ("ENCODE STR") || oper.equals ("ENCODE"))
+      {
+         // strconv, encode str, utf-8, bla bla
+         if (p1.equals ("*"))
+              strResult = utilEscapeStr.escapeStr (p2);
+         else strResult = utilEscapeStr.escapeStr (p2, p1);
+      }
+      else if (oper.equals ("ENCODE VAR") || oper.equals ("ENCODE EVA"))
+      {
+         // strconv, encode var, utf-8, bla bla
+
+         Eva srcEva = that.getReadVarEva (p2);
+         if (srcEva == null)
+         {
+            that.log().err ("ENCODE VAR", "Variable \"" + p2 + "\" could not be found!");
+            return 1;
+         }
+         StringBuffer str = new StringBuffer ();
+         for (int rr = 0; rr < srcEva.rows (); rr ++)
+         {
+            //(o) TODO document this behaviour (if variable contain more rows, columns ... etc)
+            str.append (rr != 0 ? "\n":  "");
+            if (OptSolveVar)
+                 str.append (that.solveStrAsString (srcEva.getValue (rr, 0)));
+            else str.append (srcEva.getValue (rr, 0));
+         }
+
+         if (p1.equals ("*"))
+              strResult = utilEscapeStr.escapeStr (str.toString ());
+         else strResult = utilEscapeStr.escapeStr (str.toString (), p1);
+      }
+      else if (oper.equals ("ENCODE FILE"))
+      {
+         // strconv, encode var, utf-8, bla bla
+         TextFile fix = new TextFile ();
+
+         //(o) TODO check if possible, and if it would make sense, to treat the file as binary
+         if (!fix.fopen (p2, "r"))
+         {
+            that.log().err ("ENCODE FILE", "File \"" + p2 + "\" could not be opened!");
+            fix.fclose ();
+            return 1;
+         }
+         StringBuffer str = new StringBuffer ();
+         while (fix.readLine ())
+         {
+            str.append (str.length () == 0 ? "" : "\n");
+            if (OptSolveVar)
+                 str.append (that.solveStrAsString (fix.TheLine ()));
+            else str.append (fix.TheLine ());
+         }
+
+         if (p1.equals ("*"))
+              strResult = utilEscapeStr.escapeStr (str.toString ());
+         else strResult = utilEscapeStr.escapeStr (str.toString (), p1);
+      }
+      else if (oper.equals ("DECODE STR") || oper.equals ("DECODE"))
+      {
+         // strconv, decode str, utf-8, bla bla
+         if (p1.equals ("*"))
+              strResult = utilEscapeStr.desEscapeStr (p2);
+         else strResult = utilEscapeStr.desEscapeStr (p2, p1);
+      }
+      else if (oper.equals ("DECODE VAR") || oper.equals ("DECODE"))
+      {
+         // strconv, decode str, utf-8, bla bla
+
+         Eva srcEva = that.getReadVarEva (p2);
+         if (srcEva == null)
+         {
+            that.log().err ("DECODE VAR", "Variable \"" + p2 + "\" could not be found!");
+            return 1;
+         }
+         StringBuffer str = new StringBuffer ();;
+         for (int rr = 0; rr < srcEva.rows (); rr ++)
+         {
+            //(o) TODO document this behaviour (if variable contain more rows, columns ... etc)
+            // here it hardly make sense to include a return character since an encoded string should not have any
+            //str += (rr != 0 ? "\n":  "");
+            if (OptSolveVar)
+                 str.append (that.solveStrAsString (srcEva.getValue (rr, 0)));
+            else str.append (srcEva.getValue (rr, 0));
+         }
+
+         if (p1.equals ("*"))
+              strResult = utilEscapeStr.desEscapeStr (str.toString ());
+         else strResult = utilEscapeStr.desEscapeStr (str.toString (), p1);
+      }
+      else if (oper.startsWith ("ESCAPE"))
+      {
+         if (p1.equalsIgnoreCase ("HTML"))
+         {
+            strResult = getHtmlEncoder ().encode (p2);
+            utilEscapeStr.escapeStr (p2);
+         }
+         else if (p1.equalsIgnoreCase ("LATEX"))
+         {
+            strResult = getLatexEncoder ().encode (p2);
+         }
+         else
+         {
+            that.log().err ("STRCONV", oper + " escapeStyle [] not supported! (only HTML and LATEX)");
+            strResult = p2;
+         }
+      }
+      else if (oper.startsWith ("UNESCAPE"))
+      {
+         if (p1.equalsIgnoreCase ("HTML"))
+         {
+            strResult = getHtmlEncoder ().decode (p2);
+
+         utilEscapeStr.escapeStr (p2);
+         }
+         else if (p1.equalsIgnoreCase ("LATEX"))
+         {
+            strResult = getLatexEncoder ().decode (p2);
+         }
+         else
+         {
+            that.log().err ("STRCONV", oper + " escapeStyle [] not supported! (only HTML and LATEX)");
+            strResult = p2;
+         }
+      }
       else if (oper.equals ("STR-TEXT") || oper.equals ("STRE-TEXT"))
       {
          String str = p1;
@@ -342,7 +702,13 @@ public class cmdStrconvert implements commandable
             if (! requiredEvas(that, "STRE-TEXT", p1, p2, false))
                return 1;
 
-            // Eva srcEva = that.getVarEva (p1);
+            // No use case! if the string is "escaped" can be given in a single line
+            //
+            // // a text content is expected (only column 0)
+            // Eva srcEva = that.getReadVarEva (p1);
+            // str = "";
+            // for (int rr = 0; rr < srcEva.rows (); rr ++)
+            //    str += (rr != 0 ? "\n":  "") + srcEva.getValue (rr, 0);
             str = that.getReadVarEva (p1).getValue (0,0);
          }
 
@@ -350,6 +716,9 @@ public class cmdStrconvert implements commandable
 
          if (p2.length () == 0)
          {
+            //(o) TODO unify these conversions!! here is implemented as implicit "SOLVE VAR, 0" (writeStringOnTarget instead of printTextLsx)
+            //     STRE-TEXT should be DEPRECATED !!!
+
             // print out the result
             for (int ii = 0; ii < arr.length; ii ++)
             {
@@ -368,7 +737,7 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("TEXT-STR"))
       {
-// System.out.println ("getting eva [" + p1 + "]");
+         // System.out.println ("getting eva [" + p1 + "]");
          // second parameter is mandatory!
          //    this is because the coded string could contain @ variables
          //    and calling printTextLsx with it will produce them to be solved
@@ -383,6 +752,9 @@ public class cmdStrconvert implements commandable
 
          if (p2.length () == 0)
          {
+            //(o) TODO unify these conversions!! here is implemented as implicit "SOLVE VAR, 0" (writeStringOnTarget instead of printTextLsx)
+            //     TEXT-STR should be DEPRECATED !!!
+
             // no @ replacement !
             that.writeStringOnTarget (sResult);
          }
@@ -397,12 +769,14 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("DATE-LONG"))
       {
-         //yyyy-MM-dd HH:mm:ss S
-         strResult = "" + de.elxala.langutil.DateFormat.getDate (p1, "yyyy-MM-dd HH:mm:ss S", "1970-01-01 00:00:00 0").getTime ();
+         strResult = "" + DateFormat.getAsLong (p1);
       }
       else if (oper.equals ("LONG-DATE"))
       {
-         de.elxala.langutil.DateFormat df = new de.elxala.langutil.DateFormat (new java.util.Date (stdlib.atol (p1)));
+         // NOTE : FIX the timezone offset to be consequent with DATE-LONG
+         //
+         java.util.TimeZone tz = java.util.TimeZone.getDefault ();
+         de.elxala.langutil.DateFormat df = new de.elxala.langutil.DateFormat (new java.util.Date (stdlib.atol (p1)-tz.getOffset (0)));
          strResult = df.get ();
       }
       else if (oper.equals ("NUM-FIX"))
@@ -473,11 +847,8 @@ public class cmdStrconvert implements commandable
 
          //  [<hola"macho" & Cia>] -> [&lt;hola&quot;macho&quot; &amp; Cia&gt;]
 
-         strResult = p1;
-         strResult = strResult.replaceAll ("&", "&amp;");   // &#38;
-         strResult = strResult.replaceAll ("<", "&lt;");
-         strResult = strResult.replaceAll (">", "&gt;");
-         strResult = strResult.replaceAll ("\"", "&quot;"); // &#34;
+
+         strResult = getHtmlEncoder ().encode (p1);
       }
       else if (oper.equals ("HTMLTEXT-TEXT") || oper.equals ("HTMLTXT-TEXT"))
       {
@@ -487,16 +858,16 @@ public class cmdStrconvert implements commandable
          //& &amp; Ampersand
 
          //  [&lt;hola&quot;macho&quot; &amp; Cia&gt;] -> [<hola"macho" & Cia>]
-
-         strResult = p1;
-         strResult = strResult.replaceAll ("&lt;"  , "<");
-         strResult = strResult.replaceAll ("&#60;" , "<");
-         strResult = strResult.replaceAll ("&gt;"  , ">");
-         strResult = strResult.replaceAll ("&#62;" , ">");
-         strResult = strResult.replaceAll ("&quot;", "\"");  // &#34;
-         strResult = strResult.replaceAll ("&#34;" , "\"");   // &#34;
-         strResult = strResult.replaceAll ("&amp;" , "&");   // &#38;
-         strResult = strResult.replaceAll ("&#38;" , "&");   // &#38;
+         strResult = getHtmlEncoder ().decode (p1);
+         // strResult = p1;
+         // strResult = strResult.replaceAll ("&lt;"  , "<");
+         // strResult = strResult.replaceAll ("&#60;" , "<");
+         // strResult = strResult.replaceAll ("&gt;"  , ">");
+         // strResult = strResult.replaceAll ("&#62;" , ">");
+         // strResult = strResult.replaceAll ("&quot;", "\"");  // &#34;
+         // strResult = strResult.replaceAll ("&#34;" , "\"");   // &#34;
+         // strResult = strResult.replaceAll ("&amp;" , "&");   // &#38;
+         // strResult = strResult.replaceAll ("&#38;" , "&");   // &#38;
       }
       else if (oper.equals ("PATH-SOLVE") || oper.equals ("PATH-SOLVE-POINTS"))
       {
@@ -516,7 +887,7 @@ public class cmdStrconvert implements commandable
               (!p1.startsWith("/") && !p1.startsWith("\\")))
          {
             // should be a relative path, convert it into absolute path
-            p1 = System.getProperty ("user.dir") + fileUtil.DIR_SEP + p1;
+            p1 = fileUtil.getApplicationDir () + fileUtil.DIR_SEP + p1;
 
             that.log().dbg (2, "STRCONV", "path-canonical II [" + p1 + "]");
          }
@@ -528,6 +899,61 @@ public class cmdStrconvert implements commandable
          }
          catch (Exception e) {}
       }
+      else if (oper.equals ("TEXT-VARNAME") || oper.equals ("TEXT2VARNAME") || oper.equals ("2VARNAME"))
+      {
+         strResult = naming.toNameISO_9660Joliet (p1);
+      }
+      else if (oper.equals ("XOR ENCRYPT") || oper.equals ("XOR"))
+      {
+         String p4   = cmd.getArg(4);
+
+         String inVar = (cmd.takeOptionString(new String [] {"INVAR" }, null));
+         String inStr = (cmd.takeOptionString(new String [] {"INSTR" }, null));
+
+         if (!(inVar == null ^ inStr == null))
+         {
+            that.log().err("STRCONV", "XOR ENCRYPT one and only one input message has to be given! [" + inStr + "]["+ inVar + "]");
+         }
+         else
+         {
+            if (inVar != null)
+               inStr = inVar.toString ();
+            strResult = xorEncrypt (inStr, p1, stdlib.atoi (p2), stdlib.atoi (p3), stdlib.atoi (p4));
+            OptSolveVar = false; // it makes no sense, I think, to want possible @ variables from the output to be solved
+         }
+      }
+      else if (oper.equals ("TRAZOS-JS"))
+      {
+         //    STRCONV, TRAZOS-JS, evaname, uselib
+
+         Eva source = that.getReadVarEva (p1);
+         boolean optimize = ! p2.equals ("0"); // default is 1
+
+         int telaX = stdlib.atoi (cmd.getArg(3));
+         int telaY = stdlib.atoi (cmd.getArg(4));
+         boolean offset0 = 1 == stdlib.atoi (cmd.getArg(5));
+
+         strResult = javaj.widgets.graphics.objects.editablePaths.trazosToJavaScript (source, optimize, telaX, telaY, offset0);
+      }
+      else if (oper.equals ("2DPATHS-FILE"))
+      {
+         //    STRCONV, 2DPATHS-PNG, evaname, pngFileName, filetype[png], dx, dy
+
+         Eva source = that.getReadVarEva (p1);
+         String fileName = p2;
+         String fileFormat = p3.equals ("") ? "png": p3;
+         
+         int dx = stdlib.atoi (cmd.getArg(4));
+         int dy = stdlib.atoi (cmd.getArg(5));
+         
+         BufferedImage ima = null;
+         if (dx > 0)
+              ima = uniUtilImage.graffitiToBufferedImage (source, dx, dy == 0 ? dx: dy, null);
+         else ima = uniUtilImage.graffitiToBufferedImage (source);
+         
+         uniUtilImage.saveBufferedImageTofile (ima, fileName, fileFormat);
+         strResult = "";
+      }
       else
       {
          that.log().err("STRCONV", "Operation [" + oper + "] not recognized!");
@@ -535,8 +961,22 @@ public class cmdStrconvert implements commandable
       that.log().dbg (2, "STRCONV", "path-canonical III [" + strResult + "]");
 
 //      System.out.println ("result string [" + strResult + "]");
-      that.printTextLsx (strResult);
+
+      if (OptSolveVar)
+           that.printTextLsx (strResult);
+      else that.writeStringOnTarget (strResult);
       return 1;
+   }
+
+   public static String xorEncrypt (String message, String key, int off1, int mult, int off2)
+   {
+      String sal = "";
+      int lon = key.length ();
+      for (int ii = 0; ii < message.length (); ii ++)
+      {
+         sal += (char) (message.charAt (ii) ^ (char) ((key.charAt ((ii + off1) % lon) + mult * ii + off2) % 256));
+      }
+      return sal;
    }
 
    private boolean requiredEvas(listix that, String subCmdName, String e1, String e2, boolean e2Mandatory)

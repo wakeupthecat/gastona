@@ -89,6 +89,11 @@ public class javaRun
       return gExecute (null, commandSingle, true);
    }
 
+   public static int executePreShell (String preShell, String commandSingle, boolean wait4termination)
+   {
+      return gExecutePreShell (preShell, null, commandSingle, wait4termination, false);
+   }
+
    /**
    */
    public static int execute (String commandSingle, boolean silent)
@@ -110,15 +115,25 @@ public class javaRun
       return gExecute (commandArray, null, true);
    }
 
+   public static int executePreShell (String preShell, String [] commandArray, boolean wait4termination)
+   {
+      return gExecutePreShell (preShell, commandArray, null, wait4termination, false);
+   }
+
    private static int gExecute (String [] commandArray, String commandSingle, boolean wait4Termination)
    {
       return gExecute (commandArray, commandSingle, wait4Termination, false);
    }
 
+   private static int gExecute (String [] commandArray, String commandSingle, boolean wait4Termination, boolean silent)
+   {
+      return gExecutePreShell (null, commandArray, commandSingle, wait4Termination, false);
+   }
+
    /**
       global execute admits two kinds of command but only one will be accepted (the other one has to be null)
    */
-   private static int gExecute (String [] commandArray, String commandSingle, boolean wait4Termination, boolean silent)
+   private static int gExecutePreShell (String preShell, String [] commandArray, String commandSingle, boolean wait4Termination, boolean silent)
    {
       int retorno = 0;
 
@@ -129,9 +144,21 @@ public class javaRun
 
          if (commandSingle != null)
          {
-            log.dbg (2, "gExecute", "comandSingle [" + commandSingle + "]");
             //(o) JAVA EXEC !!!!
-            process = Runtime.getRuntime().exec (commandSingle); //clean env?   , new String [0]);
+            if (preShell != null && preShell.length () > 0)
+            {
+               log.dbg (2, "gExecute", "comandSingle preShell [" + preShell + "] command [" + commandSingle + "]");
+               process = Runtime.getRuntime().exec (preShell); // e.g. preShell = "su" for linux
+               OutputStreamWriter osw = new OutputStreamWriter(process.getOutputStream());
+               osw.write(commandSingle);
+               osw.flush();
+               osw.close();
+            }
+            else 
+            {
+               log.dbg (2, "gExecute", "comandSingle [" + commandSingle + "]");
+               process = Runtime.getRuntime().exec (commandSingle); //clean env?   , new String [0]);
+           }
          }
          else if (commandArray != null)
          {
@@ -143,7 +170,17 @@ public class javaRun
                log.dbg (2, "gExecute", "commandArray [" + arrStr + "]");
             }
             //(o) JAVA EXEC !!!!
-            process = Runtime.getRuntime().exec (commandArray); //clean env?   , new String [0]);
+            if (preShell != null && preShell.length () > 0)
+            {
+               log.dbg (2, "gExecute", "executing using preShell [" + preShell + "]");
+               process = Runtime.getRuntime().exec (preShell); // e.g. preShell = "su" for linux
+               OutputStreamWriter osw = new OutputStreamWriter(process.getOutputStream());  
+               for (int ii = 0; ii < commandArray.length; ii ++)
+                  osw.write(commandArray[ii]);
+               osw.flush();
+               osw.close();
+            }
+            else process = Runtime.getRuntime().exec (commandArray); //clean env?   , new String [0]);
          }
          else
          {

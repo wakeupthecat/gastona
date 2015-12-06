@@ -32,7 +32,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 #gastonaDoc#
 
    <docType>    listix_command
-   <name>       DO FILE
+   <name>       IN FILE
    <groupInfo>  lang_files
    <javaClass>  listix.cmds.cmdInfile
    <importance> 2
@@ -59,6 +59,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       "TEMPLATE IN FILE"
       "TEMPLATE"
       "IN FILE"
+      "DO FILE"
 
    <syntaxHeader>
       synIndx, importance, desc
@@ -70,6 +71,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
+      1      , SOLVE VAR   , 1 / 0   ,  1, //Default is 1, if set to 0 the content of the variable will be treat as text (no solving variables like @<myvar>)
+      1      , AS TEXT     , 0 / 1   ,  0, //Default is 0, setting to 1 has the same effect as set SOLVE VAR to 0
 
    <examples>
       desc
@@ -92,9 +95,11 @@ public class cmdInfile implements commandable
    public String [] getNames ()
    {
       return new String [] {
+         "DO FILE",
          "FORMAT IN FILE",
          "TEMPLATE IN FILE",
          "TEMPLATE",
+         "DO TEMPLATE",
          "IN FILE",
        };
    }
@@ -114,7 +119,12 @@ public class cmdInfile implements commandable
             FORMAT IN FILE, @<variant>/htmlTemplateForTheOcasion.htmlsx
 
       */
-      String fileName = that.solveStrAsString (commandEva.getValue (indxComm, 1));
+      listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
+
+      boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
+                            ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
+
+      String fileName = cmd.getArg(0);
       String [] arrFormat = TextFile.readFile (fileName);
       if (arrFormat == null)
       {
@@ -125,9 +135,13 @@ public class cmdInfile implements commandable
       for (int ii = 0; ii < arrFormat.length; ii ++)
       {
          if (ii > 0) that.newLineOnTarget ();
-         that.printTextLsx (arrFormat[ii]);
+
+         if (OptSolveVar)
+              that.printTextLsx (arrFormat[ii]);
+         else that.writeStringOnTarget (arrFormat[ii]);
       }
 
+      cmd.checkRemainingOptions (true);
       return 1;
    }
 }

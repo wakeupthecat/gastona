@@ -58,6 +58,7 @@ public class streamTextBufferInjector extends Thread
 
       try
       {
+         serialText.rewind ();
          while (serialText.getNextLine ())
          {
             oStream.write (serialText.getLastReadLine ().getBytes ());

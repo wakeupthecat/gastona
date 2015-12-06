@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 package de.elxala.Eva;
 
 import java.util.*;
+import java.lang.StringBuffer;
 
 // NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
 
@@ -65,7 +66,7 @@ import java.util.*;
    18.03.2007 14:56 EVA ::merge
    02.02.2005 12:00 EVA Text File Specification v1.0
 */
-public class EvaUnit
+public class EvaUnit implements java.io.Serializable
 {
    private String Nombre;
    public List lis_Evas; // List < Eva > needed as public for special utilities
@@ -344,11 +345,11 @@ public class EvaUnit
 
       Same as : getSomeHowEva (evaName).setValue (value)
    */
-   public boolean setValue (String evaName, String value)
+   public boolean setValueVar (String evaName, String value)
    {
       Eva ella = getSomeHowEva (evaName);
 
-      ella.setValue (value);
+      ella.setValueVar (value);
 
       return true;
    }

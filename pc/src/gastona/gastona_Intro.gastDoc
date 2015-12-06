@@ -1,0 +1,217 @@
+/*
+   //(o) gastonaDoc_source javaj_intro
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    gastona
+   <name>       " 2-Introduction to Gastona"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //Introduction to Gastona
+
+   <help>
+      //
+      // Gastona is text based, a whole application may be placed into a single text file using any
+      // text editor. It is still possible to develope parts in java language but this documentation
+      // will focus mainly in the functionality just using only the "Gastona scripting", which provides
+      // quite large and amazing functionallity.
+      //
+      // Gastona, Javaj and Listix "story"
+      // -----------------------------------
+      //
+      // The Gastona approach has not been designed from the begining at all, it is actually the result
+      // of fusioning two different "language-tools" that were developed separately and with totally
+      // different purposes. One is "Javaj" designed for rapid development of GUI applications and
+      // the second is "Listix" designed as a generic command line text generator. Interestingly, it
+      // is also the fusion of two different worlds: The atractive User Interface world and the
+      // "Black screen" command line world.
+      //
+      // If we take Gastona, Javaj and Listix as characters, this is the short story of their development:
+      //
+      // Javaj is a software arquitect specialized in User Interfaces and have a box of smart widgets
+      // that he places onto a frame in many possible ways (layouts). Once the widgets are shown, and
+      // acording to the Javaj philosophy, a java developer should programm java classes to control
+      // the widgets (Javaj controllers).
+      //
+      // Listix is a command line program capable of doing very big jobs, calling other programs,
+      // parsing files and generating his own results into text files. To instruct Listix what to do
+      // there is a set of commands that Listix will execute efficiently. The only problem is that Listix
+      // seems to be condemned to run always on a "black sreen".
+      //
+      // Gastona knowing the ability of both decided making them to work together. On one side the many
+      // times mechanical work of the Javaj controllers could be done easily by Listix and on the other
+      // side many good Listix scripts could have a nice face provided by Javaj.
+      //
+      // Gastona Structure
+      // --------------------------------
+      //
+      // The text (script) is structured in four units : #gastona#, #javaj#, #listix# and #data#
+      // Each unit is just a set of variables, each one can hold from a single string to a table or
+      // other more complex structures. The meaning of these variables depends entirely on the context
+      // and on who makes use of it.
+      //
+      // Briefly explained:
+      //
+      //  - Javaj find in the unit #javaj# all the widgets to be used and how to place them in frames
+      //
+      //  - Javaj widgets find its data, or better said its initial data, in the section #data#
+      //
+      //  - Listix find all "work to do" in the units #listix# and #data#
+      //
+      //  - Gastona has also an own unit, but it has not the importance of the rest.
+      //
+      // Since Listix has access to #data# it has access to widgets' data too, this is needed since
+      // we want Listix to control the widgets.
+      //
+      // Here a very basic sample to illustrate all this
+      //
+      //    #javaj#
+      //
+      //       <frames> Fmain, "Basic sample app"
+      //
+      //       <layout of Fmain>
+      //          PANEL, X
+      //          bPress Me, eField
+      //
+      //    #data#
+      //
+      //       <eField> Default data
+      //
+      //    #listix#
+      //
+      //       <-- bPress Me>
+      //          SET VAR, eField, "Hello Sample"
+      //          MESSAGE, eField data!
+      //
+      // Running the sample would display a frame with a button labeled "Press Me" and a edit field
+      // having the text "Default data", once the button is pressed the edit field will change its
+      // content with "Hello Sample".
+      //
+      // Javaj and Listix are documented separately. Most of this documentation consists in fact in
+      // two references: a reference of all layouts and widgets of Javaj and a reference of all Listix
+      // commands.
+      //
+      // About layouts ...
+      // All layouts in Javaj are intuitive and easy to use. Using the one called EVALAYOUT together
+      // with the layout composition mechanism allows building very complex layouts using few lines.
+      // Enabling the variable <PAINT LAYOUT> in the #gastona# unit might help on learning the layout
+      // techniques.
+      //
+      // About Javaj widgets...
+      // Many of them work in a very similar way and it should be enough to learn well a couple of them
+      // to understand easily the rest.
+      //
+      // About Listix ...
+      // For a basic control of the widgets few things has to be learnt and these are repeated in all
+      // samples. Nevertheless the Listix commands offers much more functionality. Every command has its
+      // own syntax that can be more or less complex. But, as it happen with libraries, not all the
+      // commands has to be learned in order to write useful scripts.
+      //
+      // Eva format
+      // --------------------------------
+      //
+      // Finally, the format used for these units and variables is called EVA. I hope it is quite
+      // intuitive and that it can be deduced from the many samples. You can find a more formal
+      // documentation on "EvaFormatV1.1.pdf"(*) but maybe this few indications would be enough to
+      // understand it:
+      //
+      //    Empty lines as well as lines starting with <! or #! are ignored (comments)
+      //
+      //    #uuu# starts a unit named "uuu", the rest of the line is not used
+      //
+      //    <eee> starts an eva variable named "eee", the rest of the line MAY BE part of its content
+      //
+      //    An Eva variable can consist of 1 or more rows
+      //
+      //    Each row can contain more columns which are comma separated
+      //
+      //    If either // or ' are found at the beginning of a column, it indicates that all characters
+      //    following this beginning are the contents of the column, and therefore it becomes the last
+      //    column of the row
+      //
+      //    All columns of an Eva variable (except if last column with // or ') might be enclosed in
+      //    quotation marks ("..."), but this is only strictly necessary if containing commas, blanks at
+      //    the beginning or at the end, or a quotation mark which has to be expressed using two
+      //    characters ("")
+      //
+      //    A unit starting with two asterisks (#**...#) is a "logical" end of the EVA file
+      //
+      //    (*) http://sourceforge.net/projects/evaformat/files/evaformat/Update_specification_v1.1/EvaFormatV1.1.pdf/download
+      //
+
+
+   <examples>
+      gastSample
+      simple gastona sample
+      gastona demo app
+
+   <simple gastona sample>
+      //    #javaj#
+      //
+      //       <frames> Fmain, "Basic sample app"
+      //
+      //       <layout of Fmain>
+      //          PANEL, X
+      //          bPress Me, eField
+      //
+      //    #data#
+      //
+      //       <eField> Default data
+      //
+      //    #listix#
+      //
+      //       <-- bPress Me>
+      //          -->, eField,, "Hello Sample"
+      //
+
+   <gastona demo app>
+      //#javaj#
+      //
+      //   <frames> Fmain, "Gastona demo app"
+      //
+      //   <layout of Fmain>
+      //      EVA, 10, 10, 5, 5
+      //
+      //      --- ,   A          ,    X
+      //      A  , bDump cities ,  oBoard
+      //      A  , bClean screen,    +
+      //      X  , iList        ,    +
+      //
+      //#data#
+      //
+      //   <iList visibleColumns> name
+      //
+      //   <iList>
+      //      name   ,  city
+      //      Manuela, Barcelona
+      //      Rita   , San Francisco
+      //      Salomon, Busan
+      //
+      //
+      //#listix#
+      //
+      //   <-- iList>
+      //      //@<iList selected.name> lives in @<iList selected.city>
+      //      //
+      //
+      //   <-- bDump cities>
+      //      //cities :
+      //      //
+      //      LOOP, EVA, iList
+      //          ,BODY, // @<city>
+      //      //
+      //      //
+      //
+      //   <-- bClean screen>
+      //      MSG, oBoard clear
+      //
+
+
+#**FIN_EVA#
+
+*/

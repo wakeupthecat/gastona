@@ -76,8 +76,8 @@
 
    <iSamples visibleColumns> gastSample
 
-   <node field> //structType || SUBSTR('_', 1, MIN(1,MAX(LENGTH(groupInfo),0))) || groupInfo || "_" || name
-
+   <node field> //structType || (CASE WHEN groupInfo = "" THEN "" ELSE "_" END) || groupInfo || "_" || name
+   
 #listix#
 
 
@@ -86,20 +86,18 @@
       LOAD, data, @<:sys user.home>/.gastonaLocal
       LOAD, data, .WelcomeGastona
 
-      SETVAR, gastonaDoc.db      , @<:listix tmp>
-      SETVAR, gastTemp.gast      , @<:listix tmp gast>
-      SETVAR, helpTemp.txt       , @<:listix tmp>
+      VAR=, gastonaDoc.db      , @<:listix tmp db>
+      VAR=, gastTemp.gast      , @<:listix tmp gast>
+      VAR=, helpTemp.txt       , @<:listix tmp>
 
-      SETVAR, xSample fileName, @<gastTemp.gast>
-      SETVAR, xHelp fileName  , @<helpTemp.txt>
+      VAR=, xSample fileName, @<gastTemp.gast>
+      VAR=, xHelp fileName  , @<helpTemp.txt>
 
       <! Extract documentation db
       RESUTIL, COPY, META-GASTONA/WelcomeGastona/genDB/gastonaDoc.db, @<gastonaDoc.db>
 
-      SETVAR, iSamples dbName, @<gastonaDoc.db>
-      SETVAR, aSrcTree dbName, @<gastonaDoc.db>
-
-      CHECK, VAR, tool java, SET VAR, tool java, java
+      VAR=, iSamples dbName, @<gastonaDoc.db>
+      VAR=, aSrcTree dbName, @<gastonaDoc.db>
 
    <main>
       @<updateTree>
@@ -110,7 +108,7 @@
    <-- eFilterTree>  @<updateTree>
 
    <updateTree>
-      -->, aSrcTree, sqlSelect, //@<sql for tree>
+      -->, aSrcTree data!, sqlSelect, //@<sql for tree>
 
 
    <sql for tree>
@@ -118,42 +116,42 @@
 
 
    <default position frame>
-      SETNUM, Fmain posX, 0.1 * @<:lsx screenX>
-      SETNUM, Fmain posY, 0.1 * @<:lsx screenY>
-      SETNUM, Fmain sizeX, .7 * @<:lsx screenX>
-      SETNUM, Fmain sizeY, .6 * @<:lsx screenY>
+      NUM=, Fmain posX, 0.1 * @<:lsx screenX>
+      NUM=, Fmain posY, 0.1 * @<:lsx screenY>
+      NUM=, Fmain sizeX, .7 * @<:lsx screenX>
+      NUM=, Fmain sizeY, .6 * @<:lsx screenY>
 
    <-- bClearConsole1> MSG, o1ConsoleOut clear
    <-- bClearConsole2>
          MSG, o2ConsoleErr clear
-         -->, lErrorState,,""
+         -->, lErrorState data!,,""
 
    <-- ERROR_DETECTED>
-      -->, lErrorState,, *** Error(s) on the console!
+      -->, lErrorState data!,, *** Error(s) on the console!
 
    <-- aSrcTree>      @<show Doc Item>
    <-- kDescription>  @<show Doc Item>
    <-- kDetails>      @<show Doc Item>
 
    <turn checks(enabled)>
-      -->, kDescription, enabled, @<p1>
-      -->, kDetails    , enabled, @<p1>
+      -->, kDescription control!, enabled, @<p1>
+      -->, kDetails control!, enabled, @<p1>
 
    <show Doc Item>
       <! Intended Loop for 1 record
       LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tGastItemDoc WHERE @<node field> = '@<aSrcTree selectedPath>';
-      @<update labels>
-      @<getItemDoc fields>
-      @<build help text>
-      @<get samples>
+          ,, @<update labels>
+          ,, @<getItemDoc fields>
+          ,, @<build help text>
+          ,, @<get samples>
 
    <update labels>
-      -->, lContext & Name, , @<structType> : @<name>
+      -->, lContext & Name data!, , @<structType> : @<name>
 
    <getItemDoc fields>
-      SET VAR, this structType, @<structType>
-      SET VAR, this groupInfo, @<groupInfo>
-      SET VAR, this name, @<name>
+      VAR=, this structType, @<structType>
+      VAR=, this groupInfo, @<groupInfo>
+      VAR=, this name, @<name>
 
    <build help text>
       GEN, @<helpTemp.txt>, help format
@@ -191,16 +189,14 @@
       //   ----------------------------------------
       //
       LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tZWidgetAttributes WHERE widName = '@<name>';
-      //      @<flechita> <NAME@<name join>> @<possibleValues> @<desc detail>
-      =,,
+          ,, //      @<flechita> <NAME@<name join>> @<possibleValues> @<desc detail>
       //
       //
       //   LIST OF MESSAGES:
       //   ----------------------------------------
       //
       LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tZWidgetMessages WHERE widName = '@<name>';
-      //      @<flechita> "NAME@<msg join>" @<desc detail>
-      =,,
+          ,, //      @<flechita> "NAME@<msg join>" @<desc detail>
 
    <desc detail>
       CHECK, =, @<kDetails selected>, 1
@@ -232,18 +228,16 @@
       //
       //
       LOOP, SQL, @<gastonaDoc.db>, //SELECT *, tlsxCmdSyntaxHead.desc AS synDesc FROM tlsxCmdSyntaxParams LEFT JOIN tlsxCmdSyntaxHead USING (cmdName, synIndx) WHERE cmdName = '@<name>' ORDER BY synIndx+0, paramIndx+0;
-      @<addOneSyntax>
-      =,,
+          ,, @<addOneSyntax>
 
    <addOneSyntax>
-      SETVAR, current syntax index, @<synIndx>
+      VAR=, current syntax index, @<synIndx>
       //      --------- SYNTAX @<synIndx> ------------------------------
       //      @<print syntax desc>
       //      @<cmdName>, @<syntax parameters>
       //
-      LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND synIndx = '@<current syntax index>';
-      //       , @<optionName>, @<parameters>
-      =,,
+      LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x');
+          ,, //       , @<optionName>, @<parameters>
       @<detail parameters & options>
       //
       //
@@ -265,26 +259,25 @@
       //
       //
       LOOP, SQL, @<gastonaDoc.db>, //SELECT *, paramIndx+1 AS parNo FROM tlsxCmdSyntaxParams WHERE cmdName = '@<name>' AND synIndx = '@<current syntax index>' ORDER BY paramIndx+0;
-      //        P) @<paramName> [@<defVal>] @<print desc>
-      =,,
+          ,, //        P) @<paramName> [@<defVal>] @<print desc>
       //
       //
 <!      //      --- OPTIONS DETAIL:
       //
-      LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND synIndx = '@<current syntax index>';
-      //        O) @<optionName> [@<defVal>] @<print desc>
+      LOOP, SQL, @<gastonaDoc.db>, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x');
+          ,, //        O) @<optionName> [@<defVal>] @<print desc>
 
    <! samples, iSamples and xSample
    <!
 
    <get samples>
-      -->, iSamples, sqlSelect, //SELECT * FROM tGastExamples WHERE name = '@<name>' AND gastSample != 'data4Tester';
+      -->, iSamples data!, sqlSelect, //SELECT * FROM tGastExamples WHERE name = '@<name>' AND gastSample != 'data4Tester';
 
    <-- eSearchSample>
       @<-- bSearchInSamples>
 
    <-- bSearchInSamples>
-      -->, iSamples, sqlSelect, @<sql for samples>
+      -->, iSamples data!, sqlSelect, @<sql for samples>
 
    <sql for samples>
       //SELECT * FROM (SELECT * FROM tGastExamples @<Where&OrderBy from FilterSample>) WHERE gastSample != 'data4Tester';
@@ -292,7 +285,7 @@
    <-- iSamples>
 	   CHECK, VAR, iSamples selected.gastSample
 
-      -->, lSampleTitle,, //@<iSamples selected.gastSample> (@<iSamples selected.name>)
+      -->, lSampleTitle data!,, //@<iSamples selected.gastSample> (@<iSamples selected.name>)
       GEN, @<gastTemp.gast>, sampleAsText
       MSG, xSample load
 
@@ -309,7 +302,7 @@
       MSG, xSample save
       @<-- bClearConsole1>
       @<-- bClearConsole2>
-      LAUNCH, //@<tool java> -cp @<">@<:sys java.class.path>@<"> gastona.gastona @<">@<gastTemp.gast>@<">
+      GAST, @<gastTemp.gast>
 
    <-- menuAbout>
       JAVA STATIC, gastona.gastona, showAboutGastona

@@ -75,9 +75,36 @@ public class tableAparatoGeneral extends basicTableAparato
       return myEvaTableModel;
    }
 
-   public void setNameDataAndControl (String nameWidget, EvaUnit pData, EvaUnit pControl)
+   //!!oo!! this method has to be renamed (checkModel (...) or something
+   //
+   //    it is very difficult to distinguish
+   //
+   //         helper.setNameDataAndControl (null, euData, null);
+   //     from
+   //         helper.ebsTable ().setNameDataAndControl (null, euData, null);
+   //       
+   //     the first one call this method which do a lot of things more than super.setNameDataAndControl
+   //
+   // public void setNameDataAndControl (String nameWidget, EvaUnit pData, EvaUnit pControl)
+   // {
+      // ebsTable ().setNameDataAndControl (nameWidget, pData, pControl);
+
+      // // try to update data when
+      // //    1) the data is specified
+      // //    2) it is not but the control produces that both are specified now for the first time
+      // //
+      // if (pData != null || ebsTable().firstTimeHavingDataAndControl ())
+      // {
+         // tryUpdateData ();
+      // }
+
+      // preparControl4Selection ();
+   // }
+
+   public void setDataControlAndModel (EvaUnit pData, EvaUnit pControl, String [] args)
    {
-      ebsTable ().setNameDataAndControl (nameWidget, pData, pControl);
+      //ebsTable ().setNameDataAndControl (null, pData, pControl);
+      ebsTable ().setDataControlAttributes (pData, pControl, args);
 
       // try to update data when
       //    1) the data is specified
@@ -123,7 +150,7 @@ public class tableAparatoGeneral extends basicTableAparato
          // table given in an Eva variable
          if (myEvaTableModel == null)
               myEvaTableModel = new tableEvaDataEBS (ebsTable ());
-         else myEvaTableModel.setNameDataAndControl (ebsTable ());
+         else myEvaTableModel.copyEBS (ebsTable ());
       }
 
 //      // ask for metadata for field sizes
@@ -221,31 +248,70 @@ public class tableAparatoGeneral extends basicTableAparato
    {
       int [] indxarr = new int [0];
 
-      if (doSelectArg == null || doSelectArg.length < 2)
+      if (doSelectArg == null || doSelectArg.length == 0)
+      {
+         // this is like clear all selections
+      }
+      else if (doSelectArg.length < 2)
       {
          // nothing
+         log.err ("tableAparato::doSelect",  "need more arguments");
       }
       else if (doSelectArg[0].length () > 0 && doSelectArg[0].charAt (0) == '#')
       {
          int plusIndx = doSelectArg[0].startsWith ("#1") ? -1: 0;
+         log.dbg (2, "tableAparato::doSelect", "select by index " + (-1 * plusIndx) + " based");
 
          indxarr = new int [doSelectArg.length - 1];
          for (int ii = 0; ii < indxarr.length; ii ++)
             indxarr[ii] = stdlib.atoi(doSelectArg[ii+1]) + plusIndx;
-
       }
       else
       {
-         log.err ("tableAparato.doSelect", "doSelect by column name IS NOT implemented! it cannot be used");
-//         int colIndx = ebsTable ().getColumnIndex (doSelectArg[0]);
-//         if (colIndx >= 0)
-//         {
-//         }
+         log.dbg (2, "tableAparato::doSelect", "select by value by column [" + doSelectArg[0] + "]");
+         int colIndx = ebsTable ().getColumnIndex (doSelectArg[0]);
+         if (colIndx >= 0)
+         {
+            // NOTE: in selection by column name we have to perform a search to find
+            //       the records, nevertheless we are not going to search within the whole table
+            //       (i.e. if it is a database table) but just in the cache table
+            //       if not the selection could take to much long.
+            //       Note that we already have a restriction in the number of record selected
+            //       our selection is thought as user "reasonable" selection
+            int nRowsInCache = ebsTable ().getRecordCount (); // count of cache
+
+            indxarr = new int [doSelectArg.length - 1];
+            for (int ss = 0; ss < indxarr.length; ss ++)
+            {
+               indxarr[ss] = -1;
+               // only will be selected the first one found
+               for (int ii = 0; ii < nRowsInCache; ii ++)
+               {
+                  //System.out.println ("maro [" + ebsTable ().getValue (ii, colIndx) + "] can [" + doSelectArg[ss+1] + "]");
+                  if (ebsTable ().getValue (ii, colIndx).equals (doSelectArg[ss+1]))
+                     indxarr[ss] = ii;
+               }
+            }
+         }
       }
 
+      log.dbg (2, "tableAparato::doSelect", indxarr.length + " record(s) selected");
       storeAllSelectedIndices (indxarr);
    }
 
+   public boolean isIndexSelected (int indx)
+   {
+      Eva eIndices  = ebsTable ().getSelectedIndices (false);
+      if (eIndices == null || eIndices.rows () == 0)
+         return false;
+
+      for (int ii = 1; ii < eIndices.rows (); ii++)
+      {
+         if (indx == stdlib.atoi(eIndices.getValue(ii, 0)))
+            return true;
+      }
+      return false;
+   }
 
    /**
    */
@@ -268,6 +334,7 @@ public class tableAparatoGeneral extends basicTableAparato
    }
 
    /**
+      indices to be selected, indices with value -1 are not considered
    */
    public boolean storeAllSelectedIndices (int [] indices)
    {
@@ -289,6 +356,7 @@ public class tableAparatoGeneral extends basicTableAparato
       {
          eSubTable.setValue (header[hh], 0, hh);
       }
+
 
       // CLEAN <... selected.COLUMN>
       //
@@ -313,11 +381,22 @@ public class tableAparatoGeneral extends basicTableAparato
       }
 
       //fill subtable List
+      // Note : indices migh contain value -1 that has to be discarded!
       //
+      int rrow = 0;
+//      int firstRow = 0;
       for (int row = 0; row < indices.length && row < MAX_SELECTED_ELEMENTS_FOR_TABLES; row ++)
       {
+         int indx = indices[row];
+         if (indx == -1) continue;
+
+         rrow ++;
+//...         if (stdlib.atoi (header[hh]) >= 0)
+//...            eSubTable.addLine (new EvaLine (header[hh]));
+
+
          // add index
-         eIndices.setValue ("" + indices[row], row + 1, 0);
+         eIndices.setValue ("" + indx, rrow, 0);
 
          // add subtable entry
          for (int col = 0; col < eSubTable.cols (0); col ++)
@@ -327,17 +406,17 @@ public class tableAparatoGeneral extends basicTableAparato
             //  Using ebsTable() instead of getRealTableObject () works fine in most cases
             //  But only the getRealTableObject can properly retrieve new records (method loadRowsFromOffset)
             //  Rarely a selection would need a record that is not already in cache, but this happens while scrolling
-            //  a the table having a record selected (scrolling with page up / down)
+            //  a table having a record selected (scrolling with page up / down)
             //
             //String value = ebsTable().getValue (indices[row], col);
             tableEvaDataEBS ta = getRealTableObject();
             if (ta != null)
             {
-               String value = ta.getValue (indices[row], col);
+               String value = ta.getValue (indx, col);
 
                // set the value into the subTable
                //
-               eSubTable.setValue (value, row + 1, col);
+               eSubTable.setValue (value, rrow, col);
             }
          }
       }
@@ -351,14 +430,45 @@ public class tableAparatoGeneral extends basicTableAparato
       //
       for (int cc = 0; cc < header.length; cc ++)
       {
+         int indx0 = stdlib.atoi (eIndices.getValue (1, 0));
+         //System.out.println ("indx0 " + indx0);
          String nameEva = ebsTable().evaNameSelectedField (header [cc]);
          Eva selEva = ebsTable ().getControl ().getSomeHowEva (nameEva);
-         String value = ebsTable().getValue (indices[0], cc);
 
-         selEva.setValue (value, 0, 0);
+         //24.03.2012 14:06 FIX Error "wrong use of a tableWidgetBaseEBS! Its method loadRowsFromOffset cannot be called!"
+         //                 See the first fix (26.04.2009) in the previous "for"
+         //                 The same error appeared now in this line (luckly it was good documented!!)
+         //-old- String value = ebsTable().getValue (indices[0], cc);
+         //-old- selEva.setValue (value, 0, 0);
+         tableEvaDataEBS ta = getRealTableObject();
+         if (ta != null)
+         {
+            String value = ta.getValue (indx0, cc);
+            //System.out.println ("value de indx0 cc " + cc + " = " + value);
+            selEva.setValue (value, 0, 0);
+         }
       }
 
-      return indices.length <= MAX_SELECTED_ELEMENTS_FOR_TABLES;
+      return (eSubTable.rows ()-1) <= MAX_SELECTED_ELEMENTS_FOR_TABLES;
+   }
+
+   // update the column "selected" accoding to the current selection
+   //
+   public void updateSelectedInTable ()
+   {
+      tableEvaDataEBS tab = getRealTableObject ();
+      if (tab == null) return;
+
+      // create column "select" if not done
+      int indxSel = tab.getColumnIndex ("selected");
+      if (indxSel == -1)
+         indxSel = tab.getColumnCount ();
+      
+      int tama = tab.getTotalRecords ();
+      for (int ii = 0; ii < tama; ii ++)
+      {
+         tab.setValue (isIndexSelected (ii) ? "1": "0", ii, indxSel);
+      }
    }
 }
 

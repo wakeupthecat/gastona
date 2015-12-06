@@ -102,7 +102,13 @@ public class cmdFormula implements commandable
           "=",
        };
    }
-
+   
+   //(o) DOC/listix/executing a command/3 Method execute of a command
+   //    All commands perform the common tasks of getting and analyzing parameters
+   //    and options and according to its contents execute the desired action.
+   //    For the action they might implement all or part of it or use other
+   //    objects to do the job, like it is done here with the class "calcFormulas"
+   
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.

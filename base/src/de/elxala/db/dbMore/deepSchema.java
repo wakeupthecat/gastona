@@ -118,7 +118,7 @@ public class deepSchema
       {
          String tableName = evaDBSchema.getValue (ii, XEM_COL_TABNAME);
          //it is suposed that schema does not contain __dbMore_connections but ...
-         if (tableName.equals ("__dbMore_connections")) continue;
+         if (tableName.equals (deepSqlUtil.CONNECTION_TABLE_NAME)) continue;
          if (myList.contains (tableName)) continue;
 
          myList.add (tableName);

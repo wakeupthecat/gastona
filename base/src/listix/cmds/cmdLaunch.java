@@ -31,9 +31,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <docType>    listix_command
    <name>       LAUNCH
    <groupInfo>  system_run
-   <javaClass>  listix.cmds.cmdCall
+   <javaClass>  listix.cmds.cmdLaunch
    <importance> 3
-   <desc>       //To call an external program waiting for its termination
 
    <gastonaSecure> 0
 
@@ -143,8 +142,10 @@ public class cmdLaunch implements commandable
 
       int verbose = stdlib.atoi (cmd.takeOptionString("VERBOSE", "0"));
       boolean onBatch = "1".equals (cmd.takeOptionString("ONBATCH", "0"));
+      String preShell = cmd.takeOptionString(new String [] { "PRESHELL", "SHELL"} , null);
 
-      cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "LAUNCH", "LAUNCH [" + arrComanda[0] + "]" + (onBatch ? " (on Batch)":""));
+      cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "LAUNCH", "LAUNCH [" + arrComanda[0] + "]" + (onBatch ? " (on Batch)":"") + (preShell != null ? " (preShell [" + preShell + "]":""));
+
       if (onBatch)
       {
          prepareBatch (arrComanda);
@@ -170,12 +171,12 @@ public class cmdLaunch implements commandable
          //    will run properly
          //
          cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "LAUNCH", "One parameter in launch call, using exec(String)");
-         javaRun.launch (arrComanda[0]);
+         javaRun.executePreShell (preShell, arrComanda[0], false);
       }
       else
       {
          cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "LAUNCH", "using exec(String[])");
-         javaRun.launch (arrComanda);
+         javaRun.executePreShell (preShell, arrComanda, false);
       }
       long incMilis = System.currentTimeMillis () - initMilis;
       cmd.getLog().dbg ((verbose >= 2) ? 0: 2, "LAUNCH", "time to launch = " + (incMilis/1000.) + " seconds");
@@ -219,7 +220,7 @@ public class cmdLaunch implements commandable
       //
       if (utilSys.isSysUnix)
          //(o) JAVA EXEC !!!!
-         javaRun.execute (new String [] { "chmod", "777",  getBatchName () });
+         javaRun.executePreShell ("su", new String [] { "chmod", "777",  getBatchName () }, true);
    }
 }
 

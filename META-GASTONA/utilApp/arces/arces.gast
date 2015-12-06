@@ -1,13 +1,160 @@
 #gastona#
 
    <fusion>
-      META-GASTONA/utilApp/arces/arcesBASE.gasti
-
       META-GASTONA/utilApp/std/ExportBasicDialog.gasti
-      META-GASTONA/utilApp/arces/arces_Vari2.gasti, R
-
-      META-GASTONA/utilApp/arces/gasti/arcesDBSchema.gasti
-
       META-GASTONA/utilApp/arces/gasti/sqliteHelpData.gasti
       META-GASTONA/utilApp/arces/gasti/sqliteHelpGUI.gasti
 
+#javaj#
+
+   <frames>
+      FF, ARCess v0.4, 920, 650
+
+   <sysDefaultFonts>
+      Tahoma, 11, 1, *
+      Consolas, 14, 0, TextArea.font
+
+   <layout of FF>
+      EVA, 5, 5, 5, 5
+
+        ---,        ,  X
+           , cabeza ,  -
+         10,
+         X , esplata, -
+
+   <layout of esplata>
+      SPLIT, X, framilia
+
+      ristra, tabas
+
+   <layout of cabeza>
+      EVA, 0, 0, 5, 5
+
+       ZZZ,               ,   X      ,             ,
+        22,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
+        22,  lSQLQuery    , eSQLQuery,  bRun       ,   +
+
+   <layout of tabas>
+      TABBED,
+
+      Table view, table with export
+      Sql Assit , sqlAssist
+      Schema    , xSchema
+      Console   , layConsoles
+
+      
+   <layout of layConsoles>
+       EVA, 10, 10, 5, 5
+       --,    A   , X
+         , lStandard output
+       X , o1Consola, -
+         , lErrors
+       X , o2Consola, -
+         , bClear Consoles
+      
+   <layout of ristra>
+      EVA
+
+        ZZZ, 100, X,
+         22, lColumns    , -
+         X , aDeepColumns, -
+
+   <layout of table with export>
+      EVA, 5, 5, 5, 5
+
+         , X
+       X , sTabala
+         , layExportBasic
+
+   <MessageToMessage>
+
+      _lib db.sqlite.callStart             , gLuces L12
+      _lib db.sqlite.callEnd               , gLuces L11
+      _lib db.sqlite.callError             , gLuces L13
+
+   <sysDefaultImages>
+      javaj/img/column.gif, Tree.leafIcon
+      javaj/img/table.gif, Tree.rootIcon, Tree.secondRootIcon
+      javaj/img/tableconnection.gif, Tree.openIcon, Tree.closedIcon
+
+#data#
+
+   <xSchema fileName> :mem xschemafile
+
+   <aDeepColumns rootTitle> Deep columns
+   <aDeepColumns var> theDBDeepSchema
+   <aDeepColumns separator> " "
+
+   <eDBName>
+
+   <theDBDeepSchema>
+
+   <bChooseFile>     Selec...
+
+   <bChooseFile Dialog> FILE
+   <bChooseFile widget> eDBName
+
+
+#listix#
+
+   <main>
+      @<-- bClear Consoles>
+      <! === evaluateArguments
+      IN CASE, @<:sys gastona.argumentCount>
+             , 0    , -->, eDBName data!,, ""
+             , ELSE , -->, eDBName data!,, @<p1>
+      LSX, update mainDatabase
+
+
+   <sql tablas> //SELECT type,name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT name LIKE 'sqlite%'
+   <! AND NOT name LIKE "__dbMore%";
+
+   <update mainDatabase>
+      CHECK, !=, @<eDBName>, ""
+      DB CONFIG, DEFAULT, @<eDBName>
+      -->, sLasTablas data!, sqlSelect, //@<sql tablas>
+
+      <! print schema formated
+		DB,, SCHEMA, theDBSchema
+      DBMORE, LOAD CONNECTIONS,, theDBConnections, 1
+		DBMORE, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
+      MSG, aDeepColumns data!
+
+      <!=== update schema text widget xSchema
+      <!
+      GEN, @<xSchema fileName>, print schema (db), listix, META-GASTONA/utilApp/std/printSchema.lsx
+         , PARAMS, @<eDBName>
+      MSG, xSchema load
+
+   <-- bClear Consoles>
+       MSG, o1Consola clear
+       MSG, o2Consola clear
+   
+   <-- eDBName>
+      LSX, update mainDatabase
+
+   <-- bRun>
+      @<-- eSQLQuery>
+
+   <-- eSQLQuery>
+      -->, sTabala data!, sqlSelect,      //@<eSQLQuery>
+
+   <-- sLasTablas>
+      -->, eSQLQuery data!, ,             //SELECT * FROM @<sLasTablas selected.name>
+      -->, sTabala data!, sqlSelect,      //SELECT * FROM @<sLasTablas selected.name>
+
+   <-- aDeepColumns>
+      CHECK, VAR, aDeepColumns selectedPath
+      CHECK, !=, "", @<aDeepColumns selectedPath>
+
+      VAR=, sqlDeepDeveloped, @<sql deep>
+
+      -->, eSQLQuery data!, ,@<sqlDeepDeveloped>
+      -->, sTabala data!, sqlSelect, @<sqlDeepDeveloped>
+      LSX, ExportBasic set (gridName dbName), sTabala, ""
+
+   <sql deep>
+      DBMORE, TOSQL, aDeepColumns selectedMultiPath
+            , VARCONNECTIONS, theDBConnections
+            , DEEP COL HEADER, 1
+            , LINE BREAK, 0

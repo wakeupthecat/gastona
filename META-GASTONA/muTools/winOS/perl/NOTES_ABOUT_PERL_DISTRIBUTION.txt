@@ -1,0 +1,18 @@
+2015.12.06 
+
+====== ABOUT THE RUBY BINARY DISTRIBUTED
+
+The version of ruby binary distributed here is 
+ruby 1.9.2p136 (2010-12-25 revision 30365) [i386-mswin32]
+
+You can find sources of newest versions under
+
+https://www.ruby-lang.org/en/downloads/
+
+====== EXPERIMENTAL USE
+
+The use in Gastona of Ruby, Perl and Lua binaries (Python was also planned)
+is just experimental. 
+
+It would be just very nice to have these excelent languages
+embedded and available in all platforms for Gastona applications.

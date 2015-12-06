@@ -60,7 +60,7 @@ import java.util.*;
 
    02.02.2005 12:00 EVA Text File Specification v1.0
 */
-public class Eva
+public class Eva implements java.io.Serializable
 {
    public static final String RETURN_STR = System.getProperty("line.separator", "\n");
 
@@ -161,7 +161,7 @@ public class Eva
    {
       Nombre = name;
       init ();
-      setValue (value);
+      setValueVar (value);
    }
 
    /**
@@ -445,17 +445,17 @@ public class Eva
    */
    public String getAsText ()
    {
-      String ss = "";
       String ret = System.getProperty("line.separator", "\n");
+      StringBuffer ss = new StringBuffer ();
 
       for (int rr = 0; rr < rows (); rr ++)
       {
          if (rr != 0)
-            ss += ret;
+            ss.append (ret);
          for (int cc = 0; cc < cols (rr); cc ++)
-            ss += getValue (rr, cc);
+            ss.append (getValue (rr, cc));
       }
-      return ss;
+      return ss.toString ();
    }
 
    /**
@@ -506,6 +506,16 @@ public class Eva
       else return "";
    }
 
+   public boolean setLineAtRow (int row, EvaLine line)
+   {
+      if (row >= 0 && row < rows ())
+      {
+         lis_EvaLin.set (row, line);
+         return true;
+      }
+      return false;
+   }
+
    /**
       sets the value 'sVal' at the position row='nrow' column='ncol'.
       IMPORTANT! if the position does not exist it will try to acomodate it by redimensioning the Eva !
@@ -518,34 +528,31 @@ public class Eva
       while (nrow >= rows ())
          lis_EvaLin.add (new EvaLine(new String [ncol >= 0 ? ncol: 0]));
 
-      // ahora tiene que existir !
-      ((EvaLine) lis_EvaLin.get (nrow)).setValue (sVal, ncol);
-   }
-
-   public boolean set (int row, EvaLine line)
-   {
-      if (row >= 0 && row < rows ())
-      {
-         lis_EvaLin.set (row, line);
-      }
-      return false;
+      EvaLine elin = (EvaLine) lis_EvaLin.get (nrow);
+      if (elin == null) return;
+      elin.setValue (sVal, ncol);
    }
 
    /**
       sets the value 'sVal' at the position row='nrow' column=0.
-      IMPORTANT! if the position does not exist it will try to acomodate it by redimensioning the Eva !
+      NOTE: the row is previously cleared, so if the row did contain more columns these will be deleted!
+      IMPORTANT! if the row does not exist it will try to acomodate it by redimensioning the Eva !
    */
-   public void setValue (String sVal, int row)
+   public void setValueRow (String sVal, int row)
    {
-      setValue (sVal, row, 0);
+      EvaLine elin = (EvaLine) lis_EvaLin.get (row);
+
+      if (elin == null) return;
+      elin.clear ();
+      elin.setValue (sVal, 0);
    }
 
    /**
-      sets the value 'sVal' at the position row=0 column=0.
-      IMPORTANT! if the position does not exist it will try to acomodate it by redimensioning the Eva !
+      sets the variable to the single value 'sVal' (at  position 0,0)
    */
-   public void setValue (String sVal)
+   public void setValueVar (String sVal)
    {
+      clear ();
       setValue (sVal, 0, 0);
    }
 

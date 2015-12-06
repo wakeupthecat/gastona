@@ -45,7 +45,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       <main0>
       //          LOAD, data, myAppPersist.txt
       //
-      //       <-- java exit>
+      //       <-- javaj exit>
       //          DUMP, data, myAppPersist.txt
       //
       //    NOTE: Loading data in this way produce variables of the #data# section being replaced
@@ -58,7 +58,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <aliases>
       alias
       LOAD
-      LOAD VAR
 
    <syntaxHeader>
       synIndx, importance, desc
@@ -96,7 +95,6 @@ public class cmdLoadUnit implements commandable
       return new String [] {
             "LOAD UNIT",
             "LOAD",
-            "LOAD VAR",
          };
    }
 

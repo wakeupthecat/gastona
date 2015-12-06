@@ -30,52 +30,80 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       PARSONS
-   <groupInfo>  system_process
+   <groupInfo>  data_parsers
    <javaClass>  listix.cmds.cmdParsons
    <importance> 4
    <desc>       //Parse a text file and produce records into a database table with the result
 
    <help>
       //
-      // This command is a parser that stores the results as records into a database table. Basically
-      // you give it a text file and the rules to find a single record (pattern), the rest is automatically done.
-      // The direction "text file" to database is indicated in the first option FILE2DB, which is right
-      // now the only way to use PARSONS.
+      // Parses a string or a text file and search for matches of the given patterns. The patterns are given
+      // as java regular expressions with capturing groups and variable or field names for each group.
       //
-      // For example, to parse in a simple way a file containing a comma separated table (or comma
-      // separated values CSV) we could write
+      // Actually there are three different syntaxes for the command but a generic syntax can be written as
       //
-      //    PARSONS, FILE2DB, myFile.csv, myDB.db, myResults
-      //           , PATTERN, id, name, desc, //(.*),(.*),(.*)
+      //    PARSONS, source type, source name, target database
+      //           , agent 1 ...
+      //           , agent 2 ...
+      //           , ...
       //
-      // this commad will fill the table myResults_parsons of the database myDB.db with the records
-      // found in the source file myFile.csv. Where 'id', 'name' and 'desc' are the column names
-      // that the table sample_parsons will have and "(.*),(.*),(.*)" is the pattern to parse (see
-      // "Regular expressions in Parsons" close below).
+      // where "souce type, source name" can be :
+      //     "FILE, fileName"         for parsing a file
+      //     "EVAVAR, variableName"   for parsing a text given in an Eva variable
+      //     "STRING, stringToParse"  for parsing directly a string
       //
-      // The option PATTERN is basically a list of column names and a group regular expression pattern
-      // (explained below) containing as many groups (expression enclosed in parentesis) as column are
-      // given.
+      // "target database" is the database name to use if some DBTABLE agent is defined
       //
-      // Multiple patterns can be given in a single PARSONS call, this can be used when the record
-      // information is not placed in the same line in the file to be parsed.
+      // The agents defines what to match and how to store the results, the are three possible types:
       //
-      // Syntax of the option PATTERN
-      // ------------------------------------------------
+      //    DBTABLE  : stores the matched groups as records in the given database table
+      //    EVATABLE : stores the matched groups as records in the given eva variable
+      //    VAR      : stores the matched groups while parsing in the given variables (only stores last value!)
       //
-      //       PATTERN, colum1, colum2, ..., columN, regular expression pattern containing n groups
-      //       ..
+      // table agents has to define in the next lines a parsons pattern which basically defines the column names of the
+      // table plus the regular expression pattern to be matched. PATTERN is the default option so the word 'PATTERN'
+      // can be omited if desired, the syntax for the option pattern is
       //
-      // "columnX" can be a column name for the result table or one of these modifiers
+      //    , PATTERN, colum1, colum2, ..., columN, regular expression pattern containing n groups
       //
-      //    modifier  meaning for the following columns to the modifier
-      //    --------  ----------------------------------------------------
-      //    :keep     columns afected are not mandatory and the value once set is kept, that is
-      //              a new record does not reset the value. This modifier is useful for parsing
-      //              headers or values that appear only on change.
+      // For example
       //
-      //    :optional columns afected are not mandatory, therefore a record can be concluded
-      //              without having found a match of it.
+      //    PARSONS, ...
+      //           , DBTABLE, agenda,
+      //           , PATTERN, id, name, telephone, //id:(.*) name:(.*) tel:(.*)
+      //
+      // will create a table containing the columns "id", "name" and "telephone" and will fill it
+      // with the records found.
+      //
+      // The VAR agent just stores the current value of a matching record. This can be useful for unique records
+      // but also for capturing values that are not repeated on each record, typically header contents. In order
+      // to do that we need to use the CONST feature of DBTABLE agent.
+      //
+      // CONST content in DBTABLE agent (advanced parsons)
+      // --------------------------------------------------
+      // The DBTABLE agent can define aditionally a set of columns and its contents that will not come directly
+      // from its regular expression matching but from constant strings or eva variables including the ones
+      // generated by parsons VAR agents of the same PARSONS command. Among other possibilities it allows
+      // the inclusion in a generated table of some header information, for example for parsing the text
+      //
+      //      orderNr:11012 date:2014.01.01 ...
+      //         prodId:18892  units:4
+      //         prodId:71782  units:7
+      //      orderNr:11042 date:2014.01.03 ...
+      //         prodId:11224  units:1
+      //
+      // we can use two DBTABLE agents, one for the orders and the second for the detail lines
+      // and "capture" the important link information between these two tables which is the orderNr
+      //
+      //    PARSONS, FILE   , orders.txt
+      //           , VAR    , orderID, //orderNr:(\d*)
+      //           , DBTABLE, orders
+      //           ,        , orderID, date, rest, //orderNr:(.*) date:(.*) (.*)
+      //           , DBTABLE, orderlines, CONST, orderID, @<orderID>
+      //           ,        , prodID, units,       //prodId:(.*) units:(.*)
+      //
+      // so table orderlines get field orderID through the extra VAR agent for orderNr item.
+      // (Note the regular expressions are naiv, not robust enough, for simplicity)
       //
       //
       // Regular expresions in PARSONS
@@ -98,18 +126,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       // The point and asterisc '.*' is quite often used and it means : any character (.) one or more
       // times (*). The whole PARSONS command looks like
       //
-      //   PARSONS, FILE2DB, text.txt, myDB.db, sample
+      //   PARSONS, FILE, text.txt, myDB.db
+      //          , TABLE  , tableBook
       //          , PATTERN, ID, NAME, TEL, //id=(.*) name=(.*) tel=(.*)
       //
       // This command will parse the file text.txt and fill the database myDB.db with following records
       //
-      //       table sample_files
+      //       table parsons_files
       //
       //           fileID  timeParse            fullPath
       //           ------  -------------------  --------------------------
       //           1001    2010-03-14 22:17:45  "path"\text.txt
       //
-      //       table sample_parsons
+      //       table tableBook
       //
       //           fileID  lineNr  lastLineNr  ID   NAME            DESC
       //           ------  ------  ----------  ---- --------------  -------------
@@ -127,61 +156,57 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <aliases>
       alias
+      PARSER
       PARSE LINES
       LINE PARSER
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    4      , //parse the file fileSource and set the result on database dbName on tables 'tablePrefix'_files and 'tablePrefix'_parsons
+         1   ,    4      , //parse the file fileSource applying the agents defined in its options
+         2   ,    4      , //parse the text given in the variable evaVarName applying the agents defined in its options
+         3   ,    4      , //parse the given stringContent applying the agents defined in its options
 
    <syntaxParams>
       synIndx, name         , defVal      , desc
-         1   , FILE2DB      ,             , //
+         1   , FILE         ,             , //
          1   , sourceFile   ,             , //Name of text file to be parsed
-         1   , targetDbName , (default db), //Database name where to put the result of parsing
-         1   , tablePrefix  , parsons     , //Optional prefix for the result tables ('prefix'_files and 'prefix'_parsons)
-         1   , recordPatternRef,          , //Eva name where the Pattern is to be found (pattern given in an Eva variable)
+         1   , targetDbName , (default db), //Database name where to put the result of parsing if some agent DBTABLE is given
 
-         2   , FILE2DB      ,             , //
-         2   , sourceFile   ,             , //Name of text file to be parsed
-         2   , targetDbName , (default db), //Database name where to put the result of parsing
-         2   , tablePrefix  , parsons     , //Optional prefix for the result tables ('prefix'_files and 'prefix'_parsons)
-         2   , field1       ,             , //Field names to be found in the given recordPattern (e.g. userName, Telephone)
-         2   , ...          ,             , //
-         2   , recordPattern,             , //Java Pattern (see java.util.regex.Pattern) containing as much groups as fields defined (e.g. "user:(.*) tel:(.*)")
+         2   , EVAVAR       ,             , //
+         2   , evaVarName   ,             , //Name of the eva variable containing the text file to be parsed
+         2   , targetDbName , (default db), //Database name where to put the result of parsing if some agent DBTABLE is given
 
-<!         3   , INIT MULTI    ,             , //
-<!         3   , targetFileBase,             , //default "parsons" will generate parsons_files.txt parsons_parsons.txt
+         3   , STR          ,             , //
+         3   , stringContent,             , //Content to be parsed as string
+         3   , targetDbName , (default db), //Database name where to put the result of parsing if some agent DBTABLE is given
 
-<!         4   , MULTI        ,             , //
-<!         4   , sourceFile   ,             , //Name of text file to be parsed
-<!         4   , recordPatternRef,          , //Eva name where the Pattern is to be found (pattern given in an Eva variable)
 
    <options>
       synIndx, optionName, parameters, defVal, desc
 
-         1   , PATTERN        ,  "field1, .., regExp", , //Field names followed by a group regular expression pattern, used to parse contents
-         1   , START LINE     ,  lineNr    , 1     , //Line number for start parsing
-         1   , END LINE       ,  lineNr    , -1    , //Line number for end parsing (-1 = to the end of file)
-         1   , LIMIT LINES    ,  number    , -1    , //Maximum of lines to be parsed (-1 = no limit)
-         1   , LIMIT RECORDS  ,  number    , -1    , //Maximum of records to be parsed (-1 = no limit)
-         1   , CLEAN          ,  0 / 1     , 0     , //Clear tables if exist before parsing
-         1   , *TEXT FIELD     ,  field,previousField,pattEnd, , //Por ejemplo "  , TEXT, restoPartida, opening, //^$"  (se inicia después de "opening" y finaliza con linea en blanco
+         x   , DBTABLE        ,  "tableName, [CONST, constColumns, constValues]"  , ,//Start of a parse agent (pattern(s) has to follow) that will store results as records in the given tableName of the database given as command parameter. Optionally a set of constants and its values might be given, constColumns is a string with all fields comma separated (might be enclosed in quotes) and constValues a SQL expression of the values also comma separated if more than one field is given.
+         x   , EVATABLE       ,  "tableName, evaVarName"  , ,//Start of a parse agent (pattern(s) has to follow) that will save its records in the given eva variable used as a table
+         x   , EVA            ,  "varName1, varName2, .., regExp"  , ,//Parse agent that place the results direct in variables. The variables will contain just the last value parsed. This variables are especially useful for expressions that are not repeated (e.g. header information) and can be used in constValues of other DBTABLE agents, thus alloing this information to be stored on each record.
+         x   , PATTERN        ,  "field1, .., regExp", , //Field or column names followed by a capturing group regular expression pattern, used to match results. Several PATTERN lines can be used if the record is to be found in different lines or simply to divide a long pattern.
+         x   , IGNORE PATTERN ,  "regExp"            ,,  //Records matching the given pattern will be ignored
+         x   , BASE PATTERN   ,  "field1, .., regExp", , //If given it acts as the common part of all database tables given in the current parsons command. When using BASE, the whole record (base + specific for each table) has to be found in a single line.
+         x   , CLEAN          ,  0 / 1     , 0     , //Clear tables if exist before parsing
+         x   , START LINE     ,  lineNr    , 1     , //Line number for start parsing
+         x   , END LINE       ,  lineNr    , -1    , //Line number for end parsing (-1 = to the end of file)
+         x   , LIMIT LINES    ,  number    , -1    , //Maximum of lines to be parsed (-1 = no limit)
+         x   , LIMIT RECORDS  ,  number    , -1    , //Maximum of records to be parsed (-1 = no limit)
 
-         2   , PATTERN        ,  "field1, .., regExp", , //Field names followed by a group regular expression pattern, used to parse contents
-         2   , START LINE     ,  lineNr    , 1     , //Line number for start parsing
-         2   , END LINE       ,  lineNr    , -1    , //Line number for end parsing (-1 = to the end of file)
-         2   , LIMIT LINES    ,  number    , -1    , //Maximum of lines to be parsed (-1 = no limit)
-         2   , LIMIT RECORDS  ,  number    , -1    , //Maximum of records to be parsed (-1 = no limit)
-         2   , *TEXT FIELD     ,  field,previousField,pattEnd, , //Por ejemplo "  , TEXT, restoPartida, opening, //^$"  (se inicia después de "opening" y finaliza con linea en blanco
+<!  Idea para capturar textos usando varias lÃ­neas
+<!
+<!         x   , *TEXT FIELD     ,  "field,previousField,pattEnd", , //Por ejemplo "  , TEXT, restoPartida, opening, //^$"  (se inicia despuÃ©s de "opening" y finaliza con linea en blanco
 
    <examples>
       gastSample
-      parsing and showing result
+      parsing a text and showing the result
+      parsons interactive
       Windows DOS help
-      Windows NET help
 
-   <parsing and showing result>
+   <parsing a text and showing the result>
       //#javaj#
       //
       //   <frames>
@@ -190,37 +215,75 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <layout of Fmain>  EVA, 10, 10, 5, 5
       //
       //   ---, X
-      //      , bGo
       //    X , oConsola
       //    X , tResult
       //
       //#listix#
       //
-      //   <main0>
-      //      SETVAR, tmptxt, @<:lsx tmp>
-      //
-      //   <-- bGo>
-      //      //Generating sample file with text to be parsed ...
-      //      //
-      //      GEN, @<tmptxt>, sampleFile
-      //      //Parsing file ...
-      //      //
-      //      PARSONS, FILE2DB, @<tmptxt>,, test
+      //   <main>
+      //      PARSONS, EVA       , sampleText
+      //             , EVATABLE  , tResult
       //             , PATTERN, id, name, tel, //id:(.*) name:(.*) tel:(.*)
-      //      //Done.
-      //      //A look into the tables ...
-      //      GEN,, lookAtDB (db), listix, META-GASTONA/utilApp/std/lookAtDB.lsx
-      //         , PARAMS, ""
-      //      //
-      //      -->, tResult, sqlSelect, //SELECT * FROM test_parsons ORDER BY id+0;
+      //      -->, tResult data!
       //
-      //   <sampleFile>
-      //      // sample file for demo of PARSONS listix command
+      //   <sampleText>
+      //      // sample text for demo of PARSONS listix command
       //      //
       //      //    id:71  name:Julian tel:11199029991
       //      //    id:102  name:Evarist tel:111818189292
       //      //    id:43  name:Loretta tel:11118287723
       //      //
+      //
+
+
+   <parsons interactive>
+      //#javaj#
+      //
+      //   <frames>
+      //      Fmain, "PARSONS interactive", 600, 500
+      //
+      //   <layout of Fmain>  EVA, 10, 10, 5, 5
+      //
+      //   ---, X
+      //      , lText to be parsed
+      //    X , xSource
+      //      , lListix command
+      //    X , xLsxCommand
+      //      , bGo
+      //      , lContents of tableSalida
+      //    X , tResult
+      //
+      //   <sysDefaultFonts>
+      //      Tahoma, 12, 0, *
+      //      Consolas, 14, 0, TextArea
+      //
+      //#data#
+      //
+      //	<xSource>
+      //      // sample file for demo of PARSONS listix command
+      //      //
+      //      // agendaId:5 descrip:trabajo
+      //      //    id:71  name:Julian tel:11199029991
+      //      //    id:102  name:Evarist tel:111818189292
+      //      //
+      //      // agendaId:9 descrip:personal
+      //      //    id:43  name:Loretta tel:11118287723
+      //      //
+      //
+      //	<xLsxCommand>
+      //      //PARSONS, EVA, xSource
+      //      //       , CLEAR, 1
+      //      //       , VAR  , agendaId, desc, //agendaId:(.*) descrip:(.*)
+      //      //       , TABLE, tableSalida, CONST, "agId,agTitle", //@<agendaId>, '@<desc>'
+      //      //       ,      , id, name, tel, //id:(.*) name:(.*) tel:(.*)
+      //
+      //#listix#
+      //
+      //   <-- bGo>
+      //      STRCONV, TEXT-EVA, xLsxCommand, lsxCommandToExecute
+      //      LSX, lsxCommandToExecute
+      //
+      //      -->, tResult data!, sqlSelect, //SELECT * FROM tableSalida
       //
 
    <Windows DOS help>
@@ -235,13 +298,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       X , sCommands
       //       X , xHelp
       //
-      //   <sysDefaultFonts> Courier, 12, 0, TextArea
+      //   <sysDefaultFonts> Consolas, 12, 0, TextArea
       //
       //#data#
       //
       //   <sCommands sqlSelect>
       //      //SELECT cmdName,Description
-      //      //    FROM dosCmds_parsons
+      //      //    FROM dosCmds
       //      //    WHERE cmdName<>'DISKPART' AND cmdName<>'CHKNTFS' AND cmdName<>'SC';
       //
       //#listix#
@@ -251,7 +314,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      SETVAR, tmp  , @<:lsx tmp text>
       //      SETVAR, xHelp fileName, @<tmp>
       //      CALL, //CMD /C help > "@<tmp>"
-      //      PARSONS, FILE2DB, @<tmp>,, dosCmds
+      //      PARSONS, FILE, @<tmp>
+      //             , DBTABLE, dosCmds
       //             , PATTERN, cmdName, Description, //^(\w\w*)  \s*(\w.*)
       //
       //   <-- sCommands>
@@ -262,84 +326,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      CHECK, LINUX
       //      BOX, I, This is a Windows specific sample
       //      MSG, javaj doExit
-
-
-   <Windows NET help>
-      //
-      // <! Note: this sample actually does not use PARSONS, is just demonstrates how
-      // <!       to do something similar to "Windows DOS help" sample without PARSONS
-      //
-      //
-      //#javaj#
-      //
-      //   <frames> fNETHelp, NET commands help, 700, 500
-      //
-      //   <layout of fNETHelp>
-      //      EVA, 10, 10, 5, 5
-      //
-      //         ,          ,  X
-      //       X , tCommands, xHelp
-      //
-      //   <sysDefaultFonts>  Courier, 12, 0, TextArea
-      //
-      //#data#
-      //
-      //
-      //   <tCommands>
-      //      name
-      //
-      //      NAMES
-      //      SERVICES
-      //      SYNTAX
-      //      ""
-      //      ACCOUNTS
-      //      COMPUTER
-      //      CONFIG
-      //      CONFIG SERVER
-      //      CONFIG WORKSTATION
-      //      CONTINUE
-      //      FILE
-      //      GROUP
-      //      HELP
-      //      HELPMSG
-      //      LOCALGROUP
-      //      NAME
-      //      PAUSE
-      //      PRINT
-      //      SEND
-      //      SESSION
-      //      SHARE
-      //      START
-      //      STATISTICS
-      //      STOP
-      //      TIME
-      //      USE
-      //      USER
-      //      VIEW
-      //
-      //#listix#
-      //
-      //   <main0>
-      //      @<exit if linux>
-      //      SETVAR, tmp  , @<:lsx tmp text>
-      //      SETVAR, xHelp fileName, @<tmp>
-      //
-      //   <exit if linux>
-      //      CHECK, LINUX
-      //
-      //      BOX, I, This is a Windows specific sample
-      //      MSG, javaj doExit
-      //
-      //   <-- tCommands>
-      //      -->, eCommand,, @<tCommands selected.name>
-      //      @<help for command>
-      //
-      //   <-- eCommand>
-      //      @<help for command>
-      //
-      //   <help for command>
-      //      CALL, //CMD /C net help @<eCommand> > "@<tmp>"
-      //      MSG, xHelp load
 
       #**FIN EVA#
 */
@@ -355,87 +341,23 @@ import de.elxala.langutil.filedir.*;
 import de.elxala.db.sqlite.*;
 import de.elxala.db.dbMore.*;
 
-
 import de.elxala.zServices.*;
 import de.elxala.mensaka.*;   // for messages start, progress, end
 
 /**
-      Scans a file and places the result either in an Eva variable or into a table of a sqlite database
+   Scans (source) either :
+         a file 
+         a text contained in a variable
+      or a string 
+      
+   and can place the result(s) (target) in
+   
+      a db table
+      a variable as a table
+      a variable as a single value
 
-
-      Example 1:
-      ----------------------------
-      FILE TO SCAN---------------------------------
-         Filename: _5223032.orf
-         Timestamp: Tue May 22 18:45:41 2007
-         Camera: OLYMPUS E-500
-         ISO speed: 100
-         Shutter: 1/30.0 sec
-         Aperture: f/3.5
-         Focal length: 14.0 mm
-         Filter pattern: RGGBRGGBRGGBRGGB
-         Daylight multipliers: 1.838447 0.946109 1.111843
-         Camera multipliers: 2.164062 1.000000 1.265625 0.000000
-      -----------------------------------------------------------
-
-      <patternFieldMap>
-
-         fileName   , //FileName: (.*)
-         time       , //Timestamp: (.*)
-         Camera     , //Camera: (.*)
-         ISO        , //ISO speed: (.*)
-
-         shutter, units, //Shutter: (.*) (.*)
-
-         aperture   , //Aperture: (.*)
-         focalLength, //Focal length: (.*) mm
-         filterPatt , //Filter pattern: (.*)
-
-         dayMultR, dayMultG, dayMultB,           //Daylight multipliers: (.*) (.*) (.*)
-         camMultR, camMultG, camMultB, camMultM, //Camera multipliers: (.*) (.*) (.*) (.*)
-
-      RESULT EVA ---------------------------------------
-
-      <resultEva>
-
-         fileName, time, camera, ISO, shutter, units, aperture, focalLength, filterPatt, dayMultR, dayMultG, dayMultB, camMultR, camMultG, camMultB, camMultM
-         _5223032.orf, "Tue May 22 18:45:41 2007", "OLYMPUS E-500", 100, "1/30.0", "sec", "f/3.5", "14.0", "RGGBRGGBRGGBRGGB", 1.838447, 0.946109, 1.111843, 2.164062, 1.000000, 1.265625, 0.000000
-      --------------------------------------------------
-
-
-      Example 2:
-      ----------------------------
-      FILE TO SCAN---------------------------------
-
-         AREA=Chorradas
-         1-Ergocios TABO 2-Arkancios TABO 3-Jumehelos TABO soy yo happy
-         1-Akoma TABO 2-Orhancio TABO 3-Cohorcio TABO se acaba
-
-         AREA=Finalmente
-
-         1-Suso TABO 2-Sisi TABO 3-Erkomar TABO finalmentes
-      -----------------------------------------------------------
-
-      <fixNumber> 4430
-
-      <patternFieldMap>
-         *fileName, fileName
-         *line,     scanLine
-         fixNumber,      //
-         area,           //^AREA=(.*)
-         c1, c2, c3, c4, //^1-(.*) TABO 2-(.*) TABO 3-(.*) TABO (.*)
-
-
-      -- special fields starting with *
-         fileName: file name as given in command
-         fullPath: fullpath filename (canonical)
-         lineNumber: current line number of file (for text files)
-         byteNumber: current byte number of file (for binary files)
-
-      -- fields not produced by scan
-         simply write its name and as pattern just // (empty string)
-
-
+   the scan of one source can collect results for more targets (parsons agents)
+   so, for instance a single pass through a file might generate different tables.
 
 */
 public class cmdParsons implements commandable
@@ -451,12 +373,15 @@ public class cmdParsons implements commandable
    //       chivato.sendEnd ();        // here "ledMsg scanFiles_end" will be sent
 
    //private static MessageHandle TX_FATALERROR    = new MessageHandle (); // "_lib scanFiles_error"
-   private static MessageHandle LIGHT_MSG_START     = null; // new MessageHandle (); // "_lib parsons_start"
-   private static MessageHandle LIGHT_MSG_PROGRESS  = null; // new MessageHandle (); // "_lib parsons_progresss"
-   private static MessageHandle LIGHT_MSG_END       = null; // new MessageHandle (); // "_lib parsons_end"
+   private static MessageHandle LIGHT_MSG_START     = null; // new MessageHandle (); // "ledMsg parsing_start"
+   private static MessageHandle LIGHT_MSG_PROGRESS  = null; // new MessageHandle (); // "ledMsg parsing_progresss"
+   private static MessageHandle LIGHT_MSG_END       = null; // new MessageHandle (); // "ledMsg parsing_end"
 
    //Note : this variable is just a way to ensure that the static method is called once
    private static boolean sendMessages = initOnce_msgHandles ();
+
+   protected String PARSONS_FILES_TABLENAME = "parsons_files";
+
 
    private static boolean initOnce_msgHandles ()
    {
@@ -466,7 +391,7 @@ public class cmdParsons implements commandable
          LIGHT_MSG_PROGRESS  = new MessageHandle ();
          LIGHT_MSG_END       = new MessageHandle ();
 
-         // this messages are not mandatory to be suscribed, the are provided just as internal information of parser command
+         // this messages are not mandatory to be subscribed, the are provided just as internal information of parser command
          Mensaka.declare (null, LIGHT_MSG_START    , "ledMsg parsing_start"      , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, LIGHT_MSG_PROGRESS , "ledMsg parsing_progresss"  , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, LIGHT_MSG_END      , "ledMsg parsing_end"        , logServer.LOG_DEBUG_0);
@@ -488,19 +413,20 @@ public class cmdParsons implements commandable
        };
    }
 
-   private String oper        = null;
-   private String fileSource  = null;
    private String dbName      = null;
-   private String tablePrefix = null;
 
    private int startLine = 1;
    private int endLine   = -1;
    private int limitLines = -1;
    private int limitRecords = -1;
 
-   private aLineParsons parsons = null;
+   static final String [] AGENT_HEAD = new String [] { "TABLE", "DBTABLE", "VARTABLE", "EVATABLE", "VAR", "EVA" };
+   static final String [] AGENT_PATTERN = new String [] { "", "PATT", "PATTERN" };
 
-   private long fileID = -1;
+   parsonsAgentSet agents = new parsonsAgentSet ();
+
+//NN  private aLineParsons[] agentParsons = null;  // number of agents
+//NN  private String[]       agentTables = null;   // name of table of each agent (SAME SIZE than agentParsons!)
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -510,19 +436,20 @@ public class cmdParsons implements commandable
          commandEva     : the whole command Eva
          indxCommandEva : index of commandEva where the commnad starts
    */
+   //@Override
    public int execute (listix that, Eva commands, int indxComm)
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      oper        = cmd.getArg(0);
-      fileSource  = cmd.getArg(1);
-      dbName      = cmd.getArg(2);
-      tablePrefix = cmd.getArg(3);
+      String oper = cmd.getArg (0);
+      String srcName = cmd.getArg (1);
+      boolean explicitDBgiven = cmd.getArg(2).length() > 0;
+      dbName = (explicitDBgiven) ? cmd.getArg(2): cmd.getListix ().getDefaultDBName ();
 
-      if (dbName.length () == 0)
-         dbName = cmd.getListix ().getDefaultDBName ();
-
-      String  customFile = cmd.takeOptionString(new String [] { "FROMFILE", "FILE" }, "" );
+      // check source
+      //
+      if (!openContentSource (cmd, oper, srcName))
+         return 1;
 
       startLine = stdlib.atoi (cmd.takeOptionString(new String [] {"STARTLINE", "START", "BEGIN", "BEGINLINE" }, "1"));
       endLine   = stdlib.atoi (cmd.takeOptionString(new String [] {"ENDLINE", "END" }, "-1"));
@@ -538,213 +465,235 @@ public class cmdParsons implements commandable
          if (endLine != -1) plusStr      += " end line = " + endLine;
          if (limitLines != -1) plusStr   += " limit lines = " + limitLines;
          if (limitRecords != -1) plusStr += " limit records = " + limitRecords;
-         cmd.getLog().dbg (2, "PARSONS", "execute with : oper [" + oper + "] fileSource [" + fileSource + "] dbName [" +  dbName + "]" + plusStr);
+         cmd.getLog().dbg (2, "PARSONS", "execute with : oper [" + oper + "] sourceName [" + srcName + "] dbName [" +  dbName + "]" + plusStr);
       }
 
-      // load option PATTERN
+      // ============ load master pattern agent if any
       //
+      // collect all common pattern lines
+      //
+      Eva evaCommonPattern = new Eva ();
+      String [] masterPatOpt = null;
+      while ((masterPatOpt = cmd.takeOptionParameters (new String [] { "COMMONPATTERN", "COMMON", "BASEPATTERN", "BASE" }, true)) != null)
+      {
+         evaCommonPattern.addLine (new EvaLine (masterPatOpt));
+      }
+
+      agents = new parsonsAgentSet ();
+      agents.commonAgent.parsons = new aLineParsons (evaCommonPattern);
+
+      // load option ANTIPATTERN or IGNORE PATTERN
+      //
+      Eva evaAntiPattern = new Eva ();
+      String [] antiPatOpt = null;
+      while ((antiPatOpt = cmd.takeOptionParameters (new String [] { "ANTIPATTERN", "IGNOREPATTERN", "IGNORE"}, true)) != null)
+         evaAntiPattern.addLine (new EvaLine (antiPatOpt));
+
+      //NOTE! we use the same commonAgent object for antipatterns (ignore lines)
+      //      but this functionality has NOTHING to do with the common or base Agent
+      //      if it might be confuse then rewrite the methods and use another object for ignoring lines!
+      //!//commonAgent.parsons.setAntiPatternList (evaAntiPattern);
+      agents.commonAgent.parsons.setAntiPatternList (evaAntiPattern);
+
+      // ============ load all parsons agents and its patterns
+      //
+
+
+      // System.out.println ("NAgents = "+ Nagents);
+      int currAgent = 0;
+      String [] remOpt = cmd.getRemainingOptionNames ();
+
       Eva evaWithPattern = new Eva ();
-      String [] optPar = null;
-      while ((optPar = cmd.takeOptionParameters (new String [] { "PATT", "PATTERN"}, true)) != null)
+      for (int indx = 0; indx < remOpt.length; indx ++)
       {
-         // solve all values
-         for (int ii = 0; ii < optPar.length; ii ++)
-            optPar[ii] = that.solveStrAsString (optPar[ii]);
+         String optStr = remOpt[indx];
 
-         // add it to eva
-         evaWithPattern.addLine (new EvaLine (optPar));
+         //static final String [] AGENT_HEAD = new String [] { "TABLE", "DBTABLE", "VARTABLE", "EVATABLE", "VAR", "EVA" };
+         //static final String [] AGENT_PATTERN = new String [] { "", "PATT", "PATTERN" };
+
+         int agType = (optStr.equals ("TABLE") || optStr.equals ("DBTABLE")) ? parsonsAgent.DB_TABLE :
+                      (optStr.equals ("VARTABLE") || optStr.equals ("EVATABLE")) ? parsonsAgent.EVA_TABLE :
+                      (optStr.equals ("VAR") || optStr.equals ("EVA")) ? parsonsAgent.SINGLE_EVA_VALUE : -1;
+
+         //System.out.println ("optStr " + optStr + " is type " + agType);
+
+         if (agType >= 0)
+         {
+            // NOTE:
+            //     in case of TABLE or VARTABLE solving variables is not desired!
+            //         options might contain values to be assigned, for example
+            //             ...
+            //             , TABLE, tableSalida, CONST, "agId,agTitle", //@<agendaId>, '@<desc>'
+            //      if we solve now @<agendaId> and @<desc> all records will have the same value which is not the goal
+            //      since these variables usually change during the parsing (see example)
+            //
+            //    on the other side for agent type VAR we want to solve since we don't have values but the pattern
+            //    for example
+            //             ...
+            //             , VAR, v1, v2, //@<someBegin> (@<pattv1)..(\d*) etc
+            //         
+            String [] agentOptPar = 
+                    cmd.takeOptionParameters (new String [] { optStr }, 
+                                              (agType == parsonsAgent.SINGLE_EVA_VALUE)); // solve to true if SINGLE VAR since pattern is there!
+
+            if (evaWithPattern.rows () > 0)
+            {
+               agents.setPatternToLastAgent (evaWithPattern, evaAntiPattern);
+               evaWithPattern = new Eva ();
+            }
+            agents.addAgent (agType, agentOptPar);
+         }
+         else if (cmd.meantConstantString (optStr, AGENT_PATTERN))
+         {
+            // collect pattern
+            //
+            String [] optPar = cmd.takeOptionParameters (AGENT_PATTERN, true);
+            if (optPar != null)
+            {
+               // accumulate pattern
+               evaWithPattern.addLine (new EvaLine (optPar));
+               //System.out.println ("add pattern for agent of length " + optPar.length);
+            }
+         }
+         else cmd.getLog().severe ("PARSONS", "unknown option " + indx + "[" + optStr + "] in parsons command! ");
       }
 
-      int nParams = commands.cols (indxComm);
+      //
+      if (evaWithPattern.rows () > 0)
+      {
+         // assign last agent
+         //System.out.println ("assign LAST pattern to last agent");
+         agents.setPatternToLastAgent (evaWithPattern, evaAntiPattern);
+      }
 
-      if (cmd.getArgSize () < 5)
+      if (cmd.getArgSize () > 3)
       {
-         // syntax : FILE2DB .... and pattern via options
-         //          "PARSONS", "FILE2DB", "fileSource", "dbName", [ "tablePrefix" ]
-         //
-         parsons = new aLineParsons(evaWithPattern);
+         cmd.getLog().warn ("PARSONS", "wrong or deprecated old syntax!");
+         return 1;
       }
-      else if (cmd.getArgSize () >= 5)
-      {
-         if (!oldFashion (cmd)) return 1;
-      }
-      else
+      else if (cmd.getArgSize () < 2)
       {
          cmd.getLog().err ("PARSONS", "too few parameters (just " + commands.cols (indxComm) + ")");
          return 1;
       }
 
-      if (parsons.init ())
-         doParseFile (cmd.getListix (), clean);
-      else
-         cmd.getLog().err ("PARSONS", "some error in pattern, no parse performed");
+      if (!agents.startAgents (cmd.getLog()))
+      {
+         cmd.getLog().err ("PARSONS", "some error in patterns, no parse performed");
+         return 1;
+      }
 
+      // check if there is any DBTABLE agent
+      //
+      boolean someDBTable = false;
+      for (int tt = 0; tt < agents.size (); tt ++)
+         if (agents.getAgentAt (tt).isTypeDB_TABLE ())
+         {
+            someDBTable = true;
+            break;
+         }
+      if (explicitDBgiven && !someDBTable)
+      {
+         cmd.getLog().err ("PARSONS", "Explicit database name is given in command but no DBTABLE agent found, database will not be used.");
+      }
+
+      doParse (cmd.getListix (), someDBTable, clean);
       cmd.checkRemainingOptions (true);
       return 1;
    }
 
-   private boolean oldFashion (listixCmdStruct cmd)
+   private TextFile sourceFitxer = null;
+   private Eva      sourceEvavar = null;
+   private int      sourceCurrentLine = -1;
+
+   private boolean openContentSource (listixCmdStruct cmd, String oper, String scrName)
    {
-      cmd.getLog().err ("PARSONS", "The syntax used in command PARSONS is DEPRECATED, use the option PATTERN instead!");
-      if (cmd.getArgSize () == 5)
+      sourceFitxer = null;
+      sourceEvavar = null;
+      if (cmd.meantConstantString (oper, new String [] { "FILE", "FILE2DB" }))
       {
-         // syntax : FILE2DB ...., "recordPatternVar"
-         //          "PARSONS", "FILE2DB", "fileSource", "dbName", "tablePrefix", "recordPatternVar"
-         //
-         String evaref = cmd.getArg(4);
-         Eva evaWithPattern = cmd.getListix ().getVarEva (evaref);
-         if (evaWithPattern == null)
+         sourceFitxer = new TextFile ();
+         if (!sourceFitxer.fopen (scrName, "r"))
          {
-            cmd.getLog().err ("PARSONS", "expected eva variable [" + evaref + "] with parsons pattern but not found!");
+            cmd.getLog().err ("PARSONS", "File to scan cannot be opened! [" + scrName + "]");
+            sourceFitxer = null;
+            sourceCurrentLine = -1;
             return false;
          }
-
-         // solve all patterns
-         int fieldNo = 0;
-         for (int ii = 0; ii < evaWithPattern.rows (); ii ++)
-         {
-            int last = evaWithPattern.get(ii).cols () - 1;
-            String solved = cmd.getListix ().solveStrAsString (evaWithPattern.getValue(ii, last));
-            evaWithPattern.setValue (solved, ii, last);
-            cmd.getLog().dbg (2, "PARSONS", "pattern fields [" + fieldNo + " to " + (fieldNo + last) + "] = [" + solved + "]");
-         }
-
-         if (evaWithPattern == null)
-         {
-            cmd.getLog().err ("PARSONS", "patternRef \"" + evaref + "\" not found!");
-//            evaWithPattern = new Eva ("");
-//            evaWithPattern.addLine (new EvaLine (new String [] {"all", "(.*)" }));
-         }
-         else if (evaWithPattern.rows () == 0)
-         {
-            cmd.getLog().err ("PARSONS", "patternRef \"" + evaref + "\" contain no patterns!");
-         }
-         else
-         {
-            cmd.getLog().dbg (2, "PARSONS", "pattern given in eva variable [" + evaWithPattern + "]");
-            parsons = new aLineParsons(evaWithPattern);
-         }
       }
-      else if (cmd.getArgSize () > 5)
+      else if (cmd.meantConstantString (oper, new String [] { "VAR", "EVAVAR", "EVA" }))
       {
-         // syntax : FILE2DB ...., field1, field2, ..., "recordPattern"
-         //          "PARSONS", "FILE2DB", "fileSource", "dbName", "tablePrefix", "field1, field2, ...", "recordPattern" } )); break;
-
-         cmd.getLog().dbg (2, "PARSONS", "pattern given in parameters");
-//    0  PARSONS,
-//    1  FILE2DB,
-//    2  sample2Parse.txt,
-//    3  @<db>,
-//    4  test1,
-//    5  id,
-//    6  name,
-//    7  tel,
-//    8 //id:(.*) name:(.*) tel:(.*)
-
-         String [] fields = new String [cmd.getArgSize () - 4 - 1]; // - (FILE2DB + filesource + dbName + tablePrefic) - (recordPattern)
-
-         for (int ii = 4; ii < cmd.getArgSize () - 1; ii ++)
+         sourceEvavar = cmd.getListix ().getVarEva (scrName);
+         if (sourceEvavar == null)
          {
-            fields [ii - 4] = cmd.getArg(ii);
-            cmd.getLog().dbg (2, "PARSONS", "pattern field [" + (ii-4) + "] = [" + fields [ii-4] + "]");
+            cmd.getLog().err ("PARSONS", "Variable to scan cannot be found! [" + scrName + "]");
+            sourceCurrentLine = -1;
+            return false;
          }
-         String patt = cmd.getArg (cmd.getArgSize () - 1);
-         cmd.getLog().dbg (2, "PARSONS", "pattern = [" + patt + "]");
-
-         // construct parsons
-         //
-         // public void addFieldsPatternMap (String pattern, String [] fields)
-         parsons = new aLineParsons();
-         parsons.addFieldsPatternMap (patt, fields);
       }
-
+      else if (cmd.meantConstantString (oper, new String [] { "STR", "STRING", "TEXT" }))
+      {
+         sourceEvavar = new Eva ("intern.string"); // name does not matter!
+         sourceEvavar.setValue (scrName, 0, 0);
+      }
+      sourceCurrentLine = 0;
       return true;
    }
 
-   private void doParseFile (listix that, boolean clean)
+   private String getNextLineContentSource ()
    {
-      if (fileSource == null || fileSource.length () == 0)
+      if (sourceFitxer != null)
       {
-         that.log ().err ("PARSONS", "File to scan not found! [" + fileSource + "]");
-         return;
+         if (sourceFitxer.readLine ())
+            return sourceFitxer.TheLine ();
+         return null;
       }
+      if (sourceEvavar != null)
+      {
+         if (sourceCurrentLine < sourceEvavar.rows ())
+            return sourceEvavar.getValue (sourceCurrentLine ++, 0);
+         return null;
+      }
+      return null;
+   }
 
+   private void closeContentSource ()
+   {
+      if (sourceFitxer != null)
+      {
+         sourceFitxer.fclose ();
+      }
+   }
+
+   private void doParse (listix that, boolean someDBTable, boolean clean)
+   {
       //      startLine    = stdlib.atoi (cmd.takeOptionString("STARTLINE", "1"));
       //      endLine      = stdlib.atoi (cmd.takeOptionString("ENDLINE", "-1"));
       //      limitLines   = stdlib.atoi (cmd.takeOptionString("LIMITLINES", "-1"));
       //      limitRecords = stdlib.atoi (cmd.takeOptionString("LIMITRECORDS", "-1"));
 
-
-      //System.out.println ("working with file" + fileSource);
-      TextFile fix = new TextFile ();
-      if (!fix.fopen (fileSource, "r"))
-      {
-         that.log ().err ("PARSONS", "File to scan not found! [" + fileSource + "]");
-         return;
-      }
-
-      // file is open, start to parse!
-      //
-
       // open DB
       sqlSolver myDB = new sqlSolver ();
 
-      String fieldsCommas = "";
-      for (int ii = 0; ii < parsons.getCurrentRecord().length; ii ++)
-      {
-         fieldsCommas += ((ii > 0) ? ", ":"") + parsons.getCurrentRecord()[ii].name;
-      }
+      long fileID = (someDBTable) ? prepareDBTables (myDB, clean): -1;
+      prepareVariables (that.getGlobalData (), clean);
 
-      String taFiles   = tablePrefix + "_files";
-      String taParsons = tablePrefix + "_parsons";
-      String taAll     = tablePrefix + "_all";
-
-      //(o) listix_sql_schemas PARSONS FILE2DB schema creation
-
-      // ensure tables
-      myDB.openScript ();
-      if (clean)
-      {
-         myDB.writeScript ("DROP TABLE IF EXISTS " + taFiles + ";");
-         myDB.writeScript ("DROP TABLE IF EXISTS " + taParsons + ";");
-         myDB.writeScript ("DROP TABLE IF EXISTS " + taParsons + ";");
-      }
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taFiles + " (fileID, timeParse, fullPath, UNIQUE(fileID));");
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taParsons + " (fileID, lineNr, lastLineNr, " + fieldsCommas + ");");
-      myDB.writeScript ("CREATE INDEX IF NOT EXISTS " + taParsons + "_indx ON " + taParsons + " (fileID, lineNr);");
-
-      // o-o  Add dbMore connections info
-      myDB.writeScript (dbMore.getSQL_CreateTableConnections ());
-      myDB.writeScript (dbMore.getSQL_InsertConnection("file", taParsons, "fileID", taFiles, "fileID"));
-
-      //12.10.2008 16:48
-      // ALTHOUGH it is described in SQLITE DOCUMENTATION the option "CREATE VIEW IF NOT EXISTS" DOES NOT WORK !!!!!
-      //
-      //myDB.writeScript ("CREATE VIEW IF NOT EXISTS ..
-      myDB.writeScript ("DROP VIEW IF EXISTS " + taAll + ";");
-      myDB.writeScript ("CREATE VIEW " + taAll + " AS SELECT * FROM " + taParsons + " LEFT JOIN " + taFiles + " USING (fileID) ;");
-
-      myDB.closeScript ();
-      myDB.runSQL (dbName);
-
-      fileID = sqlUtil.getNextID(dbName,  tablePrefix + "_files", "fileID", 1000);
-      myDB.openScript ();
-      myDB.writeScript ("INSERT INTO " + taFiles + " VALUES (" + fileID + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileSource + "');");
-      myDB.closeScript ();
-      myDB.runSQL (dbName);
-
-      int nLine = 1;
+      int nLine = 0;
       int nLinesRead = 0;
       int nRecords = 0;
 
-      myDB.openScript ();
+      if (someDBTable)
+         myDB.openScript ();
 
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_START, null); // ... )))
 
       String lineStr = "";
-      int firstLineNrOfRecord = -1;
-      while (fix.readLine ())
+      int nLinesIgnored = 0;
+      boolean multiLinePossible = !agents.commonAgent.hasPatterns ();
+
+      while ((lineStr = getNextLineContentSource ()) != null)
       {
+         nLine ++;
          // control optional limits
          //
          if (nLine < startLine) { nLine++; continue; };
@@ -752,197 +701,280 @@ public class cmdParsons implements commandable
          if (limitLines != -1 && nLinesRead >= limitLines) break;
          if (limitRecords != -1 && nRecords >= limitRecords) break;
 
-         lineStr = fix.TheLine ();
-         while (lineStr.length() > 0)
+         // Note: all agents would ignore it as well
+         if (agents.commonAgent.parsons.ignoreLine (lineStr))
          {
-            int indxCol = parsons.scan (lineStr);
-
-            //detect first line of record
+            nLinesIgnored ++;
+         }
+         else
+         {
+            // strategy master -> slaves:
             //
-            if (firstLineNrOfRecord == -1 && indxCol > 0)
-               firstLineNrOfRecord = nLine;
+            //  first check masther then give rest of line to slaves
+            //  can be inefficient in some cases, but should work always
+            //
+            String remLineStr = lineStr;
+            boolean hasRemainingPart = false;
 
-            if (parsons.recordComplete ())
+            do
             {
-               nRecords ++;
-               that.log ().dbg (5, "PARSONS", "new record at line " + nLine);
-               String camphos = "";
-               for (int jj = 0; jj < parsons.getCurrentRecord().length; jj ++)
+               hasRemainingPart = false;
+               if (agents.commonAgent.hasPatterns ())
                {
-                  that.log ().dbg (5, "PARSONS", parsons.getCurrentRecord()[jj].name + " = [" + parsons.getCurrentRecord()[jj].value + "]");
-                  camphos += ((jj==0)? "": ",") + "'" + myDB.escapeString (parsons.getCurrentRecord()[jj].value) + "'";
+                  agents.commonAgent.parseLine (remLineStr, nLine);
+                  if (!agents.commonAgent.hasRecordCompleted ())
+                  {
+                     that.log ().dbg (2, "PARSONS", "doParseFile no common part found, go to next line");
+                     break;
+                  }
+                  if (agents.commonAgent.hasRemainingLine ())
+                  {
+                     that.log ().dbg (2, "PARSONS", "doParseFile common part found");
+                     remLineStr = agents.commonAgent.getRemainingLine ();
+                     agents.commonAgent.consumeRemainingLine ();
+                  }
+                  else
+                  {
+                     that.log ().dbg (2, "PARSONS", "doParseFile common part found but no remaining line!");
+                     remLineStr = "";
+                  }
                }
 
-               String insLine = "INSERT INTO " + tablePrefix + "_parsons VALUES (" + fileID + ", " + firstLineNrOfRecord + ", " + nLine + ", " + camphos + ");";
-               myDB.writeScript (insLine);
+               //System.out.println ("MATEROSO lineNr " + nLine + " [" + remLineStr + "]");
+               for (int ii = 0; ii < agents.size (); ii ++)
+               {
+                  parsonsAgent age = agents.getAgentAt (ii);
+                  age.parseLine (remLineStr, nLine);
+                  if (age.hasRecordCompleted ())
+                  {
+                     //System.out.println ("arrAgents  ii " + ii + " [" + remLineStr + "]");
+                     // write record
+                     writeRecordOfAgent (ii, that, myDB, fileID);
+                     nRecords ++;
+                     if (multiLinePossible && age.hasRemainingLine ())
+                     {
+                        // usually is not the case, but it has to be taken into account!
+                        remLineStr = age.getRemainingLine ();
+                        age.consumeRemainingLine ();
+                        hasRemainingPart = true;  // << keep in the loop
+                        that.log ().dbg (2, "PARSONS", "doParseFile remaining line [" + remLineStr + "]");
+                        //System.out.println ("doParseFile remaining line [" + remLineStr + "]");
+                     }
+                     //else remLineStr = ""
 
-               // reset first line
-               firstLineNrOfRecord = -1;
-               that.log ().dbg (6, "PARSONS", insLine);
+                     age.consumeRecord ();
+                     agents.commonAgent.consumeRecord ();
+
+                     // agents VAR even if they complete the record does not stop the rest
+                     // of the agents to look at the line.
+                     // but agent tables, once they consume the line, do
+                     //(o) TODO_parsons clarify policy of ownership of records, currently
+                     //                a table agent that completes its record owns the record regardless of table name!
+                     //                a variable agent - at the begining - gets its data but let the line to be parsed by
+                     //                the rest of agents.
+                     if (! age.isTypeSINGLE_EVA_VALUE())
+                        break;
+                  }
+               }
             }
-            if (indxCol > 0)
-            {
-               lineStr = lineStr.substring (indxCol);
-            }
-            else lineStr = "";
+            while (multiLinePossible && hasRemainingPart && remLineStr.length () > 0);
          }
-         nLine ++;
+
          nLinesRead ++;
          if (sendMessages && (nLine % 500) == 0) Mensaka.sendPacket (LIGHT_MSG_PROGRESS, null); // ... )))
       }
-      fix.fclose ();
+      closeContentSource ();
 
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_END, null); // ... )))
+      that.log ().dbg (2, "PARSONS", "finished parsing file " + nLinesRead + " lines read, " + nLinesIgnored + " lines ignored");
 
-      // Close DB
+      if (someDBTable)
+      {
+         // Close DB
+         myDB.closeScript ();
+         myDB.runSQL (dbName);
+      }
+   }
+
+   private long prepareDBTables (sqlSolver myDB, boolean clean)
+   {
+      // first check if any agent wants to write on DB
+      //
+      {
+         boolean needDB = false;
+         for (int tt = 0; tt < agents.size (); tt ++)
+         {
+            needDB = true;
+            if (agents.getAgentAt (tt).isTypeDB_TABLE ()) break;
+            needDB = false;
+         }
+         if (! needDB) return -1;
+      }
+
+      //(o) listix_sql_schemas PARSONS schema creation
+
+      long fileIDret = -1;
+
+      // ensure table for files
+      //
+      myDB.openScript ();
+      if (clean)
+         myDB.writeScript ("DROP TABLE IF EXISTS " + PARSONS_FILES_TABLENAME + ";");
+
+      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + PARSONS_FILES_TABLENAME + " (fileID int, timeParse text, fullPath text, UNIQUE(fileID));");
       myDB.closeScript ();
       myDB.runSQL (dbName);
+
+      // get the fileID
+      //
+      fileIDret = sqlUtil.getNextID(dbName, PARSONS_FILES_TABLENAME, "fileID", 1000);
+
+      String sourceStr = sourceFitxer != null ? sourceFitxer.getFileName ():
+                          sourceEvavar != null ? (":var " + myDB.escapeString (sourceEvavar.getName ())): "?source";
+
+      myDB.openScript ();
+      myDB.writeScript ("INSERT INTO " + PARSONS_FILES_TABLENAME + " VALUES (" + fileIDret + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + sourceStr + "');");
+
+      // ensure all tables and variables
+      for (int tt = 0; tt < agents.size (); tt ++)
+      {
+         parsonsAgent age = agents.getAgentAt (tt);
+         if (! age.isTypeDB_TABLE ()) continue;
+
+         String taParsons = age.tableName;
+         String taAll     = age.tableName + "_all";
+         String masFields = agents.commonAgent.getColumnNamesCS ();
+         String fieldsCommas =
+                 masFields +
+                 (masFields.length() > 0 ? " text, ":"") +
+                 age.getColumnNamesCS ();
+
+         if (clean)
+            myDB.writeScript ("DROP TABLE IF EXISTS " + taParsons + ";");
+
+         myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taParsons + " (fileID int, lineNr int, lastLineNr int, " + fieldsCommas + ");");
+         myDB.writeScript ("CREATE INDEX IF NOT EXISTS " + taParsons + "_indx ON " + taParsons + " (fileID, lineNr);");
+
+         // o-o  Add dbMore connections info
+         myDB.writeScript (deepSqlUtil.getSQL_CreateTableConnections ());
+         myDB.writeScript (deepSqlUtil.getSQL_InsertConnection("file", taParsons, "fileID", PARSONS_FILES_TABLENAME, "fileID"));
+
+         //12.10.2008 16:48
+         // ALTHOUGH it is described in SQLITE DOCUMENTATION the option "CREATE VIEW IF NOT EXISTS" DOES NOT WORK !!!!!
+         //
+         //myDB.writeScript ("CREATE VIEW IF NOT EXISTS ..
+         myDB.writeScript ("DROP VIEW IF EXISTS " + taAll + ";");
+         myDB.writeScript ("CREATE VIEW " + taAll + " AS SELECT * FROM " + taParsons + " LEFT JOIN " + PARSONS_FILES_TABLENAME + " USING (fileID) ;");
+      }
+      myDB.closeScript ();
+      myDB.runSQL (dbName);
+
+      return fileIDret;
+   }
+
+
+   protected void prepareVariables (EvaUnit euData, boolean clean)
+   {
+      // ensure all variables
+      for (int tt = 0; tt < agents.size (); tt ++)
+      {
+         parsonsAgent age = agents.getAgentAt (tt);
+         if (age.isTypeEVA_TABLE ())
+         {
+            Eva var = euData.getSomeHowEva (age.tableName);
+            if (clean)
+               var.clear ();
+
+            // set the column names
+            var.setValue ("fileID"    , 0, 0);
+            var.setValue ("lineNr"    , 0, 1);
+            var.setValue ("lastLineNr", 0, 2);
+            for (int ii = 0; ii < age.getColumnCount (); ii ++)
+               var.setValue (age.getColumnName (ii), 0, 3 + ii);
+         }
+         else
+         if (age.isTypeSINGLE_EVA_VALUE ())
+         {
+            for (int ii = 0; ii < age.getColumnCount (); ii ++)
+            {
+               Eva var = euData.getSomeHowEva (age.getColumnName (ii));
+               if (clean)
+                  var.clear ();
+            }
+         }
+      }
+   }
+
+
+   private void writeRecordOfAgent (int agentIndx, listix that, sqlSolver myDB, long fileID)
+   {
+      parsonsAgent agent = agents.getAgentAt (agentIndx);
+      String masterValues = agents.commonAgent.getValuesCS (that);
+      String valoresCS = masterValues + (masterValues.length() > 0 ? ", ":"") + agent.getValuesCS (that);
+
+      if (!agents.commonAgent.checkAllValues ())
+      {
+         that.log ().err ("PARSONS", "not all values filled in record at line " + agent.getFirstAndLineLine () + " for common part");
+         // continue anyway
+      }
+      if (!agent.checkAllValues ())
+      {
+         that.log ().err ("PARSONS", "not all values filled in record at line " + agent.getFirstAndLineLine () + " for parsons agent " + agentIndx);
+         // continue anyway
+      }
+
+      that.log ().dbg (5, "PARSONS", "new record at line " + agent.getFirstAndLineLine () + " for parsons agent " + agentIndx + "[" + valoresCS + "]");
+
+      if (agent.isTypeEVA_TABLE ())
+      {
+         Eva var = that.getGlobalData ().getSomeHowEva (agent.tableName);
+         // new line number
+         int lineNr = var.rows ();
+         
+         var.setValue (fileID + "", lineNr, 0);
+         var.setValue (agent.getFirstLine () + "", lineNr, 1);
+         var.setValue (agent.getLastLine  () + "", lineNr, 2);
+         
+         // set all column values
+         for (int ii = 0; ii < agent.getColumnCount (); ii ++)
+            var.setValue (agent.getColumnValue (ii), lineNr, 3 + ii);
+      }
+      else
+      if (agent.isTypeSINGLE_EVA_VALUE ())
+      {
+         for (int ii = 0; ii < agent.getColumnCount (); ii ++)
+         {
+            Eva var = that.getGlobalData ().getSomeHowEva (agent.getColumnName (ii));
+            var.setValue (agent.getColumnValue (ii), 0, 0);
+         }
+      }
+      else if (agent.isTypeDB_TABLE ())
+      {
+         String insLine = "INSERT INTO " + agent.tableName + " VALUES (" + fileID + ", " + agent.getFirstAndLineLine () + ", " + valoresCS + ");";
+         myDB.writeScript (insLine);
+         // reset first line
+         that.log ().dbg (6, "PARSONS", insLine);
+      }
+
+      //(o) TODO_parsons clarify policy of ownership of records (see break at the end of main loop of doParse)
+      //         Note that due to a break in doParse a table agent that completes its record owns
+      //         the record regardless of table name!
+
+      //
+      // ==== RULE TO AVOID CONFLICTS PARSING AGAINST THE SAME TABLE ====
+      // the first agent that completes the record wins!
+      // the rest of agents completing the same table has to reset its records
+      // except the variables that cannot collide with tables
+      if (!agent.isTypeSINGLE_EVA_VALUE ())
+      {
+         for (int p2 = 0; p2 < agents.size (); p2 ++)
+         {
+            parsonsAgent candi = agents.getAgentAt (p2);
+            if (p2 != agentIndx &&
+                !candi.isTypeSINGLE_EVA_VALUE () &&
+                candi.tableName.equals (agent.tableName))
+               candi.parsons.resetRecord ();
+         }
+      }
    }
 }
-
-//
-//            import java.util.regex.*;
-//
-//            class testCapturing
-//            {
-//
-//               public static void main (String [] aa)
-//               {
-//                   //CharSequence inputStr = "abbabcd";
-//                   //String patternStr = "(a(b*))+(c*)";
-//
-//                   CharSequence inputStr = "1-Ergocios TABO 2-Arkancios TABO 3-Jumehelos TABO soy yo happy";
-//                   String patternStr = "1-(.*) TABO 2-(.*) TABO 3-(.*) TABO (.*)";
-//
-//
-//                   Pattern pattern = Pattern.compile(patternStr);
-//                   Matcher matcher = pattern.matcher(inputStr);
-//                   boolean matchFound = matcher.find();
-//
-//                   if (matchFound)
-//                   {
-//                       System.out.println ("match found!");
-//                       for (int ii = 0; ii <= matcher.groupCount(); ii++)
-//                       {
-//                           String groupStr = matcher.group(ii);
-//
-//                           int groupStart = matcher.start(ii);
-//                           int groupEnd = matcher.end(ii);
-//
-//                           System.out.println (ii + ") " + "\"" + inputStr.subSequence(groupStart, groupEnd) + "\"");
-//                       }
-//                   }
-//               }
-//            }
-//
-//
-
-
-
-
-// 20.03.2008 17:32
-//
-//            [*] Propuesta de comandos PARSONS
-//
-//               1) FILE2DB: grabar resultado de parse en un fichero
-//
-//
-//                  <database name>   app
-//                  <table name>      app
-//                  <fileID>          file scanno
-//                  <lineNr>          file scanno
-//                  <fileds>          parser
-//
-//
-//                  <recordPattern>   parser
-//
-//                  parser has to detect start of record!
-//
-//                  COMMAND EXAMPLE
-//
-//                     PARSONS, FILE2DB, fileSource, dbName, tablePrefix, recordPatternRef
-//                     PARSONS, FILE2DB, fileSource, dbName, tablePrefix, field1, field2, ..., recordPattern
-//
-//                     generara' o trabajara' con las tablas :
-//
-//                     tablePrefix_files:   fileID, fileDate, parseDate, fullPath
-//                     tablePrefix_records: fileID, lineNr, filed1, field2 ...
-//
-//
-//
-//
-//               2) LINE2VAR: grabar resultado de parse en variables eva
-//
-//
-//                  <variable BaseName>  app
-//
-//
-//                  parser does not have to detect start of record!
-//                  just one record
-//
-//
-//
-//                  COMMAND EXAMPLE
-//
-//                     PARSONS, LINE2VAR, refLineSource, evaPrefix, recordPatternRef
-//                     PARSONS, LINE2VAR, refLineSource, evaPrefix, field1, field2, ..., recordPattern
-//
-//
-//                     PARSONS, LINE2EVAS, "juan, to, three", "textNambers_", 1, 2, 3, //(.*), (.*), (.*)
-//
-//                     generara'
-//
-//                        <textNambers_1> juan
-//                        <textNambers_2> two
-//                        <textNambers_3> three
-//
-//               3) LINES2EVATABLE: grabar resultado de parse en tabla eva
-//
-//                  parser has to detect start of record!
-//
-//
-//                  COMMAND EXAMPLE
-//
-//                     PARSONS, LINES2EVA, refLineSource, evaName, recordPatternRef
-//                     PARSONS, LINES2EVA, refLineSource, evaName, field1, field2, ..., recordPattern
-//
-//
-//                     PARSONS, LINES2EVATABLE, "juan, to, three", "textNambers_", 1, 2, 3, //(.*), (.*), (.*)
-//
-//                     generara'
-//
-//                        <evaName>
-//                           1,       2,       3
-//                           juan  , two   , three
-//
-//
-//               4) INSTALL and RUN: instala uno o varios parsons que actuara'n paralelamente sobre un mismo fichero
-//
-//
-//                  COMMAND EXAMPLE
-//
-//                     PARSONS, INSTALL, refLineSource, tablePostfix, recordPatternRef
-//                     PARSONS, INSTALL, refLineSource, tablePostfix, field1, field2, ..., recordPattern
-//
-//
-//                     PARSONS, RUN, dbName, tablePrefix, sql select condition
-//
-//
-//
-//
-//
-//                     PARSONS, INSTALL, TraceClientAspect, scope, text, //- T (.*) [-M-] (.*)
-//                     PARSONS, INSTALL, ConsolosAspect,    scope, text, //- C (.*) [-M-] (.*)
-//                     PARSONS, RUN, arga.DB, parseao, //(extension = 'hbsi')
-//
-//                     1) los ficheros deben existir en la tabla (o view) @<tablePrefix>_files
-//                     2) hace un //SELECT fileID, fullFileName FROM @<tablePrefix>_files WHERE extension = 'hbsi';
-//                     3) uno por uno todos los ficheros son leidos y pasados por los parsers
-//                        generando registros en las tablas
-//
-//
-//                              parseao_TraceClientAspect (fileID, lineNr, columnNr, scope, text)
-//                              parseao_ConsolosAspect    (fileID, lineNr, columnNr, scope, text)
-//
-//
-//

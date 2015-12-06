@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005,2009 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2012 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,7 +18,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil.graph;
 
-import java.awt.*;
 import javax.swing.*;
 
 import de.elxala.Eva.*;
@@ -36,7 +35,6 @@ import de.elxala.zServices.*;
    Example:
 
       sysDefaults.setDefaultFonts ("Tahoma");
-      sysDefaults.setLookAndFeel (sysDefaults.LOOK_MOTIF);
 
 
 */
@@ -44,21 +42,6 @@ public class sysDefaults
 {
    protected static logger log = new logger (null, "de.elxala.langutil.graph.sysDefaults", null);
 
-   public static final int LOOK_METAL   = sysLookAndFeel.LOOK_METAL;
-   public static final int LOOK_WINDOWS = sysLookAndFeel.LOOK_WINDOWS;
-   public static final int LOOK_MOTIF   = sysLookAndFeel.LOOK_MOTIF;
-
-   /**
-   */
-   public static boolean setLookAndFeel (int nLook)
-   {
-      return sysLookAndFeel.setLookAndFeel (nLook);
-   }
-
-   public static boolean setLookAndFeel (String StrLookAndFeel)
-   {
-      return sysLookAndFeel.setLookAndFeel (StrLookAndFeel);
-   }
 
    public static void setDefaultFonts ()
    {

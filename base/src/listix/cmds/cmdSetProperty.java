@@ -81,6 +81,7 @@ public class cmdSetProperty implements commandable
          "SET PROP",
          "SET PROPERTY",
          "PROP=",
+         "SYS=",
        };
    }
 

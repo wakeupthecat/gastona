@@ -54,9 +54,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          3   ,    3      , //Checks the existence of a file in the given path
          4   ,    3      , //Checks the existence of a file for read access, first in the given path, if not found there in the java classpath
          5   ,    3      , //Checks the existence of a directory
-         6   ,    3      , //Checks a single operation between to values
+         6   ,    3      , //Checks a single string comparation between to values
          7   ,    3      , //Checks if the current operative system "seems" to be linux (indeed only checks if the file separator is '/')
          8   ,    3      , //Checks if the given 'EvaUnitName' can be loaded from the file 'fileName'
+         9   ,    3      , //Checks a numeric expression or formula
 
    <syntaxParams>
       synIndx, name    , defVal         , desc
@@ -85,24 +86,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          8   , fileName ,               ,//File where the unit 'EvaUnitName' is to be found
          8   , EvaUnitName,             ,//Eva unit name to be checked
 
+         9   , NUMEXPR ,               ,
+         9   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparation opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
+
    <options>
       synIndx, optionName  , parameters , defVal, desc
-          1  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          1  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          2  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          2  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          3  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          3  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          4  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          4  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          5  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          5  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          6  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          6  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          7  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          7  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
-          8  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
-          8  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
+          x  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
+          x  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
 
    <examples>
       gastSample
@@ -169,6 +159,7 @@ import de.elxala.Eva.*;
 import de.elxala.langutil.javaLoad;
 import java.io.File;
 import de.elxala.langutil.utilSys;
+import de.elxala.langutil.filedir.*;
 
 public class cmdCheck implements commandable
 {
@@ -241,7 +232,7 @@ public class cmdCheck implements commandable
          //e.g.   CHECK, FILE, path, [adondesino]
          //
          String fileName = cmd.getArg(nargRead ++);
-         java.io.File target = new java.io.File (fileName);
+         File target = fileUtil.getNewFile (fileName);
          checked = target.exists () && target.isFile ();
       }
       else if (chkType.equals("RFILE"))
@@ -249,15 +240,15 @@ public class cmdCheck implements commandable
          //e.g.   CHECK, RFILE, path, [adondesino]
          //
          String fileName = cmd.getArg(nargRead ++);
-         java.io.File target = new java.io.File (fileName);
-         checked = (target.exists () && target.isFile ()) || (javaLoad.getResource (fileName) != null);
+         File target = fileUtil.getNewFile (fileName);
+         checked = (target.exists () && target.isFile ()) || (javaLoad.existsResource (fileName));
       }
       else if (chkType.equals("DIR"))
       {
          //e.g.   CHECK, DIR  , path, [adondesino]
          //
          String dirName = cmd.getArg(nargRead ++);
-         java.io.File target = new java.io.File (dirName);
+         File target = fileUtil.getNewFile (dirName);
          checked = target.exists () && target.isDirectory ();
       }
       else if (chkType.equals("LINUX"))
@@ -274,6 +265,14 @@ public class cmdCheck implements commandable
          String evaUnitName = cmd.getArg(nargRead ++);
 
          checked = EvaFile.existsEvaUnitInFile (fileName, evaUnitName);
+      }
+      else if (listixCmdStruct.meantConstantString (chkType, new String [] {"NUMEXPR", "NUM", "EXPR", "FORMULA" }))
+      {
+         //e.g.   CHECK, EXPRE, "a * 10 > log (20)"
+         //
+         String formula = cmd.getArg(nargRead ++);
+
+         checked = (calcFormulas.calcFormula (that, formula) != 0.f);
       }
       else // it must be an operation
       {
@@ -326,7 +325,7 @@ public class cmdCheck implements commandable
 
       //  Collect all sub-commands in option(s) ELSE
       //
-      Eva esleSubCommand = new Eva ("!else-sub-command found in format [" + commands.getName () + "]");
+      Eva elseSubCommand = new Eva ("!else-sub-command found in format [" + commands.getName () + "]");
       int rowElseSubCmd = 0;
       String [] arrElseCommand = null;
       while (null != (arrElseCommand = cmd.takeOptionParameters(new String [] { "ELSE" }, false)))
@@ -334,16 +333,16 @@ public class cmdCheck implements commandable
          // collect the command (or simply text)
          for (int ii = 0; ii < arrElseCommand.length; ii ++)
          {
-            esleSubCommand.setValue (arrElseCommand[ii], rowElseSubCmd, ii);
+            elseSubCommand.setValue (arrElseCommand[ii], rowElseSubCmd, ii);
          }
          rowElseSubCmd ++;
       }
 
       if (rowElseSubCmd > 0)
       {
-         that.log().dbg (2, "CHECK", "execute else-sub-command of " + esleSubCommand.rows () + " rows starting with [" + ((EvaLine) esleSubCommand.get(0)) + "]");
+         that.log().dbg (2, "CHECK", "execute else-sub-command of " + elseSubCommand.rows () + " rows starting with [" + ((EvaLine) elseSubCommand.get(0)) + "]");
 
-         that.doFormat (esleSubCommand);
+         that.doFormat (elseSubCommand);
       }
 
       // continue anyway ?

@@ -71,11 +71,11 @@ public class basicTableAparato extends widgetConsts implements MensakaTarget
 
       // Important : the mesage ONCE_CONTEXT is not forwarded to the widget owner
       //             and it is handled here in the base class transparently
-      Mensaka.suscribe (this, RX_ONCE_CONTEXT, javajEBS.msgCONTEXT_BASE);
+      Mensaka.subscribe (this, RX_ONCE_CONTEXT, javajEBS.msgCONTEXT_BASE);
 
-      Mensaka.suscribe (objWidget, RX_UPDATE_CONTROL, ebsTable().evaName (widgetEBS.sMSG_UPDATE_CONTROL));
-      Mensaka.suscribe (objWidget, RX_UPDATE_DATA,    ebsTable().evaName (widgetEBS.sMSG_UPDATE_DATA));
-      Mensaka.suscribe (objWidget, RX_SELECT_DATA,    ebsTable().evaName (widgetEBS.sMSG_SELECT_DATA));
+      Mensaka.subscribe (objWidget, RX_UPDATE_CONTROL, ebsTable().evaName (widgetEBS.sMSG_UPDATE_CONTROL));
+      Mensaka.subscribe (objWidget, RX_UPDATE_DATA,    ebsTable().evaName (widgetEBS.sMSG_UPDATE_DATA));
+      Mensaka.subscribe (objWidget, RX_SELECT_DATA,    ebsTable().evaName (widgetEBS.sMSG_SELECT_DATA));
    }
 
    public tableEBS ebsTable ()
@@ -121,7 +121,7 @@ public class basicTableAparato extends widgetConsts implements MensakaTarget
       Mensaka.sendPacket (HMSG_2Action, ebsTable().getData ());
    }
 
-   public boolean takePacket (int mappedID, EvaUnit euData)
+   public boolean takePacket (int mappedID, EvaUnit euData, String [] pars)
    {
       switch (mappedID)
       {
@@ -132,8 +132,8 @@ public class basicTableAparato extends widgetConsts implements MensakaTarget
                // the message has been sent by our javaj instance (the javaj instance that
                // has this xxxAparato instanciate)
                //
-               myOwner.takePacket (widgetConsts.RX_UPDATE_DATA,    euData);
-               myOwner.takePacket (widgetConsts.RX_UPDATE_CONTROL, euData);
+               myOwner.takePacket (widgetConsts.RX_UPDATE_DATA,    euData, pars);
+               myOwner.takePacket (widgetConsts.RX_UPDATE_CONTROL, euData, pars);
 
                // now will be anymore isBaseContexCall true!
                baseJavajContext = euData;

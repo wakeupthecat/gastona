@@ -1,0 +1,23 @@
+2015.12.06 
+
+====== ABOUT THE LUA BINARY DISTRIBUTED
+
+The version of lua binary distributed here is 
+
+lua52 -v
+
+   Lua 5.2.1  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+
+
+Lua source code and documentation can be found at the orignal site
+   
+   http://www.lua.org/
+   
+   
+====== EXPERIMENTAL USE
+
+The use in Gastona of Ruby, Perl and Lua binaries (Python was also planned)
+is just experimental. 
+
+It would be just very nice to have these excelent languages
+embedded and available in all platforms for Gastona applications.

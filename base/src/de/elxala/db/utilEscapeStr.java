@@ -25,10 +25,21 @@ import de.elxala.langutil.*;
 */
 public class utilEscapeStr
 {
-   public static final String SEPARATOR = "|";
+   private static final String SEPARATOR = utilEscapeConfig.SEPARATOR;
+
+   private static String ENCODE_MODEL_NAME = utilEscapeConfig.ENCODE_MODEL_NAME;
+
+   public static void setEscapeModel (String encodeName)
+   {
+      ENCODE_MODEL_NAME = encodeName;
+   }
+   
+   private static strEncoder encoderClassicNativ = null;
+   
 
    private static String [][] mapaEscapa =
    {
+//     { "\~",   "~1"},  // A ~ character.
       { "~",   "~1"},   // A ~ character.
       { "|",   "~2"},   // A | character.
       { "\"",  "~3"},   // A " character.
@@ -37,6 +48,14 @@ public class utilEscapeStr
       { "\n",  "~6"},   // \n A newline character.
       { "\t",  "~7"},   // \t A tab character.
       { "%",   "~8"},   // % character.
+      { "\000","~A"},   // ascci 0
+      { "\007","~B"},   // ascci 7 (audible bell)
+      { "\010","~C"},   // ascci 8 (backspace = \b)
+      { "\013","~D"},   // ascci 11 (vertical tab)
+      { "\014","~E"},   // ascci 12 (form feed = \f)
+      { "\032","~F"},   // ascci 26 (end of file)
+      { "\033","~G"},   // ascci 27 (escape)
+
    };
 
    private static String [][] mapaDesEscapa =
@@ -49,48 +68,64 @@ public class utilEscapeStr
       { "~6", "\n"},  // \n A newline character.
       { "~7", "\t"},  // \t A tab character.
       { "~8", "%"},   // % character.
+      { "~A", "\000"},   // ascci 0
+      { "~B", "\007"},   // ascci 7 (audible bell)
+      { "~C", "\010"},   // ascci 8 (backspace = \b)
+      { "~D", "\013"},   // ascci 11 (vertical tab)
+      { "~E", "\014"},   // ascci 12 (form feed = \f)
+      { "~F", "\032"},   // ascci 26 (end of file)
+      { "~G", "\033"},   // ascci 27 (escape)
    };
-
-   /**
-   */
-   public static String escapeStr222 (String str)
-   {
-      Cadena cad = new Cadena (str);
-      if (cad.replaceMeOnce (mapaEscapa) > 0)
-      {
-         // if some character is scaped the whole string begins with ~
-         return "~" + cad.o_str;
-      }
-      else
-      {
-         // not altered
-         return str;
-      }
-   }
 
    public static String escapeStrTruncate (String str, int bytesLimit)
    {
       if (str == null) return "null"; // or nothing ?, I think is better this
 
       boolean truncated = str.length() > bytesLimit;
-      Cadena cad = new Cadena (truncated ? str.substring (0, bytesLimit): str);
-      if (cad.replaceMeOnce (mapaEscapa) > 0)
+      
+      if (str.length() > bytesLimit)
+         return gastNativeEscape (str.substring (0, bytesLimit)) + " **TRUNCATED!! TOTAL SIZE WAS " + str.length () + "**";
+
+      return gastNativeEscape (str);
+   }
+   
+   private static strEncoder getNewEncoderNativ ()
+   {
+      if (encoderClassicNativ == null)
       {
-         // if some character is scaped the whole string begins with ~
-         if (! truncated)
-            return "~" + cad.o_str;
-         return "~" + cad.o_str + " **TRUNCATED!! TOTAL SIZE WAS " + str.length () + "**";
+         encoderClassicNativ = new strEncoder ("~");
+         encoderClassicNativ.addStrPairs  (new String [] {
+               "~",   "~1",   // A ~ character.
+               "|",   "~2",   // A | character.
+               "\"",  "~3",   // A " character.
+               "'",   "~4",   // A ' character.
+               "\r",  "~5",   // \r A carriage return character.
+               "\n",  "~6",   // \n A newline character.
+               "\t",  "~7",   // \t A tab character.
+               "%",   "~8",   // % character.
+               "\000","~A",   // ascci 0
+               "\007","~B",   // ascci 7 (audible bell)
+               "\010","~C",   // ascci 8 (backspace = \b)
+               "\013","~D",   // ascci 11 (vertical tab)
+               "\014","~E",   // ascci 12 (form feed = \f)
+               "\032","~F",   // ascci 26 (end of file)
+               "\033","~G",   // ascci 27 (escape)
+            });
       }
-      else
-      {
-         // not altered
-         return str;
-      }
+      return encoderClassicNativ;
+   }
+   
+   private static String gastNativeEscape (String str)
+   {
+      return getNewEncoderNativ ().encode (str);
    }
 
-   /**
-   */
-   public static String escapeStr (String str)
+   private static String gastNativeUnescape (String str)
+   {
+      return getNewEncoderNativ ().decode (str);
+   }
+
+   private static String OLD_gastNativeEscape (String str)
    {
       Cadena cad = new Cadena (str);
       if (cad.replaceMeOnce (mapaEscapa) > 0)
@@ -103,6 +138,40 @@ public class utilEscapeStr
          // not altered
          return str;
       }
+   }
+
+   private static String OLD_gastNativeUnescape (String str)
+   {
+      // if some it hasn't been scaped then return it as it is
+      if (str.length () == 0 || str.charAt (0) != '~')
+         return str;
+
+      Cadena cad = new Cadena (str.substring (1));
+      cad.replaceMeOnce (mapaDesEscapa);
+      return cad.o_str;
+   }
+   
+
+   public static String escapeStr (String str)
+   {
+      return escapeStr (str, ENCODE_MODEL_NAME);
+   }
+
+   public static String escapeStr (String str, String escapeModel)
+   {
+      //System.out.println ("escapa con [" + escapeModel + "]");
+      if (escapeModel.length () > 0)
+      {
+         String result = str;
+         try
+         {
+            result = java.net.URLEncoder.encode (str, escapeModel);
+         }
+         catch (Exception e) { }
+         
+         return result;
+      }
+      return gastNativeEscape (str);
    }
 
    public static String escapeStrArray (String [] textstring)
@@ -118,13 +187,23 @@ public class utilEscapeStr
 
    public static String desEscapeStr (String str)
    {
-      // if some it hasn't been scaped then return it as it is
-      if (str.length () == 0 || str.charAt (0) != '~')
-         return str;
-
-      Cadena cad = new Cadena (str.substring (1));
-      cad.replaceMeOnce (mapaDesEscapa);
-      return cad.o_str;
+      return desEscapeStr (str, ENCODE_MODEL_NAME);
+   }
+   
+   public static String desEscapeStr (String str, String escapeModel)
+   {
+      //System.out.println ("descapa con [" + escapeModel + "]");
+      if (escapeModel.length () > 0)
+      {
+         String result = str;
+         try
+         {
+            result = java.net.URLDecoder.decode (str, escapeModel);
+         }
+         catch (Exception e) { }
+         return result;
+      }
+      return gastNativeUnescape (str);
    }
 
    /**

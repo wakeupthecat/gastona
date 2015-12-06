@@ -97,7 +97,7 @@ public class pathGetFiles
       //
       RootPathString = rootPath;
       isRecursive = recursive;
-      theFiltrus = filter;
+      theFiltrus = filter != null ? filter: new fileMultiFilter ();
 
       lDirs = new Vector();
       farray = new File [0];
@@ -109,7 +109,7 @@ public class pathGetFiles
       //
       if (rootPath.length () > 0)
       {
-         File rootFile = new File (rootPath);
+         File rootFile = fileUtil.getNewFile (rootPath);
          try { RootPathString = rootFile.getCanonicalPath (); } catch (Exception e)
          {
             log.err("initScan", "exception getting canonical path for rootPath \"" + rootPath + "\"\n" + e);
@@ -142,7 +142,7 @@ public class pathGetFiles
       indxToca = 0;
       farray = new File [0];
 
-      File currDir = new File ((String) lDirs.get (0)); // get directory to process
+      File currDir = fileUtil.getNewFile ((String) lDirs.get (0)); // get directory to process
       log.dbg(2, "areThereListOfFiles", "check directory \"" + lDirs.get (0) + "\"");
 
       if (! currDir.exists ())
@@ -202,7 +202,7 @@ public class pathGetFiles
             //Detect directories that are symbolic links in linux to avoid redundant entries (and scanning)
             //These will be treated as simple files
             boolean isSymbolicLink = false;
-            if (stdlib.isOSLinux ())
+            if (utilSys.isOSLinux ())
             {
                File realFile = aFile;
                //canonicalFile has to solve the link if any
@@ -216,32 +216,33 @@ public class pathGetFiles
                }
             }
 
-            //if (aFile.isDirectory () && !isSymbolicLink)
-            //Allow symbolic link directories (01.01.2011 18:08)
-            if (aFile.isDirectory ())
+            if (isRecursive && aFile.isDirectory () && theFiltrus.accept (true, aFile.getAbsolutePath (), ""))
             {
-               if (isRecursive && theFiltrus.accept (true, aFile.getAbsolutePath (), ""))
+               //if (... aFile.isDirectory () && !isSymbolicLink)
+               //Allow symbolic link directories (01.01.2011 18:08)
+               log.dbg (2, "scanN", "add [" + aFile.getAbsolutePath () + "] to the dir list for recursive scan");
+               lDirs.add (aFile.getAbsolutePath ()); // add to directories to process
+            }
+
+            if (scanForFiles)
+            {
+               if (aFile.isDirectory ()) continue;
+               if (! aFile.isFile () && ! isSymbolicLink)
                {
-                  log.dbg (2, "scanN", "is directory add it to the dir list");
-                  lDirs.add (aFile.getAbsolutePath ()); // add to directories to process
+                  log.err ("scanN", "NOT A DIR, NOT A FILE! WHAT IS THIS !" + aFile);
+                  // Do not ignore it!, print out an error message but
+                  // save it as a normal file if finally accepted
                }
-               else log.dbg (2, "scanN", "is directory discard it");
-
-               if (scanForFiles)
-                  continue;
+               if (! theFiltrus.accept (false, aFile.getParent (), aFile.getName ())) continue;
             }
-
-            // scanning for directories and it is a file => not interested
-            if (!scanForFiles && aFile.isFile ()) continue;
-
-            if (! aFile.isFile () && !isSymbolicLink && scanForFiles)
+            else 
             {
-               log.err ("scanN", "NOT A DIR, NOT A FILE! WHAT IS THIS !" + aFile);
-               // Do not ignore it!, print out an error message but
-               // save it as a normal file
+               if (aFile.isFile () || ! aFile.isDirectory ()) continue;
+               if (! theFiltrus.accept (true, aFile.getAbsolutePath (), "")) continue;
             }
 
-            if (!theFiltrus.accept (aFile)) continue;  // >>>>
+            // prepare all fields for the file entry to be added
+            //
 
             // match one extension => add to files
             String name = aFile.getPath ();

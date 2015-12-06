@@ -1,0 +1,29 @@
+2015.12.06 
+
+====== ABOUT THE SQLITE BINARY DISTRIBUTED
+
+The version of sqlite binary distributed here is 
+
+   SQLite version 3.9.2 2015-11-02 18:31:45
+
+
+SQLite has no license since is PUBLIC DOMAIN (actually the most generous license!)
+   
+   https://www.sqlite.org/copyright.html
+   
+   
+====== GASTONA IMPLEMENTATION NEEDS SQLITE!
+
+The use in Gastona of sqlite is mandatory (not optional!) since it is the native SQL support
+of all commands that use it as well as widgets when the data source is a database.
+
+It is important to provide a binary for all platforms
+
+   Windows, Linux and Linux 64bit and RaspberryPi (ARM processor)
+
+====== GASTONA ANDROID AND SQLITE
+
+Unfortunatelly the approach of microTool cannot be used in Android due to
+its execution permission policy. So, although a binary could be provided, it
+actually cannot be launched. For that reason in gastona Android sqlite is 
+accessed internally via the android sqlite provided API (unfortunately!).

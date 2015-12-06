@@ -4,11 +4,11 @@ package org.gastona.media;
 // from
 //    http://www.java-tips.org/java-se-tips/javax.sound/capturing-audio-with-java-sound-api.html
 
-import java.io.*;
-import javax.sound.sampled.*;
-
 import de.elxala.langutil.stdlib;
-import de.elxala.zServices.*;
+import de.elxala.zServices.logger;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import javax.sound.sampled.*;
 
 
 public class audioRec2Buffer
@@ -72,10 +72,15 @@ public class audioRec2Buffer
 
          for (int ii = 0; ii < pxData.length; ii ++)
             for (int se = 0; se < ecos.length; se += 2)
-               if ((int) ecos[se] != 0 &&
-                   (ii - (int) ecos[se]) >= 0 &&
-                   (ii - (int) ecos[se]) < pxData.length)
-                  pxData[ii] += ecos[se+1] * pxData[ii - (int) ecos[se]];
+               if (se+1 < ecos.length)
+               {
+                  int shift = (int) ecos[se];
+                  float amp = ecos[se+1];
+                  if (shift != 0 && amp != 0f && (ii - shift) >= 0 && (ii - shift) < pxData.length)
+                     pxData[ii] += amp * pxData[ii - shift];
+                     //!! pxData[ii] += amp * (pxData[ii - shift]-128);
+                     //pxData[ii] = (byte) 128 + (byte) (pxData[ii]-128) + (byte) (amp * (pxData[ii - shift]-128));
+               }
       }
 
       // PROCESS RATE

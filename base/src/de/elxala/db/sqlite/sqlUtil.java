@@ -93,7 +93,7 @@ public class sqlUtil
 
       String sal = "";
       for (int ii = 1; ii < att.rows (); ii ++)
-         sal += "ATTACH DATABASE \"" + att.getValue (ii, 1) + "\" AS " + att.getValue (ii, 0) + ";\n";
+         sal += "ATTACH DATABASE '" + att.getValue (ii, 1) + "' AS '" + att.getValue (ii, 0) + "';\n"; // need ' to support ATTACH and DETACH ''
 
       return sal;
    }
@@ -105,7 +105,7 @@ public class sqlUtil
 
       String sal = "";
       for (int ii = 1; ii < att.rows (); ii ++)
-         sal += "DETACH DATABASE " + att.getValue (ii, 0) + ";\n";
+         sal += "DETACH DATABASE '" + att.getValue (ii, 0) + "';\n"; // need ' to support ATTACH and DETACH ''
 
       return sal;
    }

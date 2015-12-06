@@ -30,7 +30,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       SCAN
-   <groupInfo>  system_process
+   <groupInfo>  system_files
    <javaClass>  listix.cmds.cmdScanFiles
    <importance> 5
    <desc>       //For scan directories or zipp files into a database
@@ -107,15 +107,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <syntaxHeader>
       synIndx, importance, desc
          1   ,  5       , //Performs a scan of a directory saving the results into a database
-         3   ,  2       , //Puts the entries of a zip or jar file into a database
-         2   ,  2       , //Removes entries from the database acording some criteria. The deletion might be achieved directly using sql, this option facilitates synchronized deletion in tables "roots" and "files"
+         2   ,  2       , //Puts the entries of a zip or jar file into a database
+         3   ,  2       , //Removes entries from the database acording some criteria. The deletion might be achieved directly using sql, this option facilitates synchronized deletion in tables "roots" and "files"
 
    <syntaxParams>
       synIndx, name         , defVal      , desc
       1      , ADD FILES    ,             , //
       1      , sqliteDBName , (default db), //Database name (file name) where to add file information
       1      , pathRoot     ,             , //Root path where the files are to be found
-      1      , optFilter    ,             , //Might be +/- for extensions, +D|-D for directories or +F|-F for file names. If specified then the text filter is spected as next parameter
+      1      , optFilter    ,             , //Might be +/- for extensions, +D|-D for directories or +F|-F for file names. If specified then the text filter is expected as next parameter
       1      , textFilter   ,             , //Text related with the last 'optFilter' simply strings or java regular expresions are accepted
 
       2      , ADD ZIP      ,             , //
@@ -129,16 +129,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName  , parameters, defVal, desc
 
-      1      , PREFIX       ,  "tablePrefix" , "scan", //Specifies a table name prefix for the operation, all the tables will have this prefix
-      1      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is sepecially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
+      x      , PREFIX       ,  "tablePrefix" , "scan", //Specifies a table name prefix for the operation, all the tables will have this prefix
+      x      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is sepecially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
       1      , RECURSIVE    ,   Y/N              , "Y"    , //If 'Y' (default) then the seach of files will be recusive, otherwise simple
       1      , FILTER       ,  "option, string"  , ""     , //Option might be +/- E,F or D or </> T, S (see filter options help)
+      1      , EXTENSIONS   ,  "string"          , ""     , //comma or space separated list of extensions to admit
 
-      2      , PREFIX       ,  "tablePrefix" , "scan", //Specifies a table name prefix for the operation, all the tables will have this prefix
-      2      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is sepecially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
-
-      3      , PREFIX       ,  "tablePrefix" , "scan"  , //Specify a prefix for the deletion, if it is the only option given then all tables with this prefix will be deleted (dropped)
-      3      , ROOTLABEL    ,  "rootLabel"   ,         , //Specify the rootlabel to be deleted or that that contain the paths to be deleted
       3      , ROOTPATH     ,  "rootPath"    ,         , //Specify the rootPath to be deleted
 
    <examples>
@@ -163,13 +159,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //LIST OF FIRST 10 FILES:
       //      //
       //      LOOP, SQL,, //SELECT fullPath FROM scan_all LIMIT 10;
-      //      // @<fullPath>
-      //      =,,
+      //          ,, // @<fullPath>
       //      //
       //      //MAIN EXTENSIONS:
       //      //
       //      LOOP, SQL,, //SELECT COUNT(*) AS nfiles, extension FROM scan_files GROUP BY extension ORDER BY nfiles DESC LIMIT 10;
-      //      // extension [@<extension>] in @<nfiles> file(s)
+      //          ,, // extension [@<extension>] in @<nfiles> file(s)
       //
 
    <scan sample 2>
@@ -192,7 +187,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bSearch dir>
-      //      -->, eDir,, @<bSearch dir chosen>
+      //      -->, eDir data!,, @<bSearch dir chosen>
       //      @<do scanDir>
       //
       //   <-- eDir>
@@ -200,7 +195,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <do scanDir>
       //      SCAN, ADD FILES,, @<eDir>
-      //       -->, sFileViewer, sqlSelect, //@<select this dir>
+      //       -->, sFileViewer data!, sqlSelect, //@<select this dir>
       //
       //   <select this dir>
       //      //SELECT pathFile, fileName, extension, date, size
@@ -322,10 +317,10 @@ public class cmdScanFiles implements commandable
    private static String ROOT_TYPE_ZIP = "Z";
    private static String ROOT_TYPE_URL = "U";
 
-   //private static MessageHandle TX_FATALERROR    = new MessageHandle (); // "_lib scanFiles_error"
-   private static MessageHandle TX_SCAN_START     = null; // new MessageHandle (); // "_lib scanFiles_start"
-   private static MessageHandle TX_SCAN_PROGRESS  = null; // new MessageHandle (); // "_lib scanFiles_progresss"
-   private static MessageHandle TX_SCAN_END       = null; // new MessageHandle (); // "_lib scanFiles_end"
+   //private static MessageHandle TX_FATALERROR    = new MessageHandle (); // "ledMsg scanFiles_error"
+   private static MessageHandle TX_SCAN_START     = null; // new MessageHandle (); // "ledMsg scanFiles_start"
+   private static MessageHandle TX_SCAN_PROGRESS  = null; // new MessageHandle (); // "ledMsg scanFiles_progresss"
+   private static MessageHandle TX_SCAN_END       = null; // new MessageHandle (); // "ledMsg scanFiles_end"
 
    //Note : this variable is just a way to ensure that the static method is called once
    private static boolean sendMessages = initOnce_msgHandles ();
@@ -338,7 +333,7 @@ public class cmdScanFiles implements commandable
          TX_SCAN_PROGRESS  = new MessageHandle ();
          TX_SCAN_END       = new MessageHandle ();
 
-         // this messages are not mandatory to be suscribed, the are provided just as internal information of parser command
+         // this messages are not mandatory to be subscribed, the are provided just as internal information of parser command
          Mensaka.declare (null, TX_SCAN_START    , "ledMsg scanFiles_start"      , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, TX_SCAN_PROGRESS , "ledMsg scanFiles_progresss"  , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, TX_SCAN_END      , "ledMsg scanFiles_end"        , logServer.LOG_DEBUG_0);
@@ -454,6 +449,22 @@ public class cmdScanFiles implements commandable
                filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
             }
          }
+
+
+         String [] extensionStr = cmd.takeOptionParameters("EXTENSIONS");
+         if (extensionStr != null)
+         {
+            if (extensionStr.length != 1)
+               theLog.err ("SCAN", "option EXTENSIONS accept only one parameter (string)");
+            else
+            {
+               List extensions = Cadena.simpleToList (extensionStr[0], " ,;:.");
+               for (int ii = 0; ii < extensions.size (); ii ++)
+               {
+                  filtrum.addCriteria ("+", (String) extensions.get (ii));
+               }
+            }
+          }
       }
 
       if (optRemove)
@@ -551,12 +562,12 @@ public class cmdScanFiles implements commandable
       //(o) listix_sql_schemas SCAN schema creation
 
       myDB.openScript ();
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + ROOTS_TABLE () + " (rootID, rootLabel, pathRoot, rootType, timeLastScan, UNIQUE(rootID));");
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + FILES_TABLE () + " (rootID, fileID, pathFile, fileName, extension, date, size, UNIQUE(rootID, fileID));");
+      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + ROOTS_TABLE () + " (rootID int, rootLabel text, pathRoot text, rootType text, timeLastScan text, UNIQUE(rootID));");
+      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + FILES_TABLE () + " (rootID int, fileID int, pathFile text, fileName text, extension text, date text, size int, UNIQUE(rootID, fileID));");
 
-      // o-o  Add dbMore connections info
-      myDB.writeScript (dbMore.getSQL_CreateTableConnections ());
-      myDB.writeScript (dbMore.getSQL_InsertConnection("root", FILES_TABLE (), "rootID", ROOTS_TABLE (), "rootID"));
+      // o-o  Add deepSql connections info
+      myDB.writeScript (deepSqlUtil.getSQL_CreateTableConnections ());
+      myDB.writeScript (deepSqlUtil.getSQL_InsertConnection("root", FILES_TABLE (), "rootID", ROOTS_TABLE (), "rootID"));
 
       //Note : pathRoot is supossed not to be "", at least has to be "."
       String fieldFullPath       = "(pathRoot || SUBSTR('" + DIR_SEP + "', 1, MIN(1,MAX(LENGTH(pathFile),0))) || pathFile || '" + DIR_SEP + "' || fileName) AS fullPath";

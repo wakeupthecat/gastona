@@ -58,7 +58,7 @@ public class EvaFileToHtml
 
    public boolean file2Html (String evaFileName, String htmlFileName, String styles)
    {
-      File fileEva = new File (evaFileName);
+      File fileEva = fileUtil.getNewFile (evaFileName);
       if (! fileEva.isFile ())
       {
          System.err.println ("no file given [" +  evaFileName + "]");
@@ -144,7 +144,7 @@ public class EvaFileToHtml
          sal += "<tr><th>" + rr + "\n";
          for (int cc = 0; cc < eva.cols (rr); cc ++)
          {
-            //(o) celta_todo EvaUtil aqui' usar un StringToHtml o asi'
+            //(o) TODO_elxala_EvaUtil aquí usar un StringToHtml o así
             Cadena ca = new Cadena (eva.getValue (rr, cc));
             ca.replaceMe ("<", "&lt;");
             ca.replaceMe (">", "&gt;");

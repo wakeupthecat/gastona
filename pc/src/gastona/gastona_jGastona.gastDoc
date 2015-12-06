@@ -1,0 +1,258 @@
+/*
+   //(o) gastonaDoc_source notesDevelopment_sqlite
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    jGastona
+   <name>       "Introduction to jGastona"
+   <groupInfo>
+   <javaClass>
+   <importance> 2
+   <desc>       //The gastona way for client-server http applications and/or sites
+
+
+   <help>
+      //What is jGastona
+      //-------------------
+      //Listix command micoHttp implements a generic http server that can be programmed
+      //using listix scripts to generate and or serve html, css and javascript contents
+      //for the client, typically a browser. In this process any js framework can be used.
+      //
+      //Now, gastona is a framework for developing applications creating UI and implementing
+      //application logic in a special fashion. Could be possible to extend these ideas and be
+      //able also to develop http client-server applications using the gastona way ?
+      //
+      //jGastona is the approach to do that, a very first approach but already quite functional.
+      //
+      //jGastona script
+      //----------------------
+      //
+
+   <examples>
+      gastSample
+
+      using jGatonaAJAXPost I
+      using jGatonaAJAXPost II
+      sample jGastona Boletin
+
+
+   <using jGatonaAJAXPost I>
+      //#javaj#
+      //
+      //    <frames> oConso
+      //
+      //#listix#
+      //
+      //    <main>
+      //       micohttp, start, monoMico
+      //
+      //   <GET />
+      //     //<html><body>
+      //     //
+      //     //  <textarea id="salida"> </textarea>
+      //     //
+      //     //<script>
+      //     //
+      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     //
+      //     //   var jgas = new jGastona ();
+      //     //
+      //     //   jgas.AJAXPost ("questionToU",
+      //     //                  "this is the body of the question",
+      //     //                  { "ajaxREQ-pi1" : "refining the question"},
+      //     //                  function (txt, htp) {
+      //     //                      document.getElementById ("salida").value =
+      //     //                         "----RESP-HEADERS:\n" + htp.getAllResponseHeaders () +
+      //     //                         "\n----RESP-BODY:\n" + txt +
+      //     //                         "\n----RESP-END";
+      //     //                  }
+      //     //                 );
+      //     //
+      //     //</script></body></html>
+      //
+      //   <POST /questionToU>
+      //     MICO, SET RESPONSE PARAMETERS, monoMico, uno, dos, "tres y cuatro etc"
+      //     //you sent me the body:
+      //     //
+      //     LOOP, TEXT FILE, @<_bodyMemFileName>
+      //         ,, @<value>
+      //     //
+      //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>
+      
+      
+   <using jGatonaAJAXPost II>
+      //#javaj#
+      //
+      //    <frames> oConso
+      //
+      //#listix#
+      //
+      //    <main>
+      //       micohttp, start, monoMico
+      //
+      //   <GET />
+      //     //<html><body>
+      //     //
+      //     //   <!-- nothing! -->
+      //     //
+      //     //<script>
+      //     //
+      //     IN FILE, META-GASTONA/js/Eva.js
+      //     IN FILE, META-GASTONA/js/EvaLayout.js
+      //     IN FILE, META-GASTONA/js/LayoutManager.js
+      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     //
+      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<MainGastInUTF8>"));
+      //     //
+      //     //   jgas.AJAXPost ("questionToU",
+      //     //                  "this is the body of the question",
+      //     //                  { "ajaxREQ-pi1" : "refining the question"}
+      //     //                 );
+      //     //
+      //     //</script></body></html>
+      //
+      //   <MainGastInUTF8>
+      //      STRCONV, ENCODE VAR, UTF-8, MAIN_JGAST
+      //
+      //   <MAIN_JGAST>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //        EVA,
+      //      //        grid, X
+      //      //           X, xTesto
+      //      //
+      //      //#listix#
+      //      //
+      //      //  <-- ajaxResponse questionToU>
+      //      //     //var eo = evaFileObj ({ "responseUnit": jgas.getAjaxResponse () });
+      //      //     //jgas.setData ("xTesto", eo.toText ());
+      //      //
+      //
+      //   <POST /questionToU>
+      //     MICO, SET RESPONSE PARAMETERS, monoMico, uno, dos, "tres y cuatro etc"
+      //     //you sent me the body:
+      //     //
+      //     LOOP, TEXT FILE, @<_bodyMemFileName>
+      //         ,, @<value>
+      //     //
+      //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>      
+
+   <sample jGastona Boletin>
+      //#javaj#
+      //
+      //    <frames> oConsola
+      //
+      //#listix#
+      //
+      //    <main>
+      //       LSX, ensureDB
+      //       micohttp, start, monoMico
+      //
+      //   <ensureDB>
+      //      <!!!(uncomment this to persist db)!!! DB CONFIG, DEFAULT, boletin.db
+      //      DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+      //
+      //
+      //   <GET />
+      //     //<html>
+      //     //<head>
+      //     //</head><body>
+      //     //   <!-- nothing! -->
+      //     //<script>
+      //     //
+      //     IN FILE, META-GASTONA/js/Eva.js
+      //     IN FILE, META-GASTONA/js/EvaLayout.js
+      //     IN FILE, META-GASTONA/js/LayoutManager.js
+      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     //
+      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<MainGastInUTF8>"));
+      //     //
+      //     //</script></body></html>
+      //
+      //   <MainGastInUTF8>
+      //      STRCONV, ENCODE VAR, UTF-8, MAIN_JGAST
+      //
+      //   <MAIN_JGAST>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //        EVA, 15, 15, 20, 20
+      //      //        grid, X           , X
+      //      //            , lNew Event  , lBulletin Board
+      //      //          X , layInput    , dBoletin
+      //      //
+      //      //   <layout of layInput>
+      //      //        EVA, 15, 15, 20, 20
+      //      //        grid,             , X
+      //      //            , eEventDate  , eEventTitle
+      //      //          X , xEventDesc  , -
+      //      //            , bSave       , -
+      //      //
+      //      //#data#
+      //      //
+      //      //    <eEventDate type>   //'date
+      //      //    <eEventTitle placeholder>   //'Event Name
+      //      //    <xEventDesc placeholder>  //'Event Description
+      //      //    <eEventDate placeholder>  //'Event Date
+      //      //    <dBoletin>
+      //      //       //<p> Loading contents ... </p>
+      //      //
+      //      //
+      //      //#listix#
+      //      //
+      //      //  <-- bSave>
+      //      //     //jgas.AJAXSendBody ("insertEvent");
+      //      //
+      //      //  <-- ajaxResponse insertEvent>
+      //      //     //jgas.AJAXgetIdContent ("dBoletin", "all");
+      //      //
+      //
+      //   <POST /insertEvent>
+      //      VAR=, tmpProceso, @<process_insert>
+      //      //ok
+      //
+      //   <process_insert>
+      //      VAR&, eEventTitle,
+      //          , FILE, @<_bodyMemFileName>
+      //          , UNIT, unitAjaxRequest
+      //          , , xEventDesc
+      //          , , eEventDate
+      //
+      //      DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<eEventTitle>', '@<encodeDesc>');
+      //
+      //   <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-operation': 'del', 'REQ-id': '@<id>'}, false);
+      //
+      //   <POST /getIdContent>
+      //      LSX, checkOperations
+      //      //<table>
+      //      //
+      //      LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
+      //          ,, // <tr> <td>
+      //          ,, //       <table> <tr> <td> @<date> <td> @<decodeTitle> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
+      //          ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
+      //          ,, //       </table>
+      //          ,, // </tr>
+      //      //
+      //      //</table>
+      //
+      //   <checkOperations>
+      //      CHECK, VAR, REQ-operation
+      //      CHECK, VAR, REQ-id
+      //      IN CASE, @<REQ-operation>
+      //             , del, DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-id> ;
+      //             , ELSE, //
+      //
+      //   <encodeDesc>
+      //      STRCONV, TEXT-STR, xEventDesc
+      //
+      //   <decodeTitle>
+      //      STRCONV, DECODE, UTF-8, @<title>
+      
+#**FIN_EVA#
+
+*/

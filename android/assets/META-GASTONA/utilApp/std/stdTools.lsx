@@ -1,0 +1,81 @@
+#javaj#
+
+   <! TEST PROGRAM
+   <frames>
+      oConsolar, "Standard tool environment"
+
+#listix#
+
+   <! TEST PROGRAM
+   <main0>
+      @<set standard tools>
+      //
+      //Variables without using .gastonaLocal are set as:
+      //
+      DUMP, data
+      @<gastonaLocal and set standard tools>
+      //
+      //Variables using .gastonaLocal are set as:
+      //
+      DUMP, data
+
+
+   <! //(o) lsx_call set the standard tools and overwrite them if given in .gastonaLocal
+   <standard load tools>
+      SET VAR, tool java, java
+      SET VAR, tool gastona, //@<@><tool java> -cp @<@><:sys java.class.path> gastona.gastona
+      SET VAR, tool browser, @<default toolbrowser>
+      SET VAR, run browse(file), LAUNCH, //@<@><tool browser> @<">@<@><p1>@<">
+      @<default run editor>
+      LOAD, data, @<:sys user.home>/.gastonaLocal
+
+
+
+
+   <! DEPRECARTED ?
+   <! //(o) lsx_call gastonaLocal and set standard tools / set the variables <tool java> <tool gastona> <tool browser> ...
+   <gastonaLocal and set standard tools>
+      LOAD, data, @<:sys user.home>/.gastonaLocal
+      @<set standard tools>
+
+   <! DEPRECARTED ?
+   <! //(o) lsx_call set standard tools
+   <set standard tools>
+      CHECK, VAR , tool java
+           , ELSE, SET VAR, tool java, java
+           , CONTINUE, 1
+      CHECK, VAR, tool gastona
+           , ELSE, SET VAR, tool gastona, //@<@><tool java> -cp @<@><:sys java.class.path> gastona.gastona
+           , CONTINUE, 1
+      CHECK, VAR, tool browser
+           , ELSE, SETVAR, tool browser, @<default toolbrowser>
+           , CONTINUE, 1
+      CHECK, VAR, run browse(file),
+           , ELSE, SETVAR, run browse(file), LAUNCH, //@<@><tool browser> @<">@<@><p1>@<">
+           , CONTINUE, 1
+      CHECK, VAR, tool editor,
+           , ELSE, SET VAR, tool editor, @<intern editor>
+           , CONTINUE, 1
+      CHECK, VAR, run edit(file line)
+           , ELSE, @<default run editor>
+
+
+   <!
+   <! Intern formats ...
+   <!
+
+   <"> CHECK, LINUX, //"
+
+   <intern editor> //@<@><tool gastona> META-GASTONA/utilApp/editor/EmergencyEditor.gast
+
+   <default toolbrowser>
+      CHECK, LINUX
+           , ELSE, //CMD /C start ""
+      //firefox
+
+   <default run editor>
+      CHECK, VAR, run StdEE.edit(file line)
+           , ELSE, SET VAR, run edit(file line), LAUNCH, //@<intern editor> @<">@<@><p1>@<"> @<">@<@><p2>@<">
+      SET VAR, run edit(file line), LISTIX, run StdEE.edit(file line), @<@><p1>, @<@><p2>
+
+#**FIN EVA#

@@ -158,4 +158,8 @@ public class tableAccessFor extends tableAccessBase
    {
       return totalRows + 1 /* for the header */;
    }
+
+   public void rowIsIncremented ()
+   {
+   }
 }

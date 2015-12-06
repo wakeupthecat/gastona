@@ -1,6 +1,6 @@
 /*
-java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+java packages for gastona
+Copyright (C) 2005-2015  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ import de.elxala.langutil.*;
 */
 public class fileUtil
 {
-   private static logger log = new logger (null, "de.elxala.langutil.filedir.fileUtil", null);
+   protected static logger log = new logger (null, "de.elxala.langutil.filedir.fileUtil", null);
    public static final String  DIR_SEP = "" + File.separatorChar;
 
    public static boolean endsWithSeparator (String path)
@@ -114,7 +114,7 @@ public class fileUtil
             // doble point "/.."
             int pos0 = indxPreviousSlash (path, ava-2);
             //System.out.println ("double point /.. cut [" + path + "] from " + (pos0+1) + " to " + (ava+2));
-            path = cutFromTo (path, pos0+2, ava+3);
+            path = cutFromTo (path, (pos0 < 0 ? 0: pos0+2), ava+3);
             ava = pos0;
             //System.out.println ("double point /.. [" + path + "]");
          }
@@ -228,6 +228,10 @@ public class fileUtil
       return name;
    }
 
+   static public String getApplicationDir ()
+   {
+      return System.getProperty ("user.dir");
+   }
    public static String createTemporal ()
    {
       return createTemporal ("tmp", "tmp");
@@ -238,53 +242,14 @@ public class fileUtil
       return createTemporal (prefix, "tmp");
    }
 
-   private static String tempDirBase = null;
    public static String getTemporalDirBase ()
    {
-      // temporal directories with accents (e.g. spanish ...Configuración Local...)
-      // DOES NOT work with sqlite !!!
-      // Therefore, temp dir criteria:
-      //
-      //    1) if tmp exists then IT IS THE BASE TEMP DIR
-      //    2) if \tmp exists then IT IS THE BASE TEMP DIR !!!
-      //    3) take it from java.io.tmpdir property
-      //
-      //    after that ALWAYS getCanonical Path and set java.io.tmpdir to the
-      //    new path
-      //
-
-      if (tempDirBase != null) return tempDirBase;
-      File fi = new File ("tmp");
-      if (!fi.exists () || !fi.isDirectory ())
-         fi = new File ("/tmp");
-      if (!fi.exists () || !fi.isDirectory ())
-         fi = new File (System.getProperty("java.io.tmpdir", "."));
-
-      try { tempDirBase = fi.getCanonicalPath (); } catch (Exception e) {}
-
-      boolean avis = false;
-      for (int ii = 0; ii < tempDirBase.length (); ii++)
-         if (tempDirBase.charAt (ii) > '~') avis=true;
-
-      if (avis)
-      {
-         String mess = "Temporary directory path contain strange characters\n [" + tempDirBase + "]\n applications like sqlite may not work properly.\n Creating a root or sub-directory named tmp might avoid such problems.";
-         log.err ("getTemporalDirBase", mess);
-
-         javax.swing.JOptionPane.showMessageDialog (
-               null,
-               mess,
-               "Error",
-               javax.swing.JOptionPane.ERROR_MESSAGE);
-      }
-
-      return tempDirBase;
+      return uniFileUtil.getTemporalDirBase ();
    }
 
    public static String createTemporal (String prefix, String sufix)
    {
       String tempdir = System.getProperty("java.io.tmpdir", ".");
-//      System.out.println ("LA COSA VA BIEN []");
       return createTemporal (prefix, sufix, tempdir, true);
    }
 
@@ -306,15 +271,16 @@ public class fileUtil
       try
       {
          // Asegurar directorio temporar (debido a "gastonaTemp")
-         // Seguramente es necesario hacelo asi, aunque podría ser sufuciente
+         // Seguramente es necesario hacelo asi, aunque podría ser suficiente
          // hacerlo solo la primera vez que se cree un fichero temporar "delete on exit"
-         File tmpDir = new File (tempdir);
+         File tmpDir = new File (tempdir + "/check");
          tmpDir.mkdirs ();
 
          uniqFileTmp = File.createTempFile(prefix, sufix, new File (tempdir));
+         log.dbg (2, "createTemporal", "temp file to create \"" + uniqFileTmp + "\"");
          if (DeleteItOnExit)
          {
-            uniqFileTmp.deleteOnExit ();
+            uniFileUtil.deleteTmpFileOnExit (uniqFileTmp);
          }
          try
          {
@@ -335,7 +301,7 @@ public class fileUtil
    public static String createTempDir(String prefix, String dirBase, boolean DeleteItOnExit)
    {
       if (dirBase == null)
-         dirBase = System.getProperty("java.io.tmpdir", ".");
+         dirBase = getTemporalDirBase ();
 
       //(o) ensure_mkdirs!
       String tempDir = createTemporal(prefix, "tmpDir", dirBase, false);  // NO SE PUEDE BORRAR AL SALIR!
@@ -347,19 +313,25 @@ public class fileUtil
          log.fatal ("createTempDir", "cannot make dir of path [" + tempDir + "]");
       }
       if (DeleteItOnExit)
-         tDir.deleteOnExit ();
+         uniFileUtil.deleteTmpFileOnExit (tDir);
 
       return tempDir;
    }
 
    public static boolean ensureDirsForFile (String fullFilePath)
    {
+      if (TextFile.isMemoryFile (fullFilePath))
+      {
+         return true;
+      }
       // ensure directory
       File dirFile = new File (fullFilePath);
       // System.out.println ("1 dirfile = " + dirFile);
+
       dirFile = dirFile.getParentFile();
       // System.out.println ("2 dirfile = " + dirFile);
-      if (dirFile != null && ! dirFile.exists ())
+
+      if (dirFile != null && !dirFile.exists ())
       {
          dirFile.mkdirs ();
          if (! dirFile.exists ())
@@ -457,9 +429,20 @@ public class fileUtil
             }
 
             if (deleteOnExit)
-               fi.deleteOnExit ();
+               uniFileUtil.deleteTmpFileOnExit (fi);
          }
       }
+   }
+
+   public static File getNewFile (String vagueFileName)
+   {
+      return new File (resolveCurrentDirFileName (vagueFileName));
+   }
+
+   // this method is thought for Android Apps getFilePathFromVagueFilename
+   public static String resolveCurrentDirFileName (String vagueFileName)
+   {
+      return uniFileUtil.resolveCurrentDirFileName (vagueFileName);
    }
 
    public static File getRootDirectoryOf (String referenceFile, String rootMark)
@@ -485,6 +468,11 @@ public class fileUtil
       return getRootDirectoryOf (parent, rootMark);
    }
 
+
+   public static boolean looksLikeUrl (String fileName)
+   {
+      return fileName.indexOf ("://") >= 0;
+   }
 
    public static void main (String [] aa)
    {

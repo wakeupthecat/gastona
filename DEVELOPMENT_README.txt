@@ -1,95 +1,90 @@
-28.04.2010 22:04
+2015.12.06
 
-   Notes for developing and building gastona.jar
-   ----------------------------------------------
+   Notes for developing and building gastona.jar (gastona PC)
+   ----------------------------------------------------------
 
-   I compile gastona with java sdk j2sdk1.4.2_12 and in Windows platform
+   Gatona has been compiled with java sdk j2sdk1.4.2_12 and in Windows platform
    you can do it with upper versions but note that from 1.5 you will get
    a lot of warnings.
 
-   A way to do it in one step is
+   Currently gastona scripts are used to generate gastona.jar (so it generates itself!),
+   for that you will need a gastona.jar binary
 
-      go to META-GASTONA\Jarito and launch the gastona script GENJAR_GASTONA.gast
-      (i.e. java -jar gastona.jar GENJAR_GASTONA.gast)
-      it will generate the gastona.jar file into the OUT subdirectory
+   A way to do it in two steps is using gastona scripts (a gastona.jar file is required)
+   
+      1) Generate the gastona documentation database:
 
-      eventually, you might enter the full path of the javac.exe you want to use
+         This database is used by WelcomeGastona.gast (default script) to get the documentation and samples.
+         
+         go to META-GASTONA\WelcomeGastona\genDB and launch generateGastDocDB.gast
+         for example: java -jar gastona.jar generateGastDocDB.gast
+         it will generate gastonaDoc.db in META-GASTONA\WelcomeGastona\genDB
+
+       2) Compile and generate gastona.jar
+
+          go to META-GASTONA\Jarito and launch the gastona script GENJAR_GASTONA.gast
+          for example: java -jar gastona.jar GENJAR_GASTONA.gast
+          (eventually, you might enter the full path of the javac.exe you want to use)
+          it will generate the gastona.jar file in META-GASTONA\Jarito\OUT
+
+          
+   Useful scripts 
+   ----------------------------------------------------------
+
+   META-GASTONA\WelcomeGastona\WelcomeGastona.gast            script to launch WelcomeGastona (default script)
+   META-GASTONA\WelcomeGastona\genDB\generateGastDocDB.gast   script to generate gastona's documentation database
+   META-GASTONA\Jarito\GENJAR_GASTONA.gast                    script to generate gastona.jar
+   META-GASTONA\Jarito\OUT\gastona.jar                        generated gastona.jar
+   
+          
+   Notes for developing and building gastona.apk (gastona Android App)
+   -------------------------------------------------------------------
+
+   This procedure is described in the META-GASTONA\Jaritodroid\README_HOW_TO_COMPILE_GASTONA_FOR_ANDROID.txt
+
+
+   Sources are splitted in 'base' / 'pc' and 'android'
+   --------------------------------------------------------
+   
+      Gastona keeps as many features and code as possible in common in its version for Desktop (pc = windows, linux, mac-os)
+      and android. For that, eventhough the needed java compilers are different, a big part of the source code (about 180 classes)
+      is shared for both compilers. This can be done using the javac compiler option sourcepath and giving two paths there
+      so if the class is not found in the first path it is taken from the second one (in this case base or common path).
+
+      Gastona have following directory structure:
+      
+         - base/src    : all common classes to pc and android
+         - pc/src      : all specific classes for pc development (e.g. widgets, swing related code etc)
+         - android/src : android specific classes (native widgets, activities, intents etc)
+
+      then when invoquing the specific java compiler, the option "-sourcepath" is used to get the proper sources
+      
+         for pc (gastona.jar)      : -sourcepath pc/src;base/src
+         for android (gastona.apk) : -sourcepath android/src;base/src
+         
 
    Code documentation
    --------------------------------------------------
 
-   Right now the code is not in a very standard way documented (java doc) :(
+   A small map of the source code structure:
 
-   Here a small map:
+   pc\src\gastona\gastona.java                    Main gastona for PC
+   android\src\org\gastona\gastonaMainActor.java  Main activity for android
 
-      -------GASTONA-------------
+   
+   Now starting path from src (e.g. pc/src, android/src or base/src):
+   
 
-      gastona/gastona.java
-         Is the main of gastona.jar (see manifest)
+   de/elxala/db            stuff related with sqlite db (native sql for gastona)
+   de/elxala/Eva           base structure and format used in gastona scripts
+   de/elxala/langutil      general java language utilities and facilities (e.g. javaRun, TextFile)
+   de/elxala/math          math stuff including 2D calculations
+   de/elxala/mensaka       gastona's component communication mechanism (used by javaj widgets, listix messages ...)
+   de/elxala/parse         parsing classes: general text parsing, svg, xml and json
+   de/elxala/zServices     logging system and microTool concept (used to launch sqlite and ruby, lua and perl in windows version)
 
-      gastona/cmds
-         Contain the listix commands MESSAGE, JAVAJ, BOX, AND SETUPDATE
+   javaj                   all related with GUI engine (javaj) and its widgets (zWidgets)
+   listix                  all related with Logic engine listix (main class listix/listix.java) and its commands (listix/cmds/cmdXXXX.java)
 
-      -------JAVAJ-------------
-
-      javaj/java36.java
-         It is the javaj's kern
-
-      javaj/laya.java
-         Perform the layout work of javaj widgets
-
-      javaj/onFlyWidgetSolver.java
-         Here are instanciated all javaj primitive widgets
-
-      javaj/widgets
-         Allmost all widgets are contained in this directory, and all start with "z"
-         (e.g. zButton.java etc)
-
-      -------LISTIX-------------
-
-      listix/listix.java
-         It is the listix's kern
-
-      listix/cmds
-         Almost all listix commands are in this directory, they start with "cmd" (e.g. cmdSetVariable.java)
-
-      listix/cmds/commander.java
-         This class load all primitve listix's commands
-
-      listix/table
-         This directory contains the real implementation of the command LOOP (or LOOP TABLE)
-
-
-      -------LIBRARY-------------
-
-      de/elxala/db/sqlite/sqlSolver.java
-         This class calls sqlite and retrieve the results (used for both widgets and commands)
-
-      de/elxala/db/sqlite/tableROSelect.java
-         Implements the transparent windowing mechanism for Read Only Selects
-         (the users can make SQL selects with no limit of records, this will be windowed automatically)
-
-      de/elxala/Eva
-         Implementation of the Eva format, inclusive parsing eva files as well
-
-      de/elxala/Eva/layout/EvaLayout.java
-         Eva layout implementation (as java layout manager LayoutManager2)
-
-      de/elxala/math/polac
-         Implementation of formulas
-
-      de/elxala/mensaka
-         Implementation of the Mensaka mechanism
-
-      de/elxala/parse/parsons/aLineParsons.java
-         Kern of command PARSONS
-
-      de/elxala/zServices
-         Error/Log feature and micro Tool installer (e.g. sqlite.exe)
-
-      de/elxala/langutil
-         Several system and base utilities
-
-
-
----- Alejandro ----
+   org/gastona/net         features related with network communication UDP and the HTTP miniserver micoHTTP server
+   

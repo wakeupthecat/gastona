@@ -51,6 +51,13 @@
       //          Example:
       //            //today is @<:lsx date>, specifically @<:lsx date2>
       //
+      //      @<:lsx CLOCK[x]>
+      //
+      //          Returns the count of an internal clock in milliseconds from the beginnig of the application ("CLOCK")
+      //             CLOCK0 : epoch time in milliseconds from 1970-01-01
+      //             CLOCK1 : epoch time in milliseconds of the start of the application
+      //             CLOCK  : ellapsed time in milliseconds since start of the application
+      //
       //      @<:lsx TMP [extension]>
       //
       //          Creates and returns the path name of a temporary file with the given extension.
@@ -117,6 +124,7 @@
       gastSample
 
       example listix primitives
+      example java system properties
 
    <example listix primitives>
       //#javaj#
@@ -138,7 +146,7 @@
       //      //
       //      //
       //      LOOP, EVA, primitivas
-      //      // @<desc> : [@<var>]
+      //          ,, // @<desc> : [@<var>]
       //
       //   <primitivas>
       //      desc                                , var
@@ -154,6 +162,59 @@
       //      system current directory            , @<:sys user.dir>
       //      system property temp dir            , @<:sys java.io.tmpdir>
       //      system property file separator      , @<:sys file.separator>
+      
+   <example java system properties>
+      //#javaj#
+      //
+      //   <frames>
+      //      F, "example java system properties"
+      //
+      //   <layout of F>
+      //      EVA, 10, 10, 6, 6
+      //
+      //        , X
+      //      X , oConsole
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      //
+      //      // java system properties
+      //      //
+      //      //
+      //      LOOP, EVA, propertyList
+      //          ,, // @<sysvar>: @<desc>
+      //          ,, //     @<@><:sys @<sysvar>> [@<varValue>]
+      //          ,, // 
+      //
+      //	<varValue>
+      //		LSX, //:sys @<sysvar>
+      //      
+      //
+      //   <propertyList>
+      //      sysvar         , desc
+      //      file.encoding, //The character encoding for the default locale
+      //      file.encoding.pkg, //The package that contains the converters that handle converting between local encodings and Unicode
+      //      file.separator, //The platform-dependent file separator (e.g., "/" on UNIX, "\" for Windows)
+      //      java.class.path, //The value of the CLASSPATH environment variable
+      //      java.class.version, //The version of the Java API
+      //      java.compiler, //The just-in-time compiler to use, if any. The java interpreter provided with the JDK initializes this property from the environment variable JAVA_COMPILER.
+      //      java.home, //The directory in which Java is installed
+      //      java.io.tmpdir, //The directory in which java should create temporary files
+      //      java.version, //The version of the Java interpreter
+      //      java.vendor, //A vendor-specific string
+      //      java.vendor.url, //A vendor URL
+      //      line.separator, //The platform-dependent line separator (e.g., "\n" on UNIX, "\r\n" for Windows)
+      //      os.name, //The name of the operating system
+      //      os.arch, //The system architecture
+      //      os.version, //The operating system version
+      //      path.separator, //The platform-dependent path separator (e.g., ":" on UNIX, "," for Windows)
+      //      user.dir, //The current working directory when the properties were initialized
+      //      user.home, //The home directory of the current user
+      //      user.language, //The two-letter language code of the default locale
+      //      user.name, //The username of the current user
+      //      user.region, //The two-letter country code of the default locale
+      //      user.timezone, //The default time zone      
 
 
 #**FIN_EVA#

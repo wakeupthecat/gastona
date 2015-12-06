@@ -26,7 +26,7 @@ package de.elxala.mensaka;
 
 /**
    Handle to identify the message. At the moment it just contains an index to be used directly by
-   Mensaka methods but in the future (when removing messages with no suscribers might be allowed)
+   Mensaka methods but in the future (when removing messages with no subscribers might be allowed)
    it can be used to check if the handle is still valid.
 
    Using handles to send a message is not a must since it is still possible to use the method

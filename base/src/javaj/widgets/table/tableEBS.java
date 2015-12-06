@@ -125,6 +125,25 @@ public class tableEBS extends tableWidgetBaseEBS
       return (query != null);
    }
 
+   public void setDataControlAttributes (EvaUnit pData, EvaUnit pControl, String [] pairAttValues)
+   {
+      setNameDataAndControl (null, pData, pControl);
+      setArrayOfSimpleAttributes (pairAttValues);
+   }
+
+   // thought for message 
+   //   MSG, widgetName data!, att1, val1, att2, val2 ...
+   //
+   public void setArrayOfSimpleAttributes (String [] params)
+   {
+      if (params == null || params.length == 0) return;
+      
+      for (int pp = 0; pp+1 < params.length; pp += 2)
+      {
+         setSimpleAttribute (DATA, params[pp], params[pp+1]);
+      }
+   }
+
    /**
       returns true if the virtual column for record count has to be shown
       Note that if not specified, default value is true

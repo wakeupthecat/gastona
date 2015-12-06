@@ -73,8 +73,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          1   ,    2      , //Checks the existence of a resource file within the java class path. Return 1 if found 0 if not found
          2   ,    2      , //Checks the existence of a resource file as url. Return 1 if found 0 if not found
          3   ,    2      , //Return the fullpath of the executable program related with the micro tool 'microToolName'. If the micro tool is not yet installed then it will be previously installed
-         4   ,    2      , //Copies an existent resource file or url into the directory 'basepath'
-         5   ,    1      , //Copies an stream url into files
+         4   ,    2      , //Assigns a call path for the microtool, as a result the micro tool is suposed to be installed and therefore the auto installation of the micro tool will not take place when the micro tool is invoqued
+         5   ,    2      , //Copies an existent resource file or url into the directory 'basepath'
+         6   ,    1      , //Copies an stream url into files
 
    <syntaxParams>
       synIndx, name     , defVal        , desc
@@ -89,13 +90,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          3   , microToolName,           , //Logic name of the micro-tool (for example: sqlite)
          3   , varTarget,               , //If given, name of the Eva variable to store the result, if not given the result will be printed out
 
-         4   , COPY    ,                , //
-         4   , resourceName,            , //Resource name, in general a class, image or any file to be found in the current java class path
-         4   , basepath   ,             , //?File name target or directory name if the option AUTOSUBPATH?NEWNAME is given
+         4   , SET MICRO TOOL,          , //
+         4   , microToolName,           , //Logic name of the micro-tool (for example: sqlite, ruby etc)
+         4   , binaryPath,              , //Either full path or name of the binary for the micro tool in case the OS can resolve its location
 
-         5   , COPY URL  ,              , //
-         5   , resourceName,            , //URL name to be copied
-         5   , toDirName  ,             , //Directory name where the file is to be copied
+         5   , COPY    ,                , //
+         5   , resourceName,            , //Resource name, in general a class, image or any file to be found in the current java class path
+         5   , basepath   ,             , //?File name target or directory name if the option AUTOSUBPATH?NEWNAME is given
+
+         6   , COPY URL  ,              , //
+         6   , resourceName,            , //URL name to be copied
+         6   , toDirName  ,             , //Directory name where the file is to be copied
 
    <examples>
       gastSample
@@ -196,7 +201,7 @@ public class cmdResourceUtil implements commandable
       if (cmd.meantConstantString (subCmd, new String [] { "EXISTS" } ))
       {
          String resName = cmd.getArg(1);
-         that.printTextLsx (javaLoad.getResource (resName) != null ? "1": "0");
+         that.printTextLsx (javaLoad.existsResource (resName) ? "1": "0");
 
          cmd.checkRemainingOptions (true);
          return 1;
@@ -214,7 +219,7 @@ public class cmdResourceUtil implements commandable
 
       // RESUTIL, MINI TOOL, miniToolName, tool sqlite
       //
-      if (cmd.meantConstantString (subCmd, new String [] { "MINITOOL", "MICROTOOL", "MICRO" } ))
+      if (cmd.meantConstantString (subCmd, new String [] { "MINITOOL", "MICROTOOL", "MICRO", "MUTOOL" } ))
       {
          String miniToolName = cmd.getArg(1);
          String evaName = cmd.getArg(2);
@@ -227,6 +232,17 @@ public class cmdResourceUtil implements commandable
          }
          else
             that.printTextLsx (microToolInstaller.getExeToolPath (miniToolName));
+
+         cmd.checkRemainingOptions (true);
+         return 1;
+      }
+
+      if (cmd.meantConstantString (subCmd, new String [] { "SETMICROTOOL", "SETMICROTOOLPATH", "SETTOOLPATH", "SETTOOL", "SETMUTOOL" , "SETMUTOOLPATH" } ))
+      {
+         String miniToolName = cmd.getArg(1);
+         String newpath = cmd.getArg(2);
+
+         microToolInstaller.assignPath4MuTool (miniToolName, newpath);
 
          cmd.checkRemainingOptions (true);
          return 1;

@@ -1,6 +1,6 @@
 /*
 package de.elxala.math.space.curve;
-(c) Copyright 2006 Alejandro Xalabarder Aulet
+(c) Copyright 2006,2011 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -27,7 +27,7 @@ package de.elxala.math.space;
 
 public class vect3f
 {
-   public static final float HALF_PI = (float) Math.PI / 2;
+   public static final float HALF_PI = (float) Math.PI / 2.f;
 
    public static final vect3f i = new vect3f (1, 0, 0);
    public static final vect3f j = new vect3f (0, 1, 0);
@@ -44,6 +44,7 @@ public class vect3f
 
    public vect3f (vect3f cop)
    {
+      if (cop == null) return;
       x = cop.x;
       y = cop.y;
       z = cop.z;
@@ -58,7 +59,7 @@ public class vect3f
 
    public vect3f (boolean spherics, float r, float teta, float phi)
    {
-      if ( ! spherics)
+      if (!spherics)
       {
          x = r;
          y = teta;
@@ -113,34 +114,95 @@ public class vect3f
       z = pz;
    }
 
+   public void set (float px, float py)
+   {
+      x = px;
+      y = py;
+      z = 0.f;
+   }
+
    public float norm ()
    {
       return (float) Math.sqrt (x * x + y * y + z * z);
    }
 
-   public void normalize ()
+   public float norm2 ()
+   {
+      return (float) (x * x + y * y + z * z);
+   }
+
+   public void normalize (float distance)
    {
       float norma = norm ();
 
       if (norma > 0.)
       {
-         x /= norma;
-         y /= norma;
-         z /= norma;
+         if (distance == 0)
+         {
+            x = 0;
+            y = 0;
+            z = 0;
+         }
+         else
+         {
+            norma /= distance;
+            x /= norma;
+            y /= norma;
+            z /= norma;
+         }
       }
    }
 
-   public static float distance (vect3f v1, vect3f v2)
+   public void normalize ()
+   {
+      normalize (1.f);
+   }
+
+   // square of the distance
+   public float distance2 (vect3f v1, vect3f v2)
+   {
+      return minus (v1, v2).norm2 ();
+   }
+
+   public float distance (vect3f v1, vect3f v2)
    {
       return minus (v1, v2).norm ();
    }
 
+   // square of the distance
+   public float distance2 (vect3f ve)
+   {
+      return distance2 (this, ve);
+   }
+
    public float distance (vect3f ve)
    {
-      vect3f aux = new vect3f (x, y, z);
+      return distance (this, ve);
+   }
 
-      aux.minus (ve);
-      return aux.norm ();
+   // faster than using distance
+   public static boolean inRadius (vect3f v1, vect3f v2, float radius)
+   {
+      if (v1 == null || v2 == null) return false;
+
+      // if this is true, we save a calculation
+      if ((v1.x - v2.x > radius) ||
+          (v1.y - v2.y > radius))
+         return false;
+
+      // less than half of the side of a square inside the circle
+      float insquare = 0.707f * radius;
+      if ((v1.x - v2.x < insquare) &&
+          (v1.y - v2.y < insquare))
+         return true;
+
+      return minus (v1, v2).norm () <= radius;
+   }
+
+   // faster than using distance
+   public boolean inRadius (vect3f ve, float radius)
+   {
+      return inRadius (this, ve, radius);
    }
 
    public static float prod_scalar (vect3f v1, vect3f v2)
@@ -168,13 +230,18 @@ public class vect3f
       z = x * v1.y - y * v1.x;
    }
 
+   public float angleDegrees (vect3f v2)
+   {
+      return angle (v2) * 180.f / (float) Math.PI;
+   }
+   
    public float angle (vect3f v2)
    {
       float n1 = norm ();
       float n2 = v2.norm ();
 
        if (n1 == 0. || n2 == 0.)
-            return (float) HALF_PI;
+            return (float) Math.PI / 2.f;
        else
             //return acos((x * v2.x + y * v2.y + z * v2.z) / (n1 * n2));
             return (float) Math.acos(prod_scalar (v2) / (n1 * n2));
@@ -229,6 +296,12 @@ public class vect3f
       return new vect3f (v1.x * escalar, v1.y * escalar, v1.z * escalar);
    }
 
+   // facility
+   public void mult (double escalar)
+   {
+      mult ((float) escalar);
+   }
+   
    public void mult (float escalar)
    {
       x *= escalar;
@@ -255,5 +328,15 @@ public class vect3f
       return ((x == v.x) &&
               (y == v.y) &&
               (z == v.z));
+   }
+
+   public String str ()
+   {
+      return toString ();
+   }
+   
+   public String toString ()
+   {
+      return "(" + x + ", " + y + ", " + z + ")";
    }
 }

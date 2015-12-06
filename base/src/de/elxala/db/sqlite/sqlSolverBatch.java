@@ -28,6 +28,7 @@ import java.util.regex.*;  // Pattern Matcher etc for sqlite error detection
 import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 import de.elxala.langutil.streams.*;
+import de.elxala.Eva.*;
 import de.elxala.mensaka.*;
 import de.elxala.zServices.*;
 
@@ -106,9 +107,13 @@ public class sqlSolverBatch
 //      return mSQLOutput;
 //   }
 
-   public void setInputScriptFile (String inputFile)
+   public void setInputScriptFile (String inputFile, boolean addTransaction)
    {
       theInputTextFile = inputFile;
+      if (addTransaction)
+      {
+         log.err ("sqlSolverBatch", "adding transaction in SQL execution from file not supported (only for android), you can write the file specifying BEGIN; and COMMIT;");
+      }
    }
 
    public void setStdOutputFile (String outputFile)
@@ -176,6 +181,11 @@ public class sqlSolverBatch
          out[ii] = theSQLOutput.getLine (ii+1);
 
       return out;
+   }
+
+   public void getSchema (String dbName, Eva evaResult)
+   {
+      sqlGetSchemaBatch.getSchema (dbName, evaResult);
    }
 
 ////   public String [] getData (String dataBase, String table)
@@ -319,6 +329,10 @@ public class sqlSolverBatch
          return false;
       }
       database = database.trim ();
+      if (database == null || database.length () == 0)
+      {
+         database = sqlUtil.getGlobalDefaultDB ();
+      }
 
       // ... )))
       sqlSignaler.signalStart ();
@@ -349,9 +363,12 @@ public class sqlSolverBatch
          String time_stamp = (new DateFormat ("yyyy.MM.dd HH:mm:ss.S", new java.util.Date())).get ();
          traceFile.writeLine ("*** START sqlite CALL WITH DB [" + database + "] on " + time_stamp);
 
-         theSQLScript.rewind ();
-         while (theSQLScript.getNextLine ())
-            traceFile.writeLine (theSQLScript.getLastReadLine());
+         // new method (as workaround)
+         theSQLScript.writeContentIntoOpenedFile (traceFile);
+         // old method 
+         // theSQLScript.rewind ();
+         // while (theSQLScript.getNextLine ())
+         //    traceFile.writeLine (theSQLScript.getLastReadLine());
       }
 
       Process proc = null;
@@ -476,6 +493,14 @@ public class sqlSolverBatch
                      sqliteErrorDetection ((streamReader2TextList) theSQLOutput);
       if (errDetect >= 0)
          log.dbg (2, "sqLiteCall", "inspected output, " + (errDetect == 0 ? "no ": "") + " errors detected");
+
+      if ((theSQLError.countLines () > 0 || errDetect > 0) &&
+          theInputTextFile == null)
+      {
+         int MAX = 5000;
+         String ss = theSQLScript.toTruncatedString(MAX);
+         log.err ("sqLiteCall", "Query that produced error(s) [" + ss + "]" + (ss.length () >= MAX ? " query truncated!": ""));
+      }
 
       return (theSQLOutput.countLines () > 0 && exitVal != -1);
    }
@@ -669,7 +694,7 @@ public class sqlSolverBatch
       if (!bClientOk)
       {
          //determine the cause!
-         File fi = new File (getClientExePath ());
+         File fi = fileUtil.getNewFile (getClientExePath ());
          if (fi.exists ())
          {
             //(o) TOSEE problems with this message. Why does not work "sqlite -version" sometimes ????
@@ -698,12 +723,12 @@ public class sqlSolverBatch
       possible escape policy, the one from utilEscapeStr.
 
    */
-   public String escapeString (String str)
+   public static String escapeString (String str)
    {
       return utilEscapeStr.escapeStr (str);
    }
 
-   public String unEscapeString (String str)
+   public static String unEscapeString (String str)
    {
       return utilEscapeStr.desEscapeStr (str);
    }

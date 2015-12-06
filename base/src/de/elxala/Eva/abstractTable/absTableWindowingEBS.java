@@ -18,9 +18,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.Eva.abstractTable;
 
-import javax.swing.ListModel;
-import javax.swing.event.*;
-
 import de.elxala.langutil.*;
 import de.elxala.Eva.*;
 
@@ -96,7 +93,7 @@ public abstract class absTableWindowingEBS extends tableEvaDataEBS implements ta
       This method is used when the function loadDataOnDemand returns true.
       The implementation of this method should load a "window" of the
       table, usually from the index offsetRowStart to the index offsetRowStart + MAX_CACHE.
-      For doing that the methods initSetDataRel and setDataRel might be used.
+      For doing that the method setRelativeRecord might be used.
    */
    public abstract void loadRowsFromOffset (int offsetRowStart);
 

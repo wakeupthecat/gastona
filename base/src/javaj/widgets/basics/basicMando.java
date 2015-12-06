@@ -63,15 +63,15 @@ public class basicMando extends widgetConsts
       return pEBS;
    }
 
-   public void suscribeJavajFramesMounted ()
+   public void subscribeJavajFramesMounted ()
    {
-      Mensaka.suscribe ((MensakaTarget) myOwner, RX_JAVAJ_FRAMES_MOUNTED, javajEBS.msgFRAMES_MOUNTED);
+      Mensaka.subscribe ((MensakaTarget) myOwner, RX_JAVAJ_FRAMES_MOUNTED, javajEBS.msgFRAMES_MOUNTED);
    }
 
-   public void suscribeAction (int mapAction)
+   public void subscribeAction (int mapAction)
    {
       // the message action is just the name of the widget
-      Mensaka.suscribe ((MensakaTarget) myOwner, mapAction, ebs().evaName (""));
+      Mensaka.subscribe ((MensakaTarget) myOwner, mapAction, ebs().evaName (""));
    }
 
    //

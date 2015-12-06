@@ -51,7 +51,7 @@ public class dbMore
    {
       // o-o  Add Connections
 
-      // o-o  Note : we could choose between two unique keys for the table __dbMore_connections
+      // o-o  Note : we could choose between two unique keys for the table __dbMore_connections (DEEPSQL_CONNECTION_TABLE_NAME)
       //           1) fisrt one is (connName, sourceTable, sourceKey)
       //                This is semantically the unique key for a connection
       //                Note that
@@ -76,12 +76,12 @@ public class dbMore
       //                SELECT connName, sourceTable, sourceKey, targetTable, count(*) as beOne FROM __dbMore_connections)
       //                while in option 1 this inconsistence will be simply ignored (due to INSERT OR IGNORE).
       //                Therefore in case 1 it can be harder to find a problem due to a bad formed
-      //                connection, for instnace, the user can see that his connection is not there but
+      //                connection, for instance, the user can see that his connection is not there but
       //                he cannot know why.
       //
       //            3) other posibility is to react to the conflict with an INSERT INTO __dbMore_incidences (...) or like
       //
-      return "CREATE TABLE IF NOT EXISTS __dbMore_connections (connName, sourceTable, sourceKey, targetTable, targetKey, UNIQUE (connName, sourceTable, sourceKey, targetTable, targetKey));";
+      return "CREATE TABLE IF NOT EXISTS " + deepSqlUtil.CONNECTION_TABLE_NAME + " (connName text, sourceTable text, sourceKey text, targetTable text, targetKey text, UNIQUE (connName, sourceTable, sourceKey, targetTable, targetKey));";
     }
 
    // Example of use :
@@ -90,7 +90,7 @@ public class dbMore
    //
    public static String getSQL_InsertConnection (String valuesString)
    {
-      return "INSERT OR IGNORE INTO __dbMore_connections VALUES (" + valuesString + ");";
+      return "INSERT OR IGNORE INTO " + deepSqlUtil.CONNECTION_TABLE_NAME + " VALUES (" + valuesString + ");";
    }
 
    // Example of use :
@@ -99,7 +99,7 @@ public class dbMore
    //
    public static String getSQL_InsertConnection (String connName, String srcTable, String srcKey, String trgTable, String trgKey)
    {
-      return "INSERT OR IGNORE INTO __dbMore_connections VALUES ('" + connName + "', '" + srcTable + "', '" + srcKey + "', '" + trgTable + "', '" + trgKey + "');";
+      return "INSERT OR IGNORE INTO " + deepSqlUtil.CONNECTION_TABLE_NAME + " VALUES ('" + connName + "', '" + srcTable + "', '" + srcKey + "', '" + trgTable + "', '" + trgKey + "');";
    }
 
    // Example of use :
@@ -109,7 +109,7 @@ public class dbMore
    public static String getSQL_InsertConnection (String [] conn)
    {
       if (conn.length == 5)
-         return "INSERT OR IGNORE INTO __dbMore_connections VALUES ('" + conn[0] + "', '" + conn[1] + "', '" + conn[2] + "', '" + conn[3] + "', '" + conn[4] + "');";
+         return "INSERT OR IGNORE INTO " + deepSqlUtil.CONNECTION_TABLE_NAME + " VALUES ('" + conn[0] + "', '" + conn[1] + "', '" + conn[2] + "', '" + conn[3] + "', '" + conn[4] + "');";
       return "";
    }
 }   

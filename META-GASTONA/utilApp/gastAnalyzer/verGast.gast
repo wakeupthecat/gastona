@@ -1,0 +1,115 @@
+#javaj#
+
+   <frames>
+      Fma, gastona analizator
+
+   <layout of Fma>
+      EVA, 10, 10, 5, 5
+
+         ,           , X
+         , lGast file, eGastFile, bGastFile
+       X , tabas, -, -
+
+   <layout of tabas>
+      TABBED,
+
+      Javaj  , layJavaj
+      Listix , layListix
+
+   <layout of layJavaj>
+      EVA, 10, 10, 5, 5
+
+         ,           , X
+         , lLayouts  , xJavaj
+       X , iLayouts  , +
+         , lRest     , +
+       X , iJavajRest, +
+
+
+   <layout of layListix>
+      EVA, 10, 10, 5, 5
+
+         ,           , X
+         , lDot exe  , eDotExe
+         , lFormats  , xListix
+       X , iFormats  , +
+         , lsxFormatFilter , +
+
+   <layout of lsxFormatFilter>
+      PANEL, Y
+
+      kSingle Variable, kPure Text, kPure Command, kMixed
+
+
+#data#
+
+   <eDotExe> dot.exe
+
+   <bGastFile DIALOG> FILE
+   <bGastFile>  "..."
+
+
+   <iFormats visibleColumns> formatName
+
+   <kSingle Variable selected>  1
+   <kPure Text selected>        1
+   <kPure Command selected>     1
+   <kMixed selected>            1
+
+#listix#
+
+   <LOCAL files>
+      PROP=, gastona.defaultDB, myeva.db
+      VAR=, dotFile, apio.dot
+      VAR=, pngFile, apio.dot.png
+
+   <TMP files>
+      PROP=, gastona.defaultDB, @<:lsx tmp db>
+      VAR=, dotFile, @<:lsx tmp dot>
+      VAR=, pngFile, @<:lsx tmp png>
+
+
+   <main0>
+      @<TMP files>
+
+   <void>
+
+   <-- bGastFile>
+      -->, eGastFile,, @<bGastFile chosen>
+      @<-- eGastFile>
+
+   <-- eGastFile>
+      GEN, @<:sys gastona.defaultDB>, void
+      PARSER EVA, FILE2DB, @<eGastFile>
+      @<analisis>
+
+   <-- kSingle Variable> @<review lsxFormats>
+   <-- kPure Text>       @<review lsxFormats>
+   <-- kPure Command>    @<review lsxFormats>
+   <-- kMixed>           @<review lsxFormats>
+
+
+   <analisis>
+      GEN, , gastDBSchema create schema ,, gastDBSchema.lsx
+      @<review javajLists>
+      @<review lsxFormats>
+      @<see logic png>
+
+   <review javajLists>
+      -->, iLayouts  , sqlSelect, //SELECT * FROM layouts
+      -->, iJavajRest, sqlSelect, //SELECT * FROM javajRest
+
+   <review lsxFormats>
+      -->, iFormats  , sqlSelect, //SELECT * FROM listixFormatsExt @<lsx Format filter>
+
+   <lsx Format filter>
+      // WHERE 0
+      IF, 1, ==, @<kSingle Variable selected>, // OR isSingle
+      IF, 1, ==, @<kPure Text selected>      , // OR isText
+      IF, 1, ==, @<kPure Command selected>   , // OR isOnlyCmd
+      IF, 1, ==, @<kMixed selected>          , // OR isMixed
+
+   <see logic png>
+      GEN, @<dotFile>, dotGraph lsxLogic, , lsxLogic2dot.lsx
+      CALL, //CMD /C @<eDotExe> -Tpng "@<dotFile>" -o "@<pngFile>"
+      LAUNCH, //CMD /C start "" "@<pngFile>"

@@ -161,6 +161,71 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //     CALL, //ls -la
       //
 
+   <Windows NET help>
+      //#javaj#
+      //
+      //   <frames> fNETHelp, NET commands help, 700, 500
+      //
+      //   <layout of fNETHelp>
+      //      EVA, 10, 10, 5, 5
+      //
+      //         ,          ,  X
+      //       X , tCommands, xHelp
+      //
+      //   <sysDefaultFonts>  Consolas, 12, 0, TextArea
+      //
+      //#data#
+      //
+      //
+      //   <tCommands>
+      //      name
+      //
+      //      NAMES
+      //      SERVICES
+      //      SYNTAX
+      //      ""
+      //      ACCOUNTS
+      //      COMPUTER
+      //      CONFIG
+      //      CONFIG SERVER
+      //      CONFIG WORKSTATION
+      //      CONTINUE
+      //      FILE
+      //      GROUP
+      //      HELP
+      //      HELPMSG
+      //      LOCALGROUP
+      //      NAME
+      //      PAUSE
+      //      PRINT
+      //      SEND
+      //      SESSION
+      //      SHARE
+      //      START
+      //      STATISTICS
+      //      STOP
+      //      TIME
+      //      USE
+      //      USER
+      //      VIEW
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      LSX, exit if linux
+      //      VAR=, tmp  , @<:lsx tmp text>
+      //      VAR=, xHelp fileName, @<tmp>
+      //
+      //   <exit if linux>
+      //      CHECK, LINUX
+      //
+      //      BOX, I, This is a Windows specific sample
+      //      MSG, javaj doExit
+      //
+      //   <-- tCommands>
+      //      CALL, //CMD /C net help @<tCommands selected.name> > "@<tmp>"
+      //      MSG, xHelp load
+      
 #**FIN_EVA#
 
 */
@@ -206,8 +271,9 @@ public class cmdCall implements commandable
 
       int verbose = stdlib.atoi (cmd.takeOptionString("VERBOSE", "0"));
       boolean onBatch = "1".equals (cmd.takeOptionString(new String [] { "ONBATCH", "BATCH"} , "0"));
+      String preShell = cmd.takeOptionString(new String [] { "PRESHELL", "SHELL"} , null);
 
-      cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "CALL", "CALL [" + arrComanda[0] + "]" + (onBatch ? " (on Batch)":""));
+      cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "CALL", "CALL [" + arrComanda[0] + "]" + (onBatch ? " (on Batch)":"") + (preShell != null ? " (preShell [" + preShell + "]":""));
 
       if (onBatch)
       {
@@ -234,12 +300,12 @@ public class cmdCall implements commandable
          //    will run properly
          //
          cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "CALL", "One parameter in call, using exec(String)");
-         javaRun.execute (arrComanda[0]);
+         javaRun.executePreShell (preShell, arrComanda[0], true);
       }
       else
       {
          cmd.getLog().dbg ((verbose >= 1) ? 0: 2, "CALL", "using exec(String[])");
-         javaRun.execute (arrComanda);
+         javaRun.executePreShell (preShell, arrComanda, true);
       }
 
       long incMilis = System.currentTimeMillis () - initMilis;

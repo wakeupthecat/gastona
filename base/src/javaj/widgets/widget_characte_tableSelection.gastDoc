@@ -19,18 +19,21 @@
       //    Attributes: selected.COLUMNNAME, subTableSelection
       //    Messages  : "", "2"  (empty message for selection and 2 for double click)
       //
-      //    These attributes are filled by the widget when the user select either a sigle row or
-      //    multiple rows.
+      //    The widgets that have this attribute have its data based on a table where the records
+      //    can be selected. Once the user select one record, can also be multi selection, a message
+      //    whith the name of the widget is sent, at this time the attributes are filled by the widget.
       //
-      //    'selected.COLUMNNAME' in reallity refers to more attributes, as many attributes as columns
-      //    of the table. All them are set for a single row and in case of multi selection this will
-      //    be the first one selected.
+      //    The attribute 'subTableSelection' contains an Eva table with all columns of all selected 
+      //    records, it is therefore a subtable with the whole selection. It can be accessed, for instance, 
+      //    using a loop.
       //
-      //    'subTableSelection' is a single attribute containing an Eva table with the rows selected
-      //    where each row has as many columns as the table has.
-      //
-      //    The columns treated are all from the table, even those not visible (not in visibleColumns).
-      //    Both attributes work in the same way for Eva tables as for database tables.
+      //    A single selection, or the first selection in case of multi selection, produces a set of
+      //    attributes 'selected.COLUMNNAME', as many as columns has the table. These attributes contains
+      //    actually the same information as the first record of the attribute 'subTableSelection', simply
+      //    they are splited in separate variables for convenience.
+      //    
+      //    These attributes works the same for Eva or database tables and cover all columns of them
+      //    regardless of they are visible or not.
       //
       //    Example:
       //
@@ -64,13 +67,36 @@
       //               // your first selected destination is @<tMyTable selected.city>
       //               // All selected destinations:
       //               LOOP, EVA, tMyTable subTableSelection
-      //               @<city> (@<name>)
+      //                   ,, //@<city> (@<name>)
       //
       //   Note that multi selection through the attribute 'subTableSelection' has the drawback of
       //   memory consuming. This can be inacceptable for big selections, for example in a database
       //   table the user could make a selection of millions of rows just with two clicks. For this
       //   reason 'subTableSelection' is limited to 1000 rows.
       //
+      //
+      //   ==== Programatically selection: message "select!"
+      //
+      //   Usually the selection is performed by the user with the mouse but it can also be done
+      //   using the message "select!". This message has, at least, two parametres
+      //
+      //       widgetName select!, columnName, value, value, ...
+      //
+      //   where column name is either the column through which we are going to select records by giving
+      //   values, or # for selecting by index (0 based), or #1 for 1 based
+      //
+      //   For example, the message
+      //
+      //       MSG, tMyTable select!, #1, 2, 4
+      //
+      //    will select the records 2 and 4 (index 1 based), and
+      //
+      //       MSG, tMyTable select!, city, Barcelona, Stuttgart
+      //
+      //    will select the first records with city content "Barcelona" and "Stuttgart"
+      //
+      //    Note that this selection will only works with the records in memory, therefore it should only
+      //    be used for small tables.
 
 
    <examples>
@@ -78,6 +104,7 @@
 
       selecting rows sample
       selecting rows sample2
+      widgetsTableModel
 
    <selecting rows sample>
       //#javaj#
@@ -109,7 +136,7 @@
       //       // All selected destinations:
       //       //
       //       LOOP, EVA, tDestination subTableSelection
-      //       //   @<city> (@<name>)
+      //           ,, //   @<city> (@<name>)
       //
 
 
@@ -144,6 +171,62 @@
       //   <-- tDestination>
       //      MSG, iChosenList data!
 
+      
+   <widgetsTableModel>
+      //#javaj#
+      //
+      //   <frames> main, Widgets wit table data model
+      //   
+      //   <layout of main>
+      //      EVA, 10, 10, 2 , 2
+      //      
+      //         ,  A, X
+      //         , lA table
+      //       X , tTabla, -
+      //         , lA combo box, cCaja
+      //         , lA list
+      //         , iLista, -
+      //         , lA radio group, rgRadio
+      //         , lA checkbox group, kgCheck
+      //       X , oConso, -
+      //      
+      //#data#
+      //
+      //   <rgRadio var> thetable
+      //   <rgRadio orientation> X
+      //
+      //   <kgCheck var> thetable
+      //   <kgCheck orientation> X
+      //
+      //   <tTabla var> theTable
+      //
+      //   <cCaja var> theTable
+      //   <cCaja visibleColumns> name
+      //
+      //   <iLista var> theTable
+      //   <iLista visibleColumns> desc
+      //
+      //   <thetable>
+      //      label, id, name, desc
+      //
+      //      BCN, 1002, Barcelona, //Y que le voy a hacer si yo nací en Barcelona
+      //      HAM, 6671, Hamburg  , //Speicherstadt
+      //      SEL, 1717, Seoul    , //Gangam
+      //
+      //#listix#
+      //
+      //   <-- rgRadio>   LSX, show
+      //   <-- kgCheck>   LSX, show
+      //   <-- tTabla>   LSX, show
+      //   <-- cCaja>   LSX, show
+      //   <-- iLista>   LSX, show
+      //
+      //   <show>
+      //      MSG, oConso clear
+      //      DUMP, data
+      //      
+      
+      
 #**FIN_EVA#
 
 */

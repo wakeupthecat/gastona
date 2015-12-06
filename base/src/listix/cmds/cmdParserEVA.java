@@ -30,7 +30,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       PARSER EVA
-   <groupInfo>  system_process
+   <groupInfo>  data_parsers
    <javaClass>  listix.cmds.cmdParserEva
    <importance> 4
    <desc>       //Parses an EVA file and stores the data into a database
@@ -116,7 +116,7 @@ public class cmdParserEVA implements commandable
          //NOTE! the message should be the same as in parsons, this signal should be generl
          //      for parsing activity
 
-         // this messages are not mandatory to be suscribed, the are provided just as internal information of parser command
+         // this messages are not mandatory to be subscribed, the are provided just as internal information of parser command
          Mensaka.declare (null, LIGHT_MSG_START    , "ledMsg parsing_start"      , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, LIGHT_MSG_PROGRESS , "ledMsg parsing_progresss"  , logServer.LOG_DEBUG_0);
          Mensaka.declare (null, LIGHT_MSG_END      , "ledMsg parsing_end"        , logServer.LOG_DEBUG_0);
@@ -151,10 +151,16 @@ public class cmdParserEVA implements commandable
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
       String oper = cmd.getArg(0);
+      
+      boolean todb   = cmd.meantConstantString (oper, new String [] { "FILE2DB" } );
+      boolean tojson = cmd.meantConstantString (oper, new String [] { "FILE2JSON" } );
+      boolean dbtofile = cmd.meantConstantString (oper, new String [] { "DB2FILE" } );
 
-      if (oper.equals ("FILE2DB"))
-         storeEvaInDB (cmd);
-      else if (oper.equals ("DB2FILE"))
+      if (todb)
+          fileEva2DBorJSON (cmd, true);
+      else if (tojson)
+          fileEva2DBorJSON (cmd, false);
+      else if (dbtofile)
          extractEvaFromDB (cmd);
       else
       {
@@ -162,32 +168,42 @@ public class cmdParserEVA implements commandable
       }
 
       cmd.checkRemainingOptions (true);
-
       return 1;
    }
+   
+   private String commaif(int counter)
+   {
+      return (counter > 0) ? ",": "";
+   }
+   
+   // NOTE:   text  [hello "how" aren't you ?]
+   //
+   //       text.replaceAll("('|\")", "\\\\$1")
+   //
+   //         result [hello \"how\" aren\'t you ?]
 
-
-   public void storeEvaInDB (listixCmdStruct cmd)
+   public void fileEva2DBorJSON (listixCmdStruct cmd, boolean toDB)
    {
       String oper        = cmd.getArg(0);
       String fileSource  = cmd.getArg(1);
       String dbName      = cmd.getArg(2);
       String tablePrefix = cmd.getArg(3);
       String fileNameInDB  = cmd.getArg(4);
-      if (tablePrefix.length () == 0)
-         tablePrefix = "eva";
+      
+      boolean toJSON = ! toDB;
 
-      if (fileNameInDB.length () == 0)
-         fileNameInDB = fileSource;
+      if (toDB)
+      {
+         if (tablePrefix.length () == 0)  tablePrefix = "eva";
+         if (fileNameInDB.length () == 0) fileNameInDB = fileSource;
+         if (dbName.length () == 0)       dbName = cmd.getListix ().getDefaultDBName ();
+      }
 
       if (fileSource.length () == 0)
       {
          cmd.getLog().err ("PARSER EVA", "No file to scan given!");
          return;
       }
-
-      if (dbName.length () == 0)
-         dbName = cmd.getListix ().getDefaultDBName ();
 
       if (cmd.getLog().isDebugging (2))
          cmd.getLog().dbg (2, "PARSER EVA", "execute with : oper [" + oper + "] fileSource [" + fileSource + "] dbName [" +  dbName + "] prefix [" + tablePrefix + "]");
@@ -201,44 +217,54 @@ public class cmdParserEVA implements commandable
          cmd.checkRemainingOptions (true);
          return;
       }
-
-      // Start scripts
-      //
+      
+      StringBuffer jsoStrBuf = new StringBuffer ();
       String taFiles = tablePrefix + "_files";
       String taData  = tablePrefix + "_evaData";
+      sqlSolver myDB = null;
 
-      //(o) listix_sql_schemas PARSONS FILE2DB schema creation
+      if (toDB)
+      {
+         // Start scripts
+         //
 
-      // open DB
-      sqlSolver myDB = new sqlSolver ();
+         //(o) listix_sql_schemas PARSONS FILE2DB schema creation
 
-      // ensure tables
-      myDB.openScript ();
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taFiles + " (fileID, timeParse, fullPath, UNIQUE(fileID));");
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taData  + " (fileID, unitName, evaName, row, col, value);");
-      myDB.writeScript ("CREATE INDEX IF NOT EXISTS " + taData  + "_indx ON " + taData + " (fileID, unitName, evaName);");
+         // open DB
+         myDB = new sqlSolver ();
 
-      // o-o  Add dbMore connections info
-      myDB.writeScript (dbMore.getSQL_CreateTableConnections ());
-      myDB.writeScript (dbMore.getSQL_InsertConnection("file", taData, "fileID", taFiles, "fileID"));
+         // ensure tables
+         myDB.openScript ();
+         myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taFiles + " (fileID int, timeParse text, fullPath text, UNIQUE(fileID));");
+         myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + taData  + " (fileID int, unitName text, evaName text, row int, col int, value text);");
+         myDB.writeScript ("CREATE INDEX IF NOT EXISTS " + taData  + "_indx ON " + taData + " (fileID, unitName, evaName);");
 
-      myDB.closeScript ();
-      myDB.runSQL (dbName);
+         // o-o  Add dbMore connections info
+         myDB.writeScript (deepSqlUtil.getSQL_CreateTableConnections ());
+         myDB.writeScript (deepSqlUtil.getSQL_InsertConnection("file", taData, "fileID", taFiles, "fileID"));
 
-      long fileID = sqlUtil.getNextID(dbName, taFiles, "fileID", 1000);
-      myDB.openScript ();
-      myDB.writeScript ("INSERT INTO " + taFiles + " VALUES (" + fileID + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileNameInDB + "');");
+         myDB.closeScript ();
+         myDB.runSQL (dbName);
 
+         long fileID = sqlUtil.getNextID(dbName, taFiles, "fileID", 1000);
+         myDB.openScript ();
+         myDB.writeScript ("INSERT INTO " + taFiles + " VALUES (" + fileID + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileNameInDB + "');");
+      }
 
+      if (toJSON) jsoStrBuf.append ("{ ");
       for (int ii = 0; ii < catalog.length; ii ++)
       {
+         if (toJSON) jsoStrBuf.append (commaif(ii) + " \"" + catalog[ii] + "\" : { ");
+
          EvaUnit eu = EvaFile.loadEvaUnit (fileSource, catalog[ii]);
          for (int vv = 0; vv < eu.size() ; vv ++)
          {
             Eva eva = eu.getEva (vv);
-            if (eva == null)
+            if (toJSON) jsoStrBuf.append (commaif(vv) + " \"" + eva.getName () + "\" : [ ");
+
+            if (eva == null) 
             {
-               cmd.getLog().err ("PARSER EVA", "eva " + vv + " in " + catalog[ii] + " is null!");
+               if (toJSON) jsoStrBuf.append (" [] ]");
                continue;
             }
 
@@ -246,24 +272,45 @@ public class cmdParserEVA implements commandable
 
             for (int rr = 0; rr < eva.rows(); rr ++)
             {
-               if (sendMessages)
-                  Mensaka.sendPacket ((rr % 2) == 0 ? LIGHT_MSG_END:LIGHT_MSG_START, null); // ... )))
+               if (sendMessages) Mensaka.sendPacket ((rr % 2) == 0 ? LIGHT_MSG_END:LIGHT_MSG_START, null); // ... )))
+
+               if (toJSON) jsoStrBuf.append (commaif(rr) + " [");
                for (int cc = 0; cc < eva.cols(rr) ; cc ++)
-                  myDB.writeScript ("INSERT INTO " + taData + " VALUES ("
-                  + fileID + ", "
-                  + "'" + myDB.escapeString(catalog[ii]) + "', "
-                  + "'" + myDB.escapeString(eva.getName ()) + "', "
-                  + rr + ", "
-                  + cc + ", "
-                  + "'" + myDB.escapeString(eva.getValue (rr, cc)) + "'"
-                  + ");");
+               {
+                  if (toDB)
+                  {
+                     myDB.writeScript ("INSERT INTO " + taData + " VALUES ("
+                     + fileID + ", "
+                     + "'" + myDB.escapeString(catalog[ii]) + "', "
+                     + "'" + myDB.escapeString(eva.getName ()) + "', "
+                     + rr + ", "
+                     + cc + ", "
+                     + "'" + myDB.escapeString(eva.getValue (rr, cc)) + "'"
+                     + ");");
+                  }
+                  else if (toJSON) jsoStrBuf.append (commaif(cc)  + "\"" + eva.getValue (rr, cc).replaceAll("('|\")", "\\\\$1") + "\"");
+               }
+               if (toJSON) jsoStrBuf.append (" ]");
             }
+            if (toJSON) jsoStrBuf.append (" ]");
          }
+         if (toJSON) jsoStrBuf.append (" }");
+      }
+      if (toJSON) jsoStrBuf.append (" }");
+
+      if (toDB)
+      {
+         myDB.closeScript ();
+         myDB.runSQL (dbName);
       }
 
-      myDB.closeScript ();
-      myDB.runSQL (dbName);
-
+      if (toJSON)
+      {
+         // if (OptSolveVar)
+         //     that.printTextLsx (arrFormat[ii]);
+         //else that.writeStringOnTarget (arrFormat[ii]);
+         cmd.getListix ().writeStringOnTarget (jsoStrBuf.toString ());
+      }
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_END, null); // ... )))
 
       return;

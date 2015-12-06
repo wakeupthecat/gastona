@@ -109,7 +109,7 @@ public class tableCursor
    public tableAccessBase dAcc = null; // table associated
    public pivot thePivot = null;       // pivot for this tableCursor
 
-   public int lastIncPosition = 0;
+   public int lastIncrementedPosition = 0;
    public boolean ownData = false;
    public String linkString = TextFile.RETURN_STR;
 
@@ -118,7 +118,7 @@ public class tableCursor
       log.dbg (4, "tableCursor", "constructed");
 
       dAcc = access;
-      lastIncPosition = dAcc.currentRawRow ();
+      lastIncrementedPosition = dAcc.currentRawRow ();
       dAcc.prevRow = dAcc.currentRawRow ();   //(o)!!!
 
       ownData = (false == dAcc.isRunning ());
@@ -300,7 +300,7 @@ public class tableCursor
       {
          log.dbg (6, "tableCursor", "incremented due to filter");
          dAcc.incrementRow ();
-         lastIncPosition = dAcc.currRow;
+         lastIncrementedPosition = dAcc.currRow;
       }
 
       // call checkSameColumn to initialize the reference values
@@ -353,8 +353,9 @@ public class tableCursor
          return false;
       }
 
+      log.dbg (4, "tableCursor", "prev0 " + dAcc.prevRow + ", curr0 " + dAcc.currRow + " lastIncPosition " + lastIncrementedPosition);
       dAcc.prevRow = dAcc.currRow;
-      if (lastIncPosition >= dAcc.currRow)
+      if (lastIncrementedPosition >= dAcc.currRow)
       {
          dAcc.incrementRow ();
          while (! checkFilter () && !dAcc.EOT ())
@@ -362,7 +363,13 @@ public class tableCursor
             log.dbg (6, "tableCursor", "incremented due to filter");
             dAcc.incrementRow ();
          }
-         lastIncPosition = dAcc.currRow;
+         lastIncrementedPosition = dAcc.currRow;
+         log.dbg (4, "tableCursor", "lastIncPosition set to " + lastIncrementedPosition);
+      }
+      else
+      {
+         log.dbg (4, "increment_RUNTABLE", "not incremented because lastIncPosition =  " + lastIncrementedPosition + " and  dAcc.currRow " + dAcc.currRow);
+         lastIncrementedPosition = dAcc.currRow;
       }
       log.dbg (4, "tableCursor", "prev1 " + dAcc.prevRow + ", new1 " + dAcc.currRow + " EOT " + dAcc.EOT ());
 
@@ -383,6 +390,7 @@ public class tableCursor
             {
                log.dbg (4, "tableCursor", "sameColumn, skip " + dAcc.currRow + " EOT " + dAcc.EOT ());
                dAcc.incrementRow ();
+               lastIncrementedPosition = dAcc.currRow;
             }
             break;
 
@@ -398,32 +406,3 @@ public class tableCursor
       return ! dAcc.EOT ();
    }
 }
-
-
-/*
-
-
-   03.05.2009 20:16
-
-//   De como poder poner opciones en la línea de argumentos de manera general
-//   para opciones de uno o más parametros
-
-   // lo correcto:
-   RUN TABLE, loxos
-            , LINK, "  , "
-            , SAME, kardoohor
-            , if, mekardo, ==, 7
-
-   // lo que se busca:
-   RUN TABLE, loxos, LINK, "  , ", SAME, kardoohor, IF, mekardo, ==, 7
-
-   // --OPT el -- indica que se trata de una opción puesta en los parámetros
-   //    + fácil escribir y muy leible
-   //    - cuando algun argumento pueda empezar por "--" =>  PUES NO  SE PONE EN LA LINEA DE ARGUMENTOS Y YA ESTÀ!!!
-   RUN TABLE, loxos, --LINK, "  , ", --SAME, kardoohor, --IF, mekardo, ==, 7
-
-   // Separar con un argumento ""
-   //     ? fácil escribir y muy leible
-   //    -- limita mucho los argumentos de las opciones
-   RUN TABLE, loxos,, LINK, "  , ",, SAME, kardoohor,, IF, mekardo, ==, 7
-*/

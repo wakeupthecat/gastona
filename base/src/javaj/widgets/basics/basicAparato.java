@@ -66,10 +66,10 @@ public class basicAparato extends widgetConsts implements MensakaTarget
 
       // Important : the mesage ONCE_CONTEXT is not forwarded to the widget owner
       //             and it is handled here in the base class transparently
-      Mensaka.suscribe (this, RX_ONCE_CONTEXT, javajEBS.msgCONTEXT_BASE);
+      Mensaka.subscribe (this, RX_ONCE_CONTEXT, javajEBS.msgCONTEXT_BASE);
 
-      Mensaka.suscribe (objWidget, RX_UPDATE_CONTROL, ebs().evaName (ebs().sMSG_UPDATE_CONTROL));
-      Mensaka.suscribe (objWidget, RX_UPDATE_DATA,    ebs().evaName (ebs().sMSG_UPDATE_DATA));
+      Mensaka.subscribe (objWidget, RX_UPDATE_CONTROL, ebs().evaName (ebs().sMSG_UPDATE_CONTROL));
+      Mensaka.subscribe (objWidget, RX_UPDATE_DATA,    ebs().evaName (ebs().sMSG_UPDATE_DATA));
    }
 
    public widgetEBS ebs ()
@@ -132,21 +132,19 @@ public class basicAparato extends widgetConsts implements MensakaTarget
       return label;
    }
 
-   public boolean takePacket (int mappedID, EvaUnit euData)
+   public boolean takePacket (int mappedID, EvaUnit euData, String [] pars)
    {
       switch (mappedID)
       {
          case widgetConsts.RX_ONCE_CONTEXT:
-            //System.out.println (((java.awt.Component) myOwner).getName () + " EN ORDEN REZIBO ONCE CONTEXT!");
             if (isBaseContexCall ())
             {
-               //System.out.println (((java.awt.Component) myOwner).getName () + " EN ORDEN GETO ONCE CONTEXT!");
                // react only once to this message, this is the time
                // the message has been sent by our javaj instance (the javaj instance that
                // has this xxxAparato instanciate)
                //
-               myOwner.takePacket (widgetConsts.RX_UPDATE_DATA,    euData);
-               myOwner.takePacket (widgetConsts.RX_UPDATE_CONTROL, euData);
+               myOwner.takePacket (widgetConsts.RX_UPDATE_DATA,    euData, pars);
+               myOwner.takePacket (widgetConsts.RX_UPDATE_CONTROL, euData, pars);
 
                // up to now isBaseContexCall will be false!
                baseJavajContext = euData;

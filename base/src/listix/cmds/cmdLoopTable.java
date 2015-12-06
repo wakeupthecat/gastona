@@ -38,12 +38,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Loops are performed using the commands LOOP TABLE and RUN LOOP. All lopps do basically the
-      // same: execute a format (body) for each row of a table. The table can be a real table (e.g.
-      // command syntaxes EVA and SQL) or a virtual one (syntaxes FILES, FOR and COLUMNS).
+      // Loops are performed using the commands LOOP TABLE and RUN LOOP. All loops do basically the
+      // same: execute a format (body) for each row of a table. Each syntax of LOOP TABLE determines
+      // in a different way how the table to be looped is obtained, from a varible, a SQL etc.
+      // The table itself does not have to be a real table, for example "LOOP, FOR, ii, 1, 10" would
+      // loop a virtual table of one column named "ii" containing the values 1, 2, 3, .. 10 in its rows.
       //
-      // During the loop the format being executed can acces the values of the columns, specifically
-      // following variables can be called
+      // During the loop the format being executed (body) can access the values of the columns by its name
+      // and also row information, specifically during the loop following variables can be accessed
       //
       //    @<:lsx ROWS> : number of rows in the loop
       //    @<:lsx ROW>  : number of current row
@@ -63,33 +65,28 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //              , BODY, //first line of body
       //              , BODY, //second line etc
       //
-      // Since BODY is the default option for this command, we just can omit the word BODY
+      // Since BODY is the default option of LOOP, it is possible to omit it
       //
       //          LOOP, arguments...
       //              ,, //first line of body
       //              ,, //second line etc
       //
-      // Using the option BODY (or default) is the recomended way of specifying the body to execute.
-      // If the body is complex or big, it is always possible to place it in a separate format and
-      // just use a line to call it, for example
+      // As said before the body might contain any text combination of text and commands, actually the body
+      // acts as a virtual listix format. But of course it is still possible to separate it physically.
+      // For example
       //
       //          LOOP, arguments...
       //              ,, @<my body>
       //
-      // There is still another way of specifying the body of a loop. If no BODY option is used
-      // the text found after the last option until the end of the format or until another command
-      // will be used as body of the loop. For example
-      //
+      // or
       //          LOOP, arguments...
-      //              , option
-      //              , ...
-      //          // --------------------
-      //          // | body of the loop |
-      //          // --------------------
-      //          =,,
+      //              ,, LISTIX, my body
       //
-      // Though this form is old and has no advantages but drawbacks, for instance it is not possible
-      // to include directly a command on it. Therefore, it will be probably deprecated.
+      // HEAD, TAIL and "IF EMPTY"
+      // -----------------------------
+      //
+      // As the option BODY, HEAD, TAIL and IF EMPTY are also virtual listix formats that might be given
+      //
       //
       // Looping the loop
       // -----------------------
@@ -100,7 +97,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //           ,, //Index @<indx>
       //           ,, LOOP, FOR, subIndx, 1, 5
       //           ,,     ,, //   Sub-Index @<subIndx>
-      //
       //
       // One special inner loop is done by the syntax COLUMNS. "LOOP, COLUMNS" is by definition a nested loop,
       // since it always acts on the current row of the "outer" loop (previous loop before LOOP COLUMNS).
@@ -137,16 +133,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <aliases>
       alias
       "LOOP",
-      "START TABLE",
-      "SET TABLE",
-      "TABLE",
-      "TABLA",
+      "MR LOOP",
+      "SIR LOOP",
+      "BUCLE"
 
    <syntaxHeader>
       synIndx, importance, desc
-      1      ,    8      ,  //Sets the table defined in the Eva variable 'evaName'
-      2      ,    8      ,  //Sets the table defined in the SQL query 'SelectQuery' from the sqlite database 'sqliteDBName'
-      3      ,    3      ,  //Set a table of the files found in 'path' that have of the given extensions
+      1      ,    8      ,  //Loops the table contained in the Eva variable 'evaName'
+      2      ,    8      ,  //Loops the table result of the SQL query 'SelectQuery' from the sqlite database 'sqliteDBName'
+      3      ,    3      ,  //Set a table with columns : parentPath, fileName, extension, date, size, fullPath, fullParentPath and fullSubPath of the files found in 'path' that have of the given extensions
       4      ,    3      ,  //Make a typical for
       5      ,    4      ,  //Sets a virtual table with the fields 'columnName' and 'columnValue' of the current iteration of the current loop.
 
@@ -163,8 +158,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       3      , FILES        ,             , //
       3      , path         ,             , //Path to be scaned recursively for file names
-      3      , extension    ,             , //File name extension to be included
-      3      , ...          ,             , //Further extensions are possible
+      3      , extension    ,             , //File name extension to be included, also comma separated extensions are possible
+      3      , ...          ,             , //Further extensions
 
       4      , FOR          ,             , //
       4      , indexName    ,             , //Variable name for the index of the FOR (default "forIndex")
@@ -179,45 +174,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters                  , defVal, desc
-          1  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          1  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          1  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          1  , FILTER      , "fieldName, operator, value",       , //Skip records that do not meet the given condition for the field. If more filters are given, skip those records that do not meet any of the filters (OR join)
-          1  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
+          x  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
+          x  , HEAD        , subcommand                  ,       , //Executed (if rows >= 1) before the body execution of the first row. On executing HEAD loop column variables are set to the first row
+          x  , TAIL        , subcommand                  ,       , //Executed (if rows >= 1) after the body execution of the last row. On executing TAIL there are not loop column variables set
+          x  , IF NO RECORD, subcommand                  ,       , //Executed if the table to loop result in 0 rows that is the table is empty.
+          x  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. The default value is the native return RT or RT+LF
+          x  , WHILE SAME  , fieldName                   ,       , //Continue the loop while the value of fieldName and its predecessors remains the same (or until any of them change)
+          x  , ON DIFFERENT, fieldName                   ,       , //Perform the loop only on different values of fieldName or any of its predecessors (skip records with same value)
+          x  , FILTER      , "fieldName, operator, value",       , //Skip records that do not meet the given condition for the field. If more filters are given, skip those records that do not meet any of the filters (OR join)
+          3  , EXTENSIONS  , "extension, extension"      ,       , //Add extensions as is done in the arguments extension
 
-          2  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
 <!//(o) TODO_previousSQL dbFeature (documented it when all tests ok)
 <!          2  , PREVIOUSSQL , sqlCommand                  ,       , //If specified the given sql command (or commands) will be called before the sqlQuery. Useful for example for sql commands like ATTACH, CREATE TEMP VIEW etc.
-          2  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          2  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          2  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
-          2  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
-
-          3  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          3  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          3  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          3  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
-          3  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
-          3  , RECURSIVE   , 0 / 1                       ,  1    , //If has to recurse subdirectories (default is 1)
-
-          4  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          4  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          4  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          4  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
-          4  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
-
-          5  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          5  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          5  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          5  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
-          5  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
-
-          6  , LINK        , text4LinkRows               ,       , //Text to be used as link between each two records in the loop. If the option is not specified then the native return is used as link string
-          6  , WHILE SAME  , fieldName                   ,       , //continue the loop while the value of fieldName remains the same (or until the value of fieldName changes)
-          6  , ON DIFFERENT, fieldName                   ,       , //make the loop only on different values of fieldName (skip records with same value)
-          6  , FILTER      , "fieldName, operator, value",       , //Skip records that does not fit the given condition for the field. If more filter given, skip those record that does not fit any of the filters (OR join)
-          6  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
-
 
    <examples>
       gastSample
@@ -269,10 +237,25 @@ public class cmdLoopTable implements commandable
             "SET TABLE",
          };
    }
+   
+   private static void addSubCommand (Eva commands, int indxComm, Eva target)
+   {
+      int row = target.rows ();
+      target.setValue ("", row, 0); // ensure at least an empty line
+      for (int ii = 2; ii < commands.cols (indxComm); ii ++)
+      {
+         target.setValue (commands.getValue(indxComm, ii), row, ii - 2);
+      }
+   }
 
-   // this method is public in order to share it with the class cmdRunLoopTable
-   //
    public static int indxSkipingOptions (Eva commands, int indxComm, Eva embeddedFormat)
+   {
+      return indxSkipingOptions (commands, indxComm, null, embeddedFormat, null, null);
+   }
+
+   // this method is public in order to share it with the class cmdRunLoopTable and others
+   //
+   public static int indxSkipingOptions (Eva commands, int indxComm, Eva headerFormat, Eva bodyFormat, Eva tailFormat, Eva if0RowLsxFormat)
    {
       // go through the options of the loop ...
       //
@@ -282,8 +265,9 @@ public class cmdLoopTable implements commandable
              commands.getValue(indxPassOpt, 0).equals("")
              )
       {
-         if (commands.getValue(indxPassOpt, 1).equals("") ||
-             commands.getValue(indxPassOpt, 1).equalsIgnoreCase("BODY"))
+         String optName = commands.getValue(indxPassOpt, 1);
+
+         if (optName.equals("") || optName.equalsIgnoreCase("BODY"))
          {
             // detected body format within the options (embedded loop format), e.g.
             //
@@ -291,12 +275,29 @@ public class cmdLoopTable implements commandable
             //           ,, format
             //           ,, etc
             //
-            int row = embeddedFormat.rows ();
-            embeddedFormat.setValue ("", row, 0); // ensure at least an empty line
-            for (int ii = 2; ii < commands.cols (indxPassOpt); ii ++)
-            {
-               embeddedFormat.setValue (commands.getValue(indxPassOpt, ii), row, ii - 2);
-            }
+            if (bodyFormat != null)
+               addSubCommand (commands, indxPassOpt, bodyFormat);
+         }
+         else if (optName.equalsIgnoreCase("HEAD") || optName.equalsIgnoreCase("HEADER"))
+         {
+            if (headerFormat != null)
+               addSubCommand (commands, indxPassOpt, headerFormat);
+         }
+         else if (optName.equalsIgnoreCase("TAIL"))
+         {
+            if (tailFormat != null)
+               addSubCommand (commands, indxPassOpt, tailFormat);
+         }
+         else if (optName.equalsIgnoreCase("IF NO RECORD") || optName.equalsIgnoreCase("IF EMPTY") || optName.equalsIgnoreCase("IF 0 ROWS"))
+         {
+            // detected fallback body in case the loop has no rows
+            //
+            //       LOOP, ETC
+            //           ,IF 0 ROWS, format
+            //           ,IF 0 ROWS, etc
+            //
+            if (if0RowLsxFormat != null)
+               addSubCommand (commands, indxPassOpt, if0RowLsxFormat);
          }
          indxPassOpt ++;
       }
@@ -319,10 +320,18 @@ public class cmdLoopTable implements commandable
 
       if (nova == null) return 1;
 
-      Eva inlineFormat = new Eva ("loop_embedded_format");
-      int indxPassOpt = indxSkipingOptions(commands, indxComm, inlineFormat);
+      // Note: the names of this Evas are irrelevant, they are not used at all
+      Eva inHeadFormat = new Eva ("loop_head_format");  
+      Eva inlineFormat = new Eva ("loop_body_format");
+      Eva inTailFormat = new Eva ("loop_tail_format");
+      Eva inlineIf0RowFormat = new Eva ("loop_onNoRecord_format");
 
-      if (inlineFormat.rows () > 0)
+      int indxPassOpt = indxSkipingOptions(commands, indxComm, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
+
+      if (inlineFormat.rows () > 0 || 
+          inHeadFormat.rows () > 0 || 
+          inTailFormat.rows () > 0 || 
+          inlineIf0RowFormat.rows () > 0)
       {
          // embedded loop format found, perform the loop with it
          //
@@ -334,13 +343,24 @@ public class cmdLoopTable implements commandable
          that.getTableCursorStack ().pushTableCursor (new tableCursor (nova));
 
          that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         runningTables.runLoopTable (that, inlineFormat);
+         runningTables.runLoopTable (that, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
          that.getTableCursorStack ().end_RUNTABLE ();
          return 1;
       }
 
+      //(o) TODO 2014.01.11 03:53 DEPRECATE OLD INLINE BODY OF LOOP TABLE!!!!
+      //       uncomment the log error and remove the rest of the method except the last return
+      //
+      //that.log().err (4, "LOOP TABLE", "No body, header or tail found for the loop, LOOP not set!");
+      
       that.log().dbg (4, "LOOP TABLE", "inline format");
-
+        
+      // 2013.07.14
+      // NOTE: supporting "inline format after options" is a very old feature 
+      //        not anymore used since the standard inline format is much better and clear 
+      //        "inline format after options" should be deprecated !!
+      //
+      
 
       // check if exists inline format after the options, e.g.
       //
@@ -363,7 +383,7 @@ public class cmdLoopTable implements commandable
          that.getTableCursorStack ().pushTableCursor (new tableCursor (nova));
 
          that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         passRows = runningTables.runLoopTable (that, "", commands, indxPassOpt);
+         passRows = runningTables.runLoopTableInlineAfterOptions (that, "", commands, indxPassOpt);
          that.getTableCursorStack ().end_RUNTABLE ();
       }
       else

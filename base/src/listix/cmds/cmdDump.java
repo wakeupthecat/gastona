@@ -51,7 +51,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       <main0>
       //          LOAD, data, myAppPersist.txt
       //
-      //       <-- java exit>
+      //       <-- javaj exit>
       //          DUMP, data, myAppPersist.txt
       //
       //    NOTE: Loading data in this way produce variables of the #data# section being replaced

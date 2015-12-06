@@ -1,0 +1,60 @@
+#data#
+
+   <APKGENCONFIG_NAME> Gastona APK Classic with mini tutorial etc
+   
+   <eProyecto> gastona
+   <ePackageDomain>  org.gastona
+   <eMainClass> //..\..\android\src/org/gastona/gastonaMainActor.java
+
+   <eSignatureArgs> //-sigalg MD5withRSA -digestalg SHA1 -keystore YOURKEYHERE.store -keypass YOURPASSHERE -storepass YOURSTOREPASSHERE
+      
+   <ANDROID MANIFEST> //..\..\android\AndroidManifest.xml
+   <BASE DIR RES>     //..\..\android\res
+
+   <BASE DIR ASSETS>  //@<DIR projPath>/@<eProyecto>/assets
+   <TABLE COPY ASSETS>
+      srcpath              , destsubpath
+      ..\..\META-GASTONA\js, META-GASTONA\js
+      ..\..\android\assets , .
+
+
+   <! NOTE : gensrc for gastonaVersion.java
+   <!
+   <TABLE SOURCEDIRS>
+      path
+      @<DIR projPath>/@<eProyecto>/gensrc
+      ..\..\android\src
+      ..\..\base\src
+
+   <gastonaVersion>  //v0.99.151206 \"Cylinders\"
+   <eBinaryArchive>    //\pavoTools\gastonaBinaries\apk
+
+   <STEP_BEFORE_COMPILATION>
+      //Generating gastonaVersion with date [@<:lsx date>]
+      //
+      GEN, @<DIR projPath>/@<eProyecto>/gensrc/org/gastona/gastonaVersion.java, gastVer
+
+   <gastVer>
+      //package org.gastona;
+      //
+      /////gastona.apk built at @<:lsx date>
+      //public class gastonaVersion
+      //{
+      //   public static String getVersion ()
+      //   {
+      //      return "@<gastonaVersion>";
+      //   }
+      //
+      //   public static String getBuildDate ()
+      //   {
+      //      return "@<:lsx date>";
+      //   }
+      //
+      //   public static void main (String [] par)
+      //   {
+      //      System.out.println (getVersion ());
+      //   }
+      //}
+      //
+
+#**#

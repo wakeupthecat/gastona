@@ -28,6 +28,6 @@ import de.elxala.Eva.*;
 
 public interface MensakaTarget
 {
-	public boolean takePacket (int mappedMsg, EvaUnit pk);
+	public boolean takePacket (int mappedMsg, EvaUnit pk, String [] parameters);
 };
 

@@ -1,0 +1,98 @@
+#listix#
+
+   <!
+   <! Generates a gastona DB shema (to analyze gastona files)
+   <! from the parsed Eva values which are supossed to have
+   <! the units : gastona, javaj, data and listix
+   <!
+
+   <gastDBSchema create schema>
+      DB, ,EXECUTE, @<gen gast schema>
+      DB, ,EXECUTE, @<work gast db>
+
+   <gen gast schema>
+      //CREATE TABLE layouts AS
+      //    SELECT
+      //       SUBSTR(evaName, 10) AS layName,
+      //       value AS layType
+      //    FROM eva_evaData
+      //    WHERE unitName = 'javaj' AND
+      //    evaName LIKE 'layout of %' AND
+      //    row+0 = 0 AND
+      //    col+0 = 0
+      //;
+      //
+      //CREATE TABLE javajRest AS
+      //    SELECT
+      //       evaName
+      //    FROM eva_evaData
+      //    WHERE unitName = 'javaj' AND
+      //    evaName NOT LIKE 'layout of %' AND
+      //    row+0 = 0 AND
+      //    col+0 = 0
+      //;
+      //
+      //CREATE TABLE listixFormats AS
+      //    SELECT
+      //       evaName AS formatName,
+      //       MAX(row)+1 AS nrows,
+      //       MAX(col)+1 AS ncols,
+      //       SUM(col=2) AS nCommands
+      //    FROM eva_evaData
+      //    WHERE (unitName = 'listix' OR unitName = 'data')
+      //    GROUP BY formatName
+      //;
+      //
+      //CREATE VIEW listixFormatsExt AS SELECT *, @<field extend> FROM listixFormats;
+      //
+      //CREATE TABLE listixTriggers AS
+      //    SELECT
+      //       SUBSTR(evaName, 4) AS msgTrigger,
+      //       MAX(row)+1 AS nrows
+      //    FROM eva_evaData
+      //    WHERE unitName = 'listix' AND
+      //    evaName LIKE '-- %'
+      //    GROUP BY msgTrigger
+      //;
+      //
+
+
+   <field extend>
+      // (nrows = 1 AND nCommands = 0) AS isSingle,
+      // (nrows > 1 AND nCommands = 0) AS isText,
+      // (nCommands > 0 AND nCommands = nrows) AS isOnlyCmd,
+      // (nCommands > 0 AND nCommands < nrows) AS isMixed
+
+
+   <work gast db>
+      //
+      //CREATE TABLE listixCalledo (callerFormat, calledFormat, typeCall, row, col);
+      //
+      LOOP, SQL,, //SELECT * FROM listixFormats
+          ,, //INSERT INTO listixCalledo @<caller format and pos> ;
+      //
+
+   <caller format and pos>
+      //    SELECT
+      //       evaName AS callerFormat,
+      //       "@<formatNameCoded>" AS calledFormat,
+      //       "@" AS typeCall,
+      //       row, col
+      //    FROM eva_evaData
+      //    WHERE
+      //       (unitName = 'listix' OR unitName = 'data') AND
+      //       (value LIKE '%@<@><@<formatNameCoded>>%')
+      //    UNION
+      //    SELECT
+      //       evaName AS callerFormat,
+      //       "@<formatNameCoded>" AS calledFormat,
+      //       "p" AS typeCall,
+      //       row, col
+      //    FROM eva_evaData
+      //    WHERE
+      //       (unitName = 'listix' OR unitName = 'data') AND
+      //       (value = '@<formatNameCoded>')
+      //
+
+   <formatNameCoded>
+      STRCONV, TEXT-STR, formatName

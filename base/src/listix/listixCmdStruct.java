@@ -137,6 +137,14 @@ public class listixCmdStruct
       return (solve) ? listixPtr.solveStrAsString (arguments[indx]): arguments[indx] ;
    }
 
+   public String [] getArgs (boolean solve)
+   {
+      String [] aa = new String [arguments.length];
+      for (int ii = 0; ii < arguments.length; ii ++)
+         aa[ii] = getArg(ii, solve);
+      return aa;
+   }
+
    /**
       Facility to print out standad error messages if the given parameters does not fit
       into the range ['minParamSize' - 'maxParSize']
@@ -232,6 +240,16 @@ public class listixCmdStruct
    }
 
    /**
+      Search 'optName' in the given options,
+      if one is found then the option is removed for the next search (methods take..)
+      and the all parameters of the option are returned solved. Otherwise return null
+   */
+   public String [] takeOptionParameters (String [] optNames)
+   {
+      return takeOptionParameters (optNames, true);
+   }
+
+   /**
       Search any of the option names given in the array 'optNames' in the given options,
       if one is found then the option is removed for the next search (methods take..)
       and all parameters of the option are returned solving them if 'solved' is true. Otherwise return null
@@ -282,7 +300,29 @@ public class listixCmdStruct
    }
 
    /**
-      Facility to chech and optionally print out standad error messages for the remaining (not taken)
+      return the not yet evaluated options without altering them, that is, they can
+      still be retrieved using takeOptionParameters
+   */
+   public String [] getRemainingOptionNames ()
+   {
+      int nn = 0;
+      for (int ii = 0; ii < givenOptions.size (); ii ++)
+         if (givenOptions.get (ii) != null) nn ++;
+
+      String [] reto = new String [nn];
+      nn = 0;
+      for (int ii = 0; ii < givenOptions.size (); ii ++)
+         if (givenOptions.get (ii) != null)
+         {
+            if (nn >= reto.length) getLog().severe ("getRemainingOptionNames", "wrong index");
+            reto[nn++] = (String) givenOptions.get (ii);
+         }
+
+      return reto;
+   }
+
+   /**
+      Facility to check and optionally print out standard error messages for the remaining (not taken)
       options. If 'logError' is true, one error message will be printed out for each remaining option
 
       @param forgive array of possible remaining optiona that don't has to be considered an error to ignore them
@@ -302,7 +342,7 @@ public class listixCmdStruct
       {
          String rem = (String) givenOptions.get (ii);
          //System.out.println ("checo rem [" + rem + "]");
-         if (rem == null) continue;
+         if (rem == null || rem.length () == 0) continue;
 
          //System.out.println ("azertamos!");
          count ++;

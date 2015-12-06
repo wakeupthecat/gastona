@@ -92,7 +92,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , LOAD DATA     ,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the data to be used in the generation
       1      , SET VAR DATA  ,  "EvaName, value"           ,                 , //Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable 'EvaName' with the value 'value'
       1      , PASS VAR DATA ,  "EvaName"                  ,                 , //If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)
-      1      , *TARGET IS    ,  "FILE / EVA"               , FILE            , //Specifies if the target ('file2Gen') is a file (default) or an Eva variable which name will be the value of 'file2Gen'
+      1      , TARGET EVA    ,  "EvaName"                  ,                 , //Specifies the variable name where the listix generation will place the result
       1      , NEW LINE      ,  "(NATIVE) / RT / LF / RTLF", NATIVE          , //Will generate the file using the new line character specified : NATIVE (default) is native to the system, RT return (ascci 13), LF line feed (ascci 10), RFLF return and line feed (13 + 10)
       1      , APPEND        ,  "0 / 1"                    , 0               , //If 1 then the generation will be append at the end of the file
 
@@ -179,7 +179,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //         ,      ,      ,                , 100
       //         , bJava, bHTML, kLaunch Browser, eBrowser
       //
-      //   <sysDefaultFonts>  Courier, 12, 0, TextField, TextArea
+      //   <sysDefaultFonts>  Consolas, 12, 0, TextField, TextArea
       //
       //
       //#data#
@@ -214,25 +214,23 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //    //
       //      //
       //      LOOP, EVA, myTable
-      //      //    private @<varType> m@<varName>;
-      //      =,,
+      //          ,, //    private @<varType> m@<varName>;
       //      //
       //      //
       //      //    // setters and getters
       //      //    //
       //      //
       //      LOOP, EVA, myTable
-      //      //    public @<varType> get@<varName> ()
-      //      //    {
-      //      //       return m@<varName>;
-      //      //    }
-      //      //
-      //      //    public void set@<varName> (@<varType> value)
-      //      //    {
-      //      //       m@<varName> = value;
-      //      //    }
-      //      //
-      //      =,,
+      //          ,, //    public @<varType> get@<varName> ()
+      //          ,, //    {
+      //          ,, //       return m@<varName>;
+      //          ,, //    }
+      //          ,, //
+      //          ,, //    public void set@<varName> (@<varType> value)
+      //          ,, //    {
+      //          ,, //       m@<varName> = value;
+      //          ,, //    }
+      //          ,, //
       //      //}
       //      //
       //
@@ -250,11 +248,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //       </tr>
       //      //
       //      LOOP, EVA, myTable
-      //      //       <tr>
-      //      //          <td>@<varName></td>
-      //      //          <td>@<varType></td>
-      //      //       </tr>
-      //      =,,
+      //          ,, //       <tr>
+      //          ,, //          <td>@<varName></td>
+      //          ,, //          <td>@<varType></td>
+      //          ,, //       </tr>
       //      //
       //      //   </table>
       //      //   </body>
@@ -268,7 +265,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      SETVAR, xResult fileName, @<tmpGen>
       //
       //   <main>
-      //      CHECK, LINUX, -->, eBrowser, visible, 0
+      //      CHECK, LINUX, -->, eBrowser control!, visible, 0
       //
       //   <-- bJava>
       //      LISTIX, doGenerate, Template Java
@@ -281,8 +278,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      CHECK, VAR, kLaunch Browser selected
       //      CHECK, =, @<kLaunch Browser selected>, 1
       //
-      //      CHECK, LINUX, LAUNCH, //CMD /C start "" "@<tmpGen>"
-      //      LAUNCH, //@<eBrowser> file://@<tmpGen>
+      //      BROWSER, @<tmpGen>
       //
       //   <doGenerate>
       //      CHECK, VAR, p1
@@ -330,212 +326,50 @@ public class cmdGenerate implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      String file2Gen    = cmd.getArg(0);
-      String mainFormat  = cmd.getArg(1);
-      String unitFormats = cmd.getArg(2); // DEFAULT #formats#
-      String fileFormats = cmd.getArg(3);
 
-      String unitData    = cmd.getArg(4);
-      String fileData    = cmd.getArg(5);
+      parameters4LsxGenerate PAOP = new parameters4LsxGenerate ();
+
+      //GENERATE, file2gen, format, listix, file
+
+      PAOP.genFileToGenerate = cmd.getArg(0);
+      PAOP.genMainFormat     = cmd.getArg(1);
+
+      PAOP.genFormatsUnitName = cmd.getArg(2); // DEFAULT #formats#
+      PAOP.genFormatsFileName = cmd.getArg(3);
+
+      PAOP.genDataUnitName    = cmd.getArg(4);
+      PAOP.genDataFileName    = cmd.getArg(5);
 
       //Minimal check of mainFormat
       //  Note: here we cannot check if it is a valid format, it could be a valid one after loading
       //        a new unit etc..
-      if (mainFormat.equals (""))
+      if (PAOP.genMainFormat.equals (""))
       {
          cmd.getLog ().err ("GENERATE", "mainFormat cannot be an empty string! (nothing has been generated)");
          return 1;
       }
 
-      // append option
-      boolean append = cmd.takeOptionString("APPEND").equals ("1");
-
-
-      // new line option
-      String newLoptString = null;
-      String optNL = cmd.takeOptionString("NEWLINE");
-      if (optNL.length() > 0)
-      {
-         if (optNL.equals ("NATIVE"))
-            newLoptString = TextFile.NEWLINE_NATIVE;
-         else if (optNL.equals ("RTLF"))
-            newLoptString = TextFile.NEWLINE_RTLF;
-         else if (optNL.equals ("LF"))
-            newLoptString = TextFile.NEWLINE_LF;
-         else
-            cmd.getLog ().err ("GENERATE", "option NEWLINE [" + optNL + "] not valid!");
-
-         if (newLoptString != null)
-            cmd.getLog ().dbg (2, "GENERATE", "option NEWLINE [" + optNL + "] set");
-      }
-      //else System.out.println ("NO tenemos NL!");
-
-      // buscar formatos
-      //
-      EvaUnit UFormats = cmd.getListix().getGlobalFormats ();
-
-      // Option LOAD FORMATS
-      //
-      String [] loadFormats = cmd.takeOptionParameters("LOADFORMATS");
-      if (loadFormats != null)
-      {
-         if (loadFormats.length < 1)
-         {
-            cmd.getLog().err ("GENERATE", "option LOAD FORMATS requires at least one parameter! (at eva [" + commandEva.getName () + "])");
-         }
-         else
-         {
-            fileFormats = loadFormats[0];
-            unitFormats = loadFormats.length > 1 ? loadFormats[1]: "";
-         }
-         cmd.getLog().dbg (2, "GENERATE", "option LOAD FORMATS file:\"" + fileFormats + "\"  unit:\"" + unitFormats + "\"");
-      }
-
-      if (unitFormats.length () != 0 || fileFormats.length () != 0)
-      {
-         // default formats name
-         //(o) listix_TODO Clear if default format is "formats" or "listix"
-         //                Nota: si lo cambio por listix se ha de buscar todos los GEN que asuman que es formats!
-         //
-         if (unitFormats.length () == 0) unitFormats = "listix";
-         if (fileFormats.length () == 0)
-         {
-            // we have - by the moment - no default listix file
-            cmd.getLog().err ("GENERATE", "the parameter fileFormats should be specified!");
-         }
-         UFormats = EvaFile.loadEvaUnit (fileFormats, unitFormats);
-         cmd.getLog().dbg (2, "GENERATE", "loaded unit formats #" + unitFormats + "# from \"" + fileFormats + "\"");
-      }
-
-      // buscar data
-      //
-      EvaUnit UData = cmd.getListix().getGlobalData ();
-
-      // Option LOAD DATA
-      //
-      String [] loadData = cmd.takeOptionParameters("LOADDATA");
-      if (loadData != null)
-      {
-         if (loadData.length < 1)
-         {
-            cmd.getLog().err ("GENERATE", "option LOAD DATA requires at least one parameter! (at eva [" + commandEva.getName () + "])");
-         }
-         else
-         {
-            fileData = loadData[0];
-            unitData = loadData.length > 1 ? loadData[1]: "";
-         }
-         cmd.getLog().dbg (2, "GENERATE", "option LOAD FORMATS file:\"" + fileData + "\"  unit:\"" + unitData + "\"");
-      }
-
-      // Option PARAMS
-      //
-      String [] params = cmd.takeOptionParameters(new String [] {"PARAMS", "PARAMETERS", "ARGS", "ARGUMENTS"}, true);
-      if (params != null)
-      {
-         if (params.length < 1)
-         {
-            cmd.getLog().err ("GENERATE", "option PARAMS requires at least one parameter! (at eva [" + commandEva.getName () + "])");
-         }
-         cmd.getLog().dbg (2, "GENERATE", "option PARAMS, " + params.length + " parameters given");
-         //System.out.println ("efetiviwonder !!!!! " + params.length);
-      }
-
-      if (unitData.length () != 0 || fileData.length () != 0)
-      {
-         if (unitData.length () == 0) unitData = "data";
-
-         // if data file not specified try with the same as formats
-         if (fileData.length () == 0)
-            fileData = fileFormats;
-
-         if (fileData.length () == 0)
-         {
-            // we have - by the moment - no default listix file
-            cmd.getLog().err ("GENERATE", "the parameter fileData should be specified!");
-         }
-         UData = EvaFile.loadEvaUnit (fileData, unitData);
-
-         if (UData == null)
-         {
-            cmd.getLog().err ("GENERATE", "failed loading unit data #" + unitData + "# from \"" + fileData + "\"");
-            //(o) TOSEE_listix_cmds GENERATE, Loading data fails, continue or not continue ?
-            // failed but continue ... ?
-         }
-         else
-         {
-            cmd.getLog().dbg (2, "GENERATE", "loaded unit data #" + unitData + "# from \"" + fileData + "\"");
-         }
-      }
-
-      // SET VAR DATA options
-      //    chance to set variables to current data
-      //    this is a kind of parameter passing to the generator implemented in this GEN call
-      String [] setVarOpt = null;
-      while (null != (setVarOpt = cmd.takeOptionParameters("SETVARDATA")))
-      {
-         if (setVarOpt.length != 2)
-            cmd.getLog().err ("GENERATE", "option SET VAR DATA requires 2 parameters!");
-         else
-         {
-            String evaname = cmd.getListix().solveStrAsString (setVarOpt[0]);
-            String value   = cmd.getListix().solveStrAsString (setVarOpt[1]);
-            Eva targ = UData.getSomeHowEva(evaname);
-            targ.clear ();
-            targ.setValue (value);
-            cmd.getLog().dbg (2, "GENERATE", "set var data <" + evaname + "> with value \"" + value + "\"");
-         }
-      }
-
-      // PASS VAR DATA option
-      //    do not create the variable but reference it directly from the current data
-      //    this is a kind of parameter passing to the generator implemented in this GEN call
-      while (null != (setVarOpt = cmd.takeOptionParameters("PASSVARDATA")))
-      {
-         // this option only make sense if LOAD DATA has been set
-         if (UData == cmd.getListix().getGlobalData ())
-         {
-            cmd.getLog().err ("GENERATE", "option PASS VAR DATA set but no external data used! (option LOAD DATA not set)");
-            break;
-         }
-
-         if (setVarOpt.length != 1)
-            cmd.getLog().err ("GENERATE", "option PASS VAR DATA requires 1 parameter!");
-         else
-         {
-            // get the variable name to pass
-            String evaname = cmd.getListix().solveStrAsString (setVarOpt[0]);
-
-            // get variable from current data
-            Eva evaFromCurrent = cmd.getListix().getGlobalData ().getEva (evaname);
-            if (evaFromCurrent == null)
-            {
-               cmd.getLog().err ("GENERATE", "cannot PASS VAR DATA, variable <" + evaname + "> not found!");
-            }
-            else
-            {
-               // get variable from external data
-               Eva targ = UData.getSomeHowEva(evaname);
-
-               //reference directly the contents!
-               targ.lis_EvaLin = evaFromCurrent.lis_EvaLin;
-               cmd.getLog().dbg (2, "GENERATE", "share data variable <" + evaname + ">");
-            }
-         }
-      }
+      if (!PAOP.evalOptions (cmd))
+         return 1;
 
       //    30.06.2008 22:09
       //(o) listix_arquitectura Revisar si realmente es conveniente crear otra instancia de listix aqui
       //                      en lugar de usar directamente la instancia "that" (salvando previamente NewLineString ...)
       //
-      listix novo = new listix (UFormats, UData, cmd.getListix().getTableCursorStack (), params);
+      listix novoLsx = new listix (PAOP.genFormatsEvaUnit,
+                                   PAOP.genDataEvaUnit,
+                                   cmd.getListix().getTableCursorStack (),
+                                   PAOP.genParameters);
 
-      novo.setNewLineString (newLoptString);
+      novoLsx.setNewLineString (PAOP.genNewLineString);
 
-      lsxWriter.makeFile (novo, mainFormat, file2Gen, cmd.getListix().getGlobalFile (), cmd.getListix().getTargetEva (), append);
-      novo.destroy ();
-
-      cmd.checkRemainingOptions (true);
+      lsxWriter.makeFile (novoLsx,
+                          PAOP.genMainFormat,
+                          PAOP.genFileToGenerate,
+                          cmd.getListix().getGlobalFile (),
+                          cmd.getListix().getTargetEva (),
+                          PAOP.genAppendToFile);
+      novoLsx.destroy ();
       return 1;
    }
 }

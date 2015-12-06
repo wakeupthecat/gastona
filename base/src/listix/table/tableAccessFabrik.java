@@ -32,6 +32,7 @@ public class tableAccessFabrik
       tableAccessBase xTabla = null;
 
       if (typeTable.equalsIgnoreCase ("EVA"))         xTabla = new tableAccessEva ();
+      else if (typeTable.equalsIgnoreCase ("VAR"))    xTabla = new tableAccessEva ();
       else if (typeTable.equalsIgnoreCase ("SQL"))    xTabla = new tableAccessSql ();
       else if (typeTable.equalsIgnoreCase ("COLUMNS")) xTabla = new tableColumns ();
       else if (typeTable.equalsIgnoreCase ("FILES"))  xTabla = new tableAccessPathFiles ();

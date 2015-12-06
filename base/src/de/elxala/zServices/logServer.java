@@ -33,7 +33,7 @@ package de.elxala.zServices;
 
       CREATE TABLE logCustom_javaj_flow     (msgCounter, milliStamp, level, context, message);
       CREATE TABLE logCustom_mensaka_agents (msgCounter, milliStamp, level, agIndex, agName, agObjString);
-      CREATE TABLE logCustom_mensaka_msgs   (msgCounter, milliStamp, level, agIndex, type(suscribe/declare/send/received/sendEnd), msgindx);
+      CREATE TABLE logCustom_mensaka_msgs   (msgCounter, milliStamp, level, agIndex, type(subscribe/declare/send/received/sendEnd), msgindx);
 
 */
 
@@ -231,6 +231,8 @@ public class logServer
 
    public static void configure (int maxGlobalLevel, Eva clientConf)
    {
+      //System.out.println ("ME LAMAN " + maxGlobalLevel + " eva::"  + clientConf);
+
       if (maxGlobalLevel != -1) globalLogLevel = maxGlobalLevel;
       logNativePrinter.message ("logServer", "Configure maxLevel " + maxGlobalLevel);
       if (clientConf != null)
@@ -286,16 +288,16 @@ public class logServer
       {
          //(o) elxala_logServer create tables (register header)
          //
-         logBatchFile.writeLine ("CREATE TABLE logClients (clientID int, milliStamp int, clientName, maxLogLevel, clientFirstObj, UNIQUE(clientID));");
-         logBatchFile.writeLine ("CREATE TABLE logMessages (msgCounter int, milliStamp int, clientID int, level, context, message, UNIQUE(msgCounter));");
-         logBatchFile.writeLine ("CREATE TABLE logStack4Errors (msgCounter int, stackInfo, UNIQUE(msgCounter));");
-         logBatchFile.writeLine ("CREATE TABLE logStacksOnError (msgCounter int, stackType, nLine int, stackItem, UNIQUE(msgCounter, stackType, nLine));");
+         logBatchFile.writeLine ("CREATE TABLE logClients (clientID int, milliStamp int, clientName text, maxLogLevel int, clientFirstObj text, UNIQUE(clientID));");
+         logBatchFile.writeLine ("CREATE TABLE logMessages (msgCounter int, milliStamp int, clientID int, level int, context text, message text, UNIQUE(msgCounter));");
+         logBatchFile.writeLine ("CREATE TABLE logStack4Errors (msgCounter int, stackInfo text, UNIQUE(msgCounter));");
+         logBatchFile.writeLine ("CREATE TABLE logStacksOnError (msgCounter int, stackType text, nLine int, stackItem text, UNIQUE(msgCounter, stackType, nLine));");
 
          // o-o  Add dbMore connections info
-         logBatchFile.writeLine (dbMore.getSQL_CreateTableConnections ());
-         logBatchFile.writeLine (dbMore.getSQL_InsertConnection("cli", "logMessages", "clientID", "logClients", "clientID"));
-         logBatchFile.writeLine (dbMore.getSQL_InsertConnection("msg", "logStack4Errors", "msgCounter", "logMessages", "msgCounter"));
-         logBatchFile.writeLine (dbMore.getSQL_InsertConnection("msg", "logStacksOnError", "msgCounter", "logMessages", "msgCounter"));
+         logBatchFile.writeLine (deepSqlUtil.getSQL_CreateTableConnections ());
+         logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("cli", "logMessages", "clientID", "logClients", "clientID"));
+         logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("msg", "logStack4Errors", "msgCounter", "logMessages", "msgCounter"));
+         logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("msg", "logStacksOnError", "msgCounter", "logMessages", "msgCounter"));
 
          // trigger for the first message (log server message)
          pendingFirstMessage = true;
@@ -377,7 +379,7 @@ public class logServer
       //(o) elxala_logServer tracking just log clients with different names (design decission)
       if (alreadyRec)
       {
-         if (cli.clientID == -1) // The client is registered but clientID not yet set ?
+         if (cli.clientID == -1) // The client is registered but clientID not set yet ?
          {
             //System.out.println ("ENTRAMOS EN EL CASO OBSCURO!");
             // This happens when a class that holds the client is more times instanciated
@@ -442,15 +444,15 @@ public class logServer
             String specialFields = "";
             for (int ii = 0; ii < cli.arrExtraFields.length; ii ++)
             {
-               specialFields +=  ", " + cli.arrExtraFields[ii];
+               specialFields +=  ", " + cli.arrExtraFields[ii] + " text";
             }
-            logBatchFile.writeLine ("CREATE TABLE logCustom_" + cli.clientStr + " (msgCounter, milliStamp, clientID, level, context, message" + specialFields + ");");
+            logBatchFile.writeLine ("CREATE TABLE logCustom_" + cli.clientStr + " (msgCounter int, milliStamp int, clientID int, level int, context text, message text" + specialFields + ");");
 
-            // o-o  Add dbMore connections info
-            logBatchFile.writeLine (dbMore.getSQL_InsertConnection("cli", "logCustom_" + cli.clientStr, "clientID", "logClients", "clientID"));
+            // o-o  Add deepSql connections info
+            logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("cli", "logCustom_" + cli.clientStr, "clientID", "logClients", "clientID"));
 
             //it is not related on logMessages (right now all in a separate table) 31.01.2010 21:17
-            //logBatchFile.writeLine (dbMore.getSQL_InsertConnection("msg", "logCustom_" + cli.clientStr, "msgCounter", "logMessages", "msgCounter"));
+            //logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("msg", "logCustom_" + cli.clientStr, "msgCounter", "logMessages", "msgCounter"));
          }
 
          if (cli.ownConnections != null)
@@ -458,8 +460,8 @@ public class logServer
             for (int ii = 0; ii < cli.ownConnections.length; ii ++)
             {
                String [] oneConn = cli.ownConnections[ii];
-               // o-o  Add dbMore connections info
-               logBatchFile.writeLine (dbMore.getSQL_InsertConnection(oneConn[0], "logCustom_" + oneConn[1], oneConn[2], "logCustom_" + oneConn[3], oneConn[4]));
+               // o-o  Add deepSql connections info
+               logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection(oneConn[0], "logCustom_" + oneConn[1], oneConn[2], "logCustom_" + oneConn[3], oneConn[4]));
             }
          }
 
@@ -812,9 +814,10 @@ public class logServer
 
 
          logNativePrinter.errorBox (mess, "so sorry but the application will be closed!");
-
          yoMismo = false;
-         System.exit(1);
+
+         //errorBox will exit the application
+         //System.exit(1);
       }
 
       if (extraInfo != null)
@@ -840,10 +843,15 @@ public class logServer
    private static long initMilis = System.currentTimeMillis ();
    private static long time0milliseconds = initMilis;
 
+   public static long getMillisStartApplication ()
+   {
+      return time0milliseconds;
+   }
+   
    public static long elapsedMillis ()
    {
       long incTime = System.currentTimeMillis () - initMilis;
-      if (incTime > 10000000L)
+      if (incTime > 100000000L) // almost 28 hours
       {
          initMilis = System.currentTimeMillis ();
          incTime = 0;

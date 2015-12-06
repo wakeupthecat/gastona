@@ -79,6 +79,12 @@ import de.elxala.langutil.*;
 
 public class cmdSetNumeric implements commandable
 {
+
+   public class menciona
+   {
+      public calcFormulas o1=null;
+   }
+
    /**
       get all the different names that the command can have
    */
@@ -88,6 +94,7 @@ public class cmdSetNumeric implements commandable
          "SET NUM",
          "SET NUMERIC",
          "SET =",
+         "NUM=",
        };
    }
 
@@ -128,8 +135,7 @@ public class cmdSetNumeric implements commandable
       // Set the first column value
       //
       Eva theVar = that.getSomeHowVarEva (variableName);
-      theVar.clear ();
-      theVar.setValue (value);
+      theVar.setValueVar (value);
 
       // Continue with the rest of columns
       //

@@ -22,8 +22,8 @@ package de.elxala.mensaka;
    @author Alejandro Xalabarder
    @data   05.04.2009 12:41
 
-	05.04.2009 12:41: Solución (final ?) para message logging
-	                  Esta clase deberá eliminar las clases "restos"
+	05.04.2009 12:41: SoluciÃ³n (final ?) para message logging
+	                  Esta clase deberÃ¡ eliminar las clases "restos"
 	                     MensakaProtokoller.java, Protokoll.java, Protokol2dot.java, protokolServer.java
 
 */
@@ -49,7 +49,7 @@ import javaj.widgets.basics.*;
 
       msgId, agentId, msgText
 
-   mensaka_sess_suscribedMsg
+   mensaka_sess_subscribedMsg
 
       msgId, agentId
 
@@ -75,12 +75,12 @@ public class MensakaLogFlow
    protected static String [][] ownConnections = new String [][]
          {
             new String [] { "agent", "mensaka_sess_declaredMsgs", "agentId", "mensaka_sess_agents", "agentId" },
-            new String [] { "agent", "mensaka_sess_suscribedMsg", "agentId", "mensaka_sess_agents", "agentId" },
+            new String [] { "agent", "mensaka_sess_subscribedMsg", "agentId", "mensaka_sess_agents", "agentId" },
             new String [] { "agent", "mensaka_flow_lostMsgs"    , "agentId", "mensaka_sess_agents", "agentId" },
             new String [] { "agentTx", "mensaka_flow_sentMsgs"    , "agentTx", "mensaka_sess_agents", "agentId" },
             new String [] { "agentRx", "mensaka_flow_sentMsgs"    , "agentRx", "mensaka_sess_agents", "agentId" },
             new String [] { "msg"  , "mensaka_sess_declaredMsgs", "msgId"  , "mensaka_sess_msgs", "msgId"     },
-            new String [] { "msg"  , "mensaka_sess_suscribedMsg", "msgId"  , "mensaka_sess_msgs", "msgId"     },
+            new String [] { "msg"  , "mensaka_sess_subscribedMsg", "msgId"  , "mensaka_sess_msgs", "msgId"     },
             new String [] { "msg"  , "mensaka_flow_lostMsgs"    , "msgId"  , "mensaka_sess_msgs", "msgId"     },
             new String [] { "msg"  , "mensaka_flow_sentMsgs"    , "msgId"  , "mensaka_sess_msgs", "msgId"     }
          };
@@ -88,7 +88,7 @@ public class MensakaLogFlow
    protected logger log_sess_agents = new logger (this, "mensaka_sess_agents", new String [] { "agentId", "componentName", "objectToStr" });
    protected logger log_sess_msgs = new logger   (this, "mensaka_sess_msgs"  , new String [] { "msgId", "msgText" });
    protected logger log_sess_declaredMsgs = new logger (this, "mensaka_sess_declaredMsgs", new String [] { "msgId", "agentId", "msgText" });
-   protected logger log_sess_suscribedMsg = new logger (this, "mensaka_sess_suscribedMsg", new String [] { "msgId", "agentId" });
+   protected logger log_sess_subscribedMsg = new logger (this, "mensaka_sess_subscribedMsg", new String [] { "msgId", "agentId" });
 
    protected logger log_flow_lostMsgs = new logger (this, "mensaka_flow_lostMsgs", new String [] { "agentId", "msgText" });
    protected logger log_flow_sentMsgs = new logger (this, "mensaka_flow_sentMsgs", new String [] { "agentTx", "agentRx", "beginEnd", "msgId" }, ownConnections);
@@ -96,12 +96,12 @@ public class MensakaLogFlow
    // connections
    //
    //    agent, mensaka_sess_declaredMsgs, agentId, mensaka_sess_agents, agentId
-   //    agent, mensaka_sess_suscribedMsg, agentId, mensaka_sess_agents, agentId
+   //    agent, mensaka_sess_subscribedMsg, agentId, mensaka_sess_agents, agentId
    //    agent, mensaka_flow_lostMsgs, agentId, mensaka_sess_agents, agentId
    //    agent, mensaka_flow_sentMsgs, agentTx, mensaka_sess_agents, agentId
    //    agent, mensaka_flow_sentMsgs, agentRx, mensaka_sess_agents, agentId
    //    msg  , mensaka_sess_declaredMsgs, msgId, mensaka_sess_msgs, msgId
-   //    msg  , mensaka_sess_suscribedMsg, msgId, mensaka_sess_msgs, msgId
+   //    msg  , mensaka_sess_subscribedMsg, msgId, mensaka_sess_msgs, msgId
    //    msg  , mensaka_flow_lostMsgs, msgId, mensaka_sess_msgs, msgId
    //    msg  , mensaka_flow_sentMsgs, msgId, mensaka_sess_msgs, msgId
    //
@@ -174,17 +174,17 @@ public class MensakaLogFlow
    }
 
 
-   protected void suscribedMessage (MensakaTarget targ, int msgIndx)
+   protected void subscribedMessage (MensakaTarget targ, int msgIndx)
    {
-      if (log_sess_suscribedMsg.isDebugging (FLOWLEVEL_1))
+      if (log_sess_subscribedMsg.isDebugging (FLOWLEVEL_1))
       {
          int agentID = getAgentIndx (targ);
 
-         //   msk_suscriptions
+         //   msk_subscriptions
          //
          //      "", RxId, msgId
          //
-         log_sess_suscribedMsg.dbg (FLOWLEVEL_1, "suscribedMessage", "suscribe", new String [] {""+msgIndx, ""+agentID });
+         log_sess_subscribedMsg.dbg (FLOWLEVEL_1, "subscribedMessage", "subscribe", new String [] {""+msgIndx, ""+agentID });
       }
    }
 
@@ -196,7 +196,7 @@ public class MensakaLogFlow
          //
          //      "", "", msgId
          //
-         log_sess_msgs.dbg (FLOWLEVEL_1, "registerNewMessage", "newMessges", new String [] {""+indx, sMsg });
+         log_sess_msgs.dbg (FLOWLEVEL_1, "registerNewMessage", "newMessages", new String [] {""+indx, sMsg });
       }
    }
 
@@ -222,7 +222,7 @@ public class MensakaLogFlow
    {
       if (log_flow_sentMsgs.isDebugging (FLOWLEVEL_1) || log_flow_lostMsgs.isDebugging (FLOWLEVEL_1))
       {
-         int nsus = Mensaka.getNumberOfSuscribers (hand);
+         int nsus = Mensaka.getNumberOfSubscribers (hand);
          int agentID = getAgentIndx (hand.sourceObject);
 
          //   msk_messages
@@ -230,7 +230,7 @@ public class MensakaLogFlow
          //      "", "", msgId
          //
          if (nsus > 0)
-              log_flow_sentMsgs.dbg (FLOWLEVEL_1, "sendMsg", "send to " + nsus + " suscribers", new String [] {""+agentID, "-1", "B", ""+hand.mskMenssageIndex });
+              log_flow_sentMsgs.dbg (FLOWLEVEL_1, "sendMsg", "send to " + nsus + " subscribers", new String [] {""+agentID, "-1", "B", ""+hand.mskMenssageIndex });
          else log_flow_sentMsgs.dbg (FLOWLEVEL_1, "startMessage", "msgLost", new String [] {""+agentID, hand.mskMessageText });
       }
    }
@@ -239,7 +239,7 @@ public class MensakaLogFlow
    {
       if (log_flow_sentMsgs.isDebugging (FLOWLEVEL_1))
       {
-         int nsus = Mensaka.getNumberOfSuscribers (hand);
+         int nsus = Mensaka.getNumberOfSubscribers (hand);
          int agentID = getAgentIndx (hand.sourceObject);
 
          //   msk_messages
@@ -247,7 +247,7 @@ public class MensakaLogFlow
          //      TxId, "", msgId
          //
          if (nsus > 0)
-              log_flow_sentMsgs.dbg (FLOWLEVEL_1, "sendMsg", "sent to " + nsus + " suscribers", new String [] {""+agentID, "-1", "E", ""+hand.mskMenssageIndex });
+              log_flow_sentMsgs.dbg (FLOWLEVEL_1, "sendMsg", "sent to " + nsus + " subscribers", new String [] {""+agentID, "-1", "E", ""+hand.mskMenssageIndex });
          // not really interesting ...
          //else log_flow.dbg (FLOWLEVEL_1, "LostMessage", hand.mskMessageText, new String [] {""+agentID, "", "-1" });
       }

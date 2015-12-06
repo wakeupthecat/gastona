@@ -259,7 +259,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
 
    public void updateNameDataAndControl (baseEBS ebs)
    {
-      super.setNameDataAndControl (ebs);
+      super.copyEBS (ebs);
       executeIfDataContainsSQL ();
    }
 
@@ -357,7 +357,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       }
       if (! myDB.checkClient())
       {
-         log.err ("tableROSelect.executeQuery", "sqlite3 could not be checked!");
+         log.severe ("tableROSelect.executeQuery", "sqlite3 could not be checked!");
          return;
       }
 
@@ -532,6 +532,10 @@ public class tableROSelectBatch extends absTableWindowingEBS
       {
          myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + "_pre" + " AS " + realQuery + ";");
          myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + " AS SELECT * FROM " + VIEW_TEMP_NAME + "_pre " + extraFilter + ";");
+         // seguramente se puede hacer en 1 query en ambos sqlite y postgresql como
+         //      create temp view xxxx as select * from (<realquery>) as _noname <extraFilter>;
+         // p.e.
+         //      create temp view TEMPAS as select * from (select * from users) as _noname WHERE name LIKE '%a%';
       }
       else
          myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + " AS " + realQuery + ";");

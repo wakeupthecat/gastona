@@ -1,7 +1,7 @@
 #listix#
 
    <main0>
-      SET VAR, SQLSyntax.db, @<:lsx tmp db>
+      VAR=, SQLSyntax.db, @<:lsx tmp db>
       DATABASE, @<SQLSyntax.db>, CREATETABLE, tab_sqlite_commands
       DATABASE, @<SQLSyntax.db>, CREATETABLE, tab_sqlite_examples
       MSG, HELP DB READY
@@ -14,29 +14,29 @@
 
 
    <tab_sqlite_examples>
-         command,     rest,                                                                      description
-         ALTER TABLE, "@<THIS TABLE> RENAME TO @<THIS TABLE>_nova ", // Rename a table
-         ALTER TABLE, "@<THIS TABLE> ADD COLUMN nouCamp ",                         // add a new column
-         ANALYZE,     "@<THIS TABLE>"                                            , // Analyze a table
-         CREATE TABLE, "novaTabla (id, name, description)", //Create a new table "novaTabla" with fields "id", "name" and "description"
-         CREATE TABLE, "novaTabla2 (id INTEGER PRIMARY KEY AUTOINCREMENT, name, desc)", //Create a new table "novaTabla2" with fields "id" (primary key and autoincrement), "name" and "desc"
-         CREATE TABLE, "duplo_@<THIS TABLE> AS SELECT * FROM @<THIS TABLE>", //Duplicate the selected table with name "duplo_" + old name
-         CREATE INDEX, "IF NOT EXISTS indexID ON @<THIS TABLE> (id)", //Create an unique index with name "indexID" in the selected table using the field "id"
-         CREATE INDEX, "myIndex ON @<THIS TABLE> (id, name)", //Create an index with name "myIndex" in the selected table composed by "id" and "name"
-         CREATE VIEW,  "myView AS SELECT * FROM @<THIS TABLE>", //Create a view named "myView" using a simple select query"
-         DELETE,       "FROM @<THIS TABLE> WHERE name = 'delete me pleaseplease'", //Delete records from selected table with a condition"
-         DROP TABLE,   "IF EXISTS notyet_@<THIS TABLE>", //Removes completely a tabled named notyet_@<THIS TABLE>"
-         DROP INDEX,   "IF EXISTS myIndex", //Removes (if exists) the index named "myIndex"
-         DROP VIEW,    "IF EXISTS myView" , //Removes (if exists) the view named "myView"
-         INSERT,       "INTO novaTabla VALUES (10, 'Maradona', 'Armando')",               // Inserts a new record in the table 'novaTabla'
-         INSERT,       "INTO novaTabla2 (id, desc, name) SELECT * FROM novaTabla", // Inserts a new record in the table 'novaTabla2' using a select sql query
-         PRAGMA,       "index_list(myTable)", // Get the indexes of the table "myTable"
-         PRAGMA,       "index_info(myIndex)", // Extract information about the index "myIndex"
-         PRAGMA,       "table_info(myTable)", // Extract information about the table "myTable"
-         EXPLAIN,      "SELECT * FROM @<THIS TABLE> LIMIT 10", //"compiles" the select sql query into a sequence of virtual machine instructions (sqlite specific)
-         SELECT,       "SELECT * FROM @<THIS TABLE> LIMIT 10", //Shows the first 10 records of the selected table
-         UPDATE,       "@<THIS TABLE> SET type='new' WHERE type='old'", //Update the records with contents 'old' with 'new' in field "type"
-         VACUUM,       "", //Optimizes the database in size
+      command,     rest,                                                                      description
+      ALTER TABLE, "@<THIS TABLE> RENAME TO @<THIS TABLE>_nova ", // Rename a table
+      ALTER TABLE, "@<THIS TABLE> ADD COLUMN nouCamp ",                         // add a new column
+      ANALYZE,     "@<THIS TABLE>"                                            , // Analyze a table
+      CREATE TABLE, "novaTabla (id, name, description)", //Create a new table "novaTabla" with fields "id", "name" and "description"
+      CREATE TABLE, "novaTabla2 (id INTEGER PRIMARY KEY AUTOINCREMENT, name, desc)", //Create a new table "novaTabla2" with fields "id" (primary key and autoincrement), "name" and "desc"
+      CREATE TABLE, "duplo_@<THIS TABLE> AS SELECT * FROM @<THIS TABLE>", //Duplicate the selected table with name "duplo_" + old name
+      CREATE INDEX, "IF NOT EXISTS indexID ON @<THIS TABLE> (id)", //Create an unique index with name "indexID" in the selected table using the field "id"
+      CREATE INDEX, "myIndex ON @<THIS TABLE> (id, name)", //Create an index with name "myIndex" in the selected table composed by "id" and "name"
+      CREATE VIEW,  "myView AS SELECT * FROM @<THIS TABLE>", //Create a view named "myView" using a simple select query"
+      DELETE,       "FROM @<THIS TABLE> WHERE name = 'delete me pleaseplease'", //Delete records from selected table with a condition"
+      DROP TABLE,   "IF EXISTS notyet_@<THIS TABLE>", //Removes completely a tabled named notyet_@<THIS TABLE>"
+      DROP INDEX,   "IF EXISTS myIndex", //Removes (if exists) the index named "myIndex"
+      DROP VIEW,    "IF EXISTS myView" , //Removes (if exists) the view named "myView"
+      INSERT,       "INTO novaTabla VALUES (10, 'Maradona', 'Armando')",               // Inserts a new record in the table 'novaTabla'
+      INSERT,       "INTO novaTabla2 (id, desc, name) SELECT * FROM novaTabla", // Inserts a new record in the table 'novaTabla2' using a select sql query
+      PRAGMA,       "index_list(myTable)", // Get the indexes of the table "myTable"
+      PRAGMA,       "index_info(myIndex)", // Extract information about the index "myIndex"
+      PRAGMA,       "table_info(myTable)", // Extract information about the table "myTable"
+      EXPLAIN,      "SELECT * FROM @<THIS TABLE> LIMIT 10", //"compiles" the select sql query into a sequence of virtual machine instructions (sqlite specific)
+      SELECT,       "SELECT * FROM @<THIS TABLE> LIMIT 10", //Shows the first 10 records of the selected table
+      UPDATE,       "@<THIS TABLE> SET type='new' WHERE type='old'", //Update the records with contents 'old' with 'new' in field "type"
+      VACUUM,       "", //Optimizes the database in size
 
    <tab_sqlite_commands>
       name                , sqliteHtmlName, sqlgroup, importance

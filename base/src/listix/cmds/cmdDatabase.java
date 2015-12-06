@@ -30,7 +30,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       DATABASE
-   <groupInfo>  system_process
+   <groupInfo>  data_db
    <javaClass>  listix.cmds.cmdDatabase
    <importance> 7
    <desc>       //Working with intern sqlite database
@@ -207,8 +207,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //Viewing the table ...
       //      //
       //      LOOP, SQL, , //SELECT name FROM myData ORDER BY name DESC
-      //      @<name>
-      //      =,,
+      //          ,, @<name>
       //      //
       //      //
       //      //done.
@@ -225,6 +224,7 @@ import listix.*;
 import listix.table.*;
 import de.elxala.Eva.*;
 
+import java.io.File;
 import de.elxala.langutil.filedir.*;
 import de.elxala.db.sqlite.*;
 
@@ -285,7 +285,7 @@ public class cmdDatabase implements commandable
       //
       if (dbName.length () > 0)
       {
-         java.io.File fill = new java.io.File (dbName);
+         File fill = fileUtil.getNewFile (dbName);
 
          if (optShema)
          {
@@ -330,8 +330,6 @@ public class cmdDatabase implements commandable
          String  customFile = cmd.takeOptionString(new String [] { "FROMFILE", "FILE" }, "" );
          String  customOutFile = cmd.takeOptionString(new String [] { "OUTPUTTOFILE", "OUT", "OUTPUT", "TOFILE" }, "" );
          String  customErrFile = cmd.takeOptionString(new String [] { "ERRORSTOFILE", "ERRTOFILE" }, "" );
-         boolean withTransaction = "1".equals (cmd.takeOptionString(new String [] { "TRANSACTION" }, "1" ));
-         //boolean withTransaction = "0".equals (cmd.takeOptionString(new String [] { "NOTRANS", "NOTRANSACTION" }, "0" ));
 
          if (customOutFile.length () > 0)
          {
@@ -354,12 +352,14 @@ public class cmdDatabase implements commandable
             // user script!
             //
             cmd.getLog().dbg (2, "DATABASE", "option FROMFILE = '" + customFile + "'");
-            cliDB.setInputScriptFile (customFile);
+            boolean withTransaction = "1".equals (cmd.takeOptionString(new String [] { "TRANSACTION" }, "0" ));   // DEFAULT 0! in FROM FILE
+            cliDB.setInputScriptFile (customFile, withTransaction);
          }
          else
          {
             //   DATABASE,  dbFileName,  EXECUTE, query
 
+            boolean withTransaction = "1".equals (cmd.takeOptionString(new String [] { "TRANSACTION" }, "1" ));   // DEFAULT 1 else
             // the query (argument 2)
             String querySQL = cmd.getArg(2);
 
@@ -437,9 +437,13 @@ public class cmdDatabase implements commandable
 
       // create column-name list (see CREATE TABLE and INSERT INTO syntax)
       //
-      String columNameList = "";
+      StringBuffer columNameTextList = new StringBuffer ();
+      StringBuffer columNameList = new StringBuffer ();
       for (int cc = 0; cc < eva.cols (0); cc ++)
-         columNameList += ((cc > 0) ? ", ":"") + eva.getValue (0, cc);
+      {
+         columNameList.append (((cc > 0) ? ", ":"") + eva.getValue (0, cc));
+         columNameTextList.append (((cc > 0) ? ", ":"") + eva.getValue (0, cc) + " text");
+      }
 
       if (optCreate)
       {
@@ -451,8 +455,8 @@ public class cmdDatabase implements commandable
          if (! preservePrevData)
             cliDB.writeScript ("DROP TABLE IF EXISTS " + tableName +  ";");
 
-         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + tableName +  " (" + columNameList + ");");
-         cmd.getLog().dbg (2, "DATABASE", "CREATE TABLE " + tableName +  " (" + columNameList + ");");
+         cliDB.writeScript ("CREATE TABLE IF NOT EXISTS " + tableName +  " (" + columNameTextList.toString () + ");");
+         cmd.getLog().dbg (2, "DATABASE", "CREATE TABLE " + tableName +  " (" + columNameTextList.toString () + ");");
       }
 
       if (optCreate || optAdd)
@@ -475,7 +479,7 @@ public class cmdDatabase implements commandable
          //
          for (int rr = 1; rr < eva.rows (); rr ++)
          {
-            String valueList = "";
+            StringBuffer valueList = new StringBuffer ();
             for (int cc = 0; cc < nFields; cc ++)
             {
                // get raw value
@@ -486,19 +490,16 @@ public class cmdDatabase implements commandable
                   svalue = cmd.getListix().solveStrAsString (svalue);
 
                // escape returns etc
-               svalue = cliDB.escapeString(svalue);
-
-               valueList += ((cc > 0) ? ", ":"") + "'" + svalue + "'";
+               valueList.append (((cc > 0) ? ", ":"") + "'" + cliDB.escapeString(svalue) + "'");
             }
 
-            String sql = "INSERT INTO " + tableName +  " (" + columNameList + ") VALUES (" + valueList + ");";
+            String sql = "INSERT INTO " + tableName +  " (" + columNameList.toString () + ") VALUES (" + valueList.toString () + ");";
 
             cliDB.writeScript (sql);
             cmd.getLog().dbg (2, "DATABASE", sql);
          }
       }
       cliDB.closeScript ();
-
       cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
 
       cmd.checkRemainingOptions (true);
@@ -522,109 +523,8 @@ public class cmdDatabase implements commandable
          evaName = "DBSchema of " + dbName;
 
       Eva evaResult = cmd.getListix().getSomeHowVarEva (evaName);
-      evaResult.clear ();
-      evaResult.addLine (new EvaLine ("id, tabType, tableName, columnCid, columnName, columnType, not_null, def_value, pk"));
-      // columns : id, tabType, tableName, columnCid, columnName, columnType, not_null, def_value, pk
 
-
-      //Get the table names
-      //
       sqlSolver cliDB = new sqlSolver ();
-      String [] vecTables = cliDB.getTables (dbName);
-      String [] vecViews = cliDB.getViews (dbName);
-
-      cmd.getLog().dbg (2, "DATABASE", "building schema of " + vecTables.length + " table(s) and " + vecViews.length + " view(s) in DB [" + dbName +  "].");
-
-      // for (int ii = 0; ii < vecTables.length; ii ++)
-      //    System.out.println (vecTables[ii]);
-
-      //build the script
-      //
-      //.separator ,
-      //.headers off
-      //SELECT "#data#";
-      //SELECT "   <tableInfo first_table>";
-      //PRAGMA table_info(first_table);
-      //SELECT "   <tableInfo second_table>";
-      //PRAGMA table_info(second_table);
-      //...
-
-      cliDB.openScript (false);
-      cliDB.writeScript (".separator ,");
-      cliDB.writeScript (".headers off");
-      cliDB.writeScript ("SELECT \"#data#\" ;");
-      for (int ii = 0; ii < vecTables.length; ii ++)
-      {
-         cliDB.writeScript ("SELECT \"   <tableInfo " + vecTables[ii] + ">\" ;");
-         cliDB.writeScript ("PRAGMA table_info(" + vecTables[ii] + ") ;");
-      }
-      for (int ii = 0; ii < vecViews.length; ii ++)
-      {
-         cliDB.writeScript ("SELECT \"   <tableInfo " + vecViews[ii] + ">\" ;");
-         cliDB.writeScript ("PRAGMA table_info(" + vecViews[ii] + ") ;");
-      }
-      cliDB.closeScript ();
-      String fout = fileUtil.createTemporal ();
-      cliDB.setStdOutputFile (fout);
-
-      // execute the query ...
-      cliDB.runSQL (dbName);
-
-      //The result should be a EvaUnit, let's load it
-      EvaUnit euSqlRes = EvaFile.loadEvaUnit (fout, "data");
-      if (euSqlRes == null)
-      {
-         cmd.getLog().err ("DATABASE", "SCHEMA: cannot read result from file [" + fout +  "].");
-         return;
-      }
-
-      // Now fill the unique result variable with all tables info's
-      //
-      int tableCnt = 0;
-      for (int ii = 0; ii < vecTables.length; ii ++)
-      {
-         Eva tiTab = euSqlRes.getEva ("tableInfo " + vecTables[ii]);
-         if (tiTab == null)
-         {
-            cmd.getLog().err ("DATABASE", "SCHEMA: cannot read result for table " + vecTables[ii] +  ".");
-            continue;
-         }
-         collect_fields (evaResult, tiTab, tableCnt++, "table", vecTables[ii]);
-      }
-      for (int ii = 0; ii < vecViews.length; ii ++)
-      {
-         Eva tiTab = euSqlRes.getEva ("tableInfo " + vecViews[ii]);
-         if (tiTab == null)
-         {
-            cmd.getLog().err ("DATABASE", "SCHEMA: cannot read result for view " + vecViews[ii] +  ".");
-            continue;
-         }
-         collect_fields (evaResult, tiTab, tableCnt++, "view", vecViews[ii]);
-      }
-   }
-
-   private void collect_fields (Eva evaResult, Eva infoTable, int tableCnt, String tableType, String tableName)
-   {
-      for (int jj = 0; jj < infoTable.rows (); jj ++)
-      {
-         //Column structure to fill:
-         // id, tabType, tableName, columnCid, columnName, columnType, not_null, def_value, pk
-
-         // structure from table_info PRAGMA:
-         // cid,name,type,notnull,dflt_value,pk
-         evaResult.addLine (
-            new EvaLine (
-               tableCnt + ", " +
-               tableType + ", " +
-               tableName + ", " +
-               infoTable.getValue (jj, 0) + ", " +  // cid
-               infoTable.getValue (jj, 1) + ", " +  // name
-               infoTable.getValue (jj, 2) + ", " +  // type
-               infoTable.getValue (jj, 3) + ", " +  // notnull
-               infoTable.getValue (jj, 4) + ", " +  // dflt_value
-               infoTable.getValue (jj, 5)           // pk
-            ));
-      }
+      cliDB.getSchema (dbName, evaResult);
    }
 }
-

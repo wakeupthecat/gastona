@@ -20,9 +20,6 @@ package de.elxala.langutil;
 
 public class stdlib
 {
-   public static boolean isOSLinux ()    { return java.io.File.separatorChar == '/'; }
-   public static boolean isOSWindows ()  { return java.io.File.separatorChar == '\\'; }
-
    public static int unsigned (byte val)
    {
       return (val >= 0) ? val: 256 + val;
@@ -60,5 +57,13 @@ public class stdlib
 		catch (Exception e) {}
 
 		return reto;
+ 	}
+
+   
+ 	public static String removeDotZero (String number)
+ 	{
+      if (number.endsWith (".0"))
+         return number.substring (0, number.length () -2);
+		return number;
  	}
 }

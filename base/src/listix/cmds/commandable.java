@@ -21,6 +21,11 @@ package listix.cmds;
 import listix.*;
 import de.elxala.Eva.*;
 
+//(o) DOC/listix/adding a new command/1 the commandable interface
+//    All commands has to be derived from this interface that merely says that 
+//    the methods "getNames" and "execute" has to be implemented
+//
+
 public interface commandable
 {
    /**

@@ -17,7 +17,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 /*
-   //(o) WelcomeGastona_source_listix_command DATABASE
+   //(o) WelcomeGastona_source_listix_command DBMORE
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -30,7 +30,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       DBMORE
-   <groupInfo>  system_process
+   <groupInfo>  data_db
    <javaClass>  listix.cmds.cmdDBMore
    <importance> 7
    <desc>       //Enhancing working with databases
@@ -81,8 +81,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
             1, LINE BREAK     , 0 / 1            , 1     , If set to 0 it returns a string with no line breaks
             1, DEEP COL HEADER, 0 / 1            , 0     , If set to 1 headers are expected in the first row of EvaDeepColList (actually the first row will be ignored/skiped)
             1, CONNECTION HEADER, 0 / 1          , 0     , If set to 1 headers are expected in the first row of EvaConnectionList (actually the first row will be ignored/skiped)
+            <!1, EMPTYSQL, sqlselect         , "SELECT """" AS ""no selection""" , 
 
-            3, CONNECTION     , "connName, sourceTable, sourceKey, targetTable, targetKey", Conenction given to be stored
+            3, CONNECTION     , "connName, sourceTable, sourceKey, targetTable, targetKey",, //Conenction given to be stored
 
 <!!                    , 11 / 01 / 10 / 00, 11    , "01" means no titles (first row) in DeepColumnDef, "10" in linkTableDef and "00" no titles in both, default value is "11"
 
@@ -185,7 +186,7 @@ public class cmdDBMore implements commandable
       else if (optDeepSchema) optionDeepSchema (cmd);
       else
       {
-         cmd.getLog().err ("DBMORE", "DBMORE operation [" + oper + "] not recognized!");
+         cmd.getLog().err ("DBMORE", "DBMORE la operation [" + oper + "] not recognized!");
          return 1;
       }
 
@@ -208,16 +209,28 @@ public class cmdDBMore implements commandable
 
    protected void loadConnections (listixCmdStruct cmd, String dbName, Eva evavar, boolean addHeader)
    {
-      // obtain evaconnectionlist from database
-      // NOTE: the "order by" selecting connections can be another one but important is that both sourceTable and connName
-      //       are included
-      //
-      tableROSelect myRO = new tableROSelect (dbName, "SELECT * FROM __dbMore_connections ORDER BY sourceTable, connName;");
+      //(o) DBMore_Notes the connection table name and its column names are here hardcoded
 
-      myRO.copyDataToEva(evavar, addHeader, 3000); // no limit?
+      sqlSolver db = new sqlSolver ();
+      String [] connTab = db.getTables (dbName, "name == '" + deepSqlUtil.CONNECTION_TABLE_NAME + "'");
+      if (connTab.length > 0)
+      {
+         // obtain evaconnectionlist from database
+         // NOTE: the "order by" selecting connections can be another one but important is that both sourceTable and connName
+         //       are included
+         //
 
-      if (evavar.rows () >= 3000)
-         cmd.getLog().err ("DBMORE", "Too many connections found (" + myRO.getRecordCount() + "), only using the first 3000!");
+         tableROSelect myRO = new tableROSelect (dbName, "SELECT * FROM " + deepSqlUtil.CONNECTION_TABLE_NAME + " ORDER BY sourceTable, connName;");
+         myRO.copyDataToEva(evavar, addHeader, 3000); // no limit?
+
+         if (evavar.rows () >= 3000)
+            cmd.getLog().err ("DBMORE", "Too many connections found (" + myRO.getRecordCount() + "), only using the first 3000!");
+      }
+      else
+      {
+         if (addHeader)
+            evavar.addLine (new EvaLine ("connName, sourceTable, sourceKey, targetTable, targetKey"));
+      }
    }
 
    protected void optionSaveConnections (listixCmdStruct cmd)
@@ -232,12 +245,12 @@ public class cmdDBMore implements commandable
       sqlSolver myDB = new sqlSolver ();
 
       myDB.openScript ();
-      myDB.writeScript (dbMore.getSQL_CreateTableConnections ());
+      myDB.writeScript (deepSqlUtil.getSQL_CreateTableConnections ());
 
       String [] connection = null;
       while (null != (connection = cmd.takeOptionParameters(new String [] { "CONNECTION", "CONN" }, true)))
       {
-         myDB.writeScript (dbMore.getSQL_InsertConnection(connection));
+         myDB.writeScript (deepSqlUtil.getSQL_InsertConnection(connection));
       }
       myDB.closeScript ();
       myDB.runSQL ((dbName.length () > 0) ? dbName : cmd.getListix ().getDefaultDBName ());
@@ -310,6 +323,8 @@ public class cmdDBMore implements commandable
       boolean titleInLink = "1".equals (cmd.takeOptionString(new String [] { "CONNECTIONHEADER", "CONNHEADER" }, "0" ));
       boolean titleInDeep = "1".equals (cmd.takeOptionString(new String [] { "DEEPCOLUMNSHEADER", "DEEPCOLHEADER", "DEEPHEADER" }, "0" ));
       boolean newLine     = "1".equals (cmd.takeOptionString(new String [] { "LINEBREAK", "NEWLINE" }, "1" ));
+
+      String [] fields = cmd.takeOptionParameters (new String [] { "FIELD", "" }, true);
 
       //check deepColTable
       Eva evaDeepColTable = cmd.getListix().getVarEva (deepColTable);

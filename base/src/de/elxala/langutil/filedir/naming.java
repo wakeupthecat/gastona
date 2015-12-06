@@ -57,10 +57,15 @@ public class naming
          char ica = ss.charAt (ii);
          if ((ica >= '0' && ica <= '9') ||
              (ica >= 'A' && ica <= 'Z') ||
-             (ica >= 'a' && ica <= 'z')) continue;
+             (ica >= 'a' && ica <= 'z') || 
+             ica == '.' || ica == '-' || ica == '_') continue;
          ss = ss.replace (ica, '_');
       }
-      return ss;
+
+      // do not allow starting with number, as the convention for variable and function names
+      String firstChar = (ss.length () > 0 && ss.charAt (0) >= '0' && ss.charAt (0) <= '9' ) ? "n": "";
+
+      return firstChar + ss;
    }
 
    //ensure a path name is ISO 9660 Joliet

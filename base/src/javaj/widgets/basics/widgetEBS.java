@@ -97,11 +97,16 @@ public class widgetEBS extends baseEBS
    public static final String sATTR_VISIBLE    = "visible";
    public static final String sATTR_ENABLED    = "enabled";
    public static final String sATTR_IMAGE      = "image";
+   public static final String sATTR_GRAFFITI   = "graffiti";
+   public static final String sATTR_GRAFFITI_PRESS = "graffiti press";
+   public static final String sATTR_GRAFFITI_ANIM = "graffiti animation";
    public static final String sATTR_FILES_DROPPABLE  = "droppedFiles";
    public static final String sATTR_DIRS_DROPPABLE  = "droppedDirs";
    public static final String sATTR_DIRTY      = "dirty";
    public static final String sATTR_ALTCHAR_1  = "AltChar";
    public static final String sATTR_ALTCHAR_2  = "mnemonic";
+   public static final String sATTR_BACKCOLOR  = "backColor";
+   public static final String sATTR_FORECOLOR  = "foreColor";
 
    private static logger logStatic = new logger (null, "javaj.widgets", null);
    public logger log = logStatic; // Note: it cannot be "protected"
@@ -191,6 +196,26 @@ public class widgetEBS extends baseEBS
       setSimpleAttribute (DATA, sATTR_IMAGE, imageName);
    }
 
+   public Eva getGraffiti ()
+   {
+      return getAttribute (DATA, sATTR_GRAFFITI);
+   }
+
+   public Eva getGraffitiPress ()
+   {
+      return getAttribute (DATA, sATTR_GRAFFITI_PRESS);
+   }
+
+   public Eva getGraffitiAnimation ()
+   {
+      return getAttribute (DATA, sATTR_GRAFFITI_ANIM);
+   }
+
+//   public void setPainting (Eva imageName)
+//   {
+//      setAttribute (DATA, sATTR_IMAGE, imageName);
+//   }
+
    public boolean getEnabled ()
    {
       return "1".equals (getSimpleAttribute (CONTROL, sATTR_ENABLED, "1" /* default true! */));
@@ -201,14 +226,45 @@ public class widgetEBS extends baseEBS
       setSimpleAttribute (CONTROL, sATTR_ENABLED, (valor ? "1" : "0"));
    }
 
+   //(o) TODO_REVIEW visibility issue
    public boolean getVisible ()
    {
       return "1".equals (getSimpleAttribute (CONTROL, sATTR_VISIBLE, "1" /* default true! */));
    }
 
+   public String getBackColorAttribute ()
+   {
+      return getSimpleAttribute (DATA, sATTR_BACKCOLOR, null);
+   }
+   
+   public String getForeColorAttribute ()
+   {
+      return getSimpleAttribute (DATA, sATTR_FORECOLOR, null);
+   }
+   
    public void setVisible (boolean valor)
    {
       setSimpleAttribute (CONTROL, sATTR_VISIBLE, (valor ? "1" : "0"));
+   }
+   
+   public void setDataControlAttributes (EvaUnit pData, EvaUnit pControl, String [] pairAttValues)
+   {
+      setNameDataAndControl (null, pData, pControl);
+      setArrayOfSimpleAttributes (pairAttValues);
+   }
+
+
+   // thought for message 
+   //   MSG, widgetName data!, att1, val1, att2, val2 ...
+   //
+   public void setArrayOfSimpleAttributes (String [] params)
+   {
+      if (params == null || params.length == 0) return;
+      
+      for (int pp = 0; pp+1 < params.length; pp += 2)
+      {
+         setSimpleAttribute (DATA, params[pp], params[pp+1]);
+      }
    }
 
 

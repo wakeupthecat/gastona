@@ -44,6 +44,13 @@ import de.elxala.zServices.*;
    Provides also a command line call (see main)
 
    20.03.2008 17:51 Creation
+   29.02.2012 00:41 Remove modificators :keep and :optional, they weren't really implemented
+                    (just ":keep" was used and worked but because of a BUG!!! fixed on 25-02-2012, see bildID 11536)
+                    The idea to have these modificators here is not good, as well as keeping an old value is wrong
+                    ":keep" can be implemented in a higher level (cmdParsons) using an agent table (master)
+                    old value is thought for delta-records but delta-records has to be done of filtered tables, thus
+                    this delta built while parsing hardly seems to be useful.
+            
 */
 public class aLineParsons
 {
@@ -51,28 +58,18 @@ public class aLineParsons
    {
       public String name = null;
       public String value = null;
-      public String oldValue = null;
 
-      public boolean varOptional = false;
-      public boolean keepValue = false;
-
-      public fieldType ()
-      {
-      }
-
-      public fieldType (String fieldName, boolean isOptional, boolean keepVal)
+      public fieldType (String fieldName)
       {
          name = fieldName;
-         keepValue = keepVal;
-         varOptional = isOptional;
       }
-
    };
 
-   private fieldType [] currentRecord;
+   private fieldType [] currentRecord = new fieldType [0];
 
-   private int [] offsetFields = null;     // on each pattern starts a field, this is the index of this field
-   private Pattern [] arrPatterns = null;  // array of patterns to check for each line
+   private int [] offsetFields = new int [0];     // on each pattern starts a field, this is the index of this field
+   private Pattern [] arrPatterns = new Pattern [0];  // array of patterns to check for each line
+   private Pattern [] arrAntiPatterns = new Pattern [0];  // array of patterns to check for each line
 
    private int nextPattern = -1;           // current pattern to start with while scanning a line
    private boolean recordComplete = false;
@@ -80,7 +77,8 @@ public class aLineParsons
 
    private logger log = new logger (this, "de.elxala.parse.parsons.aLineParsons", null);
 
-   public Eva patternMap;                  // original description of the pattern-Field mapping
+   public Eva patternMap     = new Eva ();               // original description of the pattern-Field mapping
+   public Eva antiPatternList = new Eva ();              // patterns to be ignored
 
    public aLineParsons ()
    {
@@ -91,6 +89,12 @@ public class aLineParsons
    public aLineParsons (Eva thePatternMap)
    {
       patternMap = thePatternMap;
+      ready = false;
+   }
+
+   public void setAntiPatternList (Eva theAntiPatternList)
+   {
+      antiPatternList = theAntiPatternList;
       ready = false;
    }
 
@@ -108,8 +112,55 @@ public class aLineParsons
       ready = false;
    }
 
-   /**
+   public Pattern [] getPatterns ()
+   {
+      return arrPatterns;
+   }
 
+   public Pattern [] getAntiPatterns ()
+   {
+      return arrAntiPatterns;
+   }
+
+   public boolean hasPatterns ()
+   {
+      return arrPatterns != null && arrPatterns.length > 0;
+   }
+
+   public boolean hasAntiPatterns ()
+   {
+      return arrAntiPatterns != null && arrAntiPatterns.length > 0;
+   }
+
+
+   public boolean ignoreLine (String lineStr)
+   {
+      if (!ready)
+         if (!init ())
+            return false; // conservative
+
+      for (int pp = 0; pp < arrAntiPatterns.length; pp ++)
+      {
+         Matcher matcher = null;
+         try
+         {
+            matcher = arrAntiPatterns[pp].matcher(lineStr);
+         }
+         catch (Exception e)
+         {
+            log.err ("ignoreLine", "Exception calling matcher\n" + e);
+            return false; // conservative
+         }
+         if (matcher != null && matcher.find())
+         {
+            log.dbg (5, "ignoreLine", "ignoring line [" + lineStr + "]");
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
       <patternFieldMap>
 
          :keep, :optional, headName, //TITLE: (.*)
@@ -122,8 +173,8 @@ public class aLineParsons
          shutter, units, //Shutter: (.*) (.*)
 
 
-   
-      where 
+
+      where
          :keep     => the field value will kept, not reset on each new record
          :optional => the field is optional, might or might not appear
                       (policy ? if it does not appear .. NULL or empty string ?)
@@ -139,9 +190,34 @@ public class aLineParsons
 
       offsetFields = new int [patternMap.rows ()];
       arrPatterns  = new Pattern [patternMap.rows ()];
+      arrAntiPatterns  = new Pattern [antiPatternList.rows ()];
+
       int offset = 0;
       boolean isOptional = false;
       boolean toBeKept = false;
+
+      // for each row an antiPattern
+      //
+      for (int ii = 0; ii < antiPatternList.rows (); ii ++)
+      {
+         String thePattern = antiPatternList.getValue (ii, 0);
+
+         try
+         {
+            arrAntiPatterns[ii] = Pattern.compile (thePattern);
+         }
+         catch (PatternSyntaxException e)
+         {
+            log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
+            return false;
+         }
+         catch (Exception e)
+         {
+            log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
+            return false;
+         }
+      }
+
 
       // for each row a pattern and one or more fields
       //
@@ -155,7 +231,22 @@ public class aLineParsons
             return false;
          }
 
-         String thePattern = patternMap.getValue (ii, patternMap.cols (ii) - 1);
+         // same numeric value with two different meanings!
+         int pattIndx, nchamps;
+         pattIndx = nchamps = patternMap.cols (ii) - 1;
+
+         String thePattern = patternMap.getValue (ii, pattIndx);
+
+         //change 24.02.2012 23:57
+         // !!! Fix error introduced on      2011-03-11 22:28:14 (bildID 11306, fileID 68641 from IProject db)
+         //     compare with aLineParsons of 2010-01-08 22:23:44 (bildID 11138, fileID 63588)
+         offsetFields[ii] = offset;
+         offset += nchamps;
+
+         // NOTA: 25.02.2012 01:50
+         //seguramente es correcto reemplazar las dos últimas líneas por
+         //   offsetFields[ii] = campos.size ();
+         //y simplemente eliminar la variable offset
 
          try
          {
@@ -177,15 +268,7 @@ public class aLineParsons
          {
             String fname = patternMap.getValue (ii, cc);
 
-            if (fname.startsWith (":"))
-            {
-               if (fname.equalsIgnoreCase(":keep")) toBeKept = true;
-               if (fname.equalsIgnoreCase(":opt")) isOptional = true;
-               if (fname.equalsIgnoreCase(":optional")) isOptional = true;
-               continue;
-            }
-
-            fieldType fi = new fieldType (fname, isOptional, toBeKept);
+            fieldType fi = new fieldType (fname);
 
 
             //(o) TODO change this, since List::contains (object) does not detect equal objects (only for strings, int etc ?)
@@ -201,9 +284,6 @@ public class aLineParsons
             campos.add (fi);
             log.dbg (5, "init", "add field " + fi.name + " at index " + (campos.size ()-1));
          }
-
-         offsetFields[ii] = offset;
-         offset += campos.size ();
       }
 
       // build the array of fields and values from the list
@@ -235,11 +315,18 @@ public class aLineParsons
 
    private void newRecord()
    {
+      resetRecord ();
+   }
+
+   /** reset the current parsed record, all values collected until now will be discarded
+   */
+   public void resetRecord ()
+   {
+      recordComplete = false;
+      nextPattern = 0;
       for (int ii = 0; ii < currentRecord.length; ii ++)
       {
-         currentRecord[ii].oldValue = currentRecord[ii].value;
-         if (! currentRecord[ii].keepValue)
-            currentRecord[ii].value = null;
+         currentRecord[ii].value = null;
       }
    }
 
@@ -247,6 +334,12 @@ public class aLineParsons
    {
       return recordComplete;
    }
+
+   public void recordConsumed ()
+   {
+      newRecord();
+   }
+
 
    /**
       returns 0 if no match found in the line
@@ -259,95 +352,91 @@ public class aLineParsons
          if (!init ())
             return 0;
 
+      if (arrPatterns.length == 0)
+      {
+         log.dbg (7, "scan", "line [" + lineStr + "] check with no patterns, return 0");
+         return 0; // nothing to
+      }
+
+      if (nextPattern >= arrPatterns.length)
+      {
+         newRecord();
+         log.dbg (5, "scan", "new record");
+      }
       //      <patternFieldMap>
       //         start,          //^METADATA:$
       //         area,           //^AREA=(.*)
       //         c1, c2, c3, c4, //^1-(.*) TABO 2-(.*) TABO 3-(.*) TABO (.*)
 
-      int startPattern = nextPattern;
       int miroIndx = nextPattern;
-
-      boolean changeRecord = false;
       int returnedColumnIndex = 0;
-
       recordComplete = false;
 
-      log.dbg (7, "scan", "line [" + lineStr + "]");
-      do
+      log.dbg (7, "scan", "line [" + lineStr + "] check pattern Nr " + miroIndx);
+
+      Matcher matcher = null;
+
+      try
       {
-         log.dbg (7, "scan", "check pattern Nr " + miroIndx);
-         if (miroIndx >= arrPatterns.length)
-         {
-            if (startPattern == 0) break;
-            miroIndx = 0;
-            changeRecord = true;
-         }
+         matcher = arrPatterns[miroIndx].matcher(lineStr);
+      }
+      catch (Exception e)
+      {
+         log.err ("scan", "Exception calling matcher\n" + e);
+         return 0;
+      }
+      if (matcher == null)
+      {
+         log.err ("scan", "Problems calling matcher\n");
+         return 0;
+      }
 
-         Matcher matcher = null;
-         try
-         {
-            matcher = arrPatterns[miroIndx].matcher(lineStr);
-         }
-         catch (Exception e)
-         {
-            log.err ("scan", "Exception calling matcher\n" + e);
-            return 0;
-         }
+      //NOTE: it has to used "find" and not "match" since the pattern can match at index biger than 0
+      if (matcher.find())
+      {
+         log.dbg (5, "scan", "matcher found at index [" + miroIndx + "]");
 
-         miroIndx ++;
-
-         if (matcher != null && matcher.find())
+         // pattern found! retrieve the fields of this pattern and end the loop
+         nextPattern = miroIndx + 1;
+         if (matcher.groupCount() == 0)
          {
-            log.dbg (5, "scan", "matcher found at index [" + (miroIndx - 1) + "]");
+            //(o) elxala_parsons Storing the whole line
+            // Usually parsons store just fields that are matched in groups, in order to store
+            // the whole line instead just define one field and place no group in the
+            // parttern string. Here is this implemented
 
-            // pattern found! retrieve the fields of this pattern and end the loop
-            nextPattern = miroIndx;
-            if (changeRecord)
+            // Condition for storing the whole line:
+            // it matches (matcher.find()) but no group is found => it means that the patter contain no groups!
+            // therefore the line must be the result (value of first field)
+
+            log.dbg (5, "scan", "no groups founds, set whole line at index " + miroIndx);
+
+            if (miroIndx >= 0 && miroIndx < currentRecord.length)
             {
-               newRecord();
-               log.dbg (5, "scan", "new record");
-            }
-
-            if (matcher.groupCount() == 0)
-            {
-               //(o) elxala_parsons Storing the whole line
-               // Usually parsons store just fields that are matched in groups, in order to store
-               // the whole line instead just define one field and place no group in the
-               // parttern string. Here is this implemented
-
-               // Condition for storing the whole line:
-               // it matches (matcher.find()) but no group is found => it means that the patter contain no groups!
-               // therefore the line must be the result (value of first field)
-
-               log.dbg (5, "scan", "no groups founds, set whole line at index " + (miroIndx - 1));
-
-               if ((miroIndx-1) >= 0 && (miroIndx-1) < currentRecord.length)
-               {
-                  currentRecord [miroIndx-1].value = lineStr;
-               }
-               else
-               {
-                  log.err ("scan", "currentRecord.lenght = " + currentRecord.length + " and cannot set result of matched line with no groups [" + lineStr + "]");
-               }
-
-               returnedColumnIndex = lineStr.length ();
+               currentRecord [miroIndx].value = lineStr;
             }
             else
             {
-               machado (matcher, miroIndx - 1);
-
-               //returnedColumnIndex = matcher.end (matcher.groupCount());
-               returnedColumnIndex = matcher.end ();
-
-               if (log.isDebugging (5))
-                  log.dbg (5, "scan", "rest of line [" + lineStr.substring (returnedColumnIndex) + "]");
+               log.err ("scan", "currentRecord.lenght = " + currentRecord.length + " and cannot set result of matched line with no groups [" + lineStr + "]");
             }
-            recordComplete = nextPattern >= arrPatterns.length;
 
-            log.dbg (5, "scan", "return returnedColumnIndex = " + returnedColumnIndex);
-            return returnedColumnIndex;
+            returnedColumnIndex = lineStr.length ();
          }
-      } while (miroIndx != startPattern);
+         else
+         {
+            machado (matcher, miroIndx);
+
+            //returnedColumnIndex = matcher.end (matcher.groupCount());
+            returnedColumnIndex = matcher.end ();
+
+            if (log.isDebugging (5))
+               log.dbg (5, "scan", "rest of line [" + lineStr.substring (returnedColumnIndex) + "]");
+         }
+         recordComplete = nextPattern >= arrPatterns.length;
+
+         log.dbg (5, "scan", "return returnedColumnIndex = " + returnedColumnIndex);
+         return returnedColumnIndex;
+      }
 
       log.dbg (7, "scan", "return 0");
       return 0;
@@ -357,7 +446,7 @@ public class aLineParsons
    {
       int offset = offsetFields[row];
 
-      log.dbg (7, "machado", "matcher.groupCount() = " + matcher.groupCount());
+      log.dbg (7, "machado", "matcher.groupCount() = " + matcher.groupCount() + " start " +  matcher.start() +  " end " + matcher.end());
 
       for (int ii = 1; ii <= matcher.groupCount(); ii++)
       {
@@ -368,9 +457,18 @@ public class aLineParsons
          else
          {
             log.dbg (7, "machado", " index = " + ii + " row = " + row + " offset = " + offset +
-                        " item (" + matcher.start(ii) + " to " + matcher.end(ii) + ")" +
-                        " group (" + matcher.start() + " to " + matcher.end() + ")");
+                        " item (" + matcher.start(ii) + " to " + matcher.end(ii) + ")" );
             currentRecord[offset + ii - 1].value = matcher.group(ii);
+
+            // NOTE: See documentation of Matcher.start (int)
+            //       return value : The index of the first character captured by the group, or -1 if the match was successful but "The index of the first character captured by the group, or -1 if the match was successful but the group itself did not match anything 
+            //       ? "the group itself did not match anything" ?
+            //       parece que no matcha!
+            //if (matcher.start(ii) == -1)
+            //{
+            //   log.err ("machado", "pattern matches but group with no containt");
+            //}            
+
          }
       }
    }

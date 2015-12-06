@@ -88,10 +88,26 @@ public class DateFormat
       theDate = fecha;
    }
 
+   private static SimpleDateFormat simpleFormat (String pattern)
+   {
+      SimpleDateFormat formatter = null;
+      try
+      {
+         formatter = new SimpleDateFormat (pattern);
+      }
+      catch (Exception e)
+      {
+         log.err ("DateFormat", "exception parsing pattern [" + pattern + "] : " + e);
+      }
+      return formatter;
+   }
+
    public String get ()
    {
-      SimpleDateFormat formatter = new SimpleDateFormat (thePattern);
-      return formatter.format (theDate);
+      SimpleDateFormat formatter = simpleFormat (thePattern);
+      if (formatter != null)
+         return formatter.format (theDate);
+      return theDate.toString ();
    }
 
    public static Date getDate (String strDate)
@@ -99,30 +115,57 @@ public class DateFormat
       return getDate (strDate, DEFAULT_PATTERN, DEFAULT_ZEROED_PATTERN);
    }
 
+   public long getAsLong ()
+   {
+      //yyyy-MM-dd HH:mm:ss S
+      // NOTE : FIX the timezone offset to obtain the same result as
+      //        in sqlite "SELECT strftime('%s', p1)"
+      //        for example "SELECT strftime('%s','1970-01-01')" gives 0
+      // specifically ...
+      //       SETVAR, ahora, @<:lsx date yyyy-MM-dd HH:mm:ss>
+      //       //Now is @<ahora>
+      //       //
+      //       //Milliseconds since 1970 =
+      //       STRCONV, DATE-LONG, @<ahora>
+      //       //
+      //       //
+      //       LOOP, SQL,, //SELECT strftime('%s', '@<ahora>') AS va
+      //           ,, //Milliseconds since 1970 =@<va>000
+      //
+      //
+      return theDate.getTime () + java.util.TimeZone.getDefault ().getOffset (0);
+   }
+   
+   public static long getAsLong (String strDate)
+   {
+      return getDate (strDate, "yyyy-MM-dd HH:mm:ss S", "1970-01-01 00:00:00 0").getTime () + java.util.TimeZone.getDefault ().getOffset (0);
+   }
+
    public static Date getDate (String strDate, String strPattern, String zeroedPattern)
    {
-      SimpleDateFormat formatter = new SimpleDateFormat (strPattern);
-      
       if (strPattern.length () != zeroedPattern.length ())
       {
          log.severe ("getDate", "Bad call to getDate strPattern and zeroedPattern has to be of the same length [" + strPattern + "] [" + zeroedPattern + "]");
          return new Date (0);
       }
-      
       if (strDate.length () < strPattern.length ())
       {
          strDate = strDate + zeroedPattern.substring (strDate.length ());
       }
 
       Date da = new Date (0);
-      try
+      SimpleDateFormat formatter = simpleFormat (strPattern);
+      if (formatter != null)
       {
-         da = formatter.parse (strDate);
-      }
-      catch (java.text.ParseException pe)
-      {
-         log.err ("getDate", "Exception parsing the date [" + strDate + "] : " + pe);
-         //pe.printStackTrace ();
+         try
+         {
+            da = formatter.parse (strDate);
+         }
+         catch (java.text.ParseException pe)
+         {
+            log.err ("getDate", "Exception parsing the date [" + strDate + "] : " + pe);
+            //pe.printStackTrace ();
+         }
       }
 
       return da;

@@ -135,8 +135,8 @@ public class lsxWriter
       }
 
       // some variables (IDEA, it could be done in makeFile)
-      (Udata.getSomeHowEva (":LSX dataFile")).setValue (dataFile);
-      (Udata.getSomeHowEva (":LSX formatFile")).setValue (formatFile);
+      (Udata.getSomeHowEva (":LSX dataFile")).setValueVar (dataFile);
+      (Udata.getSomeHowEva (":LSX formatFile")).setValueVar (formatFile);
 
       makeFile (Udata, Uformats, formatName, outputFile, new tableCursorStack (), null, null);
       return true;

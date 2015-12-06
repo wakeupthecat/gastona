@@ -96,7 +96,7 @@ public class EvaFile
    {
       if (ueva == null) return false;  // nothing to do
 
-      File filN = new File (FileName);
+      File filN = fileUtil.getNewFile (FileName);
 
       return (new EvaFile ()).save (filN.getPath (), ueva);
    }
@@ -184,6 +184,12 @@ public class EvaFile
    {
       if (false == OpenFile (FileName))
          return null;
+
+      if (UnitName.indexOf ("#") != -1)
+      {
+         log().err ("load", "Invalid unit name (" + UnitName + "), the character # cannot be part of the name.");
+         return null;
+      }
 
       if (false == BuscaUniEva (UnitName))
       {
@@ -365,7 +371,7 @@ public class EvaFile
    */
     private boolean Save (String FileName, EvaUnit ueva, boolean bDeleteFromFile)
     {
-      File elFix = new File (FileName);
+      File elFix = fileUtil.getNewFile (FileName);
 
       if ( ! elFix.exists ())
       {
@@ -390,7 +396,7 @@ public class EvaFile
 
       // Renombrar el original (terminandolo en .TmpBack)
       //
-      File bakFix = new File (FileName + ".TmpBack");
+      File bakFix = fileUtil.getNewFile (FileName + ".TmpBack");
       if (bakFix.exists ())
          bakFix.delete ();
       elFix.renameTo (bakFix);   // elFix mantiene el nombre original !!

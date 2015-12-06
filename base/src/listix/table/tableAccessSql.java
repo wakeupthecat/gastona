@@ -115,4 +115,8 @@ public class tableAccessSql extends tableAccessBase
    {
       return sqlModel.getRecordCount ();
    }
+
+   public void rowIsIncremented ()
+   {
+   }
 }

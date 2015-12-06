@@ -25,15 +25,11 @@ package de.elxala.langutil.filedir;
    07.04.2009 21:11
 */
 
-import java.io.*;
-import java.util.List;
-import java.util.Vector;
-
-import java.io.InputStream;   // for files from jar file (resources)
-import java.net.URL;
-// import java.net.URI;
-import de.elxala.langutil.*;
 import de.elxala.zServices.logger;
+import java.io.*;
+//import java.io.InputStream;
+//import java.io.FileOutputStream;
+import java.net.URL;
 
 /**
    class urlUtil
@@ -63,6 +59,7 @@ public class urlUtil
       }
       catch (java.net.UnknownHostException e) {}
       catch (java.net.MalformedURLException e) {}
+      catch (java.io.FileNotFoundException e) {}
       catch (Exception  e)
       {
          //another exception ? => error
@@ -91,7 +88,7 @@ public class urlUtil
 
       try
       {
-logStatic.dbg (2, "copyUrlResource", "PHASO !");
+//logStatic.dbg (2, "copyUrlResource", "PHASO !");
          URL urla = new URL (urlName);    // it cannot return null, or ?
          InputStream is = urla.openStream ();
 
@@ -102,51 +99,41 @@ logStatic.dbg (2, "copyUrlResource", "PHASO !");
             return false;
          }
 
-logStatic.dbg (2, "copyUrlResource", "PHASO2 ! fileToWrite ["  + fileToWrite + "]");
+//logStatic.dbg (2, "copyUrlResource", "PHASO2 ! fileToWrite ["  + fileToWrite + "]");
          if (fileToWrite == null)
             fileToWrite = dirTarget + urla.getFile ();
 
-logStatic.dbg (2, "copyUrlResource", "PHASO2.1 ! fileToWrite ["  + fileToWrite + "]");
-         // make dir if necessary
-         File elfile = new File (fileToWrite);
-         File eldir  = elfile.getParentFile ();
-         if (eldir != null && !eldir.exists ())
+         // NEW CODE (from 2015.02.01 23:39)
+         //
+         if (! fileUtil.ensureDirsForFile (fileToWrite))
          {
-            logStatic.dbg (2, "copyUrlResource", "creating directories " + eldir);
-            eldir.mkdirs ();
+            logStatic.err ("copyUrlResource", "cannot create directories for target file [" + fileToWrite + "]");
+            return false;
          }
-////         String tupare = elfile.getParent();
-////logStatic.dbg (2, "copyUrlResource", "PHASO2.2 ! elfile ["  + elfile + "]");
-////logStatic.dbg (2, "copyUrlResource", "PHASO2.22 ! elfile ["  + elfile + "] elfileParent " + elfile.getParent());
-////         if (tupare != null)
-////         {
-////            File eldir  = new File (tupare);
-////logStatic.dbg (2, "copyUrlResource", "PHASO2.3 ! eldir ["  + eldir + "]");
-////            if (!eldir.exists ())
-////            {
-////               logStatic.dbg (2, "copyUrlResource", "creating directories " + eldir);
-////               eldir.mkdirs ();
-////            }
-////         }
-logStatic.dbg (2, "copyUrlResource", "PHASO3 !");
 
+         TextFile tfOutput = new TextFile ();
+         if (!tfOutput.fopen (fileToWrite, "wb"))
+         {
+            logStatic.err ("copyUrlResource", "target file [" + fileToWrite + "] could not be opened for write");
+            return false;
+         }
+            
          logStatic.dbg (2, "copyUrlResource", "copying [" + urlName + "] on [" + fileToWrite + "] ...");
-         FileOutputStream roso = new FileOutputStream (fileToWrite);
-
          int charo = -1;
          int kanto = 0;
 
-         do
-         {
-            charo = is.read ();
-            if (charo != -1)
-            {
-               roso.write (charo);
-               kanto ++;
-            }
-         } while (charo != -1);
 
-         //         NOTA : No parece que vaya m·s r·pido con un buffer
+         //(o) TODO_writing text files since we read in blocks of 1024 is quite probable that return line feed pairs (13+10)
+         //    are packed together and then serialTextBuffer.writeString handles them correctly
+         //    but if we write one by one two new lines are added.
+         //    REVIEW this method using new byte [1];
+         //
+         int len = 0;
+         byte [] buff = new byte [1024];
+         while((len = is.read(buff)) != -1)
+            tfOutput.writeBytes (buff, len);
+
+         //         NOTA : No parece que vaya m√°s r√°pido con un buffer
          //
          //         byte [] torrent = new byte[1024000];
          //
@@ -162,7 +149,7 @@ logStatic.dbg (2, "copyUrlResource", "PHASO3 !");
 
 
          // System.out.println ("Me he cargado " + kanto + " caracteres! ellos se hallan en [" + urla.getFile () + "] seguramente");
-         roso.close ();
+         tfOutput.fclose ();
          is.close ();
       }
       catch (Exception e)
@@ -172,6 +159,4 @@ logStatic.dbg (2, "copyUrlResource", "PHASO3 !");
       }
       return true;
    }
-
-
 }

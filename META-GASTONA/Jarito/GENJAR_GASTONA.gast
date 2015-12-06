@@ -1,80 +1,68 @@
+#gastona#
+
+   <LOG WAKEUP>
+   
+   <fusion>
+      META-GASTONA/utilApp/editor/EmergencyEditor.gasti
+      META-GASTONA/utilApp/editor/javaErrorsClickAndGo.gasti
+
 #javaj#
 
-
    <frames>
-         F, Generador de gastona.jar, 500, 400
+         F, Generador de gastona.jar, 700, 600
 
    <layout of F>
          EVA, 10 , 10, 5, 5
 
          ,               , X
-         , lJavac path   , eJavacPath
-         , bGenerateJar  , -
-      X  , oConsola      , -
-      X  ,    +
-      X  , o2ErrConsola  , -
-
-
-#listix#
-
-   <!ALTERNATIVE TO .gastonaLocal changing this script
-   <!tool javac> yourFullPathTo/javac.exe
-
-   <main0>
-      LOAD, data, "@<:sys user.home>/.gastonaLocal"
-      CHECK, VAR, tool javac, SET VAR, tool javac, javac
-
-   <-- bGenerateJar>
-      MSG, oConsola clear
-      MSG, o2ErrConsola clear
-      GEN, con, main, formats, gastinc/genJarrito.lsx
+         , lJavac path    , eJavacPath, bGenerateJar
+         , lBinary archive, eBinaryArchive,  kRemove temp
+      X  , o1Consola      , - , -
+      X  , layJavaErrorsClickAndGo  , - , -
+         , bOpen target jars & Exit, -, -
 
 #data#
 
-   <eJavacPath var> tool javac
+   <gastonaVersion>  //1.00.151206 \"ERipley +1.00.00 gitana\"
 
-   <gastonaVersion>  //0.60.110912 \"Galata fly\"
-
-   <previous to jar>
-      @<install sqlite>
-      @<generate gastonaVersion>
-
+   <kRemove temp selected> 1
+   <eJavacPath>     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe
+   <eBinaryArchive> //\pavoTools\gastonaBinaries
    <manifestClass> gastona.gastona
    <jarName>       gastona.jar
 
+   <manifestFile>
+      'Manifest-Version: 1.0
+      'Main-Class: @<manifestClass>
+      'Created-By: Ant-onio Jar-rito (www.wakeupthecat.com)
+
    <traspasosTo>
-      que    ,  fromSubDir            , toSubDir,    rename
-
-      *    ,  META-GASTONA/muTools  ,
-      *    ,  base/src/javaj/img    , javaj/img
-
-      *    ,  META-GASTONA/WelcomeGastona,
-      *    ,  META-GASTONA/WelcomeGastona/genDB,
-      *    ,  META-GASTONA/utilApp/arces
-      *    ,  META-GASTONA/utilApp/arces/gasti
-<!      *    ,  META-GASTONA/utilApp/files
-      *    ,  META-GASTONA/utilApp/logAnalysis
-      *    ,  META-GASTONA/utilApp/editor
-      *    ,  META-GASTONA/utilApp/std
-      *    ,  META-GASTONA/utilApp/xmelon
+      fromSubDir            , toSubDir
+      
+      META-GASTONA/img, javaj/img
+      META-GASTONA/js
+      META-GASTONA/javaj
+      META-GASTONA/muTools        
+      META-GASTONA/WelcomeGastona
+      META-GASTONA/utilApp/arces
+      META-GASTONA/utilApp/logAnalysis
+      META-GASTONA/utilApp/gastAnalyzer
+      META-GASTONA/utilApp/editor
+      META-GASTONA/utilApp/std
+      META-GASTONA/utilApp/xmelon
 
    <table task javac>
 
       source
 
-      //gastona/gastona.java
-      //de/elxala/Eva/util/EvaFileToHtml.java
-      //javaj/widgets/*.java
+      //pc/src/gastona/gastona.java
+      //base/src/de/elxala/Eva/util/EvaFileToHtml.java
+      //base/src/javaj/widgets/*.java
 
 
-   <generate gastonaVersion>
-      //Generating gastonaVersion with date [@<:lsx date>]
-      //
-      GEN, @<destDir>/gastona/gastonaVersion.java, gastVer
-
-
+   <! ----- Version class to generate
    <gastVer>
-      //package gastona;
+      //package org.gastona;
       //
       /////gastona.jar built at @<:lsx date>
       //public class gastonaVersion
@@ -95,3 +83,103 @@
       //   }
       //}
       //
+
+#listix#
+
+   <! ------- CONSTANTS AND VARIABLES
+   <! -------
+   <BASE DIR GASTONA> '..\..\
+   <PATH FOR SOURCES> '@<BASE DIR GASTONA>\pc\src;@<BASE DIR GASTONA>\base\src;
+   <destDir>         '@<:sys java.io.tmpdir>jarraTMP4_@<jarName>_DIR
+   <manifestSource>  '@<destDir>/META-INF/MANIFEST.MF
+   <javac options>  '-nowarn 
+
+   <main0>
+      LOAD, data, "@<:sys user.home>/.gastonaLocal"
+
+   <-- bGenerateJar>
+      MSG, o1Consola clear
+      LSX, javaErrorsClickAndGo::clear
+      LSX, generate jar file
+      LSX, javaErrorsClickAndGo::parseErrors
+
+   <-- bOpen target jars & Exit>
+      LAUNCH, //explorer.exe /n,/e,/select, OUT\gastona.jar
+      LAUNCH, //explorer.exe /n,/e,/select, C:\PROGRAMA\wakeupthecat\gastona.jar
+      MSG, javaj doExit
+
+   <generate jar file>
+      'Using temporary directory [@<destDir>]
+      '
+      'GENERATING GASTONA VERSION [@<:lsx date>] ...
+      '
+      GEN, @<destDir>/org/gastona/gastonaVersion.java, gastVer
+      'GENERATING jar manifest file
+      '
+      GEN, @<manifestSource>, manifestFile
+      'MONTANDO ...
+      '
+      '@<copias>
+      LOOP, FILES, @<BASE DIR GASTONA>, txt
+          , RECURSE, 0
+          ,, FILEUTIL, COPY, @<fullPath>, @<destDir>\@<fileName>
+
+      'COMPILANDO ...
+      '
+      '@<task javac>
+      'JARANDO ...
+      '
+      CALL, //CMD /C IF NOT EXIST "OUT" ( MKDIR OUT )
+      ZIP, ZIP, OUT/@<jarName>, @<destDir>
+
+      'COPY BINARY ARCHIVE ...
+      '
+      FILEUTIL, COPY, OUT\@<jarName>, @<eBinaryArchive>\@<:lsx date yyyyMMdd>_@<jarName>
+      '
+      'ACABADO!
+      '
+      LSX, informe java no compilados
+      IF, @<kRemove temp selected>
+        , 1, CALL, //CMD /C rmdir /S/Q "@<destDir>"
+
+   <informe java no compilados>
+      SCAN, ADD FILES,, @<destDir>, +E, class
+      SCAN, ADD FILES,, @<BASE DIR GASTONA>\base\src, +E, java
+          , ROOTLABEL, base
+      SCAN, ADD FILES,, @<BASE DIR GASTONA>\pc\src, +E, java
+          , ROOTLABEL, src
+      //
+      //Lista de ficheros java no usados de base:
+      //
+      LOOP, SQL,, //@<java names base> EXCEPT @<class names>
+          ,, //  @<name>.java
+      //
+      //Lista de ficheros java no usados de pc:
+      //
+      LOOP, SQL,, //@<java names pc> EXCEPT @<class names>
+          ,, //  @<name>.java
+      
+      
+   <class names>        //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-6) AS name FROM scan_all WHERE extension = "class"
+   <java names base>    //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel = "base"
+   <java names pc>      //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel = "pc"
+      
+   <copias>
+      LOOP, EVA, traspasosTo
+         ,, IF, @<toSubDir>,
+         ,,   , ""         , VAR=, copyTargetDir, @<fromSubDir>
+         ,,   , ELSE       , VAR=, copyTargetDir, @<toSubDir>
+         ,, LOOP, FILES, @<BASE DIR GASTONA>/@<fromSubDir>
+         ,,     ,, FILEUTIL, COPY, @<fullPath>, @<destDir>/@<copyTargetDir>/@<fullSubPath>
+
+   <compila java>
+      //@<eJavacPath> -sourcepath "@<destDir>";@<PATH FOR SOURCES> -classpath "@<destDir>" -d "@<destDir>" @<javac options>
+
+   <task javac>
+      LOOP, EVA, table task javac
+          ,, //*** JAVAC: @<compila java> @<BASE DIR GASTONA>/@<source>
+          ,, //
+          ,, CALL, //@<compila java> @<BASE DIR GASTONA>/@<source>
+
+
+#**#
