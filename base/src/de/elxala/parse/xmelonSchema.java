@@ -81,6 +81,7 @@ public class xmelonSchema
       public long pathCounter = 1; // 0 means root, also as parent
       public String strData = "";
       public boolean lastWasClosingTag = false; // initial value has no meaning and will be not used
+      public boolean ignoringContent = false;
    }
 
    public perFileStruc perFile = null;
@@ -296,7 +297,7 @@ public class xmelonSchema
                   + (MIN_PAT_ID + indx) + ", "
                   + (parentIndx != -1 ? (MIN_PAT_ID + parentIndx) : 0) + ", '"
                   + utilEscapeStr.escapeStr(pathStr) + "', '"
-                  + utilEscapeStr.escapeStr(naming.toNameISO_9660Joliet (pathStr)) + "', '"
+                  + utilEscapeStr.escapeStr(naming.toVariableName (pathStr)) + "', '"
                   + utilEscapeStr.escapeStr(lastNode) + "', "
                   + perFile.currentPath.rows ()
                   + ");");
@@ -323,7 +324,7 @@ public class xmelonSchema
          out ("INSERT INTO " + cached.tabPrefix + "_tagDef VALUES ("
                   + (MIN_PAT_ID + indx) + ", '"                      // tagID
                   + utilEscapeStr.escapeStr(tagOriginal) + "', '"    // tagStr
-                  + naming.toNameISO_9660Joliet (tagOriginal) + "'"  // tagStrNormal
+                  + naming.toVariableName (tagOriginal) + "'"  // tagStrNormal
                   + ");");
       }
 

@@ -52,7 +52,7 @@ public class jsonXmelon
 
    public void parseFile (String fileToParse, String dbName, String tablePrefix)
    {
-      parseFile (fileToParse, dbName, tablePrefix, false, null);
+      parseFile (fileToParse, dbName, tablePrefix, false, null, null);
    }
 
    /**
@@ -61,7 +61,7 @@ public class jsonXmelon
    */
    public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
    {
-      parseFile (fileToParse, dbName, tablePrefix, keepCache, null);
+      parseFile (fileToParse, dbName, tablePrefix, keepCache, null, null);
    }
 
    List subTagIgnoreList = new Vector ();
@@ -76,10 +76,14 @@ public class jsonXmelon
       Parses the xml file 'fileToParse' and places the results in an xmelon
       schema into the database dbName using 'tablePrefix' for naming the tables.
    */
-   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache, List ignoreSubTagList)
+   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache, List ignoreRootTagList, List ignoreSubTagList)
    {
       subTagIgnoreList = (ignoreSubTagList == null) ? new Vector (): ignoreSubTagList;
 
+      if (ignoreRootTagList != null && ignoreRootTagList.size () > 0)
+      {
+         log.err ("parseFile", "IGNORE ROOT TAGS not implemented yet!");
+      }
       processOneFile (dbName, fileToParse, tablePrefix, keepCache);
    }
 

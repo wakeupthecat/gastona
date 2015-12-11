@@ -67,6 +67,7 @@ public class uniUtil
                String ipstring = laAdd.getHostAddress ();
                String hostName = laAdd.getHostName ();
 
+               if (laAdd.isLoopbackAddress()) continue;
                if (hostName.equalsIgnoreCase ("localhost")) continue;
                if (ipstring.indexOf (':') >= 0) continue;
 

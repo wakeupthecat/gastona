@@ -18,6 +18,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil;
 
+import java.net.*;
+
 /**
    Specific utilities that each system (java, android) has to implement natively
 */
@@ -66,12 +68,51 @@ public class uniUtil
    protected static void obtainHostInfo ()
    {
       HOST_IPADDRESS = "127.0.0.1";
-      
-      try {
-         HOST_IPADDRESS = "" + java.net.InetAddress.getLocalHost().getHostAddress();
-         HOST_NAME = "" + java.net.InetAddress.getLocalHost().getHostName();
+      HOST_NAME = "";
+
+      try
+      {
+         InetAddress primera = InetAddress.getLocalHost();
+         String hostname = InetAddress.getLocalHost().getHostName ();
+         
+         if (!primera.isLoopbackAddress () &&
+             !primera.getHostName ().equalsIgnoreCase ("localhost") &&
+             primera.getHostAddress ().indexOf (':') == -1
+            )
+         {
+            // Get it without delay!!
+
+            //System.out.println ("we have it!");
+            HOST_IPADDRESS = primera.getHostAddress ();
+            HOST_NAME = hostname;
+            //System.out.println (hostname + " IP " + HOST_IPADDRESS);
+            return;
+         }
+
+         // Get it by slow way ...
+         InetAddress [] familia = InetAddress.getAllByName (hostname);
+
+         int netto = 1;
+         for (int aa = 0; aa < familia.length; aa ++)
+         {
+             // System.out.println ("Networko " + netto++);
+             InetAddress laAdd = familia[aa];
+             String ipstring = laAdd.getHostAddress ();
+             hostname = laAdd.getHostName ();  // don't know if it can change, probably not
+
+             // System.out.println ("checking : " + hostname + " IP " + ipstring);
+             if (laAdd.isLoopbackAddress()) continue;
+             if (hostname.equalsIgnoreCase ("localhost")) continue;
+             if (ipstring.indexOf (':') >= 0) continue;
+
+             // System.out.println ("this pass!");
+             HOST_IPADDRESS = ipstring;
+             HOST_NAME = hostname;
+             break;
+         }
       }
-      catch (Exception e) {}
-      
+      catch (Exception e) 
+      {
+      }
    }
 }

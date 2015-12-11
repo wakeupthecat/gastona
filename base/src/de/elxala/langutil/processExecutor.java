@@ -112,7 +112,9 @@ public class processExecutor
       try
       {
          // create the process
-         proc = Runtime.getRuntime().exec (processAndArgs);
+         proc = (processAndArgs.length == 1) ?
+                  Runtime.getRuntime().exec (processAndArgs[0]):
+                  Runtime.getRuntime().exec (processAndArgs);
       }
       catch (Exception e)
       {

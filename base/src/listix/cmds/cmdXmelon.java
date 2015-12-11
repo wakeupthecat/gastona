@@ -494,12 +494,18 @@ public class cmdXmelon implements commandable
 
 
       */
-      String [] ignoreSubTag = cmd.takeOptionParameters(new String [] {"IGNORETAGS", "IGNORE" }, true);
+      String [] ignoreSubTag = cmd.takeOptionParameters(new String [] {"IGNORETAGS", "PASSTAGS" }, true);
       List ignoreSubTagList = new Vector ();
       if (ignoreSubTag != null && ignoreSubTag.length > 0)
          for (int ii = 0; ii < ignoreSubTag.length; ii ++)
             ignoreSubTagList.add (ignoreSubTag[ii]);
 
+      String [] ignoreRootTag = cmd.takeOptionParameters(new String [] {"IGNOREROOTS" }, true);
+      List ignoreRootTagList = new Vector ();
+      if (ignoreRootTag != null && ignoreRootTag.length > 0)
+         for (int ii = 0; ii < ignoreRootTag.length; ii ++)
+            ignoreRootTagList.add (ignoreRootTag[ii]);
+         
       if (optXMLFile2DB)
       {
          // Important to keep theSaXmelon alive to take profit of its
@@ -516,7 +522,7 @@ public class cmdXmelon implements commandable
             theSaXmelon.clearCache ();
          }
 
-         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreSubTagList);
+         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreRootTagList, ignoreSubTagList);
       }
       if (optJSONFile2DB)
       {
@@ -530,7 +536,7 @@ public class cmdXmelon implements commandable
             theJsonMelon.clearCache ();
          }
 
-         theJsonMelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreSubTagList);
+         theJsonMelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreRootTagList, ignoreSubTagList);
       }
             
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_END, null); // ... )))

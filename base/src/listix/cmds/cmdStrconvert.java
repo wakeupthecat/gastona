@@ -901,7 +901,7 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("TEXT-VARNAME") || oper.equals ("TEXT2VARNAME") || oper.equals ("2VARNAME"))
       {
-         strResult = naming.toNameISO_9660Joliet (p1);
+         strResult = naming.toVariableName (p1);
       }
       else if (oper.equals ("XOR ENCRYPT") || oper.equals ("XOR"))
       {

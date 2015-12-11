@@ -60,6 +60,7 @@ public class androidFileUtil
 
    public static void setAndroidFileDir (String persistDir)
    {
+      android.util.Log.d ("gastona", "setAndroidFileDir to '" + persistDir + "'");
       statAndroidPersistDir = persistDir;
    }
 
