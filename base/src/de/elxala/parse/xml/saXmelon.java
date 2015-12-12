@@ -53,6 +53,15 @@ public class saXmelon
       initOnce ();
    }
 
+   /// ignore rootTag list : these tags and all its descendants will be ignored
+   public List optRootTagIgnoreList = new Vector ();
+
+   /// ignore subTag list : these tags will be transparent (the descendant elements will be treated)
+   public List optSubTagIgnoreList = new Vector ();
+
+   /// the tags will be replaced in the database
+   public Map optTagAliases = new TreeMap ();
+
    public InputSource resolveEntity (String publicId, String systemId)
    {
       log.dbg (5, "ignoring [" + publicId + "] [" + systemId + "]");
@@ -82,61 +91,23 @@ public class saXmelon
       }
    }
 
-   
-///loca/////      private Locator loco = new LocatorImpl(this);
-
-///loca/////   public int getColumnNumber()
-///loca/////   {
-///loca/////      return loco.getColumnNumber();
-///loca/////   }
-///loca/////
-///loca/////   public int getLineNumber()
-///loca/////   {
-///loca/////      return loco.getLineNumber();
-///loca/////   }
-///loca/////
-///loca/////   public String getPublicId()
-///loca/////   {
-///loca/////      return loco.getPublicId();
-///loca/////   }
-///loca/////
-///loca/////   public String getSystemId()
-///loca/////   {
-///loca/////      return loco.getSystemId();
-///loca/////   }
-
    public void parseFile (String fileToParse, String dbName, String tablePrefix)
    {
-      parseFile (fileToParse, dbName, tablePrefix, false, null, null);
+      parseFile (fileToParse, dbName, tablePrefix, false);
    }
 
    /**
       Parses the xml file 'fileToParse' and places the results in an xmelon
       schema into the database dbName using 'tablePrefix' for naming the tables.
    */
-   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
+   public void parseFile (String fileToParse,
+                          String dbName,
+                          String tablePrefix,
+                          boolean keepCache)
    {
-      parseFile (fileToParse, dbName, tablePrefix, keepCache, null, null);
-   }
-
-   List subTagIgnoreList = new Vector ();
-   List rootTagIgnoreList = new Vector ();
-
-   /**
-      Parses the xml file 'fileToParse' and places the results in an xmelon
-      schema into the database dbName using 'tablePrefix' for naming the tables.
-   */
-   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache, List ignoreRootTags, List ignoreSubTagList)
-   {
-      // ignore subTag list : these tags will be transparent (the descendant elements will be treated)
-      subTagIgnoreList = (ignoreSubTagList == null) ? new Vector (): ignoreSubTagList; 
-
-      // ignore rootTag list : these tags and all its descendants will be ignored
-      rootTagIgnoreList = (ignoreRootTags == null) ? new Vector (): ignoreRootTags;
-
       processOneFile (dbName, fileToParse, tablePrefix, keepCache);
    }
-   
+
    public void clearCache ()
    {
       xemi.clearCache ();
@@ -180,6 +151,10 @@ public class saXmelon
 
       EvaLine ele = new EvaLine ();
 
+      String alias = (String) optTagAliases.get (type);
+      if (alias != null)
+         type = alias;
+
       ele.setValue (type, xemi.cNODE);
       ele.setValue (namespace, xemi.cNAMESPACE);
       ele.setValue (localname, xemi.cLOCALNAME);
@@ -191,7 +166,7 @@ public class saXmelon
       // push element stack
       xemi.perFile.currentPath.addLine (ele);
 
-      if (rootTagIgnoreList.contains (type))
+      if (optRootTagIgnoreList.contains (type))
       {
          log.dbg (2, "startElement", "root tag " + type + " will be ignored");
          xemi.perFile.ignoringContent = true;
@@ -219,7 +194,17 @@ public class saXmelon
 
       boolean keepData = false;
 
+      String alias = (String) optTagAliases.get (type);
+      if (alias != null)
+         type = alias;
+
       //System.out.println (" END ELEMENT [" + type + "] data [" + perFile.strData + "]" );
+
+      if (optRootTagIgnoreList.contains (type))
+      {
+         log.dbg (2, "endElement", "ignoring tag root " + type + " closed");
+         xemi.perFile.ignoringContent = false;
+      }
 
       //check if text data
       if (xemi.perFile.lastWasClosingTag)
@@ -247,14 +232,7 @@ public class saXmelon
          // then are two possible cases
          //
          //    hasData
-         if (rootTagIgnoreList.contains (type))
-         {
-            log.dbg (2, "endElement", "ignoring tag root " + type);
-            keepData = true; // I think it make no difference, within ignored root tags no data is added
-            stored = true;
-            xemi.perFile.ignoringContent = false;
-         }
-         else if (subTagIgnoreList.contains (type))
+         if (optSubTagIgnoreList.contains (type))
          {
             log.dbg (2, "endElement", "ignoring tag sublevel " + type);
             // System.out.println ("eliminello [" + type + "]");

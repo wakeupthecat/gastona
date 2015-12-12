@@ -50,21 +50,21 @@ public class jsonXmelon
    {
    }
 
+   /// ignore rootTag list : these tags and all its descendants will be ignored
+   public List optRootTagIgnoreList = new Vector ();
+
+   /// ignore subTag list : these tags will be transparent (the descendant elements will be treated)
+   public List optSubTagIgnoreList = new Vector ();
+
+   /// the tags will be replaced in the database
+   public Map optTagAliases = new TreeMap ();
+
+
+
    public void parseFile (String fileToParse, String dbName, String tablePrefix)
    {
-      parseFile (fileToParse, dbName, tablePrefix, false, null, null);
+      parseFile (fileToParse, dbName, tablePrefix, false);
    }
-
-   /**
-      Parses the json file 'fileToParse' and places the results in an xmelon
-      schema into the database dbName using 'tablePrefix' for naming the tables.
-   */
-   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
-   {
-      parseFile (fileToParse, dbName, tablePrefix, keepCache, null, null);
-   }
-
-   List subTagIgnoreList = new Vector ();
 
    public void setRootName (String rootName)
    {
@@ -76,13 +76,15 @@ public class jsonXmelon
       Parses the xml file 'fileToParse' and places the results in an xmelon
       schema into the database dbName using 'tablePrefix' for naming the tables.
    */
-   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache, List ignoreRootTagList, List ignoreSubTagList)
+   public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
    {
-      subTagIgnoreList = (ignoreSubTagList == null) ? new Vector (): ignoreSubTagList;
-
-      if (ignoreRootTagList != null && ignoreRootTagList.size () > 0)
+      if (optRootTagIgnoreList != null && optRootTagIgnoreList.size () > 0)
       {
          log.err ("parseFile", "IGNORE ROOT TAGS not implemented yet!");
+      }
+      if (optTagAliases != null && optTagAliases.size () > 0)
+      {
+         log.err ("parseFile", "TAG ALIASES not implemented yet!");
       }
       processOneFile (dbName, fileToParse, tablePrefix, keepCache);
    }
@@ -176,7 +178,7 @@ public class jsonXmelon
             JSONObject theObj = jsoo.optJSONObject(fieldName);
             JSONArray theArr = jsoo.optJSONArray(fieldName);
 
-            if (subTagIgnoreList.contains (fieldName))
+            if (optSubTagIgnoreList.contains (fieldName))
             {
                log.dbg (2, "buildXmelonFromJSONobj", "ignoring tag level " + fieldName);
                continue;

@@ -182,7 +182,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName, parameters, defVal, desc
-      1      , IGNORE TAGS, "tag, tag, ..",       , //List of tags to ignore, the data found in these tags will pass to the parent (NOTE: This feature is experimental!)
+      1      , IGNORE ROOT TAGS, "tag, tag, ..",      , //From these tags all content will be ignored = not parsed
+      1      , IGNORE SUB TAGS,  "tag, tag, ..",      , //List of sub tags to be ignored, the data found in these tags will pass to the parent (NOTE: This feature is experimental!)
+      1      , TAG ALIAS,        "tag, alias, ..",    , //The tags listed will be replaced by its alias in the output database (rename tags)
 
    <examples>
       gastSample
@@ -231,11 +233,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <main>
       //      -->, lStatus data!,, //generating temporary xml ...
-      //      VAR=, t1, @<:lsx tmp xml>
-      //      GEN, @<t1>, music
+      //      GEN, :mem xml, music
       //
       //      -->, lStatus data!,, //parsing xml file onto a xmelon db ...
-      //      XMELON, FILE2DB, @<t1>
+      //      XMELON, FILE2DB, :mem xml
       //
       //      -->, lStatus data!,, //loading data ...
       //      -->, tTablePath data!, sqlSelect, //@<sql>
@@ -347,7 +348,7 @@ public class cmdXmelon implements commandable
 
    private saXmelon   theSaXmelon = null;
    private jsonXmelon theJsonMelon = null;
-   
+
    private boolean allowCache = false;
 
    private int fileID = -1;
@@ -494,18 +495,34 @@ public class cmdXmelon implements commandable
 
 
       */
-      String [] ignoreSubTag = cmd.takeOptionParameters(new String [] {"IGNORETAGS", "PASSTAGS" }, true);
-      List ignoreSubTagList = new Vector ();
-      if (ignoreSubTag != null && ignoreSubTag.length > 0)
-         for (int ii = 0; ii < ignoreSubTag.length; ii ++)
-            ignoreSubTagList.add (ignoreSubTag[ii]);
 
-      String [] ignoreRootTag = cmd.takeOptionParameters(new String [] {"IGNOREROOTS" }, true);
+
+      // Collect options
+      //
+      String [] params = null;
+
       List ignoreRootTagList = new Vector ();
-      if (ignoreRootTag != null && ignoreRootTag.length > 0)
-         for (int ii = 0; ii < ignoreRootTag.length; ii ++)
-            ignoreRootTagList.add (ignoreRootTag[ii]);
-         
+      while (null != (params = cmd.takeOptionParameters(new String [] { "IGNOREROOT" }, true)))
+      {
+         for (int ii = 0; ii < params.length; ii ++)
+            ignoreRootTagList.add (params[ii]);
+      }
+
+      List ignoreSubTagList = new Vector ();
+      while (null != (params = cmd.takeOptionParameters(new String [] {"IGNORESUBTAG" }, true)))
+      {
+         for (int ii = 0; ii < params.length; ii ++)
+            ignoreSubTagList.add (params[ii]);
+      }
+
+      Map mapTagAliases = new TreeMap ();
+      while (null != (params = cmd.takeOptionParameters(new String [] {"TAGALIAS", "TAGALIASLIST", "RENAMETAG" }, true)))
+      {
+         // collect pairs tag - alias
+         for (int ii = 0; ii+1 < params.length; ii += 2)
+            mapTagAliases.put (params[ii], params[ii+1]);
+      }
+
       if (optXMLFile2DB)
       {
          // Important to keep theSaXmelon alive to take profit of its
@@ -522,7 +539,11 @@ public class cmdXmelon implements commandable
             theSaXmelon.clearCache ();
          }
 
-         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreRootTagList, ignoreSubTagList);
+         theSaXmelon.optRootTagIgnoreList = ignoreRootTagList;
+         theSaXmelon.optSubTagIgnoreList = ignoreSubTagList;
+         theSaXmelon.optTagAliases = mapTagAliases;
+
+         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache);
       }
       if (optJSONFile2DB)
       {
@@ -536,9 +557,13 @@ public class cmdXmelon implements commandable
             theJsonMelon.clearCache ();
          }
 
-         theJsonMelon.parseFile (fileSource, dbName, tablePrefix, allowCache, ignoreRootTagList, ignoreSubTagList);
+         theJsonMelon.optRootTagIgnoreList = ignoreRootTagList;
+         theJsonMelon.optSubTagIgnoreList = ignoreSubTagList;
+         theJsonMelon.optTagAliases = mapTagAliases;
+
+         theJsonMelon.parseFile (fileSource, dbName, tablePrefix, allowCache);
       }
-            
+
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_END, null); // ... )))
 
       cmd.checkRemainingOptions (true);
