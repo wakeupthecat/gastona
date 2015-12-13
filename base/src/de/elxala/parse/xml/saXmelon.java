@@ -57,7 +57,7 @@ public class saXmelon
    public List optRootTagIgnoreList = new Vector ();
 
    /// ignore subTag list : these tags will be transparent (the descendant elements will be treated)
-   public List optSubTagIgnoreList = new Vector ();
+   public List optTransparentTagList = new Vector ();
 
    /// the tags will be replaced in the database
    public Map optTagAliases = new TreeMap ();
@@ -149,22 +149,33 @@ public class saXmelon
       if (xemi.checkMisprog (xemi.perFile == null, "perFile")) return;
       if (xemi.checkMisprog (xemi.cached == null, "cached")) return;
 
-      EvaLine ele = new EvaLine ();
-
+      // resolve alias
+      //
       String alias = (String) optTagAliases.get (type);
       if (alias != null)
          type = alias;
 
-      ele.setValue (type, xemi.cNODE);
-      ele.setValue (namespace, xemi.cNAMESPACE);
-      ele.setValue (localname, xemi.cLOCALNAME);
-      ele.setValue ("" + (xemi.perFile.pathCounter ++), xemi.cCOUNTER);
-      ele.setValue ("" + xemi.getPathCounterParent (), xemi.cPARENT_COUNTER);
-      ele.setValue ("0", xemi.cHASDATA); // we don't know yet
-      ele.setValue ("0", xemi.cHASATTRIB); // we don't know yet
+      if (optTransparentTagList.contains (type))
+      {
+         log.dbg (2, "startElement", "transparent tag " + type + " opened");
+      }
+      else
+      {
+         // add new element path (new layer or xtable)
+         //
+         EvaLine ele = new EvaLine ();
 
-      // push element stack
-      xemi.perFile.currentPath.addLine (ele);
+         ele.setValue (type, xemi.cNODE);
+         ele.setValue (namespace, xemi.cNAMESPACE);
+         ele.setValue (localname, xemi.cLOCALNAME);
+         ele.setValue ("" + (xemi.perFile.pathCounter ++), xemi.cCOUNTER);
+         ele.setValue ("" + xemi.getPathCounterParent (), xemi.cPARENT_COUNTER);
+         ele.setValue ("0", xemi.cHASDATA); // we don't know yet
+         ele.setValue ("0", xemi.cHASATTRIB); // we don't know yet
+
+         // push element stack
+         xemi.perFile.currentPath.addLine (ele);
+      }
 
       if (optRootTagIgnoreList.contains (type))
       {
@@ -192,7 +203,11 @@ public class saXmelon
       if (xemi.checkMisprog (xemi.perFile == null, "perFile")) return;
       if (xemi.checkMisprog (xemi.cached == null, "cached")) return;
 
-      boolean keepData = false;
+      if (optTransparentTagList.contains (type))
+      {
+         log.dbg (2, "endElement", "transparent tag " + type + " closed");
+         return;
+      }
 
       String alias = (String) optTagAliases.get (type);
       if (alias != null)
@@ -226,24 +241,17 @@ public class saXmelon
          boolean hasAtt  = xemi.perFile.currentPath.getValue(lastIndx, xemi.cHASATTRIB).equals("1");
          boolean hasData = xemi.perFile.currentPath.getValue(lastIndx, xemi.cHASDATA).equals("1");
          boolean hasValue = xemi.perFile.strData.length () > 0;
-         boolean stored = false;
 
          // if hasAtt is true and we end the tag with data
          // then are two possible cases
          //
          //    hasData
-         if (optSubTagIgnoreList.contains (type))
+         if (hasValue && hasAtt)
          {
-            log.dbg (2, "endElement", "ignoring tag sublevel " + type);
-            // System.out.println ("eliminello [" + type + "]");
-            keepData = true;
-            stored = true;
-         }
-         else if (hasValue && hasAtt)
-         {
+            // the tag has attributes so we need a field name for the data (xxx_value)
+            //
             log.dbg (2, "endElement", "data [" + xemi.perFile.strData + "] stored as attribute \"value\" (V)");
             xemi.outData (xemi.getPathTypeIdentifier(), type + "_value", xemi.DATA_PLACE_VALUEATT, xemi.perFile.strData);
-            stored = true;
 
             //Note : if aditionally hasData were true, we would have following case
             //          <tagXY at1="aaa">
@@ -257,22 +265,15 @@ public class saXmelon
          xemi.perFile.currentPath.removeLine (xemi.perFile.currentPath.rows () - 1);
 
          // only save data if there is any data at all!
-         if (hasValue && !stored)
+         if (hasValue && !hasAtt)
          {
             log.dbg (2, "endElement", "data [" + xemi.perFile.strData + "] AS normal tag (T)");
             xemi.outData (xemi.getPathTypeIdentifier(), type, xemi.DATA_PLACE_TAGVALUE, xemi.perFile.strData);
          }
       }
 
-      if (keepData)
-      {
-         xemi.perFile.lastWasClosingTag = false;
-      }
-      else
-      {
-         xemi.perFile.lastWasClosingTag = true;
-         xemi.perFile.strData = "";
-      }
+      xemi.perFile.lastWasClosingTag = true;
+      xemi.perFile.strData = "";
    }
 
    public void characters (char[] ch, int start, int len)

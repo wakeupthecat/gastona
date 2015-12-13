@@ -93,11 +93,11 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       // identiti: framio,
       //       // telephones: [
       //       //   {
-      //       //      loc: case,
+      //       //      loc: casa,
       //       //      tel: "123213"
       //       //   },
       //       //   {
-      //       //      loc: traball,
+      //       //      loc: treball,
       //       //      tel: "43453453"
       //       //   }
       //       //   ]

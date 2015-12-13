@@ -23,7 +23,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.00.151212 \"ERipley +1.00.11 xmiel\"
+   <gastonaVersion>  //1.00.151213 \"ERipley +1.00.44 melone\"
 
    <kRemove temp selected> 1
    <eJavacPath>     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe
@@ -34,7 +34,7 @@
    <manifestFile>
       'Manifest-Version: 1.0
       'Main-Class: @<manifestClass>
-      'Created-By: Ant-onio Jar-rito (www.wakeupthecat.com)
+      'Created-By: Ant-onio Jar-rito (host @<:lsx host name> / user @<:sys user.name>)
 
    <traspasosTo>
       fromSubDir            , toSubDir

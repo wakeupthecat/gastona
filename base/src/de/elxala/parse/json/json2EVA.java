@@ -233,11 +233,11 @@ public class json2EVA
       // identiti: framio,
       // telephones: [
       //   {
-      //      loc: case,
+      //      loc: casa,
       //      tel: "123213"
       //   },
       //   {
-      //      loc: traball,
+      //      loc: treball,
       //      tel: "43453453"
       //   }
       //   ]

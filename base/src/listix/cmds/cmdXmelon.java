@@ -173,24 +173,21 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          4   , targetDbName , (default db), //Database name containing the xmelon data obtained on previous XMELON parse operations
          4   , tablePrefix  , xmelon      , //Optional prefix for the result tables ('prefix'_files, 'prefix'_tagDef, 'prefix'_pathDef and 'prefix'_data)
 
-<!         3   , INIT MULTI    ,             , //
-<!         3   , targetFileBase,             , //default "parsons" will generate parsons_files.txt parsons_parsons.txt
-
-<!         4   , MULTI        ,             , //
-<!         4   , sourceFile   ,             , //Name of text file to be parsed
-<!         4   , recordPatternRef,          , //Eva name where the Pattern is to be found (pattern given in an Eva variable)
-
    <options>
       synIndx, optionName, parameters, defVal, desc
-      1      , IGNORE ROOT TAGS, "tag, tag, ..",      , //From these tags all content will be ignored = not parsed
-      1      , IGNORE SUB TAGS,  "tag, tag, ..",      , //List of sub tags to be ignored, the data found in these tags will pass to the parent (NOTE: This feature is experimental!)
-      1      , TAG ALIAS,        "tag, alias, ..",    , //The tags listed will be replaced by its alias in the output database (rename tags)
+      1      , IGNORE TAG, "tag, tag, ..",      , //All content of these tags will be ignored
+      1      , TRANSPARENT TAG, "tag, tag, ..",      , //Content of these tags will pass to the parent
+      1      , ALIAS TAG,       "tag, alias, ..",    , //The tag will be replaced with its alias in the database
+      2      , IGNORE TAG, "tag, tag, ..",      , //All content of these tags will be ignored
+      2      , TRANSPARENT TAG, "tag, tag, ..",      , //Content of these tags will pass to the parent
+      2      , ALIAS TAG,       "tag, alias, ..",    , //The tag will be replaced with its alias in the database
 
    <examples>
       gastSample
       xmelon parse CD catalog
       xmelon simple sample
       xmelon directory
+      xmelon json sample
 
    <xmelon parse CD catalog>
       //#javaj#
@@ -312,6 +309,66 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      XMELON, CONTENT VIEWS
       //      JAVA, gastona.gastona, main, META-GASTONA/utilApp/arces/arces.gast, @<:sys gastona.defaultDB>
       //
+
+   <xmelon json sample>
+      //#javaj#
+      //
+      //   <frames> main, XMELON JSON CD catalog, 500, 400
+      //
+      //   <layout of main>
+      //      EVA, 7, 7, 6, 6
+      //
+      //         , X
+      //         , lXMeLon basis table
+      //       X , sTablePath
+      //         , lStatus
+      //         , bOpen XMeLon db
+      //
+      //#data#
+      //
+      //   <music>
+      //      //{
+      //      //   owner: Evarist,
+      //      //   cds : [
+      //      //         {
+      //      //           title: Blood on the tracks,
+      //      //           author: Bob Dylan
+      //      //         },
+      //      //         {
+      //      //            title: The man who sold the soft,
+      //      //            author: David Bowie,
+      //      //            year: 1971
+      //      //         },
+      //      //         {
+      //      //            title: Dioptria,
+      //      //            author: Pau Riba,
+      //      //            year: 1971
+      //      //         }
+      //      //   ]
+      //      //}
+      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      -->, lStatus data!,, //generating temporary json file ...
+      //      GEN, :mem json, music
+      //
+      //      -->, lStatus data!,, //parsing json file into a xmelon db ...
+      //      XMELON, JSON2DB, :mem json
+      //      XMELON, CREATE CONTENT VIEWS
+      //
+      //      -->, lStatus data!,, //loading data ...
+      //      -->, sTablePath data!, sqlSelect, //@<sql>
+      //      -->, lStatus data!,, //done.
+      //
+      //   <sql>
+      //      DEEP DB, SELECT, xmelon_data
+      //             , FIELDS, path pathStr, path lastNode, tag tagStr, dataPlace, value
+      //
+      //   <-- bOpen XMeLon db>
+      //      GAST, META-GASTONA/utilApp/arces/arces.gast, @<:sys gastona.defaultDB>
+
 
 #**FIN EVA#
 */
@@ -502,21 +559,21 @@ public class cmdXmelon implements commandable
       String [] params = null;
 
       List ignoreRootTagList = new Vector ();
-      while (null != (params = cmd.takeOptionParameters(new String [] { "IGNOREROOT" }, true)))
+      while (null != (params = cmd.takeOptionParameters(new String [] { "IGNOREROOT", "IGNOREROOTTAG", "IGNORETAG", "IGNORE" }, true)))
       {
          for (int ii = 0; ii < params.length; ii ++)
             ignoreRootTagList.add (params[ii]);
       }
 
-      List ignoreSubTagList = new Vector ();
-      while (null != (params = cmd.takeOptionParameters(new String [] {"IGNORESUBTAG" }, true)))
+      List transpTagList = new Vector ();
+      while (null != (params = cmd.takeOptionParameters(new String [] {"TRANSPARENTTAG", "SKIPTAG", "SKIP" }, true)))
       {
          for (int ii = 0; ii < params.length; ii ++)
-            ignoreSubTagList.add (params[ii]);
+            transpTagList.add (params[ii]);
       }
 
       Map mapTagAliases = new TreeMap ();
-      while (null != (params = cmd.takeOptionParameters(new String [] {"TAGALIAS", "TAGALIASLIST", "RENAMETAG" }, true)))
+      while (null != (params = cmd.takeOptionParameters(new String [] {"ALIASTAG", "RENAMETAG", "RENAME", "ALIAS" }, true)))
       {
          // collect pairs tag - alias
          for (int ii = 0; ii+1 < params.length; ii += 2)
@@ -540,7 +597,7 @@ public class cmdXmelon implements commandable
          }
 
          theSaXmelon.optRootTagIgnoreList = ignoreRootTagList;
-         theSaXmelon.optSubTagIgnoreList = ignoreSubTagList;
+         theSaXmelon.optTransparentTagList = transpTagList;
          theSaXmelon.optTagAliases = mapTagAliases;
 
          theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache);
@@ -558,7 +615,7 @@ public class cmdXmelon implements commandable
          }
 
          theJsonMelon.optRootTagIgnoreList = ignoreRootTagList;
-         theJsonMelon.optSubTagIgnoreList = ignoreSubTagList;
+         theJsonMelon.optTransparentTagList = transpTagList;
          theJsonMelon.optTagAliases = mapTagAliases;
 
          theJsonMelon.parseFile (fileSource, dbName, tablePrefix, allowCache);

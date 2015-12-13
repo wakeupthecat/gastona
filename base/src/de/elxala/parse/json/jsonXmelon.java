@@ -54,7 +54,7 @@ public class jsonXmelon
    public List optRootTagIgnoreList = new Vector ();
 
    /// ignore subTag list : these tags will be transparent (the descendant elements will be treated)
-   public List optSubTagIgnoreList = new Vector ();
+   public List optTransparentTagList = new Vector ();
 
    /// the tags will be replaced in the database
    public Map optTagAliases = new TreeMap ();
@@ -78,14 +78,6 @@ public class jsonXmelon
    */
    public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
    {
-      if (optRootTagIgnoreList != null && optRootTagIgnoreList.size () > 0)
-      {
-         log.err ("parseFile", "IGNORE ROOT TAGS not implemented yet!");
-      }
-      if (optTagAliases != null && optTagAliases.size () > 0)
-      {
-         log.err ("parseFile", "TAG ALIASES not implemented yet!");
-      }
       processOneFile (dbName, fileToParse, tablePrefix, keepCache);
    }
 
@@ -174,37 +166,47 @@ public class jsonXmelon
 
          for (int ii = 0; ii < fieldsArr.length (); ii ++)
          {
-            String fieldName = fieldsArr.getString (ii);
-            JSONObject theObj = jsoo.optJSONObject(fieldName);
-            JSONArray theArr = jsoo.optJSONArray(fieldName);
+            String propName = fieldsArr.getString (ii);
+            String dimension = propName;
+            JSONObject theObj = jsoo.optJSONObject(propName);
+            JSONArray theArr = jsoo.optJSONArray(propName);
+            
 
-            if (optSubTagIgnoreList.contains (fieldName))
+            // resolve alias
+            //
+            String alias = (String) optTagAliases.get (propName);
+            if (alias != null)
+               dimension = alias;            
+
+            if (optRootTagIgnoreList.contains (dimension))
             {
-               log.dbg (2, "buildXmelonFromJSONobj", "ignoring tag level " + fieldName);
+               log.dbg (2, "buildXmelonFromJSONobj", "ignoring field " + dimension);
                continue;
             }
+            
+            boolean transparent = optTransparentTagList.contains (dimension);
 
-            //String newFieldName = Cadena.linkStrings (campoBase, fieldName, "_");
+            //String newpropName = Cadena.linkStrings (campoBase, dimension, "_");
 
             if (theObj != null)
             {
                if (theTablePolicy == TABLE_POLICY_REDUCED)
                {
-                  // buildXmelonFromJSONobj (theObj, parentRecord, baseName, "", newFieldName);
+                  // buildXmelonFromJSONobj (theObj, parentRecord, baseName, "", newpropName);
                   log.err ("buildXmelonFromJSONobj", "TABLE_POLICY_REDUCED not supported!!");
                }
                else
                {
-                  pushLayer (fieldName);
+                  if (!transparent)  pushLayer (dimension);
                   buildXmelonFromJSONobj (theObj);
-                  popLayer ();
+                  if (!transparent)  popLayer ();
                }
                continue;
             }
             if (theArr != null)
             {
-               // an JSONArray might contain object but also be just an array of strings!
-               // so if it is an array of strings we create an artificial object called value
+               // an JSONArray might contain object but also be just an array of strings! (or objects ?)
+               // so if it is an array of strings/objects we create an artificial object called value
                //   "value": stringvalue
                for (int aa = 0; aa < theArr.length (); aa ++)
                {
@@ -216,21 +218,21 @@ public class jsonXmelon
 
                   // Note : push and pop the same layer for each element of the array
                   //        so they get different patCnt (or layerCounter)
-                  pushLayer (fieldName);
+                  if (!transparent)  pushLayer (dimension);
                   buildXmelonFromJSONobj (jo);
-                  popLayer ();
+                  if (!transparent)  popLayer ();
                }
                continue;
             }
             // No JSONObject, no JSONArray, then normal field
             //
 
-            String valor = jsoo.optString (fieldName);
+            String valor = jsoo.optString (propName);
 
             if (pathTyId == -1)
                pathTyId = xemi.getPathTypeIdentifier();
 
-            xemi.outData (pathTyId, fieldName, xemi.DATA_PLACE_TAGVALUE, valor);
+            xemi.outData (pathTyId, dimension, xemi.DATA_PLACE_TAGVALUE, valor);
          }
       }
       catch (Exception e)
