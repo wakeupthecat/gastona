@@ -19,11 +19,10 @@
          , lBinary archive, eBinaryArchive,  kRemove temp
       X  , o1Consola      , - , -
       X  , layJavaErrorsClickAndGo  , - , -
-         , bOpen target jars & Exit, -, -
 
 #data#
 
-   <gastonaVersion>  //1.00.151213 \"ERipley +1.00.44 melone\"
+   <gastonaVersion>  //1.00.151220 \"ERipley +1.00.67 binas\"
 
    <kRemove temp selected> 1
    <eJavacPath>     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe
@@ -103,11 +102,6 @@
       LSX, generate jar file
       LSX, javaErrorsClickAndGo::parseErrors
 
-   <-- bOpen target jars & Exit>
-      LAUNCH, //explorer.exe /n,/e,/select, OUT\gastona.jar
-      LAUNCH, //explorer.exe /n,/e,/select, C:\PROGRAMA\wakeupthecat\gastona.jar
-      MSG, javaj doExit
-
    <generate jar file>
       'Using temporary directory [@<destDir>]
       '
@@ -129,12 +123,11 @@
       '@<task javac>
       'JARANDO ...
       '
-      CALL, //CMD /C IF NOT EXIST "OUT" ( MKDIR OUT )
-      ZIP, ZIP, OUT/@<jarName>, @<destDir>
+      ZIP, ZIP, ../@<jarName>, @<destDir>
 
       'COPY BINARY ARCHIVE ...
       '
-      FILEUTIL, COPY, OUT\@<jarName>, @<eBinaryArchive>\@<:lsx date yyyyMMdd>_@<jarName>
+      FILEUTIL, COPY, ..\@<jarName>, @<eBinaryArchive>\@<:lsx date yyyyMMdd>_@<jarName>
       '
       'ACABADO!
       '

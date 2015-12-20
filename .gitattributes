@@ -1,0 +1,9 @@
+*	text=auto
+/META-GASTONA/muTools/* binary
+*.db binary
+*.jar binary
+*.apk binary
+*.jpg binary
+*.png binary
+*.exe binary
+*.dll binary

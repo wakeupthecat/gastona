@@ -4,7 +4,7 @@
    
    <eProyecto> gastona
    <ePackageDomain>  org.gastona
-   <eMainClass> //..\..\android\src/org/gastona/gastonaMainActor.java
+   <eMainClass> //../../android/src/org/gastona/gastonaMainActor.java
 
    <eSignatureArgs> //-sigalg MD5withRSA -digestalg SHA1 -keystore YOURKEYHERE.store -keypass YOURPASSHERE -storepass YOURSTOREPASSHERE
       
