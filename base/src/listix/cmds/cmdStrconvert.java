@@ -997,12 +997,13 @@ public class cmdStrconvert implements commandable
 
    public static String formatFix(double nu, int ndec)
    {
-      String form = "0." + "#####################".substring(0, Math.min(ndec, 20));
-      java.text.DecimalFormat decFormat1 = new java.text.DecimalFormat (form);
-      String str = decFormat1.format(nu);
-      str = str.replaceAll (",", ".");       // avoid localization (, instead of .)
-
-      return str;
+      return stdlib.numberFix ((float) nu, ndec);
+      // String form = "0." + "#####################".substring(0, Math.min(ndec, 20));
+      // java.text.DecimalFormat decFormat1 = new java.text.DecimalFormat (form);
+      // String str = decFormat1.format(nu);
+      // str = str.replaceAll (",", ".");       // avoid localization (, instead of .)
+      // 
+      // return str;
    }
 
 

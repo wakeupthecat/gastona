@@ -75,8 +75,16 @@ public class utilMath
       return aux;
    }
 
+   // roundToInterval (876.123456, 0.01); // results 876.12
+   // roundToInterval (876.123456, 5.0); // results 880
+   public static float roundToInterval (float num, float interval)
+   {
+      if (interval == 0f) return num;
+      return (float) ((double) Math.round (num / interval) * interval);
+   }
+
    // Redondeo con n° decimales
-   public static float redondeof (float num, int ndec)
+   public static float round (float num, int ndec)
    {
        double fact = Math.pow (10, ndec);
        return (float) ((double) Math.round (num * fact) / fact);

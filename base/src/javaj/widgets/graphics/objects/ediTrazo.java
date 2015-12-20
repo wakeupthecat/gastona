@@ -560,7 +560,7 @@ public class ediTrazo
          for (int ii = 2; ii < points.size (); ii ++)
          {
             float val = ((float []) points.get (ii))[0] + (ii % 2 == 0 ? (posX - lastX): (posY - lastY));
-            s.append ("," + stdlib.removeDotZero ("" + val));
+            s.append ("," + numToString (val));
             //if (((1 + ii / 2) % setpoint) == 0)
             if (((1 + (ii-2) / 2) % setpoint) == 0)
             {
@@ -572,7 +572,7 @@ public class ediTrazo
       }
       else
          for (int ii = 0; ii < points.size (); ii ++)
-            s.append ("," + stdlib.removeDotZero ("" + getValueAt(ii)));
+            s.append ("," + numToString (getValueAt(ii)));
       return s.toString ();
    }
 
@@ -585,15 +585,20 @@ public class ediTrazo
    {
       StringBuffer s = new StringBuffer ();
       s.append ("z ,"
-                + stdlib.removeDotZero (""+getFirstAbsPointX ()) + ", "
-                + stdlib.removeDotZero (""+getFirstAbsPointY ()) + ", "
-                // stdlib.removeDotZero (""+scaleX) + ", " +
-                // stdlib.removeDotZero (""+scaleY) + ", " +
-                // stdlib.removeDotZero (""+azimut) + ", "
+                + numToString (getFirstAbsPointX ()) + ", "
+                + numToString (getFirstAbsPointY ()) + ", "
+                // numToString (scaleX) + ", " +
+                // numToString (scaleY) + ", " +
+                // numToString (azimut) + ", "
                 );
       s.append ("\"" + style + "\", //");
       s.append (toStringOnlyShape ());
       return s.toString ();
+   }
+   
+   private String numToString (float number)
+   {
+      return stdlib.numberFix (number, 2, true);
    }
 
    public String [] toStringArray ()
@@ -601,8 +606,8 @@ public class ediTrazo
       return new String []
       {
          "z",
-         stdlib.removeDotZero (""+getFirstAbsPointX ()),
-         stdlib.removeDotZero (""+getFirstAbsPointY ()),
+         numToString (getFirstAbsPointX ()),
+         numToString (getFirstAbsPointY ()),
          style,
          toStringOnlyShape ()
       };

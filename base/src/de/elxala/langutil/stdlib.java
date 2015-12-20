@@ -59,7 +59,30 @@ public class stdlib
 		return reto;
  	}
 
+ 	public static String numberFix (float number, int decim)
+   {
+      return numberFix (number, decim, false);
+   }
    
+ 	public static String numberFix (float number, int decim, boolean removeZeroes)
+   {
+      String sal = de.elxala.math.utilMath.round (number, decim) + "000000000000000".substring (0, decim);
+      int indx = sal.indexOf (".");
+      sal = sal.substring (0, indx >= 0 ? 1 + indx + decim: sal.length());
+
+      // remove right zeroes if wanted
+      if (removeZeroes)
+         while (sal.charAt (sal.length () -1) == '0')
+            sal = sal.substring (0, sal.length () -1);
+
+      sal = sal.replaceAll (",", "."); // avoid localization ... etc
+
+      // remove point if ends with "xxxx."
+      if (sal.charAt (sal.length () -1) == '.')
+         sal = sal.substring (0, sal.length () -1);
+      return sal;
+   }
+
  	public static String removeDotZero (String number)
  	{
       if (number.endsWith (".0"))

@@ -78,7 +78,7 @@ public class micoHttpServer extends Thread
    protected ServerSocket theServer = null;
    protected listix theListixLogic = null;
    protected Socket currentClient = null;
-   
+
    protected List responseHeaders = null;
 
 
@@ -187,7 +187,7 @@ public class micoHttpServer extends Thread
       InetAddress iadd = ((InetSocketAddress) currentClient.getRemoteSocketAddress ()).getAddress ();
       return iadd.getHostAddress ();
    }
-   
+
    public void setResponseHeader (String name, String value)
    {
       if (responseHeaders == null)
@@ -232,8 +232,14 @@ public class micoHttpServer extends Thread
       if (ext.equalsIgnoreCase ("css")) return "text/css; charset=utf-8";
       if (ext.equalsIgnoreCase ("js")) return "application/javascript; charset=utf-8";
       if (ext.equalsIgnoreCase ("json")) return "application/json; charset=utf-8";
-         
-      return "text/html; charset=utf-8";
+      if (ext.equalsIgnoreCase ("html")) return "text/html; charset=utf-8";
+      if (ext.equalsIgnoreCase ("htm")) return "text/html; charset=utf-8";
+      //(o) TOREVIEW_micoHttp Content-Type serving a file, review : any other extension to consider ?
+
+      // by sending application/octet-stream the browser will procede to download the file
+      // which is the most desired action with a file except with css and js
+
+      return "application/octet-stream; charset=utf-8";
    }
 
    protected String getContentType (httpRequestData req)
@@ -429,7 +435,6 @@ public class micoHttpServer extends Thread
             inputStream = client.getInputStream ();
             outputStream = client.getOutputStream ();
 
-
             out (10, "accepted socket " + client.isConnected () + " / " + client.isInputShutdown () + " / " + client.isOutputShutdown () );
             if (theOnlyLivingBoyInNY != null)
             {
@@ -487,11 +492,20 @@ public class micoHttpServer extends Thread
 
             File file2serve = wantServeFile (reke.theUri);
 
+            // if browser request a css file we have to send content-type text/css (use the function getContentTypeFromFileName)
+            // if not the css styles defined in the file will not be applied !!
+            // but if we want to just download it as a file is better to send Content-Type "application/octet-stream"
+            //
+            boolean servingAsFile = fileServerString != null && reke.theUri.startsWith ("/" + fileServerString);
+
             if (file2serve != null)
             {
                out ("we want to serve the file [" + file2serve + "]");
                // serving a file
-               respa = new httpResponseData (outputStream, file2serve, getContentTypeFromFileName (file2serve.getName ()), responseHeaders);
+               respa = new httpResponseData (outputStream,
+                                             file2serve,
+                                             servingAsFile ? "application/octet-stream": getContentTypeFromFileName (file2serve.getName ()),
+                                             responseHeaders);
             }
             else
             {
@@ -543,7 +557,7 @@ public class micoHttpServer extends Thread
       }
 
       //(o) NOTE 2015.11.22 consider
-      //   this.interrupt ();         
+      //   this.interrupt ();
    }
 
    public static void main (String [] args)
