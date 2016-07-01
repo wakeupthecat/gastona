@@ -41,8 +41,6 @@ public class tableAccessSql extends tableAccessBase
       String dbName      = cmdData.getArg(1);
       String sqlQuery    = cmdData.getArg(2);
 
-      String sqlPrevious = cmdData.takeOptionString ("PREVIOUSSQL");
-
       if (sqlQuery.length () <= 1)
       {
          cmdData.getLog().err ("tableAccessSql", "not valid query specified!");
@@ -54,7 +52,7 @@ public class tableAccessSql extends tableAccessBase
 
       // set data
       //
-      sqlModel = roSqlPool.getElement (dbName, sqlQuery, sqlPrevious);
+      sqlModel = roSqlPool.getElement (dbName, sqlQuery);
       //sqlModel = getROSelectObj (cmdData.getListix().getTableCursorStack().getDepth(), dbName, sqlQuery, sqlPrevious);
       currRow = zeroRow ();
 

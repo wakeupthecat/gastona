@@ -18,6 +18,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil;
 
+import android.net.*;
+import android.content.Intent;
+import android.app.Activity;
+
 /**
 */
 public class productSystem
@@ -25,5 +29,40 @@ public class productSystem
    public static boolean isAndroid ()
    {
       return true;
+   }
+
+   public static void launchOpenFile (String fileName)
+   {
+      utilSys.log.dbg (2, "launchOpenFile", "try intent view [file://" + fileName + "]");
+
+      // NOTE: in android generic open file is implemented as INTENT, VIEW
+      //       but there is no mime by parameter, if want so use the command
+      //       INTENT, VIEW instead
+      try
+      {
+         Intent intent = new Intent (Intent.ACTION_VIEW);
+         Uri lauri = Uri.parse("file://" + fileName);
+         intent.setData (lauri);
+         androidSysUtil.getMainActivity ().startActivity (intent);
+      }
+      catch (Exception e)
+      {
+         utilSys.log.err ("launchOpenFile", "exception launching intent view [" + e + "]");
+      }
+   }
+
+   public static void launchBrowser (String laurl)
+   {
+      try
+      {
+         Intent intent = new Intent (Intent.ACTION_VIEW);
+         Uri lauri = Uri.parse (laurl);
+         intent.setDataAndType (lauri, "text/html");
+         androidSysUtil.getMainActivity ().startActivity (intent);
+      }
+      catch (Exception e)
+      {
+         utilSys.log.err ("launchBrowser", "exception launching browser intent [" + e + "]");
+      }
    }
 }

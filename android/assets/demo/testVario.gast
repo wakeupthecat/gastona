@@ -1,0 +1,30 @@
+#javaj#
+
+    <frames> main, Test vario
+
+    <layout of main>
+       EVA, 10, 10, 7, 7
+
+
+       ---, X
+          , lYour Name
+          , eName
+          , lYour value
+          , dLongo
+          , mIma
+          , lDiselo
+
+
+#data#
+
+   <mIma> 'javaj.png
+
+   <eName> Amigo
+
+#listix#
+
+   <-- dLongo>
+      -->, lDiselo,, @<decir>
+
+   <decir>
+      //@<eName> has chosen a value of @<dLongo>

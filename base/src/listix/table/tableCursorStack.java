@@ -92,6 +92,17 @@ public class tableCursorStack
       return false;
    }
 
+   //(o) TODO/preparing Loop option UNIFORM or STEP/Question : should we stop at the top table cursor ? (creo que no...)
+   // // special method to obtain the table data of the current table cursor
+   // // note that variables will not be search deeply in the stack of tables !!
+   // // to be use in
+   // //
+   // public tableAccessBase getOnlyCurrentData ()
+   // {
+   //    if (currentTable == null) return null;
+   //    return currentTable.data;
+   // }
+
    /**
       pops a table from the the table stack
    */
@@ -202,7 +213,7 @@ public class tableCursorStack
       sets the command RUN TABLE into the current table
       that produces a new push into the table stack
    */
-   public int set_RUNTABLE (listixCmdStruct cmdData)
+   public int set_RUNTABLE (listixCmdStruct cmdData, int pivotType, String pivotField)
    {
       if (!checkCurrentTable ()) return 1;
       if (currentTable.data ().isRunning ())
@@ -214,7 +225,16 @@ public class tableCursorStack
       {
          currentTable.data ().setRunning ();
       }
-      return currentTable.set_RUNTABLE (cmdData);
+      return currentTable.set_RUNTABLE (cmdData, pivotType, pivotField);
+   }
+
+   /**
+      sets the command RUN TABLE into the current table
+      that produces a new push into the table stack
+   */
+   public int set_RUNTABLE (listixCmdStruct cmdData)
+   {
+      return set_RUNTABLE (cmdData, tableCursor.TPIVOT_NONE, "");
    }
 
    /**

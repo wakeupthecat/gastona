@@ -182,7 +182,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       18     , filePath2        ,      , //Second part of the path to concatenate
 
       19     , PATH-CANONICAL   ,      , //
-      19     , filePath         ,      , //Path to be converted into canonical path
+      19     , filePath         ,      , //Path to be converted into canonical path. Also
 
       20     , TEXT-VARNAME     ,      , //
       20     , text             ,      , //text to be converted
@@ -228,7 +228,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       29     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
       29     , offset0         , 0     , //If 1 then clear the offsets to 0, 0
 
-      
+
       30     , 2DPATHS-FILE    ,       , //
       30     , evaName         ,       , //Variable name (eva) containing the 2d paths
       30     , imageFilename   , 1     , //Target file name for image
@@ -336,7 +336,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <-- bRun>
       //      LSX, convert text into eva
-      //      LSX. launch new format
+      //      LSX, launch new format
       //
       //   <convert text into eva> STRCONV, TEXT-EVA, xText, my new format
       //   <launch new format>     LSX, my new format
@@ -414,109 +414,6 @@ public class cmdStrconvert implements commandable
        };
    }
 
-   protected strEncoder encoderHTML = null;
-   protected strEncoder encoderLATEX = null;
-
-   protected strEncoder getHtmlEncoder ()
-   {
-      if (encoderHTML != null) return encoderHTML;
-
-      encoderHTML = new strEncoder ();
-
-      // date 2014.05.18 16:39
-      // NOTE: this has to be edited using UTF-8!
-      //
-      encoderHTML.addStrPairs (new String [] {
-               "&", "&amp;",
-               "<", "&lt;",
-               ">", "&gt;",
-               "\"", "&quot;",
-               //" ", "&nbsp;",
-
-               "¦", "&brvbar;",
-               "¡", "&iexcl;",
-               "°", "&deg;",
-
-               "æ", "&aelig;",
-               "ç", "&ccedil;",
-               "ñ", "&ntilde;",
-
-               "ý", "&yacute;",
-               "ð", "&eth;",
-               "þ", "&thorn;",
-
-               "¿", "&iquest;",
-               "º", "&ordm;",
-
-               "à", "&agrave;",
-               "á", "&aacute;",
-               "â", "&acirc;",
-               "ä", "&auml;",
-               "å", "&aring;",
-
-               "è", "&egrave;",
-               "é", "&eacute;",
-               "ê", "&ecirc;",
-               "ë", "&euml;",
-
-               "ì", "&igrave;",
-               "í", "&iacute;",
-               "î", "&icirc;",
-               "ï", "&iuml;",
-
-               "ò", "&ograve;",
-               "ó", "&oacute;",
-               "ô", "&ocirc;",
-               "ö", "&ouml;",
-               "õ", "&otilde;",
-               "ø", "&oslash;",
-
-               "ù", "&ugrave;",
-               "ú", "&uacute;",
-               "û", "&ucirc;",
-               "ü", "&uuml;",
-
-              });
-      return encoderHTML;
-   }
-
-   protected strEncoder getLatexEncoder ()
-   {
-      if (encoderLATEX != null) return encoderLATEX;
-
-      encoderLATEX = new strEncoder ();
-      encoderLATEX.addStrPairs (new String [] {
-            "\\", "\\textbackslash",
-            "#", "\\#",
-            "$", "\\$",
-            "%", "\\%",
-            "&", "\\&",
-            "^", "\\textasciicircum",
-            "_", "\\_",
-            "~", "\\textasciitilde",
-            "<", "$<$",
-            ">", "$>$",
-            "{", "\\{",
-            "}", "\\}"
-            });
-
-/*
-#listix#
-
-	<head_desc>
-		// <Extracts> #the# {schema} of & the data_base (only table & $ % ^structure) )
-
-
-	<main>
-		STRCONV, ESCAPE, LATEX, @<head_desc>
-
-*/
-
-      //no encontrado para � � y �
-      return encoderLATEX;
-   }
-
-
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -581,20 +478,11 @@ public class cmdStrconvert implements commandable
       {
          // strconv, encode var, utf-8, bla bla
 
-         Eva srcEva = that.getReadVarEva (p2);
-         if (srcEva == null)
+         StringBuffer str = that.evaVarToText (p2, OptSolveVar);
+         if (str == null)
          {
             that.log().err ("ENCODE VAR", "Variable \"" + p2 + "\" could not be found!");
             return 1;
-         }
-         StringBuffer str = new StringBuffer ();
-         for (int rr = 0; rr < srcEva.rows (); rr ++)
-         {
-            //(o) TODO document this behaviour (if variable contain more rows, columns ... etc)
-            str.append (rr != 0 ? "\n":  "");
-            if (OptSolveVar)
-                 str.append (that.solveStrAsString (srcEva.getValue (rr, 0)));
-            else str.append (srcEva.getValue (rr, 0));
          }
 
          if (p1.equals ("*"))
@@ -637,21 +525,11 @@ public class cmdStrconvert implements commandable
       {
          // strconv, decode str, utf-8, bla bla
 
-         Eva srcEva = that.getReadVarEva (p2);
-         if (srcEva == null)
+         StringBuffer str = that.evaVarToText (p2, OptSolveVar);
+         if (str == null)
          {
             that.log().err ("DECODE VAR", "Variable \"" + p2 + "\" could not be found!");
             return 1;
-         }
-         StringBuffer str = new StringBuffer ();;
-         for (int rr = 0; rr < srcEva.rows (); rr ++)
-         {
-            //(o) TODO document this behaviour (if variable contain more rows, columns ... etc)
-            // here it hardly make sense to include a return character since an encoded string should not have any
-            //str += (rr != 0 ? "\n":  "");
-            if (OptSolveVar)
-                 str.append (that.solveStrAsString (srcEva.getValue (rr, 0)));
-            else str.append (srcEva.getValue (rr, 0));
          }
 
          if (p1.equals ("*"))
@@ -662,12 +540,11 @@ public class cmdStrconvert implements commandable
       {
          if (p1.equalsIgnoreCase ("HTML"))
          {
-            strResult = getHtmlEncoder ().encode (p2);
-            utilEscapeStr.escapeStr (p2);
+            strResult = strEncoder.getHtmlEncoder ().encode (p2);
          }
          else if (p1.equalsIgnoreCase ("LATEX"))
          {
-            strResult = getLatexEncoder ().encode (p2);
+            strResult = strEncoder.getLatexEncoder ().encode (p2);
          }
          else
          {
@@ -679,13 +556,11 @@ public class cmdStrconvert implements commandable
       {
          if (p1.equalsIgnoreCase ("HTML"))
          {
-            strResult = getHtmlEncoder ().decode (p2);
-
-         utilEscapeStr.escapeStr (p2);
+            strResult = strEncoder.getHtmlEncoder ().decode (p2);
          }
          else if (p1.equalsIgnoreCase ("LATEX"))
          {
-            strResult = getLatexEncoder ().decode (p2);
+            strResult = strEncoder.getLatexEncoder ().decode (p2);
          }
          else
          {
@@ -748,7 +623,8 @@ public class cmdStrconvert implements commandable
          //Eva theVar = that.getVarEva (p1);
          String sResult = de.elxala.db.utilEscapeStr.escapeStrArray (theVar.getAsArray ());
 
-         that.log().dbg(2, "STRCONV", "TEXT-STR result [" + sResult + "]");
+         if (that.log().isLogging (2)) // toString might be expensive!
+            that.log().dbg(2, "STRCONV", "TEXT-STR result [" + sResult.toString () + "]");
 
          if (p2.length () == 0)
          {
@@ -756,7 +632,7 @@ public class cmdStrconvert implements commandable
             //     TEXT-STR should be DEPRECATED !!!
 
             // no @ replacement !
-            that.writeStringOnTarget (sResult);
+            that.writeStringOnTarget (sResult.toString ());
          }
          else
          {
@@ -764,7 +640,7 @@ public class cmdStrconvert implements commandable
 
             // place the result into an Eva
             evaTarget.clear ();
-            evaTarget.setValue (sResult, 0, 0);
+            evaTarget.setValue (sResult.toString (), 0, 0);
          }
       }
       else if (oper.equals ("DATE-LONG"))
@@ -848,7 +724,7 @@ public class cmdStrconvert implements commandable
          //  [<hola"macho" & Cia>] -> [&lt;hola&quot;macho&quot; &amp; Cia&gt;]
 
 
-         strResult = getHtmlEncoder ().encode (p1);
+         strResult = strEncoder.getHtmlEncoder ().encode (p1);
       }
       else if (oper.equals ("HTMLTEXT-TEXT") || oper.equals ("HTMLTXT-TEXT"))
       {
@@ -858,7 +734,7 @@ public class cmdStrconvert implements commandable
          //& &amp; Ampersand
 
          //  [&lt;hola&quot;macho&quot; &amp; Cia&gt;] -> [<hola"macho" & Cia>]
-         strResult = getHtmlEncoder ().decode (p1);
+         strResult = strEncoder.getHtmlEncoder ().decode (p1);
          // strResult = p1;
          // strResult = strResult.replaceAll ("&lt;"  , "<");
          // strResult = strResult.replaceAll ("&#60;" , "<");
@@ -879,7 +755,7 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("PATH-CANONICAL"))
       {
-         strResult = p1;
+         strResult = fileUtil.getPathOsSeparator (p1);
 
          that.log().dbg (2, "STRCONV", "path-canonical I [" + p1 + "]");
 
@@ -905,10 +781,11 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("XOR ENCRYPT") || oper.equals ("XOR"))
       {
-         String p4   = cmd.getArg(4);
+         String p4 = cmd.getArg(4);
+         String passkey = p1.length () > 0 ? p1: System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_XORENCRYPTKEY);
 
-         String inVar = (cmd.takeOptionString(new String [] {"INVAR" }, null));
-         String inStr = (cmd.takeOptionString(new String [] {"INSTR" }, null));
+         String inVar = (cmd.takeOptionString(new String [] {"INVAR" }, null, true));        // always solve the parameter to get a variable name (e.g. IN VAR, layout of @<laya>)
+         String inStr = (cmd.takeOptionString(new String [] {"INSTR" }, null, OptSolveVar)); // the parameter is our source so take into account optSolveVar! (e.g. IN VAR, //mi secret @<name>)
 
          if (!(inVar == null ^ inStr == null))
          {
@@ -916,11 +793,23 @@ public class cmdStrconvert implements commandable
          }
          else
          {
-            if (inVar != null)
-               inStr = inVar.toString ();
-            strResult = xorEncrypt (inStr, p1, stdlib.atoi (p2), stdlib.atoi (p3), stdlib.atoi (p4));
-            OptSolveVar = false; // it makes no sense, I think, to want possible @ variables from the output to be solved
+            if (passkey == null)
+            {
+               that.log().err ("STRCONV", "XOR ENCRYPT cannot retrieve a valid key for XOR encryption from " + org.gastona.gastonaCtes.PROP_GASTONA_XORENCRYPTKEY + " !");
+            }
+            else
+            {
+               StringBuffer strBuf = new StringBuffer (inStr != null ? inStr: "");
+               if (inVar != null)
+                  strBuf = that.evaVarToText (inVar, OptSolveVar);
+               strResult = strEncoder.xorEncrypt (strBuf, passkey, stdlib.atoi (p2), stdlib.atoi (p3), stdlib.atoi (p4)).toString ();
+            }
          }
+
+         //(o) NOTE/cmdStrConvert force OptSolveVar to false for output (see test at end of file!)
+         // it makes no sense, I think, want @ variables from the output to be solved neither
+         // in encryption nor decryption case
+         OptSolveVar = false;
       }
       else if (oper.equals ("TRAZOS-JS"))
       {
@@ -942,15 +831,15 @@ public class cmdStrconvert implements commandable
          Eva source = that.getReadVarEva (p1);
          String fileName = p2;
          String fileFormat = p3.equals ("") ? "png": p3;
-         
+
          int dx = stdlib.atoi (cmd.getArg(4));
          int dy = stdlib.atoi (cmd.getArg(5));
-         
+
          BufferedImage ima = null;
          if (dx > 0)
               ima = uniUtilImage.graffitiToBufferedImage (source, dx, dy == 0 ? dx: dy, null);
          else ima = uniUtilImage.graffitiToBufferedImage (source);
-         
+
          uniUtilImage.saveBufferedImageTofile (ima, fileName, fileFormat);
          strResult = "";
       }
@@ -966,17 +855,6 @@ public class cmdStrconvert implements commandable
            that.printTextLsx (strResult);
       else that.writeStringOnTarget (strResult);
       return 1;
-   }
-
-   public static String xorEncrypt (String message, String key, int off1, int mult, int off2)
-   {
-      String sal = "";
-      int lon = key.length ();
-      for (int ii = 0; ii < message.length (); ii ++)
-      {
-         sal += (char) (message.charAt (ii) ^ (char) ((key.charAt ((ii + off1) % lon) + mult * ii + off2) % 256));
-      }
-      return sal;
    }
 
    private boolean requiredEvas(listix that, String subCmdName, String e1, String e2, boolean e2Mandatory)
@@ -1002,7 +880,7 @@ public class cmdStrconvert implements commandable
       // java.text.DecimalFormat decFormat1 = new java.text.DecimalFormat (form);
       // String str = decFormat1.format(nu);
       // str = str.replaceAll (",", ".");       // avoid localization (, instead of .)
-      // 
+      //
       // return str;
    }
 
@@ -1018,6 +896,4 @@ public class cmdStrconvert implements commandable
 
       return str;
    }
-
 }
-

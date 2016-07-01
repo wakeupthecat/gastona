@@ -267,7 +267,7 @@ public class cmdZip implements commandable
          theLog.err ("ZIP", "Unknown subcommand [" + oper  + "]!");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

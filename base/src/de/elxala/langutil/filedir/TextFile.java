@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005,2016  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,19 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 package de.elxala.langutil.filedir;
 
-// NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-
 /**   ======== de.elxala.langutil.TextFile ==========================================
    Alejandro Xalabarder
-
-   14.04.2008 22:44     nuevo log con logger, quitar Causa y getCausa
-   17.10.2004 14:42     anyadir open mode "a" y "w!" (escritura segura de cada string cierra y abre con "a" cada vez)
-   11.07.2004 18:29     modificar funcio'n TheLine (robustez)
-   06.06.2004 15:24     anyadir String createTemporal (...)
-   31.08.2002 20:14     nuevo me'todo esta'tico "public static String [] readFile (String Nombre)"
-   27.02.2002 22:57     nuevo me'todo esta'tico "public static boolean readFile (String Nombre, Cadena contenido)"
-   02.11.2001 16:32     pequenyez
-   17.08.2001 01:30     created
 */
 
 import java.io.*;
@@ -95,6 +84,7 @@ public class TextFile
 
    // NOTE: This class is a special one regard to logger because logServer uses TextFiles to protocol
    //       all clients, therefore the special logStatic handling and the special "TextFile (logger specialLogger)" constructor
+   private static logger voidlogger = null;
    public static logger logStatic = null;
    public logger log = null;
 
@@ -124,9 +114,22 @@ public class TextFile
       log = logStatic;
    }
 
+   //(o) techNotes/logServer/Depencency with TextFile
+   //
+   // special constructor with the only propose
+   // that TextFile can be used by logServer (it has to write logs)
+   // without causing recurrency since TextFile also uses logger !
+   //
+   // specifically logServer has to create a TextFile(null) so this
+   // file will be used to write the log for the logServer but
+   // the own logs of the TextFile will not be processed. In other
+   // words any "own log" will cause a new TextFile creation etc.
+   //
    public TextFile (logger specialLogger)
    {
-      log = specialLogger;
+      if (voidlogger == null)
+         voidlogger = new logger (null, "", null);
+      log = specialLogger != null ? specialLogger : voidlogger;
    }
 
    private void initStatic ()
@@ -141,7 +144,6 @@ public class TextFile
    {
       log = specialLogger;
    }
-
 
    public String getFileName ()
    {

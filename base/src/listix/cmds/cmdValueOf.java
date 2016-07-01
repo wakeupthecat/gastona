@@ -111,7 +111,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <tRecords>
       //       id, Name     , City     ,  WhatIs
       //       71, Abelardo , Plasencia,  Casino
-      //       61, Renate   , Göttingen,  Bäckerei
+      //       61, Renate   , Goettingen, Baeckerei
       //       81, Sergej   , Riga     ,  Buro
       //       16, Suelen   , Nagoya   ,  Suzuki Partner
       //
@@ -195,23 +195,16 @@ public class cmdValueOf implements commandable
       boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
                             ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
 
-      that.solveStrAsString (refToSolve);
-
-      // System.out.println ("me vengo refiriendo a que [" + valor + "]");
-      // System.exit (0);
-
-      // retFormat = solveLsxFormatAsEva (valor);
-      // valor = retFormat.getValue ();
-      Eva srcEva = that.getReadVarEva (refToSolve);
-      if (srcEva == null)
-      {
-         that.log().err ("VALUEOF", "Variable \"" + refToSolve + "\" could not be found!");
-         return 1;
-      }
       if (OptSolveVar)
          that.printLsxFormat (refToSolve);
       else
       {
+         Eva srcEva = that.getReadVarEva (refToSolve);
+         if (srcEva == null)
+         {
+            that.log().err ("VALUEOF", "Variable \"" + refToSolve + "\" could not be found!");
+            return 1;
+         }
          for (int rr = 0; rr < srcEva.rows (); rr ++)
          {
             if (rr > 0) that.newLineOnTarget ();

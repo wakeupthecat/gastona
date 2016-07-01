@@ -1,0 +1,61 @@
+#javaj#
+
+    <frames> main, "SQL sample"
+
+   <! Place some lists (components starting with "i")
+   <!
+
+    <layout of main>
+       EVA, 2, 2, 0, 6
+
+       ---,      X     , X         , X
+          , lENTIRE    , -         , -
+        X , iTable     , -         , -
+          , lSORTED    , lFILTERED , lGROUPED
+        X , iSort      , iFilter   , iGroup
+
+#data#
+
+   <! this is the main data
+   <!
+
+    <myTable>
+       city       , name      , amount
+       Barcelona  , Cecilia   , 2390
+       Barcelona  , Ramon     , 7400
+       Lyon       , Evariste  , 1210
+       Lyon       , Gaston    , 430
+       Lyon       , Louise    , 1090
+       Freiburg   , Renate    , 5630
+       Goettingen , Karl      , 1330
+       Goettingen , Andrea    , 36
+
+
+   <! assign the data to each list simply
+   <! with an SQL select
+   <!
+
+    <iTable sqlSelect>
+      //SELECT * FROM myTable;
+
+    <iSort sqlSelect>
+      //SELECT name FROM myTable
+      // ORDER BY name;
+
+    <iFilter sqlSelect>
+      //SELECT name, amount FROM myTable
+      // WHERE amount+0 < 2000
+      // ORDER BY amount+0;
+
+    <iGroup sqlSelect>
+      //SELECT city, SUM(amount) AS total FROM myTable
+      // GROUP BY city
+      // ORDER BY total DESC;
+
+#listix#
+
+    <! create the database (a temporary one) with the data
+    <!
+
+    <main0>
+       DATABASE,, CREATE TABLE, myTable

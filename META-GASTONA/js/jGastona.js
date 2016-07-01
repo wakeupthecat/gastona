@@ -33,7 +33,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 //"use strict";
 
-function jGastona (evaConfig)
+function jGastona (evaConfig, existingPlaceId)
 {
    "use strict";
    var dataUnit,
@@ -48,6 +48,7 @@ function jGastona (evaConfig)
 
 
    // default action
+   corpiny = existingPlaceId;
    loadJast (evaConfig);
    document.body.onresize = function () { adaptaLayout () };
 
@@ -86,7 +87,7 @@ function jGastona (evaConfig)
    function adaptaLayout ()
    {
       if (!layMan) return;
-      
+
       var dx = getWindowWidth ()  - 15; // 15 is an empiric number ...
       var dy = getWindowHeight () - 15;
 
@@ -104,7 +105,7 @@ function jGastona (evaConfig)
          if (maxdx > 0) dx = Math.min (dx, maxdx);
          if (maxdy > 0) dy = Math.min (dy, maxdy);
       }
-      
+
       if (layMan)
          layMan.doLayout(dx, dy);
    }
@@ -124,10 +125,13 @@ function jGastona (evaConfig)
 
       // ensure corpinyo (STAMM) is a root element in the document's body
       //
-      var STAMM = "jGastonaStammHtmlElem";
-      if (! document.getElementById(STAMM))
-         document.body.innerHTML = "<div id='" + STAMM + "' style = 'position:relative;'></div>";
-      corpiny = document.getElementById(STAMM);
+      if (!corpiny)
+      {
+         var STAMM = "jGastonaStammHtmlElem";
+         if (! document.getElementById(STAMM))
+            document.body.innerHTML = "<div id='" + STAMM + "' style = 'position:relative;'></div>";
+         corpiny = document.getElementById(STAMM);
+      }
       if (!corpiny) alert ("ERROR no " + STAMM + " no fun!");
 
       // remove last main jast layout if any
@@ -347,6 +351,40 @@ function jGastona (evaConfig)
             break;
 
 
+         case 't': // simple table
+            {
+               var updata = function () {
+                     var etabla, rowele, colele, row, col, evaData = dataUnit[this.id];
+
+                     // create new html table
+                     while (this.hasChildNodes())
+                     {
+                        this.removeChild(this.firstChild);
+                     }
+
+                     etabla = document.createElement ("table");
+                     etabla["id"] = this.id + "-table"; // e.g <div id="tMiTabla"> <table id="tMitabla-table">...
+
+                     for (row in evaData)
+                     {
+                        rowele = document.createElement ("tr");
+
+                        for (col in evaData[row])
+                        {
+                           colele = document.createElement (row === "0" ? "th": "td");
+
+                           // use instead ? colele.value = evaData[row][col];
+                           setValueToElement (colele, evaData[row][col]);
+                           rowele.appendChild (colele);
+                        }
+                        etabla.appendChild (rowele);
+                     }
+                     this.appendChild (etabla);
+                  }
+               zwid = fabricaSimpleTable (name, { "data!": updata });
+            }
+            break;
+
          case 'c': // combo
          case 'r': // radio group
          case 'k': // checkbox group
@@ -364,6 +402,8 @@ function jGastona (evaConfig)
                   }
                }
                var orient = dataUnit[name + " orientation"]||"X";
+
+               //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelect (...
 
                if (name.charAt (0) == 'c')
                   corpiny.appendChild (fabricaSelect (name, values, labels, false));
@@ -416,13 +456,13 @@ function jGastona (evaConfig)
             str2 = (ii === 0 ? "": str2 + "\n") + str[ii];
       }
       else str2 = str;
-         
+
       if (str2.match(/^\s*[\"\']/))
          return str2.substr(1);
-         
+
       if (str2.match(/^\s*[\[\{]/))
          return eval ("(function () { return " + str2 + ";}) ()");
-      
+
       return function () { eval (str2); }
    }
 
@@ -436,17 +476,12 @@ function jGastona (evaConfig)
       {
          ele[aa] = atts[aa];
       }
-      
-      // ensure a variable in data unit if not already exists 
+
+      // ensure a variable in data unit if not already exists
       // for the value (NOTE: for some reason it does not work for typestr === "textarea")
       if (typestr === "input" && !dataUnit[name])
          dataUnit[name] = [[ "" ]];
-      
-      // add jast attributes given in #data# i.e. <eText onchange> //alarm("me change!");
-      for (var aa in atts)
-      {
-         ele[aa] = atts[aa];
-      }
+
       for (var dd in dataUnit)
       {
          // i.e. <eText onchange> //alarm("me change!");
@@ -454,11 +489,11 @@ function jGastona (evaConfig)
          {
             var attrib = dd.substr(name.length + 1);
             var jscode = dataUnit[dd];
-            
+
             ele[attrib] = str2jsVar (jscode);
          }
       }
-      
+
       // if (text)
       //   ele.appendChild (document.createTextNode(text));
 
@@ -524,6 +559,20 @@ function jGastona (evaConfig)
       return ele;
   }
 
+  function fabricaSimpleTable (name, atts)
+  {
+      var ele = document.createElement ("div");
+      ele["id"] = name;
+      ele["widgetype"] = "t"; // to be used ...
+      ele.style.visibility = "hidden";
+
+      for (var aa in atts)
+      {
+         ele[aa] = atts[aa];
+      }
+
+      return ele;
+  }
 
    // --------- START PART AJAX
    //
@@ -666,7 +715,7 @@ function jGastona (evaConfig)
 
    function ajaxGenericPreProcessResponse (httresp)
    {
-      // 
+      //
    }
 
 
@@ -735,9 +784,9 @@ function jGastona (evaConfig)
          // subhead2:val2
          // :---body
          // subbody
-         
+
          var textArr = bodystr.split("\n");
-         
+
          var hh = 0;
          while (hh < textArr.length)
          {
@@ -754,7 +803,7 @@ function jGastona (evaConfig)
          // format body = directly the content
          mainbody = bodystr;
       }
-      
+
       var ele = document.getElementById (idname);
       if (ele)
          setValueToElement (ele, mainbody);

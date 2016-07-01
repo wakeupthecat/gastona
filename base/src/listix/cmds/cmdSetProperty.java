@@ -116,7 +116,7 @@ public class cmdSetProperty implements commandable
       else
          cmd.getLog().err ("SET PROP", "Empty property name, value [" + value + "] cannot be set.");
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

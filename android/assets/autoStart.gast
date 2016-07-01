@@ -1,0 +1,43 @@
+#gastona#
+
+   <logLevels >
+      client, level
+
+      javaj.widgets.graphics.sceneInMotion, 19
+      javaj.widgets, 19
+
+#javaj#
+
+   <frames> main, Welcome to gastona
+
+   <layout of main>
+      EVA, 7, 7, 6, 6
+
+         ,  X
+         , bIntroduction
+         , bMicro Tutorial
+         , bDirMes demo
+       X , 2DcamposSo, -
+
+#data#
+
+   <bIntroduction image>  file.png
+   <bMicro Tutorial image> tutorial.png
+   <bDirMes demo image>   folder_explorer.png
+
+
+#listix#
+
+   <-- bIntroduction>
+      BROWSER, file://@<gastona intro file>
+
+   <-- bMicro Tutorial>
+      GAST, demo/microTutorial.gast
+
+   <-- bDirMes demo>
+      GAST, demo/dirMes.gast
+
+   <gastona intro file>
+      STRCONV, PATH-CANONICAL, demo/gastona_intro.html
+
+   

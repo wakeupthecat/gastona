@@ -77,7 +77,7 @@
    <iSamples visibleColumns> gastSample
 
    <node field> //structType || (CASE WHEN groupInfo = "" THEN "" ELSE "_" END) || groupInfo || "_" || name
-   
+
 #listix#
 
 
@@ -86,7 +86,7 @@
       LOAD, data, @<:sys user.home>/.gastonaLocal
       LOAD, data, .WelcomeGastona
 
-      VAR=, gastonaDoc.db      , @<:listix tmp db>
+      VAR=, gastonaDoc.db      , ""
       VAR=, gastTemp.gast      , @<:listix tmp gast>
       VAR=, helpTemp.txt       , @<:listix tmp>
 
@@ -94,7 +94,8 @@
       VAR=, xHelp fileName  , @<helpTemp.txt>
 
       <! Extract documentation db
-      RESUTIL, COPY, META-GASTONA/WelcomeGastona/genDB/gastonaDoc.db, @<gastonaDoc.db>
+      DB, @<gastonaDoc.db>, EXECUTE, @<:infile META-GASTONA/WelcomeGastona/gastonaDocScript.sql>
+        , TRANSACTION, 0
 
       VAR=, iSamples dbName, @<gastonaDoc.db>
       VAR=, aSrcTree dbName, @<gastonaDoc.db>
@@ -112,8 +113,7 @@
 
 
    <sql for tree>
-      //SELECT * FROM (SELECT @<node field> AS node FROM tGastItemDoc @<Where&OrderBy from FilterTree>) ORDER BY node;
-
+      //SELECT * FROM (SELECT @<node field> AS node FROM tGastItemDoc @<Where&OrderBy from FilterTree>) ORDER BY node
 
    <default position frame>
       NUM=, Fmain posX, 0.1 * @<:lsx screenX>
@@ -248,7 +248,7 @@
       //
 
    <syntax parameters>
-      RUN LOOP, paramName,
+      SUB LOOP, paramName,
               , WHILE, synIndx
               , LINK , ", "
 

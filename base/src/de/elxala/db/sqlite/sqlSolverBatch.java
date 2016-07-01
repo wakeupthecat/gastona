@@ -61,29 +61,7 @@ public class sqlSolverBatch
 
    private boolean scriptTransaction = false;
 
-   private logger log = new logger (this, "de.elxala.db.sqlite.sqlSolver", null);
-
-   private String createSessionTempDB ()
-   {
-      // create the artificial temp database (not sqlite native)
-      //
-      String sessTmpDb = fileUtil.createTemporal (SESSION_TEMP_DB_ALIAS, ".db");
-      log.dbg (2, "createSessionTempDB", "Session temporary database (will be attached as " + SESSION_TEMP_DB_ALIAS + ") created [" + sessTmpDb + "]");
-
-      return sessTmpDb;
-   }
-
-   public String getApplicationTempDatabase ()
-   {
-      String sessDB = System.getProperty ("gastona." + SESSION_TEMP_DB_ALIAS, null);
-      if (sessDB == null)
-      {
-         sessDB = createSessionTempDB ();
-         System.setProperty ("gastona." + SESSION_TEMP_DB_ALIAS, sessDB);
-      }
-
-      return sessDB;
-   }
+   private static logger log = new logger (null, "de.elxala.db.sqlite.sqlSolver", null);
 
    public boolean tracingOn ()
    {
@@ -266,7 +244,6 @@ public class sqlSolverBatch
       scriptTransaction = withTransaction;
 
       writeScript (".headers ON");
-      writeScript ("ATTACH DATABASE \"" + getApplicationTempDatabase() + "\" AS " + SESSION_TEMP_DB_ALIAS + " ;");
 
       //(o) TODO_sqlite automatically attaching databases, by the moment only implemented through property "gastona.defaultDBaliasAttach"
       writeScript (sqlUtil.getGlobalDefaultDBaliasAttachQuery ());
@@ -287,7 +264,6 @@ public class sqlSolverBatch
    {
       if (scriptTransaction)
          writeScript ("COMMIT ;");
-      writeScript ("DETACH DATABASE " + SESSION_TEMP_DB_ALIAS + " ;");
 
       //(o) TODO_sqlite automatically attaching databases, by the moment only implemented through property "gastona.defaultDBaliasAttach"
       writeScript (sqlUtil.getGlobalDefaultDBaliasDetachQuery ());
@@ -356,16 +332,18 @@ public class sqlSolverBatch
          }
       }
 
+      String sqliteCLIENT = getClientExePath ();
 
       long startingTime = System.currentTimeMillis ();
       if (traceFile != null)
       {
          String time_stamp = (new DateFormat ("yyyy.MM.dd HH:mm:ss.S", new java.util.Date())).get ();
          traceFile.writeLine ("*** START sqlite CALL WITH DB [" + database + "] on " + time_stamp);
+         traceFile.writeLine ("*** sqlite client binary : " + sqliteCLIENT);
 
          // new method (as workaround)
          theSQLScript.writeContentIntoOpenedFile (traceFile);
-         // old method 
+         // old method
          // theSQLScript.rewind ();
          // while (theSQLScript.getNextLine ())
          //    traceFile.writeLine (theSQLScript.getLastReadLine());
@@ -377,11 +355,14 @@ public class sqlSolverBatch
          // create the process
          //
          //(o) JAVA EXEC !!!!
-         proc = Runtime.getRuntime().exec (new String [] { getClientExePath (), database });
+         if (log.isLogging (6))
+            log.dbg (6, "sqLiteCall", "sqlite binary: " + sqliteCLIENT);
+
+         proc = Runtime.getRuntime().exec (new String [] { sqliteCLIENT, database });
       }
       catch (Exception e)
       {
-         log.err ("sqLiteCall", "exception creating process [" + getClientExePath() + "]!" + e);
+         log.err ("sqLiteCall", "exception creating process [" + sqliteCLIENT + "]!" + e);
          if (traceFile != null)
             traceFile.fclose ();
          return false;
@@ -597,18 +578,19 @@ public class sqlSolverBatch
 
    public static String getClientExePath ()
    {
-      if (SQLITE_CLIENT_EXE != null && utilSys.isSysUnix)
-      {
-         return SQLITE_CLIENT_EXE;
-      }
-      // in Windows CHECK always the sqlite3.exe (see note in microToolInstaller)
+      // CHECK always the sqlite3 executable !
+      // the reason is because once installed the binary can be shared
+      // between other gastona instances. If the one that has installed
+      // ends then the binary will be removed. So it has to be checked
+      // always, see also note in microToolInstaller
+      //
       SQLITE_CLIENT_EXE = microToolInstaller.getExeToolPath ("sqlite");
 
       // even if ToolInstaller doesn't work try to find it somehow
       //
       if (SQLITE_CLIENT_EXE == null || SQLITE_CLIENT_EXE.length () == 0)
       {
-         //log.warn ("checkClient", "Cannot found sqlite executable, simply try sqlite3!");
+         log.warn ("checkClient", "Cannot found sqlite binary, simply try sqlite3!");
          SQLITE_CLIENT_EXE = "sqlite3";
       }
       return SQLITE_CLIENT_EXE;

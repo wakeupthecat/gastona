@@ -1,0 +1,79 @@
+#javaj#
+
+   <frames>
+      main, Dir-Mes demo
+
+   <layout of main>
+      EVA, 4, 4, 4, 4
+
+         ,          ,      , X
+         , bRoot    , bPrev, bDownloads, bData
+         , lCurrPath, -    , - , -
+       X , iFiles   , -    , - , -
+
+
+#data#
+
+   <bRoot image> folder_root.png
+   <bPrev image> folder_back.png
+   <bData image> folder_data.png
+
+   <iFiles visibleColumns> fileName
+
+   <ROOT>
+      CHECK, LINUX, "C:\"
+      "/"
+
+#listix#
+
+   <main>
+      LSX, SET CURRENT(dir), @<ROOT>
+
+   <SET CURRENT(dir)>
+      -->, lCurrPath data!,, @<p1>
+      LSX, load dir in list
+
+   <-- bData>
+      LSX, SET CURRENT(dir), /mnt/sdcard/Android/data
+
+   <-- bDownloads>
+      LSX, SET CURRENT(dir), /mnt/sdcard/Download
+
+   <-- bRoot>
+      LSX, SET CURRENT(dir), @<ROOT>
+
+   <-- iFiles>
+      CHECK, VAR, iFiles selected.fileName
+      IN CASE, @<iFiles selected.isFile>
+             , 0, LSX, press directory
+             , 1, LSX, press file
+
+   <press directory>
+      LSX, SET CURRENT(dir), @<added dir>
+
+   <press file>
+      IN CASE, @<iFiles selected.extension>
+             , svg, BOX, T, "Loading @<iFiles selected.fullPath> ..."
+             , svg, GAST, demo/svgVeo.gast, @<iFiles selected.fullPath>
+             , gast, GAST, @<iFiles selected.fullPath>
+             , ELSE, BOX, I, "File @<iFiles selected.fullPath>"
+
+   <-- bPrev>
+      CHECK, !=, @<lCurrPath>, @<ROOT>
+      LSX, SET CURRENT(dir), @<parent path>
+
+   <added dir>
+      STRCONV, PATH-CONCAT, @<lCurrPath>, @<iFiles selected.fileName>
+
+   <parent path>
+      STRCONV, PATH-SOLVE, @<lCurrPath>/..
+
+   <load dir in list>
+      VAR=, iFiles, fileName, isFile, icon, fullPath, extension
+      LOOP, DIRS, @<lCurrPath>
+          , RECURSE, 0
+          ,,  VAR+, iFiles, @<fileName>, "0", "folder.png", @<fullPath>, @<extension>
+      LOOP, FILES, @<lCurrPath>
+          , RECURSE, 0
+          ,,  VAR+, iFiles, @<fileName>, "1", "file.png", @<fullPath>, @<extension>
+      MSG, iFiles data!

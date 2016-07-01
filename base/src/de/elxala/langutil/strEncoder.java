@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2014  Alejandro Xalabarder Aulet
+Copyright (C) 2014-2016  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -92,7 +92,7 @@ public class strEncoder
       for (int pp = 0; pp < pairs.length; pp += 2)
          addStrPair (pairs[pp], pairs[pp + 1]);
    }
-   
+
    public void addStrPair (String str, String replace)
    {
       if (strPatEncode.length () > 0)
@@ -135,7 +135,7 @@ public class strEncoder
    {
       if (strIn == null) return "";
 
-      StringBuffer buf = new StringBuffer ();      
+      StringBuffer buf = new StringBuffer ();
       Matcher matcher = patt.matcher (strIn);
 
       int vamos = 0;
@@ -161,4 +161,128 @@ public class strEncoder
       return buf.toString ();
    }
 
+   protected static strEncoder encoderHTML = null;
+   protected static strEncoder encoderLATEX = null;
+
+   public static strEncoder getHtmlEncoder ()
+   {
+      if (encoderHTML != null) return encoderHTML;
+
+      encoderHTML = new strEncoder ();
+
+      // date 2014.05.18 16:39
+      // NOTE: this has to be edited using UTF-8!
+      //
+      encoderHTML.addStrPairs (new String [] {
+               "&", "&amp;",
+               "<", "&lt;",
+               ">", "&gt;",
+               "\"", "&quot;",
+               //" ", "&nbsp;",
+
+               "¦", "&brvbar;",
+               "¡", "&iexcl;",
+               "°", "&deg;",
+
+               "æ", "&aelig;",
+               "ç", "&ccedil;",
+               "ñ", "&ntilde;",
+
+               "ý", "&yacute;",
+               "ð", "&eth;",
+               "þ", "&thorn;",
+
+               "¿", "&iquest;",
+               "º", "&ordm;",
+
+               "à", "&agrave;",
+               "á", "&aacute;",
+               "â", "&acirc;",
+               "ä", "&auml;",
+               "å", "&aring;",
+
+               "è", "&egrave;",
+               "é", "&eacute;",
+               "ê", "&ecirc;",
+               "ë", "&euml;",
+
+               "ì", "&igrave;",
+               "í", "&iacute;",
+               "î", "&icirc;",
+               "ï", "&iuml;",
+
+               "ò", "&ograve;",
+               "ó", "&oacute;",
+               "ô", "&ocirc;",
+               "ö", "&ouml;",
+               "õ", "&otilde;",
+               "ø", "&oslash;",
+
+               "ù", "&ugrave;",
+               "ú", "&uacute;",
+               "û", "&ucirc;",
+               "ü", "&uuml;",
+
+              });
+      return encoderHTML;
+   }
+
+   public static strEncoder getLatexEncoder ()
+   {
+      if (encoderLATEX != null) return encoderLATEX;
+
+      encoderLATEX = new strEncoder ();
+      encoderLATEX.addStrPairs (new String [] {
+            "\\", "\\textbackslash",
+            "#", "\\#",
+            "$", "\\$",
+            "%", "\\%",
+            "&", "\\&",
+            "^", "\\textasciicircum",
+            "_", "\\_",
+            "~", "\\textasciitilde",
+            "<", "$<$",
+            ">", "$>$",
+            "{", "\\{",
+            "}", "\\}"
+            });
+
+/*
+#listix#
+
+	<head_desc>
+		// <Extracts> #the# {schema} of & the data_base (only table & $ % ^structure) )
+
+
+	<main>
+		STRCONV, ESCAPE, LATEX, @<head_desc>
+
+*/
+
+      //no encontrado para � � y �
+      return encoderLATEX;
+   }
+   
+
+   public static StringBuffer xorEncrypt (StringBuffer message, String key)
+   {
+      return xorEncrypt (message, key, -1, -1, -1);
+   }
+   
+   public static StringBuffer xorEncrypt (StringBuffer message, String key, int off1, int mult, int off2)
+   {
+      // DO NOT CHANGE THESE VALUES OR OLD ENCRYPTED STUFF WILL BE LOST!!
+      off1 = off1 >= 0 ? off1: key.charAt (key.length () / 2) % 37;
+      off2 = off2 >= 0 ? off2: key.charAt (key.length () / 3) % 7;
+      mult = mult >= 0 ? mult: key.charAt (key.length () / 5) % 13;
+
+      StringBuffer sal = new StringBuffer ();
+      int lon = key.length ();
+      for (int ii = 0; ii < message.length (); ii ++)
+      {
+         sal.append ((char) (message.charAt (ii) ^ (char) ((key.charAt ((ii + off1) % lon) + mult * ii + off2) % 256)));
+      }
+      return sal;
+   }
+   
 }

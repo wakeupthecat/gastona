@@ -159,12 +159,12 @@ public class vect3f
    }
 
    // square of the distance
-   public float distance2 (vect3f v1, vect3f v2)
+   public static float distance2 (vect3f v1, vect3f v2)
    {
       return minus (v1, v2).norm2 ();
    }
 
-   public float distance (vect3f v1, vect3f v2)
+   public static float distance (vect3f v1, vect3f v2)
    {
       return minus (v1, v2).norm ();
    }

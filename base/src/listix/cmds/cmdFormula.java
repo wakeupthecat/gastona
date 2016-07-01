@@ -146,7 +146,7 @@ public class cmdFormula implements commandable
       }
 
       that.printTextLsx (value);
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

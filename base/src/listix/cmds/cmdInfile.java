@@ -124,24 +124,8 @@ public class cmdInfile implements commandable
       boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
                             ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
 
-      String fileName = cmd.getArg(0);
-      String [] arrFormat = TextFile.readFile (fileName);
-      if (arrFormat == null)
-      {
-         that.log().err ("FORMATINFILE", "the file [" + fileName + "] could not be read!");
-         return 1;
-      }
-
-      for (int ii = 0; ii < arrFormat.length; ii ++)
-      {
-         if (ii > 0) that.newLineOnTarget ();
-
-         if (OptSolveVar)
-              that.printTextLsx (arrFormat[ii]);
-         else that.writeStringOnTarget (arrFormat[ii]);
-      }
-
-      cmd.checkRemainingOptions (true);
+      that.printFileLsx (cmd.getArg(0), OptSolveVar, false);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

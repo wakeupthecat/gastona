@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -23,8 +23,47 @@ import de.elxala.math.space.*;
 import de.elxala.zServices.*;
 
 /**
- * All information related with a finger touch
- *
+   All information related with a finger touch
+   
+   two fingers semantic
+   
+   displacement / translation
+   
+        v1 - v2 ~ 0
+
+        o--->.......o---> 
+        <---o.......<---o
+
+        o.........o
+        |         |
+        v         v
+        
+   zoom
+
+        v1 + v2 ~ 0
+        v1 x v2 ~ 0
+        v1 . p ~ - v2 . p =  |1|
+        
+            o.......o---> 
+        <---o.......o---> 
+        o--->.......<---o
+  
+   rotation
+
+        v1 + v2 ~ 0
+        v1 x v2 ~ 0
+        v1 x p ~ - v2 x p =  |1|
+
+        ^
+        |
+        o.........o
+                  |
+                  v
+
+
+        o.........o
+                  |
+                  v
  */
 public class fingerTouch
 {
@@ -57,13 +96,8 @@ public class fingerTouch
 
    private boolean isDoubleTap = false;
    private boolean isFastSecondTap = false;
-   
-   private Object attachedObject = null;
 
-//   public fingerTouch ()
-//   {
-//         System.out.println ("MASALIDO UN DEDO!");
-//   }
+   private Object attachedObject = null;
 
 
    //public void reset (long milli, boolean ss)
@@ -90,16 +124,21 @@ public class fingerTouch
       return nMoves;
    }
 
+   public vect3f getLastDisplacementVector ()
+   {
+      return  (pIni == null || pNow == null) ?
+               new vect3f (0.f, 0.f):
+               new vect3f (pNow.x - pIni.x, pNow.y - pIni.y);
+   }
+
    public int getDx ()
    {
-      if (pIni == null || pNow == null) return 0;
-      return (int) pNow.x - (int) pIni.x;
+      return (pIni == null || pNow == null) ? 0: (int) pNow.x - (int) pIni.x;
    }
 
    public int getDy ()
    {
-      if (pIni == null || pNow == null) return 0;
-      return (int) pNow.y - (int) pIni.y;
+      return (pIni == null || pNow == null) ? 0: (int) pNow.y - (int) pIni.y;
    }
 
    public vect3f getLastPosition ()
@@ -140,8 +179,8 @@ public class fingerTouch
       attachedObject = obj;
       return true;
    }
-   
-   public void calcDynamic (vect3f oldPos, float x, float y, long timeMilli)
+
+   protected void calcDynamic (vect3f oldPos, float x, float y, long timeMilli)
    {
       if (oldPos != null)
       {

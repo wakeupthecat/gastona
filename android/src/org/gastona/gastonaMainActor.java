@@ -21,7 +21,6 @@ package org.gastona;
 import android.util.Log;
 
 import java.io.File;
-import android.os.Environment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Build;
@@ -53,12 +52,11 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       super.onCreate(savedInstanceState);
 
       androidSysUtil.setCurrentActivity (this);
+      androidSysUtil.setWindowManager (getWindowManager ());
+      androidSysUtil.setMainActivity (this);
 
       logDirDetectionAndTemp.detectLogDir ();
       logDirDetectionAndTemp.detectErrorLogDir ();
-
-      androidFileUtil.setAndroidFileDir (getApplicationContext().getFilesDir ().getAbsolutePath());
-      androidFileUtil.setAndroidCacheDir (getApplicationContext().getCacheDir ().getAbsolutePath());
 
 // NO FUNCIONA EN tablet ASUS !!! ???
 //      {
@@ -66,10 +64,9 @@ public class gastonaMainActor extends Activity implements MensakaTarget
 //         logServer.configureErrorLog (fileName);
 //      }
 
-
       log.dbg (2, "info", "ANDROID_ID [" + android.provider.Settings.Secure.ANDROID_ID + "]");
-      log.dbg (2, "info", "app files dir [" + androidFileUtil.getAndroidFileDir () + "]");
-      log.dbg (2, "info", "app cache dir [" + androidFileUtil.getAndroidCacheDir () + "]");
+      log.dbg (2, "info", "android app files dir [" + androidFileUtil.getAndroidFileDir () + "]");
+      log.dbg (2, "info", "android app cache dir [" + androidFileUtil.getAndroidCacheDir () + "]");
 
       log.dbg (2, "info", "Build.BOARD   [" + Build.BOARD   + "]");
       log.dbg (2, "info", "Build.DEVICE  [" + Build.DEVICE  + "]");
@@ -84,10 +81,16 @@ public class gastonaMainActor extends Activity implements MensakaTarget
          log.dbg (2, "Not sdk device");
       }
 
-      String mntSdcard = Environment.getExternalStorageDirectory().getPath();
-
-      androidSysUtil.setWindowManager (getWindowManager ());
-      androidSysUtil.setMainActivity (this);
+      // check if having sdcard
+      //
+      if (! androidFileUtil.isExternalStorageMounted ())
+      {
+         CmdMsgBox.alerta (CmdMsgBox.WARNING_MESSAGE,
+                            gastonaAppConfig.getAppName () + " will terminate",
+                            "No external storage (" + androidFileUtil.getExternalStoragePath () + ") is mounted",
+                            new String [] {"Accept"}, new String [] {"javaj doExit"});
+         return;
+      }
 
       logDirDetectionAndTemp.onceAssignTempDir ();
 
@@ -99,19 +102,9 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       Mensaka.declare (this, TX_SHOW_FRAMES       , javaj.javajEBSbase.msgSHOW_FRAMES, logServer.LOG_DEBUG_0);
       Mensaka.declare (this, TX_FRAMES_ARE_VISIBLE, javaj.javajEBSbase.msgFRAMES_VISIBLE, logServer.LOG_DEBUG_0);
 
-      // check if having sdcard
-      //
-      boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-      if (! mounted)
-      {
-         CmdMsgBox.alerta (CmdMsgBox.WARNING_MESSAGE,
-                            gastonaAppConfig.getAppName () + " will terminate",
-                            "No external storage (" + mntSdcard + ") is mounted",
-                            new String [] {"Accept"}, new String [] {"javaj doExit"});
-         return;
-      }
 
-      View la1 = gastonaAppConfig.loadMainAppScript (this, mntSdcard);
+      log.dbg (2, "info", "starting gastona main script");
+      View la1 = gastonaAppConfig.loadMainAppScript (this);
       if (la1 == null)
       {
          CmdMsgBox.alerta (CmdMsgBox.WARNING_MESSAGE,
@@ -123,9 +116,9 @@ public class gastonaMainActor extends Activity implements MensakaTarget
 
       // evitar exception ?!
       android.view.ViewGroup vigu = (android.view.ViewGroup) la1.getParent();
-      if (vigu != null) 
+      if (vigu != null)
       {
-         System.out.println ("TEST:: Hemos evitado una desgracia!");
+         //System.out.println ("TEST:: Hemos evitado una desgracia!");
          vigu.removeView(la1);
       }
 
@@ -162,8 +155,8 @@ public class gastonaMainActor extends Activity implements MensakaTarget
 
       return true;
    }
-   
-   
+
+
    private static String msg = "GASTONAL";
 
    protected void onStart()
@@ -172,28 +165,24 @@ public class gastonaMainActor extends Activity implements MensakaTarget
 
       androidSysUtil.setCurrentActivity (this);
       log.dbg (0, "gastona onStart!");
-      Log.d(msg, "gastona onStart");
    }
 
    protected void onRestart()
    {
       super.onRestart ();
       log.dbg (0, "gastona onRestart!");
-      Log.d(msg, "GASTONA onRestart");
    }
 
    protected void onResume()
    {
       super.onResume ();
       log.dbg (0, "gastona onResume!");
-      Log.d(msg, "GASTONA onResume");
    }
 
    protected void onPause()
    {
       super.onPause ();
       log.dbg (0, "gastona onPause!");
-      Log.d(msg, "GASTONA onPause");
    }
 
    protected void onStop()
@@ -201,14 +190,12 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       super.onStop ();
       // finish ();
       log.dbg (0, "gastona onStop!");
-      Log.d(msg, "GASTONA onStop");
    }
 
    protected void onDestroy()
    {
       super.onDestroy ();
       log.dbg (0, "gastona onDestroy!");
-      Log.d(msg, "GASTONA onDestroy");
 
       //javaj36.finalizeJavaj ();
       Mensaka.sendPacket ("javaj exit", null);

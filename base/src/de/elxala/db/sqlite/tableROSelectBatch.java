@@ -18,9 +18,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.db.sqlite;
 
-
-// NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-
 /*
    history
    =====================================================
@@ -195,12 +192,10 @@ public class tableROSelectBatch extends absTableWindowingEBS
    public static final String sATTR_DB_DATABASE_NAME      = "dbName";
    public static final String sATTR_DB_SQL_SELECT_QUERY   = "sqlSelect";
    public static final String sATTR_DB_EXTRA_FILTER       = "sqlExtraFilter";
-   public static final String sATTR_DB_PREVIOUS_TO_SELECT = "sqlPrevious";
 
    private sqlSolver myDB = new sqlSolver ();  // database client caller
 
-   // the view is local to the client (see CREATE TEMP VIEW) so there is no peril of repetead names
-   private final String VIEW_TEMP_NAME = "sqlitelxala_tableROSelect";
+   private String CURRENT_SELECT = "";
 
    public tableROSelectBatch (baseEBS ebs)
    {
@@ -219,23 +214,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
 
       if (SQLSelect != null && SQLSelect.length() > 0)
-         setSelectQuery (databaseFile, SQLSelect, "");
-   }
-
-   /**
-      Constructor to be used without setting data and control
-      It is not appropiated to be used into zWidgets!
-   */
-   public tableROSelectBatch (String databaseFile, String SQLSelect, String previousSQL)
-   {
-      super (new baseEBS ("default_tableROSelect", null, null));
-
-      // data & control all in one
-      EvaUnit myDataAndCtrl = new EvaUnit ();
-      setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
-
-      if (SQLSelect != null && SQLSelect.length() > 0)
-         setSelectQuery (databaseFile, SQLSelect, previousSQL);
+         setSelectQuery (databaseFile, SQLSelect);
    }
 
 // no podemos hacer esto porque sino sera'n llamados antes de la construccio'n de la misma clase ...
@@ -282,16 +261,10 @@ public class tableROSelectBatch extends absTableWindowingEBS
 
    public void setSelectQuery (String databaseFile, String sqlSelect)
    {
-      setSelectQuery (databaseFile, sqlSelect, "");
-   }
-
-   public void setSelectQuery (String databaseFile, String sqlSelect, String previousSql)
-   {
       setSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME, databaseFile);
       //(o) TODO_db Tables: if sqlQuery has more one line !!!
       //
       setSimpleAttribute(DATA, sATTR_DB_SQL_SELECT_QUERY, sqlSelect);
-      setSimpleAttribute(DATA, sATTR_DB_PREVIOUS_TO_SELECT, previousSql);
 
       executeQuery ();
    }
@@ -410,8 +383,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       }
       else if (sqlStart6.equalsIgnoreCase("SELECT"))
       {
-         //iniciaSelect_NoOptimizado ();
-         iniciaSelect_SiOptimizado ();
+         iniciaSelect ();
       }
       else
       {
@@ -421,38 +393,33 @@ public class tableROSelectBatch extends absTableWindowingEBS
    }
 
 
-   private void iniciaSelect_SiOptimizado ()
+   private void iniciaSelect ()
    {
-      // === OPTIMIZACION LEER PRIMERO HASTA MAX_CACHE
-         setTotalRecords (MAX_CACHE + 1); // asuming
-         initCache (0);
-         obtainRow (0); // << this will perform the query for the first rows
-
-         int tengo = getCachedRecordCount ();
-         if (tengo < MAX_CACHE)
-         {
-         // not necessary to get the count with SELECT COUNT
-         setTotalRecords (tengo);
-         }
-         else
-         {
-            List rescount = QueryViewResult ("SELECT count(*) as n FROM " + VIEW_TEMP_NAME + ";");
-            int size = rescount.size () < 2 ? 0: stdlib.atoi ((String) rescount.get(1));
-            setTotalRecords (size);
-         }
-      }
-
-   private void iniciaSelect_NoOptimizado ()
+      // important call to set CURRENT_QUERY !
+      if (! setCurrentQuery ())
       {
-      // // // === NO OPTIMIZADO! (anterior a 25.10.2010)
-      // reset headers
-      List rescount = QueryViewResult ("SELECT count(*) as n FROM " + VIEW_TEMP_NAME + ";");
-      int size = rescount.size () < 2 ? 0: stdlib.atoi ((String) rescount.get(1));
-
-      setTotalRecords (size);
-
+         setTotalRecords (0);
+         return;
+      }
+      
+      // === OPTIMIZACION LEER PRIMERO HASTA MAX_CACHE
+      
+      setTotalRecords (MAX_CACHE + 1); // asuming
       initCache (0);
       obtainRow (0); // << this will perform the query for the first rows
+
+      int tengo = getCachedRecordCount ();
+      if (tengo < MAX_CACHE)
+      {
+         // not necessary to get the count with SELECT COUNT
+         setTotalRecords (tengo);
+      }
+      else
+      {
+         List rescount = QueryViewResult ("SELECT count(*) as n FROM " + CURRENT_SELECT + ";");
+         int size = rescount.size () < 2 ? 0: stdlib.atoi ((String) rescount.get(1));
+         setTotalRecords (size);
+      }
    }
 
    /**
@@ -468,28 +435,9 @@ public class tableROSelectBatch extends absTableWindowingEBS
       setRelativeRecord (relativeRow, arr);
    }
 
-
-   /**
-      @brief executing the final select query (note: not for pragmas!) taking into account
-             the possible previous sql queries, the real query (desired query) and the possible
-             extra filter.
-
-      @param finalQuery usually one of these two:
-               "SELECT count(*) FROM " + VIEW_TEMP_NAME + ";"
-               "SELECT * FROM " + VIEW_TEMP_NAME + " LIMIT " + offsetRowStart + "," + MAX_CACHE + ";"
-
-   */
-   private List QueryViewResult (String finalQuery)
+   protected boolean setCurrentQuery ()
    {
-      if (! myDB.openScript (false)) // we're sure we don't need transactions
-      {
-         log.severe ("tableROSelect.QueryViewResult", "db cannot be opened!");
-         return new Vector ();
-      }
-
-      //myDB.writeScript ("DROP VIEW " + VIEW_TEMP_NAME + ";");
-      String dbName   = getSomeHowDatabase ();
-
+      CURRENT_SELECT = "";
       //from variable <... sqlSelect>
       //get the real query
       //
@@ -497,21 +445,15 @@ public class tableROSelectBatch extends absTableWindowingEBS
       if (eRealQuery == null)
       {
          log.err ("tableROSelect.QueryViewResult", "not found query in <" + getName() + " " + sATTR_DB_SQL_SELECT_QUERY + ">");
-         return new Vector ();
+         return false;
       }
       String realQuery = eRealQuery.getAsText ();
       log.dbg (2, "tableROSelect.QueryViewResult", "real Query [" + realQuery + "]");
-
-      //from variable <... sqlPrevious>
-      //get previous to query if any (for instance "attach database ..." "create temp view..." etc)
-      //
-      Eva ePreviousQuery = getAttribute (DATA, false, sATTR_DB_PREVIOUS_TO_SELECT);
-      String previousQuery = "";
-      if (ePreviousQuery != null)
-      {
-         previousQuery = ePreviousQuery.getAsText ();
-         log.dbg (2, "tableROSelect.QueryViewResult", "previous Query [" + previousQuery + "]");
-      }
+      
+      // remove last ';' !!
+      while (realQuery.length () > 0 && realQuery.endsWith (";") || realQuery.endsWith (" ") || realQuery.endsWith ("\t"))
+         realQuery = realQuery.substring (0, realQuery.length ()-1);
+         
 
       //from variable <... sqlExtraFilter>
       //get extra filter if any
@@ -523,27 +465,32 @@ public class tableROSelectBatch extends absTableWindowingEBS
          extraFilter = eExtraFilter.getAsText ();
          log.dbg (2, "tableROSelect.QueryViewResult", "extra filter [" + extraFilter + "]");
       }
-      log.dbg (2, "tableROSelect.QueryViewResult", "final query [" + finalQuery + "]");
 
-      // write the sql batch and execute it
-      //
-      myDB.writeScript (previousQuery);
+      CURRENT_SELECT = "(" + realQuery + ") AS _noname1";
       if (extraFilter.length () > 0)
-      {
-         myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + "_pre" + " AS " + realQuery + ";");
-         myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + " AS SELECT * FROM " + VIEW_TEMP_NAME + "_pre " + extraFilter + ";");
-         // seguramente se puede hacer en 1 query en ambos sqlite y postgresql como
-         //      create temp view xxxx as select * from (<realquery>) as _noname <extraFilter>;
-         // p.e.
-         //      create temp view TEMPAS as select * from (select * from users) as _noname WHERE name LIKE '%a%';
-      }
-      else
-         myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + " AS " + realQuery + ";");
+         CURRENT_SELECT = "(SELECT * FROM " + CURRENT_SELECT + " " + extraFilter + ") AS _noname2";
+      
+      log.dbg (2, "tableROSelect.QueryViewResult", "current select [" + CURRENT_SELECT + "]");
+      return true;
+   }
 
-      // myDB.writeScript ("CREATE TEMP VIEW " + VIEW_TEMP_NAME + " AS " + getStateVariable ("sqlSelectQuery") + ";");
+
+   /**
+      @brief executing the final select query (note: not for pragmas!) taking into account
+             the possible previous sql queries, the real query (desired query) and the possible
+             extra filter.
+   */
+   private List QueryViewResult (String finalQuery)
+   {
+      if (! myDB.openScript (false)) // we're sure we don't need transactions
+      {
+         log.severe ("tableROSelect.QueryViewResult", "db cannot be opened!");
+         return new Vector ();
+      }
+
       myDB.writeScript (finalQuery);
       myDB.closeScript ();
-      return myDB.getSQL (dbName);
+      return myDB.getSQL (getSomeHowDatabase ());
    }
 
 
@@ -563,7 +510,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
 
       int cantRows = 0;
       int OFFSET_COLUMN = 1; // due to rowNull
-      String theQuery = "SELECT '' AS rowNull,* FROM " + VIEW_TEMP_NAME + " LIMIT " + offsetRowStart + "," + MAX_CACHE + ";";
+      String theQuery = "SELECT '' AS rowNull,* FROM " + CURRENT_SELECT + " LIMIT " + offsetRowStart + "," + MAX_CACHE + ";";
 
       log.dbg (2, "loadRowsFromOffset", "query:[" + theQuery + "]");
       List result = QueryViewResult (theQuery);
@@ -571,18 +518,18 @@ public class tableROSelectBatch extends absTableWindowingEBS
 
       if (result.size () > 0)
       {
-      //header (column names)
-      //
-      EvaLine eliHead = new EvaLine (Cadena.simpleToArray ((String)result.get(0), "|"));
-      eliHead.removeColumn (0); // due to rowNull
-      setColumnNames (eliHead.getColumnArray ());
+         //header (column names)
+         //
+         EvaLine eliHead = new EvaLine (Cadena.simpleToArray ((String)result.get(0), "|"));
+         eliHead.removeColumn (0); // due to rowNull
+         setColumnNames (eliHead.getColumnArray ());
 
-      initCache (getRecordOffset ());
-      for (int rr = 1; rr < result.size() && cantRows < MAX_CACHE; rr ++)
-      {
-         String str = (String)result.get(rr);
-         if (str.length () == 0) continue; //(o) TOSEE_elxala_db para que era este workaround?
-         setRelativeCompacted (cantRows ++, str, OFFSET_COLUMN);
+         initCache (getRecordOffset ());
+         for (int rr = 1; rr < result.size() && cantRows < MAX_CACHE; rr ++)
+         {
+            String str = (String)result.get(rr);
+            if (str.length () == 0) continue; //(o) TOSEE_elxala_db para que era este workaround?
+            setRelativeCompacted (cantRows ++, str, OFFSET_COLUMN);
          }
       }
    }

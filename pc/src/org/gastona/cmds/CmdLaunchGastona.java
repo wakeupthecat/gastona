@@ -169,7 +169,7 @@ public class CmdLaunchGastona implements commandable
       //    System.out.println (arrComanda[ii]);
       javaRun.launch (arrComanda);
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

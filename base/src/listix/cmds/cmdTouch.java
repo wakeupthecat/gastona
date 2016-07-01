@@ -113,7 +113,7 @@ public class cmdTouch implements commandable
          fil.setLastModified (DateFormat.getAsLong (dateStr));         
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

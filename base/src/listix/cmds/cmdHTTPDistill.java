@@ -314,7 +314,7 @@ public class cmdHTTPDistill implements commandable
       }
 
       frespons.fclose ();
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

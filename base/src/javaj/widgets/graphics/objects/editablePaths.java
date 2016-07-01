@@ -157,13 +157,16 @@ public class editablePaths
       editablePaths este = new editablePaths ();
 
       este.parseTrazosFromEva (evaTrazos);
-      float scale = este.getScaleToFit (telaX, telaY);
+      float scale = 0.9f * este.getScaleToFit (telaX, telaY);
 
       String scaleAndOffset = "";
       if (scale != 1.0f)
          scaleAndOffset += "c2d.scale (" + scale + ", " + scale + ");\n";
+
+      float dispX = + scale * 0.1f * este.getBounds ().width ()  + este.getOffsetXtoFit ();
+      float dispY = + scale * 0.1f * este.getBounds ().height () + este.getOffsetYtoFit ();
       if (center)
-         scaleAndOffset += "c2d.translate (" + este.getOffsetXtoFit () + ", " + este.getOffsetYtoFit () + ");\n";
+         scaleAndOffset += "c2d.translate (" + dispX + ", " + dispY + ");\n";
       return scaleAndOffset + este.toJavaScriptCode (optim);
    }
 
@@ -380,18 +383,18 @@ public class editablePaths
       addArc (new uniRect (false, lastX, lastY, dx, dy), startAngle, sweepAngle);
    }
 
-   
+
    //(o) TODO_dump trazos
-   
+
    //
    //  dump first (tambien) styleGlobalContainer
-   //  
+   //
    //  collect all styles and trazos into a varible eva
    //  para poder salvarlo en fichero, db etc
    //  y convertirlo en javascript
    //
-   
-   
+
+
    public String toString (int indx)
    {
       if (indx < 0 || indx >= arrEdiTrazos.size ())

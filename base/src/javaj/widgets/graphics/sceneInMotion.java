@@ -30,9 +30,9 @@ import javaj.widgets.graphics.objects.*;
 /**
    General View whose content is stored (cached) in Path-Paint pairs and texts
  */
-public class sceneInMotion 
-                implements  ISceneInMotion, 
-                            zoomTouchDetector.interested,
+public class sceneInMotion
+                implements  ISceneInMotion,
+                            twoFingerTouchDetector.interested,
                             multiFingerTouchDetector.interested
 {
    private static logger log = new logger (null, "javaj.widgets.graphics.sceneInMotion", null);
@@ -40,7 +40,7 @@ public class sceneInMotion
 
    // gestures detectors/helpers
    //
-   private zoomTouchDetector zoomDetector = null;
+   private twoFingerTouchDetector zoomDetector = null;
    private multiFingerTouchDetector pulpoDetector = null;
 
    public Scene laEscena = new Scene ();
@@ -52,7 +52,7 @@ public class sceneInMotion
 
    public sceneInMotion ()
    {
-      zoomDetector  = new zoomTouchDetector (this);
+      zoomDetector  = new twoFingerTouchDetector (this);
       pulpoDetector = new multiFingerTouchDetector (this);
    }
 
@@ -209,12 +209,12 @@ public class sceneInMotion
       //System.out.println ("apply offset " + offsetX + ", " + offsetY + " scale " + scaleX + ", " + scaleY);
       log.dbg (2, "onDraw", "apply offset " + offsetX + ", " + offsetY + " scale " + scaleX + ", " + scaleY);
       canvas.scale (scaleX, scaleY);
-      
+
       if (laEscena.ETHER_affected)
       {
          //System.out.println ("ether movement offset " + laEscena.ETHER_desplazaY + ", " + laEscena.ETHER_desplazaY);
          log.dbg (2, "onDraw", "ether movement offset " + laEscena.ETHER_desplazaY + ", " + laEscena.ETHER_desplazaY);
-      }      
+      }
       canvas.translate (-offsetX + (laEscena.ETHER_affected ? laEscena.ETHER_desplazaX: 0.f),
                         -offsetY + (laEscena.ETHER_affected ? laEscena.ETHER_desplazaY: 0.f));
 
@@ -270,24 +270,23 @@ public class sceneInMotion
    }
 
 
-   /// implementing zoomTouchDetector.interested
-   public boolean onGestureStart (zoomTouchDetector detector)
+   /// implementing twoFingerTouchDetector.interested
+   public boolean onGestureStart (twoFingerTouchDetector detector)
    {
-      //log.dbg (4, "onGestureStart(zoomTouchDetector)", "GESTO START p1_ini " + detector.p1_ini.x + ", " + detector.p1_ini.y + "  p2_ini " + detector.p2_ini.x + ", " + detector.p2_ini.y);
+      //log.dbg (4, "onGestureStart(twoFingerTouchDetector)", "GESTO START p1_ini " + detector.p1_ini.x + ", " + detector.p1_ini.y + "  p2_ini " + detector.p2_ini.x + ", " + detector.p2_ini.y);
       if (isGestureMode (MODE_GESTURE_DEFAULT))
       {
-         log.dbg (4, "onGestureStart(zoomTouchDetector)", "default gestures activated, no object gestures!");
+         log.dbg (4, "onGestureStart(twoFingerTouchDetector)", "default gestures activated, no object gestures!");
          detector.setRefOffsetScale (0, 0, offsetX, offsetY, scaleX, scaleY, false);
          return true;
       }
       return false;
    }
 
-   /// implementing zoomTouchDetector.interested
-   public boolean onGestureContinue (zoomTouchDetector detector)
+   /// implementing twoFingerTouchDetector.interested
+   public boolean onGestureContinue (twoFingerTouchDetector detector)
    {
-      //log.dbg (4, "onGestureContinue(zoomTouchDetector)", "GESTO CONT p1_now " + detector.p1_now.x + ", " + detector.p1_now.y + "  p2_now " + detector.p2_now.x + ", " + detector.p2_now.y);
-      detector.calcRectangles ();
+      //log.dbg (4, "onGestureContinue(twoFingerTouchDetector)", "GESTO CONT p1_now " + detector.p1_now.x + ", " + detector.p1_now.y + "  p2_now " + detector.p2_now.x + ", " + detector.p2_now.y);
 
       if (isGestureMode (MODE_GESTURE_DEFAULT) && detector.gestureInProgress ())
       {
@@ -300,10 +299,10 @@ public class sceneInMotion
       return true;
    }
 
-   /// implementing zoomTouchDetector.interested
-   public void onGestureEnd (zoomTouchDetector detector, boolean cancel)
+   /// implementing twoFingerTouchDetector.interested
+   public void onGestureEnd (twoFingerTouchDetector detector, boolean cancel)
    {
-      //log.dbg (4, "onGestureContinue(zoomTouchDetector)", "GESTO END  p1_fin " + detector.p1_fin.x + ", " + detector.p1_fin.y + "  p2_fin " + detector.p2_fin.x + ", " + detector.p2_fin.y);
+      //log.dbg (4, "onGestureContinue(twoFingerTouchDetector)", "GESTO END  p1_fin " + detector.p1_fin.x + ", " + detector.p1_fin.y + "  p2_fin " + detector.p2_fin.x + ", " + detector.p2_fin.y);
       ONCE_ANTIALIASING = true;
    }
 

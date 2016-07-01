@@ -1,0 +1,33 @@
+#javaj#
+
+   <frames>
+      main, Buttons II
+
+   <! let's see more buttons and
+   <! the layout concept used in
+   <! gastona (EvaLayout)
+   <!
+   <layout of main>
+      EVA, 5, 5, 4, 4
+
+         ,  X     , X
+         , bButton, bBoton
+       X , bKnopf , -
+         , radios , -
+         , lSelected, -
+         , kChecked out, -
+
+#data#
+
+   <radios>
+      "label"   , text
+
+      Short Wave, "Hi freq"
+      FM        , "No static at all"
+      Radio Gaga, "All we hear is ..."
+
+
+#listix#
+
+   <-- radios>
+      -->, lSelected,, @<radios selected.text>

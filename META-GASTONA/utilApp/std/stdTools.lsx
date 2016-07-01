@@ -24,8 +24,6 @@
    <standard load tools>
       SET VAR, tool java, java
       SET VAR, tool gastona, //@<@><tool java> -cp @<@><:sys java.class.path> gastona.gastona
-      SET VAR, tool browser, @<default toolbrowser>
-      SET VAR, run browse(file), LAUNCH, //@<@><tool browser> @<">@<@><p1>@<">
       @<default run editor>
       LOAD, data, @<:sys user.home>/.gastonaLocal
 
@@ -46,12 +44,6 @@
            , CONTINUE, 1
       CHECK, VAR, tool gastona
            , ELSE, SET VAR, tool gastona, //@<@><tool java> -cp @<@><:sys java.class.path> gastona.gastona
-           , CONTINUE, 1
-      CHECK, VAR, tool browser
-           , ELSE, SETVAR, tool browser, @<default toolbrowser>
-           , CONTINUE, 1
-      CHECK, VAR, run browse(file),
-           , ELSE, SETVAR, run browse(file), LAUNCH, //@<@><tool browser> @<">@<@><p1>@<">
            , CONTINUE, 1
       CHECK, VAR, tool editor,
            , ELSE, SET VAR, tool editor, @<intern editor>

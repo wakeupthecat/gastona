@@ -56,7 +56,7 @@
       <DIR harmonySDK>    //\pavoTools\harmony-5.0-jdk
       <DIR javac high1.5> //\pavoTools\jdk1.7.0_04
       
-  and very important, to have to add your signature or the default debug signature in
+  and very important, you have to add your signature or the default debug signature in
   
      <eSignatureArgs> //-sigalg MD5withRSA -digestalg SHA1 -keystore YOURKEYHERE.store -keypass YOURPASSHERE -storepass YOURSTOREPASSHERE
      

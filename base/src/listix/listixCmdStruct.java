@@ -56,8 +56,6 @@ public class listixCmdStruct
    //
    public List givenOptions = null;
 
-   public List requestedOptions = null; // list of all requested options (only the first alias)
-
    /**
       constructor for a listixCmdStruct
 
@@ -180,7 +178,6 @@ public class listixCmdStruct
    public void reloadOptions ()
    {
       givenOptions = new Vector();
-      requestedOptions = new Vector();
 
       // collect all option "titles" in List givenOptions
       // Note the index in the List givenOptions will be used to retrieve the options parameters!!
@@ -215,14 +212,19 @@ public class listixCmdStruct
       return takeOptionString (new String [] { optName }, defaultValue);
    }
 
+   public String takeOptionString (String [] optNames, String defaultValue)
+   {
+      return takeOptionString (optNames, defaultValue, true);
+   }
+
    /**
       Search any of the option names given in the array 'optNames' in the given options,
       if one is found then the option is removed for the next search (methods take..)
       and the first parameter of the option is returned solved. Otherwise return 'defaultValue'
    */
-   public String takeOptionString (String [] optNames, String defaultValue)
+   public String takeOptionString (String [] optNames, String defaultValue, boolean solve)
    {
-      String [] resp = takeOptionParameters (optNames, true);
+      String [] resp = takeOptionParameters (optNames, solve);
 
       if (resp != null && resp.length > 0)
            return resp[0];
@@ -257,46 +259,82 @@ public class listixCmdStruct
    public String [] takeOptionParameters (String [] optNames, boolean solved)
    {
       if (optNames == null || optNames.length == 0) return null;
-      requestedOptions.add (optNames[0]);
 
       for (int aa = 0; aa < optNames.length; aa ++)
       {
-         //System.out.println ("Prabo [" + optNames[aa] + "]");
+         // normalize option name upper case without spaces!
+         //
+         cmdName = optNames[aa].toUpperCase().replaceAll (" ", "");
          for (int oo = 0; oo < givenOptions.size (); oo ++)
          {
-            //System.out.println ("contrasto " + optNames[aa] + " cons " + (String) givenOptions.get(oo) );
-            if (optNames[aa].equals ((String) givenOptions.get(oo)))
+            String laopt = (String) givenOptions.get(oo);
+            if (laopt == null) continue;
+            if (cmdName.equals (laopt))
             {
-               //System.out.println ("POCH! baseIndx + 1 + oo = " + (baseIndx + 1 + oo ) + " puesto maxIndx " + maxIndx );
-               // found!
                givenOptions.set(oo, null); // mark it as taken
-               //for (int jj = 0; jj < givenOptions.size (); jj ++)
-               //   System.out.println ("   " + jj + ") [" + (String) givenOptions.get(jj) + "]");
 
                if (baseIndx + 1 + oo <= maxIndx)
                {
                   // an option in "its place"
                   //
 
-                  // restrieve and solve, if needed, all the parameters
+                  // retrieve and solve, if needed, all the parameters
                   EvaLine el = cmdEvaPtr.get(baseIndx + 1 + oo);
                   String [] resp = new String [el.cols()-2];
                   for (int ii = 2; ii < el.cols(); ii ++)
                   {
                      resp[ii-2] = (solved ? listixPtr.solveStrAsString (el.get(ii)): el.get(ii));
-                     //System.out.println ("RENCONSCOLESTO  [" + resp[ii-2] + "]" );
+                     //System.out.println ("resp[" + ii + "-2]  [" + resp[ii-2] + "]" );
                   }
 
                   // >>>> return parameters
                   return resp;
                }
             }
-            //else System.out.println ("NO POCH!" );
          }
       }
-      //not found!
-      //System.out.println ("QUE NO QUE NO, null!");
       return null;
+   }
+
+   public Eva takeOptionAsEva (String [] optNames)
+   {
+      return takeOptionAsEva (optNames, "");
+   }
+
+   // get all rows of the option found as an unique eva
+   //
+   public Eva takeOptionAsEva (String [] optNames, String evaName2set)
+   {
+      if (optNames == null || optNames.length == 0) return null;
+
+      Eva target = new Eva (evaName2set);
+
+      for (int aa = 0; aa < optNames.length; aa ++)
+      {
+         // normalize option name upper case without spaces!
+         //
+         cmdName = optNames[aa].toUpperCase().replaceAll (" ", "");
+         for (int oo = 0; oo < givenOptions.size (); oo ++)
+         {
+            String laopt = (String) givenOptions.get(oo);
+            if (laopt == null) continue;
+            if (cmdName.equals (laopt))
+            {
+               givenOptions.set(oo, null); // mark it as taken
+
+               // retrieve line
+               int row = target.rows ();
+               EvaLine el = cmdEvaPtr.get(baseIndx + 1 + oo);
+               for (int ii = 2; ii < el.cols(); ii ++)
+               {
+                  target.setValue (el.get(ii), row, ii - 2);
+                  //System.out.println ("resp[" + ii + "-2]  [" + resp[ii-2] + "]" );
+               }
+            }
+         }
+      }
+
+      return target.rows () > 0 ? target: null;
    }
 
    /**
@@ -355,5 +393,10 @@ public class listixCmdStruct
    public int checkRemainingOptions (boolean logError)
    {
       return checkRemainingOptions (logError, new String [0]);
+   }
+
+   public int checkRemainingOptions ()
+   {
+      return checkRemainingOptions (true, new String [0]);
    }
 }

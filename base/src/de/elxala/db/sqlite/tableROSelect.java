@@ -31,9 +31,4 @@ public class tableROSelect extends tableROSelectBatch
    {
       super (databaseFile, SQLSelect);
    }
-
-   public tableROSelect (String databaseFile, String SQLSelect, String previousSQL)
-   {
-      super (databaseFile, SQLSelect, previousSQL);
-   }
 }

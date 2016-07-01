@@ -144,7 +144,6 @@ public class zBasicGraphic2D extends JPanel
    /// implementing zoomTouchDetector.interested
    public boolean onGestureContinue (zoomTouchDetector detector)
    {
-      detector.calcRectangles ();
       invalidate ();
       return true;
    }

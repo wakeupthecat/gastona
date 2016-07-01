@@ -16,7 +16,7 @@
       Excel  , xls , @<TAB>
       Text   , txt , ", "
 
-   <TAB> "	"
+   <TAB> @<:hex 09>
 
    <bExportBasic> Export
 
@@ -51,7 +51,7 @@
       LOOP, SQL, @<ExportBasic gridDBName>, SELECT * FROM (@<ExportBasic sql base>) LIMIT 1
           ,, LOOP, COLUMNS
           ,,     , LINK, @<rgExportBasicType selected.separ>
-          ,, @<@><@<columnName>>
+          ,,     ,, @<@><@<columnName>>
 
    <ExportBasic create temp>
       LSX, :lsx tmp @<rgExportBasicType selected.ext>

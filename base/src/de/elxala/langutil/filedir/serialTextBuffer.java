@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2016  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ import de.elxala.zServices.*;
    @author Alejandro Xalabarder Aulet
    @date   2010
 
-        A serialTextBuffer is an array of Strings that is virtually not limited since, if required, a 
+        A serialTextBuffer is an array of Strings that is virtually not limited since, if required, a
         file would be used transparently. It can only be read through the method getNextLine ().
 
    The idea is to have a general propose text buffer that for small texts works totally in memory
@@ -61,12 +61,10 @@ public class serialTextBuffer
    protected int currentState = STATE_IDDLE;
 
    //memory
-   protected List     strArr = new Vector ();
-   protected int      nextLine2read = 0;
+   protected memoryLines memlines = new memoryLines ();
    protected String   lastReadLine = null;
    protected int      lastIndxRead = 0; // only to read as binary file!
-   
-   protected StringBuffer   lastWriteLineWithNoReturn = new StringBuffer ();
+
    protected String   lastWantedNewLineString = TextFile.RETURN_STR; // by defect is this, but if writeNewLine(arg) is called then it will take this value
 
    //file
@@ -76,8 +74,7 @@ public class serialTextBuffer
    public void clear ()
    {
       freeFile ();
-      strArr = new Vector ();
-      nextLine2read = 0;
+      memlines = new memoryLines ();
       lastReadLine = null;
       lastIndxRead = 0;
       currentState = STATE_IDDLE;
@@ -85,39 +82,26 @@ public class serialTextBuffer
 
    public void write (String str)
    {
-      writeString (str);
+      writeDirtyString (str);
    }
 
    public void writeln (String str)
    {
-      writeString (str);
-      writeln ();
+      writeDirtyString (str);
+      memlines.writeln ();
+      checkMaxLines ();
    }
 
    public void writeln ()
    {
-      addLine2Array (lastWriteLineWithNoReturn.toString ());
-      lastWriteLineWithNoReturn = new StringBuffer ();
-   }
-   
-   protected void addLine2Array (String str)
-   {
-      log.dbg (2, "addLine2Array", "new line size " + str.length ());
-      strArr.add (str);
-      if (strArr.size () > MAX_LINES_KEEP)
-      {
-         log.dbg (2, "addLine2Array", "save into disk " + strArr.size () + " lines");
-         vuelca();
-
-         //ensure the the buffer is emptied!
-         strArr = new Vector ();
-      }
+      memlines.writeln ();
+      checkMaxLines ();
    }
 
    public void writeNewLine (final String newLineStr)
    {
       lastWantedNewLineString = newLineStr;
-      writeln ();
+      memlines.writeln ();
    }
 
    public void writeNewLine ()
@@ -125,12 +109,32 @@ public class serialTextBuffer
       writeln ();
    }
 
+   protected void checkMaxLines ()
+   {
+      if (memlines.countLines () > MAX_LINES_KEEP)
+      {
+         log.dbg (2, "checkMaxLines", "save into disk " + memlines.countLines () + " lines");
+
+         TextFile txtFile = new TextFile ();
+         if (!txtFile.fopen (getFileName (), "a", false))
+         {
+            log.err("checkMaxLines", "open to append [" + getFileName () + "] failed");
+            return;
+         }
+         writeMemToOpenFile (txtFile);
+         txtFile.fclose ();
+
+         // reset memory data!
+         memlines = new memoryLines ();
+      }
+   }
+
    //(o) devnote_algorithms_reading manually RT LF
-   
+
    //(o) TODO_writing 13 and 10 separately REVIEW! (see note in urlUtil)
    //    about habdling (13+10) when writing them separately (not in the same string)
    //
-   public void writeString (String str)
+   public void writeDirtyString (String str)
    {
       if (currentState == STATE_READING)
       {
@@ -138,47 +142,38 @@ public class serialTextBuffer
          return;
       }
       currentState = STATE_WRITING;
-      
+
       // add line and separate them if either [13 10] or [13] or [10] are present
       //
       int indxDone = 0;
       int totLen = str.length ();
-      do 
+      do
       {
          int pos13 = str.indexOf (TextFile.NEWLINE_RT13, indxDone);
          int pos10 = str.indexOf (TextFile.NEWLINE_LF10, indxDone);
          if (pos13 == -1 && pos10 == -1) break; // NO more return(s) in line
          int first = (pos10 != -1 && (pos13 == -1 || pos10 < pos13)) ? pos10: pos13;
-         if (first == -1) 
+         if (first == -1)
          {
             // IMPOSIBLE!
             log.severe ("writeln", "met impossible condition : pos10 " + pos10 + ", pos13 " + pos13);
             break;
          }
-         // return detectd, but first write remaining if not empty
+         // return detected
          //
-         if (lastWriteLineWithNoReturn.length () > 0)
-         {
-            addLine2Array (lastWriteLineWithNoReturn.toString ());
-            lastWriteLineWithNoReturn = new StringBuffer ();
-         }
-
-         // write until return
-         //
-         addLine2Array (str.substring (indxDone, first));
+         memlines.writeln (str.substring (indxDone, first));
          indxDone = first + ((pos13 != -1 && (pos13 + 1) == pos10) ? 2:1);
-
       } while (indxDone < totLen);
 
       log.dbg (2, "writeln", "append str from indx " + indxDone);
-      lastWriteLineWithNoReturn.append (str.substring(indxDone));
+      memlines.write (str.substring(indxDone));
    }
 
    public void rewind ()
    {
       // in this state the object can be read again
       currentState = STATE_WRITING;
-      nextLine2read = 0;
+      memlines.rewind ();
       lastReadLine = null;
       lastIndxRead = 0;
       txtFile.fclose (); // if it was open for read then close it now
@@ -195,7 +190,7 @@ public class serialTextBuffer
    {
       return lastReadLine;
    }
-   
+
    public int readBytes (byte[] cbuf)
    {
       int nread = 0;
@@ -218,7 +213,7 @@ public class serialTextBuffer
       }
       return nread;
    }
-   
+
    public String toTruncatedString (int maxBytes)
    {
       // can be very expensive if the text is huge!!
@@ -238,7 +233,7 @@ public class serialTextBuffer
    {
       // can be very expensive if the text is huge!!
 
-      rewind ();
+      memlines.rewind ();
       StringBuffer sbuff = new StringBuffer ();
       while (getNextLine ())
       {
@@ -287,24 +282,10 @@ public class serialTextBuffer
       }
 
       // read from memory
-      if (nextLine2read > strArr.size ()-1)
-      {
-         if (nextLine2read == strArr.size () && lastWriteLineWithNoReturn.length () > 0)
-         {
-            nextLine2read ++;
-            return lastWriteLineWithNoReturn.toString ();
-         }
-         else
-         {
-            //rewind ();
-            return null;
-         }
-      }
-
-      // return it from memory
-      return (String) strArr.get (nextLine2read ++);
+      //
+      return memlines.readNextLine ();
    }
-   
+
    public boolean writeContentIntoOpenedFile (TextFile fil2)
    {
       if (tmpFileName != null)
@@ -317,40 +298,28 @@ public class serialTextBuffer
          }
          while (intfil.readLine ())
             fil2.writeLine (intfil.TheLine ());
+      }
 
-      }
-      
-      for (int ii = 0; ii < strArr.size (); ii ++)
-      {
-         fil2.writeLine ((String) strArr.get (ii));
-      }
+      writeMemToOpenFile (fil2);
       return true;
    }
 
-   private void vuelca ()
+   private void writeMemToOpenFile (TextFile otfile)
    {
-      if (!txtFile.fopen (getFileName (), "a", false))
+      int lastIndx = memlines.linesArray.size () - 1;
+
+      // write all lines+RT but the last one!
+      //
+      for (int ii = 0; ii < lastIndx; ii ++)
       {
-         log.err("vuelca", "open to append [" + getFileName () + "] failed");
-         return;
+         otfile.writeString ((String) memlines.linesArray.get (ii));
+         otfile.writeNewLine (lastWantedNewLineString);
       }
-
-      for (int ii = 0; ii < strArr.size (); ii ++)
-      {
-         txtFile.writeString ((String) strArr.get (ii));
-         txtFile.writeNewLine (lastWantedNewLineString);
-      }
-
-
-// NOTA: si hacemos esto aqui => un read h�brido (parte grabado en fichero, parte en memoria) no lo va ha hacer bien
-//       cuando el vulca se ha hecho con un trozo de l�nea sin retorno
-//
-//        // Note: it is ok to write now the "no return" line and reset it
-//        //       because next time it has to be reset here.
-//       txtFile.write (lastWriteLineWithNoReturn);
-//       lastWriteLineWithNoReturn = "";
-
-      txtFile.fclose ();
+      // write the last one and RT only if needed!
+      //
+      otfile.writeString ((String) memlines.linesArray.get (lastIndx));
+      if (memlines.newLineAtEnd)
+         otfile.writeNewLine (lastWantedNewLineString);
    }
 
    private String getFileName ()

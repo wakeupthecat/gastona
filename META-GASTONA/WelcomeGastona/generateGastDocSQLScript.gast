@@ -1,0 +1,173 @@
+   21.06.2009 19:52
+   generateGastDocDB.gast
+
+   Generates the script to generate the database for the documentation of gastona (gastonaWelcome.gast)
+   this includes gastona, javaj and listix subjects
+
+#gastona#
+
+   <LOG WAKEUP>
+
+#javaj#
+
+   <frames> F, Gastona Doc DB Generator, 400
+
+   <layout of F>
+      EVA, 10, 10, 7, 7
+
+      ,                       , X
+      , lSource base directory, eSource base directory
+      , lTarget database      , eTargetScript
+      , bGenerate
+    X , oConsole, -
+
+#data#
+
+   <bGenerate> New generation
+
+   <eSource base directory> ..\..
+   <eTargetScript>          gastonaDocScript.sql
+
+
+   <tab_Connections>
+      conn, tabsrc            , colscr  , tabtarg     , coltarg
+      item, tZWidgetAttributes,  widName, tGastItemDoc, name
+      item, tZWidgetMessages,    widName, tGastItemDoc, name
+      item, tLsxCmdAliases,      cmdName, tGastItemDoc, name
+      item, tlsxCmdSyntaxHead,   cmdName, tGastItemDoc, name
+      head, tlsxCmdSyntaxParams, cmdName, tlsxCmdSyntaxHead, cmdName
+      head, tlsxCmdSyntaxParams, synIndx, tlsxCmdSyntaxHead, synIndx
+      head, tlsxCmdSyntaxOpts,   cmdName, tlsxCmdSyntaxHead, cmdName
+      head, tlsxCmdSyntaxOpts,   synIndx, tlsxCmdSyntaxHead, synIndx
+
+   <sql gastonaDocCreate>
+      ///* tables for all structType's */
+      //CREATE TABLE tGastItemDoc  (name, structType, groupInfo, javaClass, importance, desc, helpText, UNIQUE(name));
+      //CREATE TABLE tGastExamples (name, gastSample, sampleBody, UNIQUE(name, gastSample));
+      //
+      ///* tables for structType javaj_widgets */
+      //CREATE TABLE tZWidgetAttributes (widName, name, in_out, possibleValues, desc, UNIQUE (widName, name));
+      //CREATE TABLE tZWidgetMessages   (widName, msg, in_out, desc, UNIQUE (widName, msg));
+      //
+      ///* tables for structType listix_commands */
+      //CREATE TABLE tLsxCmdAliases      (cmdName, aliasName);
+      //CREATE TABLE tlsxCmdSyntaxHead   (cmdName, synIndx, importance, desc, UNIQUE (cmdName, synIndx));
+      //CREATE TABLE tlsxCmdSyntaxParams (cmdName, synIndx, paramIndx, paramName, defVal, desc, UNIQUE (cmdName, synIndx, paramIndx));
+      //CREATE TABLE tlsxCmdSyntaxOpts   (cmdName, synIndx, optionName, parameters, defVal, desc, UNIQUE (cmdName, synIndx, optionName));
+      //
+      JAVA STATIC, de.elxala.db.dbMore.dbMore, getSQL_CreateTableConnections
+                 , ARG TYPE, void
+
+      LOOP, VAR, tab_Connections
+          ,,
+          ,,
+          ,, JAVA STATIC, de.elxala.db.dbMore.dbMore, getSQL_InsertConnection, @<conn>, @<tabsrc>, @<colscr>, @<tabtarg>, @<coltarg>
+
+#listix#
+
+   <main>
+      LSX, doGeneration
+
+   <-- bGenerate>
+      LSX, doGeneration
+   
+   <doGeneration>
+      //@<:lsx CLOCK>
+      //
+      //scanning sources for documentation ...
+      SCAN, ADD,, @<eSource base directory>, +E, java, +E, gastDoc, -D, META-GASTONA, -D, android, -D, srcPARKING, -D, tests, -D, NOPRODUCT, -D, nopublic
+      //
+      //@<:lsx CLOCK>
+      //
+      //generating Welcome script to generate database ...
+      GEN, gastonaDocScript.sql, bigScript
+      //
+      //@<:lsx CLOCK>
+      //
+      //well done!
+      //
+
+   <bigScript>
+      LSX, sql gastonaDocCreate
+      //
+      //BEGIN;
+      //
+      LOOP, SQL,, //SELECT fullPath FROM scan_all;
+          ,, @<extractDoc>
+      //
+      //COMMIT;
+      //
+
+   <extractDoc>
+      CHECK, LOAD UNIT, @<fullPath>, gastonaDoc, ///* no #gastonaDoc# unit found in @<fullPath> */
+      ///* START PROCESSING @<fullPath> */
+      //
+      GENERATE, +, generateSql for Doc
+              , LOAD DATA   , @<fullPath>, gastonaDoc
+      //
+      //
+
+   <ensure javaClass>
+      CHECK, VAR, javaClass, VAR=, javaClass, ""
+
+   <generateSql for Doc>
+      LSX, ensure javaClass
+
+      VAR=, ItemName, @<name>
+
+      <! for all gastona documentation
+      //
+      //INSERT INTO tGastItemDoc VALUES ('@<name>', '@<docType>', '@<groupInfo>', '@<javaClass>', '@<importance>',
+      //                 '@<:encode desc>', '@<:encode help>');
+      //
+      LSX, insert examples
+
+      <! for javaj documentation
+      LSX, insert attributes
+      LSX, insert messages
+
+      <! for listix documentation
+      LSX, insert aliases
+      LSX, insert syntaxes
+      LSX, insert parameters
+      LSX, insert options
+
+   <insert examples>
+      CHECK, EVA, examples
+      LOOP, EVA, examples
+          ,, //INSERT INTO tGastExamples VALUES ('@<ItemName>', '@<:encode gastSample>', '
+          ,, STRCONV, TEXT-STR, @<gastSample>
+          ,, //');
+
+   <insert attributes>
+      CHECK, EVA, attributes
+      LOOP, EVA, attributes
+          ,, //INSERT INTO tZWidgetAttributes VALUES ('@<ItemName>', '@<name>', '@<in_out>', '@<:encode possibleValues>', '@<:encode desc>');
+
+   <insert messages>
+      CHECK, EVA, messages
+      LOOP, EVA, messages
+          ,, //INSERT INTO tZWidgetMessages VALUES ('@<ItemName>', '@<msg>', '@<in_out>', '@<:encode desc>');
+
+   <insert aliases>
+      CHECK, EVA, aliases
+      LOOP, EVA, aliases
+          ,, //INSERT INTO tLsxCmdAliases VALUES ('@<ItemName>', '@<alias>');
+
+   <insert syntaxes>
+      CHECK, EVA, syntaxHeader
+      LOOP, EVA, syntaxHeader
+          ,, //INSERT INTO tlsxCmdSyntaxHead VALUES ('@<ItemName>', '@<synIndx>', '@<importance>', '@<:encode desc>');
+
+   <insert parameters>
+      CHECK, EVA, syntaxParams
+      LOOP, EVA, syntaxParams
+          ,, WHILE, synIndx
+          ,,      ,, //INSERT INTO tlsxCmdSyntaxParams VALUES ('@<ItemName>', '@<synIndx>', '@<:lsx ROW>', '@<name>', '@<:encode defVal>', '@<:encode desc>');
+
+   <insert options>
+      CHECK, EVA, options
+      LOOP, EVA, options
+          ,, //INSERT INTO tlsxCmdSyntaxOpts VALUES ('@<ItemName>', '@<synIndx>', '@<optionName>', '@<:encode parameters>', '@<:encode defVal>', '@<:encode desc>');
+
+#**#

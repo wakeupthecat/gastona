@@ -61,48 +61,43 @@ public class tableCursor
 {
    private static logger log = new logger (null, "listix_command", null);
 
-   private static final int TPIVOT_NONE   = 0;
-   private static final int TPIVOT_ONCE   = 1;
-   private static final int TPIVOT_WHILE  = 2;
+   public static final int TPIVOT_NONE   = 0;
+   public static final int TPIVOT_ONCE   = 1;
+   public static final int TPIVOT_WHILE  = 2;
 
    class pivot
    {
       int type = TPIVOT_NONE;
 
       // column index of the pivot for the pivot types TPIVOT_ONCE and TPIVOT_WHILE
-      int columnNr = -1;
+      int columnIndx = -1;
 
-      // store the column values until the pivot (0.. columnNr)
+      // stores the column values until the pivot (0.. columnIndx)
       // for the pivot types TPIVOT_ONCE and TPIVOT_WHILE
-      String [] pivotFields = new String[1];
+      String [] pivotData = null;
 
-      // set the pivot
-      boolean set (int pType, int columnNumber)
+      public pivot (int pType, int pColumnIndx)
       {
-         type = (columnNumber >= 0) ? pType: TPIVOT_NONE;
-         columnNr = columnNumber;
-
-         //System.out.println ("ASIGNAZO colNumber " + columnNr + "");
-         pivotFields = (type == TPIVOT_NONE) ? new String [1]: new String [columnNr + 1];
-
-         return (columnNr > -1); // Note (type == TPIVOT_NONE) is still a legal pivot!
+         type = (pColumnIndx >= 0) ? pType: TPIVOT_NONE;;
+         columnIndx = pColumnIndx;
+         pivotData = (type == TPIVOT_NONE) ? new String [0]: new String [columnIndx + 1];
       }
 
       // how many fields involves this pivot
-      int columnNumber ()
+      int columnIndex ()
       {
-         return columnNr;
+         return columnIndx;
       }
 
       boolean equalColumnValue (int col, String value)
       {
-         //System.out.println ("compiarios col " + col + " ello ["+ value + "] acerca de [" + ((pivotFields[col] != null) ? pivotFields[col]: "--nallo--") + "]");
-         return pivotFields[col] != null && pivotFields[col].equals (value);
+         //System.out.println ("comparamos col " + col + " ello ["+ value + "] acerca de [" + ((pivotFields[col] != null) ? pivotFields[col]: "--null--") + "]");
+         return pivotData[col] != null && pivotData[col].equals (value);
       }
 
       void setColumnValue (int col, String value)
       {
-         pivotFields[col] = value;
+         pivotData[col] = value;
       }
    }
 
@@ -112,6 +107,7 @@ public class tableCursor
    public int lastIncrementedPosition = 0;
    public boolean ownData = false;
    public String linkString = TextFile.RETURN_STR;
+   public Vector arrFilter = null; //new Vector (); // Vector<tableSimpleFilter>
 
    public tableCursor (tableAccessBase access)
    {
@@ -142,19 +138,17 @@ public class tableCursor
          dAcc.clean ();
    }
 
-   public Vector arrFilter = null; //new Vector (); // Vector<tableSimpleFilter>
-
-   public String [] dataPivot = new String [1];
-   public int runno = 0;
-
    private boolean checkSameColumn ()
    {
       if (dAcc.EOT ()) // end of table
          return false;
 
+      if (thePivot == null)
+         return true; // it does not really matters which value is returned in this case ...
+
       // all precedent columns have to be the same as well !!
       boolean same = true;
-      for (int cc = 0; cc <= thePivot.columnNumber(); cc ++)
+      for (int cc = 0; cc <= thePivot.columnIndex(); cc ++)
       {
          String currVal = dAcc.getValue (dAcc.currRow, cc);
          if (same)
@@ -194,44 +188,28 @@ public class tableCursor
       return true;
    }
 
-   public void analyzeOptions (listixCmdStruct cmdData)
+   protected void analyzeOptions (listixCmdStruct cmdData)
    {
-      thePivot = new pivot();
-      arrFilter = null;
-      linkString = TextFile.RETURN_STR;
-
       // PIVOT
       //
       String fieldWhile = cmdData.takeOptionString (new String [] { "WHILE", "WHILESAME", "SAME", "WHILEHEADER", "WHILESAMEHEADER", "SAMEHEADER" }, null);
       String fieldOnce  = cmdData.takeOptionString (new String [] { "DIFFERENT", "DIFFERENTHEADER", "ONCE", "ONCEHEADER", "ONCEPER" }, null);
 
-      //System.out.println ("me vienes diciendo fieldWhile " + fieldWhile + "");
-      thePivot.set (TPIVOT_NONE, -1);
-      if (fieldWhile!= null)
+      if (fieldWhile != null)
       {
-         //System.out.println ("SE TARATA DE col " + fieldWhile + "");
-         thePivot.set (TPIVOT_WHILE, dAcc.colOf (fieldWhile));
+         thePivot = new pivot (TPIVOT_WHILE, dAcc.colOf (fieldWhile));
          log.dbg (2, "tableCursor", "analyzeOptions, set Pivot WHILE " + fieldWhile + "");
       }
       else if (fieldOnce != null)
       {
-         //System.out.println ("SE TARATASS DE col " + fieldOnce + "");
-         thePivot.set (TPIVOT_ONCE, dAcc.colOf (fieldOnce));
+         thePivot = new pivot (TPIVOT_ONCE, dAcc.colOf (fieldOnce));
          log.dbg (2, "tableCursor", "analyzeOptions, set Pivot ONCE " + fieldOnce + "");
       }
-      else
-      {
-         // no hay pivot, pues fale...
-         log.dbg (2, "tableCursor", "analyzeOptions, no Pivot");
-         //System.out.println ("No pivot this time!");
-      }
 
-
-      // FILTERS
-      //
-      String [] filterArg = null;
 
       // collect filters
+      //
+      String [] filterArg = null;
       do
       {
          filterArg = cmdData.takeOptionParameters (new String [] { "IF", "FILTER", "THOSE" }, true);
@@ -257,8 +235,9 @@ public class tableCursor
 
       // LINK STRING
       //
-      String linkStr = cmdData.takeOptionString (new String [] { "LINK", "ROWLINK" }, null);
+      linkString = TextFile.RETURN_STR; // default
 
+      String linkStr = cmdData.takeOptionString (new String [] { "LINK", "ROWLINK" }, null);
       if (linkStr != null)
       {
          log.dbg (2, "tableCursor", "link String [" + linkStr + "]");
@@ -266,7 +245,7 @@ public class tableCursor
       }
    }
 
-   public void analyzePivot (listixCmdStruct cmdData)
+   public void analyzeOptionsAndPivot (listixCmdStruct cmdData, int pivotType, String pivotField)
    {
       //   RUN TABLE, lsxFormat, [ option, value,  [ option, value ...] ]
       //
@@ -277,6 +256,11 @@ public class tableCursor
       //
 
       // look for options
+      if (pivotType != TPIVOT_NONE)
+      {
+         thePivot = new pivot (pivotType, dAcc.colOf (pivotField));
+         log.dbg (2, "tableCursor", "analyzeOptionsAndPivot, set Pivot type " + pivotType + " with value " + pivotField);
+      }
       analyzeOptions (cmdData);
    }
 
@@ -286,6 +270,15 @@ public class tableCursor
    //
    public int set_RUNTABLE (listixCmdStruct cmdData)
    {
+      return set_RUNTABLE (cmdData, TPIVOT_NONE, null);
+   }
+
+   public int set_RUNTABLE (listixCmdStruct cmdData, int pivotType, String pivotField)
+   {
+      // options has to be consumed anyway due to remainOptions!
+      //
+      analyzeOptionsAndPivot (cmdData, pivotType, pivotField);
+
       if (dAcc.EOT ())
       {
          //
@@ -293,8 +286,6 @@ public class tableCursor
          log.dbg (6, "tableCursor", "set_RUNTABLE could not start, there is no table or it is empty");
          return 1;   // the command was RUN TABLE!
       }
-
-      analyzePivot (cmdData);
 
       while (! checkFilter () && !dAcc.EOT ())
       {
@@ -347,12 +338,6 @@ public class tableCursor
    */
    public boolean increment_RUNTABLE ()
    {
-      if (thePivot == null)
-      {
-         log.err ("tableCursor::increment_RUNTABLE", "tableCursor uninitialized (no set_RUNTABLE called)!");
-         return false;
-      }
-
       log.dbg (4, "tableCursor", "prev0 " + dAcc.prevRow + ", curr0 " + dAcc.currRow + " lastIncPosition " + lastIncrementedPosition);
       dAcc.prevRow = dAcc.currRow;
       if (lastIncrementedPosition >= dAcc.currRow)
@@ -383,24 +368,27 @@ public class tableCursor
          return false;
 
       // check break condition (while same field, once per field ...)
-      switch (thePivot.type)
+      if (thePivot != null)
       {
-         case TPIVOT_ONCE:
-            while (checkSameColumn ())
-            {
-               log.dbg (4, "tableCursor", "sameColumn, skip " + dAcc.currRow + " EOT " + dAcc.EOT ());
-               dAcc.incrementRow ();
-               lastIncrementedPosition = dAcc.currRow;
-            }
-            break;
+         switch (thePivot.type)
+         {
+            case TPIVOT_ONCE:
+               while (checkSameColumn ())
+               {
+                  log.dbg (4, "tableCursor", "sameColumn, skip " + dAcc.currRow + " EOT " + dAcc.EOT ());
+                  dAcc.incrementRow ();
+                  lastIncrementedPosition = dAcc.currRow;
+               }
+               break;
 
-         case TPIVOT_WHILE:
-            if (! checkSameColumn ()) return false;
-            log.dbg (4, "tableCursor", "sameColumn, continue");
-            break;
+            case TPIVOT_WHILE:
+               if (! checkSameColumn ()) return false;
+               log.dbg (4, "tableCursor", "sameColumn, continue");
+               break;
 
-         default:
-            break;
+            default:
+               break;
+         }
       }
       log.dbg (4, "tableCursor", "prev2 " + dAcc.prevRow + ", new2 " + dAcc.currRow + " EOT " + dAcc.EOT ());
       return ! dAcc.EOT ();

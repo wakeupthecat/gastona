@@ -181,7 +181,7 @@ public class cmdLaunch implements commandable
       long incMilis = System.currentTimeMillis () - initMilis;
       cmd.getLog().dbg ((verbose >= 2) ? 0: 2, "LAUNCH", "time to launch = " + (incMilis/1000.) + " seconds");
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

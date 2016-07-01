@@ -1,0 +1,41 @@
+#javaj#
+
+   <! in #javaj# we build the User Interface (GUI)
+   <!
+   <! we define a frame called "main"
+   <!
+   <frames>
+      main, Buttons basic
+
+   <! we describe its contents
+   <! in this case, three buttons and
+   <! a label
+   <!
+   <layout of main>
+      EVA,
+
+         ,  X
+         , bButton
+         , bBoton
+         , bKnopf
+         , lMyLabel
+
+#listix#
+
+   <! #listix# will implement the logic
+   <!
+   <! In this case we just react to the
+   <! three button's actions always filling
+   <! the label with some text. The three ways
+   <! are equivalent
+
+   <-- bButton>
+      SET VAR, lMyLabel, Button pressed
+      MSG, lMyLabel data!
+
+   <-- bBoton>
+      SET DATA!, lMyLabel,, Boton pulsado
+
+   <-- bKnopf>
+      -->, lMyLabel,, Knopf gedrueckt
+

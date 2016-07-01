@@ -35,21 +35,21 @@ public class httpStreamReader
 
    //(o) REVIEW_sockets buffer size
    // I thik it has no influence, I've observed that in server the socket read in chunks of 1452 bytes
-   // for instance on uploading a file 
+   // for instance on uploading a file
    //   inStream read available 0 mayToread 102400
    //   inStream read 1452 bytes
    //
-   private int BUFFER_SIZE = 40*1024;     
-   
+   private int BUFFER_SIZE = 40*1024;
+
    private byte [] buff = new byte[BUFFER_SIZE];
    private int decala = NO_SHIFT;
    private int lastLength = 0;
    private boolean EOS = false;
    private int totalBytesRead = 0;
    private int maxBytesToRead = UNKNOWN;
-   
+
    public static final int BOUNDARY_MAXEXPECTEDLEN = 100;
-   
+
    // RFC1521 says that a boundary "must be no longer than 70 characters, not counting the two leading hyphens".
 
    public httpStreamReader (InputStream inputStream)
@@ -58,7 +58,7 @@ public class httpStreamReader
       maxBytesToRead = UNKNOWN;
    }
 
-   // NOTE! end of stream does not mean that there is no more 
+   // NOTE! end of stream does not mean that there is no more
    public boolean EndOfStream ()
    {
       return EOS;
@@ -68,12 +68,12 @@ public class httpStreamReader
    {
       return buff;
    }
-   
+
    public int getArrayLength ()
    {
       return lastLength;
    }
-   
+
    // set this value just before reading the body givin exactly the body length
    // this is necessary to prevent reading after the body length which would cause
    // the stream reader to block
@@ -82,7 +82,7 @@ public class httpStreamReader
    {
       maxBytesToRead = getConsumedBytes () + lenBytes;
    }
-   
+
    public boolean areBytesToConsume ()
    {
       // NOTE: stream can be exhausted and still have bytes to read (not consumed) !!!
@@ -96,11 +96,11 @@ public class httpStreamReader
    {
       return (maxBytesToRead != UNKNOWN && totalBytesRead >= maxBytesToRead);
    }
-   
+
    public boolean readBytes ()
    {
       if (!areBytesToConsume ()) return false;
-      
+
       if (decala != NO_SHIFT && decala >= 0)
       {
          //shift not consumed bytes to the begining
@@ -117,16 +117,16 @@ public class httpStreamReader
      if (!streamExhausted () && maxToRead > 0)
      {
          int leoBytes = -1;
-         try { 
+         try {
             out (10, "inStream read available " + inStream.available () + " mayToread " + maxToRead);
             leoBytes = inStream.read (buff, lastLength, maxToRead);
             out (10, "inStream read " + leoBytes + " bytes");
           } catch (Exception e) { out (0, e+""); }
-         
+
          //(o) TODO_httpStreamReader should not be added only if not eos ?
          totalBytesRead += leoBytes;
          lastLength += leoBytes;
-         
+
          EOS = leoBytes == -1;
      }
 
@@ -142,7 +142,7 @@ public class httpStreamReader
    {
       return totalBytesRead - (decala >= 0 ? (lastLength-decala): 0);
    }
-   
+
    public static void out (String sa)
    {
       micoHttpServer.out (sa);
@@ -153,7 +153,3 @@ public class httpStreamReader
       micoHttpServer.out (level, sa);
    }
 }
-
-
-// ABC Lounge
-//       Promid Eternal love

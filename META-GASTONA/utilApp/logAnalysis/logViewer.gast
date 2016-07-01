@@ -85,12 +85,12 @@
 
    <show report listix_flow html>
       GEN, report_listix_flow.html, report listix_flow html
-      LAUNCH, //CMD /C start "" report_listix_flow.html
+      BROWSE, report_listix_flow.html
 
    <show report listix_flow text>
       GEN, report_listix_flow.html, report listix_flow text
       CHECK, FILE, report_listix_flow.txt
-      LAUNCH, //report_listix_flow.txt
+      OPEN, report_listix_flow.txt
 
    <load logfile>
       //begin;

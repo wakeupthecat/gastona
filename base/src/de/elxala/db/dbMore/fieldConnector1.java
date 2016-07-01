@@ -145,19 +145,16 @@ public class fieldConnector1
       resultStringHaving = "";
    }
 
-   private int findConnection (List connArray)
+   private int findConnection (String table, String connection)
    {
-      if (connArray.size () < 2) return -1;
-      String tab = (String) connArray.get(0);
-      String con = (String) connArray.get(1);
       for (int ii = linkTableIndx0; ii < tableConnections.rows (); ii ++)
       {
-         if (tab.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_SOURCETABLE)) &&
-             con.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_NAME)))
+         if (table.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_SOURCETABLE)) &&
+             connection.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_NAME)))
              return ii;
       }
       //debug error connection not found
-      log.err ("Connection " + con + " from table " + tab + " not found in connection array of " +  (tableConnections.rows ()-linkTableIndx0) + " elements!");
+      log.err ("Connection " + connection + " from table " + table + " not found in connection array of " +  (tableConnections.rows ()-linkTableIndx0) + " elements!");
 
       return -1;
    }
@@ -268,7 +265,9 @@ public class fieldConnector1
          String groupFunc   = evaColumns.getValue (cc, 2); // e.g. "MAX"
          String groupHaving = evaColumns.getValue (cc, 3); // e.g. "> 10"
 
-         List currConnArray = Cadena.simpleToList(addBase + deepColumn, " "); // e.g. "persona pare name"
+         String [] currConnArray = (new String(addBase + deepColumn)).split (" "); // e.g. "persona pare name"
+         int shiftConn = 0;
+         while (currConnArray.length-shiftConn > 0 && currConnArray[1+shiftConn].length() == 0) shiftConn ++; // skip empty connections
 
          if (log.isDebugging (4))
             log.dbg (4, "resolveConnections", "new deep column [" + addBase + deepColumn + "] alias [" + columnAlias + "] groupOp [" + groupFunc + "] groupHaving [" + groupHaving + "]");
@@ -276,10 +275,10 @@ public class fieldConnector1
          if (groupFunc.length () > 0)
             bGrouping = true;
 
-         if (currConnArray.size () == 0) continue;
+         if (currConnArray.length-shiftConn == 0) continue;
 
          // get absolute first table (independently from 'tablaBase')
-         String firstTable = (String) currConnArray.get(0);
+         String firstTable = currConnArray [0];
          String currResiduo = bUsingFirstAlias ? shortAliasForBase: firstTable;
          //xxx String currResiduo = bUsingFirstAlias ? shortAliasForBase: "";
          if (resultListFROM.size () == 0)
@@ -295,18 +294,15 @@ public class fieldConnector1
 
          // loop for solving all connections in this field
          //
-         while (currConnArray.size () > 2)
+         while (currConnArray.length - shiftConn > 2)
          {
             String previaTable = currResiduo;
-
-            if (currResiduo.length () > 0)
-                 currResiduo +=  "_" + (String) currConnArray.get(1);
-            else currResiduo = (String) currConnArray.get(1);
+            currResiduo = ((currResiduo.length () > 0) ? currResiduo + "_": "") + currConnArray[1 + shiftConn];
 
             if (log.isDebugging (4))
                log.dbg (4, "resolveConnections", "algo step. previaTable [" + previaTable + "] currResiduo [" + currResiduo + "]");
 
-            int indx = findConnection (currConnArray);
+            int indx = findConnection (currConnArray[0], currConnArray[1 + shiftConn]);
             if (indx >= 0)
             {
                // found the connection at indx
@@ -343,8 +339,15 @@ public class fieldConnector1
                // shift connection
                //    "ta1 con1 con2 field" ==> "taXY con2 field"
                //
-               currConnArray.remove (0);
-               currConnArray.set (0, targetTable);
+               // instead of copying arrays whe just increment shiftConn
+               //
+               //                   shiftConn = 1 -----v
+               //
+               //    "ta1 con1 con2 field" ==> "taXY ---- con2 field"
+               //
+               shiftConn ++;
+               while (currConnArray.length-shiftConn > 0 && currConnArray[1 + shiftConn].length() == 0) shiftConn ++; // skip empty connections
+               currConnArray[0] = targetTable;
             }
             else
             {
@@ -357,9 +360,9 @@ public class fieldConnector1
 
          //System.out.println (" resultListFROM size " + resultListFROM.size () + " resultListWHERE size " + resultListWHERE.size ());
 
-         if (currConnArray.size () != 2)
+         if (currConnArray.length - shiftConn != 2)
          {
-            log.err ("at index " + cc + " currConnArray.size () is " + currConnArray.size () + " but it should be 2!" + (currConnArray.size () == 0 ? "": "[" + (String) currConnArray.get(0) + "]"));
+            log.err ("at index " + cc + " currConnArray.size () is " + (currConnArray.length - shiftConn) + " but it should be 2!" + (currConnArray.length == 0 ? "": "[" + currConnArray[0] + "]"));
             bOK = false;
             continue;
          }
@@ -367,8 +370,8 @@ public class fieldConnector1
          // last element is the column name
          // e.g. "tab1_con1_con2.field AS tab1_con1_con2_field"
 
-         String tab = (currResiduo != null && currResiduo.length () > 0) ? currResiduo: (String) currConnArray.get(0);
-         String colName = (String) currConnArray.get(1); // e.g. "nombre"
+         String tab = (currResiduo != null && currResiduo.length () > 0) ? currResiduo: currConnArray[0];
+         String colName = currConnArray[1 + shiftConn]; // e.g. "nombre"
          String nameQuali = tab + "." + colName;         // e.g. "persona_pare.nombre"
 
          //System.out.println ("GARGOS [" + nameQuali + "]");

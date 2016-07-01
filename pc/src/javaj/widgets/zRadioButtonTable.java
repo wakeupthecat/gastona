@@ -184,6 +184,7 @@ public class zRadioButtonTable extends JPanel implements MensakaTarget
          {
             selectRadioIndex (mIndx);
             helper.updateSelectedInTable ();
+            if (!SILENT_SELECTION)
             helper.signalAction ();
          }
       }
@@ -257,8 +258,9 @@ public class zRadioButtonTable extends JPanel implements MensakaTarget
                helper.doSelect (pars);
                SILENT_SELECTION = true;
                int [] arrsel = helper.getSelectedIndices ();
-               if (arrsel.length > 0 && arrRadios != null && arrsel[0] < arrRadios.length)
-                  arrRadios[arrsel[0]].setSelected (true);
+               int indx = arrsel.length > 0 ? arrsel[0]: -1;
+               if (arrRadios != null && indx >= 0 && indx < arrRadios.length)
+                  arrRadios[indx].setSelected (true);
                SILENT_SELECTION = false;
                helper.updateSelectedInTable ();
             }

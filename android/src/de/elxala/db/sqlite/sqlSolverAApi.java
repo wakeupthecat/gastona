@@ -69,28 +69,6 @@ public class sqlSolverAApi
 
    private logger log = new logger (this, "de.elxala.db.sqlite.sqlSolver", null);
 
-   private String createSessionTempDB ()
-   {
-      // create the artificial temp database (not sqlite native)
-      //
-      String sessTmpDb = fileUtil.createTemporal (SESSION_TEMP_DB_ALIAS, ".db");
-      log.dbg (2, "createSessionTempDB", "Session temporary database (will be attached as " + SESSION_TEMP_DB_ALIAS + ") created [" + sessTmpDb + "]");
-
-      return sessTmpDb;
-   }
-
-   public String getApplicationTempDatabase ()
-   {
-      String sessDB = System.getProperty ("gastona." + SESSION_TEMP_DB_ALIAS, null);
-      if (sessDB == null)
-      {
-         sessDB = createSessionTempDB ();
-         System.setProperty ("gastona." + SESSION_TEMP_DB_ALIAS, sessDB);
-      }
-
-      return sessDB;
-   }
-
    public boolean tracingOn ()
    {
       return log.getLogDirectory () != null;
@@ -532,7 +510,7 @@ public class sqlSolverAApi
          if (db != null) db.close ();
          return;
       }
-      
+
       if (db == null)
       {
          log.err ("callSqliteExec", "Error null db opening database [" + database + "]");
@@ -541,7 +519,7 @@ public class sqlSolverAApi
 
       //do select
       boolean mas = false;
-      
+
       //(o) TODO : detect "BEGIN TRANSACTION" AND "COMMIT" in the case of inputFile
       //
       // if (!transacc && linea.startsWithIgnorecase ("BEGIN"))
@@ -565,7 +543,7 @@ public class sqlSolverAApi
             linea = (inputFile != null) ? fi.TheLine (): theSQLScript.getLastReadLine ();
             lineNr ++;
             if (linea.trim().length () == 0) continue;
-          
+
             log.dbg (2, "callSqliteExec", "execSQL [" + linea + "] ");
             db.execSQL (linea);
          } while (mas);

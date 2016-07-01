@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005,2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -29,13 +29,16 @@ import java.util.*;
 import de.elxala.langutil.*;
 import de.elxala.zServices.logger;
 
+//(o) TODO/improvement/langutil/pathGetFiles some improvements
+//       - make an internal structure fileEntry
+//       - provide getRootPath (), entry.getFullPath (), ...
+
+
 
 // read all filenames that matches extensions etc.
 //
 public class pathGetFiles
 {
-   private static int NenN = 36;
-
    public static final int FOR_FILES = 0;
    public static final int FOR_DIRECTORIES = 1;
 
@@ -235,7 +238,7 @@ public class pathGetFiles
                }
                if (! theFiltrus.accept (false, aFile.getParent (), aFile.getName ())) continue;
             }
-            else 
+            else
             {
                if (aFile.isFile () || ! aFile.isDirectory ()) continue;
                if (! theFiltrus.accept (true, aFile.getAbsolutePath (), "")) continue;
@@ -345,8 +348,7 @@ public class pathGetFiles
 
       pathGetFiles moto = new pathGetFiles();
 
-      Crono rolex = new Crono();
-      rolex.start();
+      long rolex = System.currentTimeMillis ();
 
       moto.initScan (rootPath, subpath, true, macro);
 
@@ -354,7 +356,7 @@ public class pathGetFiles
       List cosas = null;
       do
       {
-         cosas = moto.scanN (NenN);
+         cosas = moto.scanN (100);
          kantos += cosas.size ();
          for (int jj = 0; jj < cosas.size (); jj++)
          {
@@ -364,10 +366,10 @@ public class pathGetFiles
       }
       while (cosas.size () > 0);
 
-      rolex.stop ();
+      rolex = System.currentTimeMillis () - rolex;
 
       System.out.println ();
       //System.out.println (kantos + " files");
-      System.out.println (kantos + " files scanned in " + rolex.elapsedMillis ()/1000 + " s");
+      System.out.println (kantos + " files scanned in " + rolex/1000 + " s");
    }
 }

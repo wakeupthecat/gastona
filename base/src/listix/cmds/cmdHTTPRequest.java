@@ -53,19 +53,20 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxParams>
       synIndx, name           , defVal    , desc
-         1   , IPaddress      ,           , //IP address of the http server
-         1   , port           , 80        , //Port of the server (default value is 80)
+         1   , url            ,           , //Url including protocol and parameters
+         1   , method         , GET       , //one of GET, PUT, etc
 
    <options>
-      synIndx, optionName  , parameters, defVal, desc
-         1   , HEADER      , text      ,  0    , //Request method (e.g. "GET / HTTP/1.1") and headers. NOTE! If body is given using BODY option the header "Content-Length" is calculated and added to the headers automatically
-         1   , BODY        , text      ,  0    , //Place in this lines the body of the http request
-         1   , CHARSET     , charSetName, UTF-8, //Charset for the receiving data. Examples ISO-8859-1, UTF-8, US-ASCII. Note: don't know if useful but if desired to use the default charset for the JVM (see java.nio.charset.Charset documentation) then set the value "-" or "none"
+      synIndx, optionName  , parameters           , defVal, desc
+         1   , HEADER      , "text | prop, value" ,       , //Headers of the request method (e.g. GET). "Content-Length" is calculated if necessary (body is given)
+         1   , BODY        , text                 ,       , //Place in this lines the body of the http request
+         1   , CHARSET     , charSetName          , UTF-8 , //Charset for the receiving data. Examples ISO-8859-1, UTF-8, US-ASCII. Note: don't know if useful but if desired to use the default charset for the JVM (see java.nio.charset.Charset documentation) then set the value "-" or "none"
 
    <examples>
       gastSample
 
       Http simple
+      Http couchDB
       Http SOAP
 
    <Http simple>
@@ -77,8 +78,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      HTTP, www.google.com
-      //          ,, //GET /webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=wakeupthecat HTTP/1.1
+      //      HTTP, http://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=wakeupthecat
+
+   <Http couchDB>
+      //#javaj#
+      //
+      //   <frames>
+      //       oConsole, "Http simple", 200, 300
+      //
+      //#listix#
+      //
+      //   <main>
+      //      HTTP, http://127.0.0.1:5984/_all_dbs
 
    <Http SOAP>
       //#javaj#
@@ -89,22 +100,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      HTTP, www.webservicex.net
-      //          ,     , //POST /globalweather.asmx HTTP/1.1
-      //          ,     , //Content-Type: text/xml;charset=UTF-8
-      //          ,     , //SOAPAction: "http://www.webserviceX.NET/GetWeather"
-      //          ,     , //Host: www.webservicex.net
-      //          , body, //<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:web="http://www.webserviceX.NET">
-      //          , body, //   <soap:Header/>
-      //          , body, //   <soap:Body>
-      //          , body, //      <web:GetWeather>
-      //          , body, //         <web:CityName>Stuttgart</web:CityName>
-      //          , body, //         <web:CountryName>Germany</web:CountryName>
-      //          , body, //      </web:GetWeather>
-      //          , body, //   </soap:Body>
-      //          , body, //</soap:Envelope>
-
-
+      //      HTTP, http://www.webservicex.net/globalweather.asmx, POST
+      //          , HEADER, //Content-Type: text/xml;charset=UTF-8
+      //          , HEADER, //SOAPAction: "http://www.webserviceX.NET/GetWeather"
+      //          , HEADER, //Host: www.webservicex.net
+      //          ,       , //<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:web="http://www.webserviceX.NET">
+      //          ,       , //   <soap:Header/>
+      //          ,       , //   <soap:Body>
+      //          ,       , //      <web:GetWeather>
+      //          ,       , //         <web:CityName>Stuttgart</web:CityName>
+      //          ,       , //         <web:CountryName>Germany</web:CountryName>
+      //          ,       , //      </web:GetWeather>
+      //          ,       , //   </soap:Body>
+      //          ,       , //</soap:Envelope>
 
 #**FIN_EVA#
 
@@ -114,11 +122,10 @@ package listix.cmds;
 
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.*;
 import java.util.*;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import listix.*;
 import listix.table.*;
@@ -129,7 +136,8 @@ import de.elxala.db.sqlite.*;
 import de.elxala.langutil.*;
 
 
-//(o) TODO_listix_command_HTTPRequest review this command! (when I first programmed it I have no idea about HTTP!)
+/// Explanation with samples about HttpURLConnection
+/// http://stackoverflow.com/questions/2793150/using-java-net-urlconnection-to-fire-and-handle-http-requests/2793153#2793153
 
 
 public class cmdHTTPRequest implements commandable
@@ -145,9 +153,11 @@ public class cmdHTTPRequest implements commandable
       {
           "HTTPREQUEST",
           "HTTP",
+          "URLREQUEST",
+          "URL",
        };
-   }   
-   
+   }
+
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -162,128 +172,127 @@ public class cmdHTTPRequest implements commandable
       // ::execute - some helpful comment for all the possible syntaxes
       //
       //      comm____   , par1_____      , par2______
-      //      HTTPREQUEST, IP address     , port
+      //      HTTPREQUEST, Url complete   , method [GET]
       //                 , HEADER, text
       //                 , HEADER, text
-      //                 , BODY, text
-      //                 , BODY, text
-
+      //                 , BODY  , text
+      //                 , BODY  , text
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      String HTTP_IPadd  = cmd.getArg(0);
-      String HTTPortPar  = cmd.getArg(1);
-      int HTTP_port = 80;  // 80 is the standard HTTP port
-      if (HTTPortPar != null && HTTPortPar.length () > 0)
-      {
-         HTTP_port = stdlib.atoi (HTTPortPar);
-      }
+      String url    = cmd.getArg (0);
+      String method = cmd.getArg (1);
+      if (method.length () == 0)
+         method = "GET";
 
       // DEFAULT charSet is UTF-8, if desired the JVM default charset then CHARSET has to be "-", "none" or "JVMdefault"
       String readerCharSet = cmd.takeOptionString(new String [] { "CHARSET", "RESPONSE CHARSET" }, "UTF8" );
       boolean specifiedCharSet = !readerCharSet.equals ("-") &&
                                  !readerCharSet.equalsIgnoreCase ("none") &&
                                  !readerCharSet.equalsIgnoreCase ("JVMdefault");
-     // HTTP request ...
-     {
-         //HttpURLConnection connection = null;
-         Socket sock = null;
-         BufferedReader isreader = null;
-         OutputStream oswriter = null;
 
-         try {
-            sock = new Socket(HTTP_IPadd, HTTP_port);
+      BufferedReader isreader = null;
+      HttpURLConnection con = null;
 
-            //get the output stream writer and write the output to the server
-            // first the header
-            //
-            int count = 0;
-            oswriter = sock.getOutputStream();
-            do
-            {
-               String [] HTTPRequestHeader = cmd.takeOptionParameters(new String [] { "REQUESTHEADER", "REQUEST", "REQ", "HEADER", "HEAD", "" } );
-               if (HTTPRequestHeader == null) break;
-               if (HTTPRequestHeader.length == 1)
-               {
-                  oswriter.write ((HTTPRequestHeader[0] + CRLF).getBytes());
-               }
-               else
-                  cmd.getLog().err ("HTTPREQUEST", "option REQUEST HEADER (count " + count + ") has length " + HTTPRequestHeader.length + " but has to have just one parameter!");
-               count ++;
-            } while (true);
-
-            // now the body
-            //         , BODY, //blah blah ...
-            //         , BODY, //etc etc  ...
-            //
-            //
-            List bodyList = new Vector ();
-            count = 0;
-            int contentLength = 0;
-            do
-            {
-               String [] HTTPRequestBody = cmd.takeOptionParameters(new String [] { "REQUESTBODY", "BODY" } );
-               if (HTTPRequestBody == null) break;
-               if (HTTPRequestBody.length == 1)
-               {
-                  bodyList.add (HTTPRequestBody[0]);
-                  contentLength += (2 + HTTPRequestBody[0].length ()); // we will add return line feed (2 bytes) after each line!
-               }
-               else
-                  cmd.getLog().err ("HTTPREQUEST", "option BODY (count " + count + ") has length " + HTTPRequestBody.length + " but it has to have just one parameter!");
-               count ++;
-            } while (true);
-
-            if (contentLength > 0)
-            {
-               oswriter.write (("Content-Length: " + contentLength + CRLF).getBytes());
-               oswriter.write (CRLF.getBytes()); // empty line separates request header from body
-               for (int ii = 0; ii < bodyList.size (); ii ++)
-               {
-                  oswriter.write (((String) bodyList.get(ii) + CRLF).getBytes());
-               }
-            }
-            else
-               oswriter.write (CRLF.getBytes()); // empty line ends header since body is missing!
-            oswriter.flush();
-            sock.shutdownOutput();
-
-            // that.printTextLsx ("Socket oswriter closed");
-
-            //read the result from the server
-            if (specifiedCharSet)
-            {
-               cmd.getLog().dbg (2, "HTTPREQUEST", "reading HTTP response using charSet \"" + readerCharSet + "\"");
-               isreader  = new BufferedReader(new InputStreamReader (sock.getInputStream(), readerCharSet));
-            }
-            else
-               isreader  = new BufferedReader(new InputStreamReader (sock.getInputStream())); // use JVM default charset (which is ? not clear, see CharSet doc)
-
-            String line;
-            while ((line = (String) isreader.readLine()) != null)
-            {
-               cmd.getListix ().printTextLsx (line);
-               cmd.getListix ().newLineOnTarget ();
-            }
-         }
-         catch (Exception e)
+      try
+      {
+         URL urlObj = new URL(url);
+         if (urlObj == null)
          {
-            cmd.getLog().severe ("HTTPREQUEST", "Http socket exception " + e);
+            cmd.getLog().err ("HTTPREQUEST", "wrong url [" + url + "]");
+            return 1;
          }
+         con = (HttpURLConnection) urlObj.openConnection();
+
+         con.setRequestMethod(method);
+
+         int count = 0;
+         do
+         {
+            String [] header = cmd.takeOptionParameters(new String [] { "HEADER", "HEAD" } );
+            if (header == null) break;
+            if (header.length == 1)
+            {
+               int indx = header[0].indexOf (":");
+               con.setRequestProperty (header[0].substring (0, indx), header[0].substring (indx+1));
+            }
+            else if (header.length == 2)
+            {
+               con.setRequestProperty (header[0], header[1]);
+            }
+            else
+               cmd.getLog().err ("HTTPREQUEST", "option REQUEST HEADER (count " + count + ") has length " + header.length + " has to have 1 or 2 parameters!");
+            count ++;
+         } while (true);
+
+
+         // send body if any
+         count = 0;
+         DataOutputStream bodyWr = null;
+         do
+         {
+            String [] body = cmd.takeOptionParameters(new String [] { "REQUESTBODY", "BODY", "" } );
+            if (body == null) break;
+            if (body.length == 1)
+            {
+               if (bodyWr == null)
+               {
+                  con.setDoOutput(true);
+                  if (method == "GET")
+                     cmd.getLog().err ("HTTPREQUEST", "try to send a http GET with body. This unfortunatelly does not work with java class HttpURLConnection, a POST will be send!");
+
+                  con.setRequestMethod(method);
+                  bodyWr = new DataOutputStream(con.getOutputStream());
+               }
+               bodyWr.writeBytes (body[0] + CRLF);
+            }
+            else
+               cmd.getLog().err ("HTTPREQUEST", "option BODY (count " + count + ") has length " + body.length + " but it has to have just one parameter!");
+            count ++;
+         } while (true);
+
+         if (bodyWr != null)
+         {
+            bodyWr.flush ();
+            bodyWr.close ();
+         }
+
+         int responseCode = con.getResponseCode();
+         cmd.getLog().dbg (2, "HTTPREQUEST", "response code " + responseCode + " to sent [" + method + "] request to URL : " + url);
+
+         //read the result from the server
+         if (specifiedCharSet)
+         {
+            cmd.getLog().dbg (2, "HTTPREQUEST", "reading HTTP response using charSet \"" + readerCharSet + "\"");
+            isreader  = new BufferedReader(new InputStreamReader (con.getInputStream(), readerCharSet));
+         }
+         else
+            isreader  = new BufferedReader(new InputStreamReader (con.getInputStream())); // use JVM default charset (which is ? not clear, see CharSet doc)
+
+         String line;
+         while ((line = (String) isreader.readLine()) != null)
+         {
+            cmd.getListix ().printTextLsx (line);
+            cmd.getListix ().newLineOnTarget ();
+         }
+         isreader.close ();
+      }
+      catch (Exception e)
+      {
+         cmd.getLog().severe ("HTTPREQUEST", "Http socket exception " + e);
+      }
          //catch (MalformedURLException ProtocolException IOException
-         finally
-         {
-            try{
-               if (isreader != null) isreader.close();
-               if (oswriter != null) oswriter.close();
-               if (sock != null) sock.close();
-            }
-            catch(IOException ioException){
-               cmd.getLog().severe ("HTTPREQUEST", "Http closing socket exception " + ioException);
-            }
+      finally
+      {
+         try {
+            if (isreader != null) isreader.close();
+            // if (con != null) con.disconnect ();
          }
-     }
+         catch (IOException ioException) {
+            cmd.getLog().severe ("HTTPREQUEST", "Http closing connection exception " + ioException);
+         }
+      }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

@@ -63,6 +63,8 @@ public class tableAccessTextFile extends tableAccessBase
 
    public void clean ()
    {
+      if (fileopen != null)
+         fileopen.fclose ();
    }
 
    public int zeroRow ()

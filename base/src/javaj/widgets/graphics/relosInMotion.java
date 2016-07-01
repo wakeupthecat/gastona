@@ -221,7 +221,7 @@ public class relosInMotion
 
       String timo =  DateFormat.getStr (new Date (), "HH:mm:ss");
 
-      // 360 / 12 = 30°
+      // 360 / 12 = 30 degrees
       //
       float angleHour   = (stdlib.atoi (timo.substring(0, 2)) % 12) * 30.f;
       float angleMinute = stdlib.atoi (timo.substring(3, 5)) * 6.f;

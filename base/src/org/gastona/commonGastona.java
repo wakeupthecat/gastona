@@ -40,10 +40,11 @@ public class commonGastona
    public static logger log = new logger (null, "gastona", null);
 
    public static final String MAINGAST_MEMORYFILE = ":mem _mainGast_";
-   public static final String UTF8_PARAM = ":utf-8:";
+   public static final String UTF8_PARAM = ":utf8:";
+   public static final String UTF8_PARAM2 = ":utf-8:";
 
-   // examines for 
-   //      :utf-8:xxxxxxxx par1 par2
+   // examines for pattern
+   //      :utf8:xxxxxxxx par1 par2
    // if so the memory file ":mem _mainGast_" is created with the decoded utf-8 data and this memory file name is returned
    //
    public static String getGastFileNameAndProcessArgs (String [] aa)
@@ -51,22 +52,27 @@ public class commonGastona
       //(o) gast_INIT_FindMainGast
       // search .gast file
       //
-      if (aa.length > 0 && miscUtil.startsWithIgnoreCase (aa[0], UTF8_PARAM))
+      if (aa.length > 0)
       {
-         TextFile memFile = new TextFile ();
-         if (memFile.fopen (MAINGAST_MEMORYFILE, "w"))
-            memFile.writeString (utilEscapeStr.desEscapeStr (aa[0].substring (UTF8_PARAM.length ()), "UTF-8"));
-         memFile.fclose ();
-         aa[0] = MAINGAST_MEMORYFILE;
+         int indxStart = miscUtil.startsWithIgnoreCase (aa[0], UTF8_PARAM) ? UTF8_PARAM.length ():
+                         miscUtil.startsWithIgnoreCase (aa[0], UTF8_PARAM2) ? UTF8_PARAM2.length (): 0;
+         if (indxStart > 0)
+         {
+            TextFile memFile = new TextFile ();
+            if (memFile.fopen (MAINGAST_MEMORYFILE, "w"))
+               memFile.writeString (utilEscapeStr.desEscapeStr (aa[0].substring (indxStart), "UTF-8"));
+            memFile.fclose ();
+            aa[0] = MAINGAST_MEMORYFILE;
+         }
       }
 
       return searchGastonaApplication (aa);
    }
 
-   // examines for 
+   // examines for
    //      :mem nnnnnn
-   // if so the contents of the memory file ":mem nnnnnn" is encoded into utf-8 ("xxxxx") and 
-   // the string ":utf-8:xxxxxx" is returned
+   // if so the contents of the memory file ":mem nnnnnn" is encoded into utf-8 ("xxxxx") and
+   // the string ":utf8:xxxxxx" is returned
    // that is what gastona main can process
    //
    public static String getGastConformFileName (String fileName)
@@ -75,7 +81,7 @@ public class commonGastona
          return fileName;
 
       // is a memory file => encode de contents in utf-8
-      // and add the prefix ":utf-8:"
+      // and add the prefix ":utf8:"
 
       TextFile fmem = new TextFile ();
       String sal = UTF8_PARAM;

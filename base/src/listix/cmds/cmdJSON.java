@@ -223,7 +223,7 @@ public class cmdJSON implements commandable
       // cmd.getLog().dbg (2, "JSON", "@@ ERROR MESSAGE XX")   write an error message
       // cmd.reloadOptions ()
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Vector;
 import de.elxala.zServices.*;
 import de.elxala.langutil.*;
+import android.os.Environment;
 
 /**
    class TextFile
@@ -41,9 +42,15 @@ public class androidFileUtil
    private static List listFileDelOnExit = new Vector ();
    private static boolean temporalChecked = false;
 
-   protected static String statAndroidPersistDir = null;
-   protected static String statAndroidCacheDir = null;
+   public static boolean isExternalStorageMounted ()
+   {
+      return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+   }
 
+   public static String getExternalStoragePath ()
+   {
+      return Environment.getExternalStorageDirectory().getPath();
+   }
 
    public static void deleteTmpFileOnExit (File fi)
    {
@@ -58,54 +65,25 @@ public class androidFileUtil
       return false;
    }
 
-   public static void setAndroidFileDir (String persistDir)
-   {
-      android.util.Log.d ("gastona", "setAndroidFileDir to '" + persistDir + "'");
-      statAndroidPersistDir = persistDir;
-   }
 
-   public static void setAndroidCacheDir (String cacheDir)
-   {
-      statAndroidCacheDir = cacheDir;
-   }
-
+   // Directory for files only visible for the App (e.g. gastona). It will be destroyed with
+   // when uninstalling the App.
+   //
    public static String getAndroidFileDir ()
    {
-      if (!checkString (statAndroidPersistDir, "Android file dir")) return "";
-      return statAndroidPersistDir;
+      // Note: this is probably the internal storage directory (?)
+      //       in android there is also such a directory from external storage
+      //       given by getExternalFilesDir and getExternalFilesDirs
+      return androidSysUtil.getMainAppContext().getFilesDir ().getAbsolutePath();
    }
 
+   // Directory for cache files only visible for the App (e.g. gastona). It will be destroyed with
+   // when uninstalling the App
+   //
    public static String getAndroidCacheDir ()
    {
-      if (!checkString (statAndroidCacheDir, "Android cache dir")) return "";
-      return statAndroidCacheDir;
-   }
-
-
-   public static String statPersistDir = null;
-   public static String statCacheDir = null;
-   public static long nTemporal = 0;
-
-   static public void setApplicationDir (String persistDir)
-   {
-      statPersistDir = persistDir;
-   }
-
-   static public void setApplicationCacheDir (String cacheDir)
-   {
-      statCacheDir = cacheDir;
-   }
-
-   static public String getApplicationDir ()
-   {
-      if (!checkString (statPersistDir, "Application dir")) return "";
-      return statPersistDir;
-   }
-
-   static public String getApplicationCacheDir ()
-   {
-      if (!checkString (statCacheDir, "Cache dir")) return "";
-      return statCacheDir;
+      // Note: see note in getAndroidFileDir
+      return androidSysUtil.getMainAppContext().getCacheDir ().getAbsolutePath();
    }
 
    public static void destroy ()

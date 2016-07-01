@@ -182,7 +182,7 @@ public class cmdFileutil implements commandable
          cmd.getLog ().err ("FILEUTIL", "syntax [" + oper + "] not recognized!");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

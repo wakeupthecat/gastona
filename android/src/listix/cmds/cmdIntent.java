@@ -18,7 +18,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
 /*
-   //(o) WelcomeGastona_source_listix_command BROWSER
+   //(o) WelcomeGastona_source_listix_command INTENT
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -183,20 +183,19 @@ public class cmdIntent implements commandable
           pAction.equalsIgnoreCase ("EMILIO")) 
       {
          doEmail (cmd);
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
       if (sAction == null)
       {
-         cmd.getLog().err ("INTENT", "jaaarls! intent [" + pAction + "] raahraal [" + Intent.ACTION_VIEW + "]");
-         cmd.getLog().err ("INTENT", "jaaarls! all apps [" + Intent.ACTION_ALL_APPS + "]");
-
+         cmd.getLog().dbg (2, "INTENT", "not predef intent [" + pAction + "]");
          sAction = pAction;
       }
 
       try
       {
+         cmd.getLog().dbg (2, "INTENT", "try intent [" + sAction + "]");
          Intent intent = new Intent(sAction);
          Uri lauri = Uri.parse(laurl);
          if (mime != null && mime.length () > 0)
@@ -209,7 +208,7 @@ public class cmdIntent implements commandable
          cmd.getLog().err ("INTENT", "exception launching intent [" + e + "]");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }
@@ -286,9 +285,9 @@ startActivity(Intent.createChooser(emailIntent, "Send email using"));
 whith attachment 
 
           Intent sendIntent = new Intent(Intent.ACTION_SEND);
-          	sendIntent.setType("image/jpeg");
-        	sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Photo");
-        	sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://sdcard/dcim/Camera/filename.jpg"));
-        	sendIntent.putExtra(Intent.EXTRA_TEXT, "Enjoy the photo");
-        	startActivity(Intent.createChooser(sendIntent, "Email:"));
+        sendIntent.setType("image/jpeg");
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Photo");
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://sdcard/dcim/Camera/filename.jpg"));
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "Enjoy the photo");
+        startActivity(Intent.createChooser(sendIntent, "Email:"));
 */

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -63,7 +63,8 @@ public class commanderBase
       loadCommandable (new CmdCallMensaka ());
 
       loadCommandable (new cmdLoopTable ());
-      loadCommandable (new cmdRunLoopTable ());
+      loadCommandable (new cmdRunLoopTable ());    // to be deprecated !!
+      loadCommandable (new cmdBodyWhileSubLoop ());
 
       loadCommandable (new cmdDatabase ());
       loadCommandable (new cmdDatabaseConfig ());
@@ -122,6 +123,7 @@ public class commanderBase
       loadCommandable (new cmdCGate ());
       loadCommandable (new cmdTouch ());
       loadCommandable (new cmdLaunchOpenFile ());
+      loadCommandable (new cmdBrowser ());
       loadCommandable (new cmdFileutil ());
 
       load_specific_commands ();

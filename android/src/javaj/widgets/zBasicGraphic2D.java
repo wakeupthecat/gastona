@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -224,7 +224,6 @@ public class zBasicGraphic2D extends View
    public boolean onGestureContinue (zoomTouchDetector detector)
    {
       //android.util.Log.d ("soom", "GESTO CONT  p1_now " + printPar (detector.p1_now) + "  p2_now " + printPar (detector.p2_now));
-      detector.calcRectangles ();
 
       if (zoomDetector.gestureInProgress ())
       {

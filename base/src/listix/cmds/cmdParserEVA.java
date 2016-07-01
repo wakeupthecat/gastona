@@ -167,7 +167,7 @@ public class cmdParserEVA implements commandable
          cmd.getLog().err ("PARSER EVA", "invalid option [" + oper + "]");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
    
@@ -214,7 +214,7 @@ public class cmdParserEVA implements commandable
 
       if (catalog.length == 0)
       {
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return;
       }
       

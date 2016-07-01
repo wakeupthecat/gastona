@@ -350,7 +350,7 @@ public class cmdCheck implements commandable
       that.log().dbg (2, "CHECK", "force continue = " + bForceContinue);
 
       // jumpToEnd is an end format (like a return)
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return (bForceContinue) ? 1: jumpToEnd;
    }
 }

@@ -16,7 +16,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 /*
-   //(o) WelcomeGastona_source_listix_command CALL STREAMS
+   //(o) WelcomeGastona_source_listix_command LAUNCH FILE
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -28,7 +28,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 #gastonaDoc#
 
    <docType>    listix_command
-   <name>       LAUNCH BROWSER
+   <name>       LAUNCH FILE
    <groupInfo>  system_run
    <javaClass>  listix.cmds.cmdLaunchOpenFile
    <importance> 3
@@ -46,16 +46,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       OPEN
       OPEN FILE
       LAUNCH OPEN
-      BROWSER
-      NAV
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Launches the default browser opening the given url or file
+         1   ,    2      , //Launches the default application for the given file
 
    <syntaxParams>
       synIndx, name          , defVal, desc
-         1   , urlOrFileName ,       , //Url or filename to open in the browser
+         1   , fileName ,    , //filename to open
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
@@ -145,11 +143,6 @@ public class cmdLaunchOpenFile implements commandable
           "LAUNCHOPEN",
           "OPENFILE",
           "OPEN",
-          "LAUNCHBROWSER",
-          "BROWSER",
-          "NAVIGATOR",
-          "NAV",
-          "WEB",
        };
    }
 
@@ -165,12 +158,10 @@ public class cmdLaunchOpenFile implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      String launchCommand = utilSys.launchOpenFileCommand (cmd.getArg(0));
+      cmd.getLog().dbg (4, "cmdLaunchOpenFile", "launch file [" + cmd.getArg(0) + "]");
+      utilSys.launchOpenFile (cmd.getArg(0));
 
-      cmd.getLog().dbg (4, "cmdLaunchOpenFile", "launch file [" + launchCommand + "]");
-      javaRun.executePreShell (null, launchCommand , false);
-
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

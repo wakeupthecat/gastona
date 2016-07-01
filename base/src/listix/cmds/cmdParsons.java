@@ -598,7 +598,7 @@ public class cmdParsons implements commandable
       }
 
       doParse (cmd.getListix (), someDBTable, clean);
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

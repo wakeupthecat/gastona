@@ -182,10 +182,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           x  , WHILE SAME  , fieldName                   ,       , //Continue the loop while the value of fieldName and its predecessors remains the same (or until any of them change)
           x  , ON DIFFERENT, fieldName                   ,       , //Perform the loop only on different values of fieldName or any of its predecessors (skip records with same value)
           x  , FILTER      , "fieldName, operator, value",       , //Skip records that do not meet the given condition for the field. If more filters are given, skip those records that do not meet any of the filters (OR join)
+<!      //(o) TODO/preparing Loop option UNIFORM or STEP
+<!          x  , STEPS BY    , "var,incr"                  ,       , //The output will be given in regular increments 'incr' of the column named 'var' the rest of columns will be liearly interpolated
           3  , EXTENSIONS  , "extension, extension"      ,       , //Add extensions as is done in the arguments extension
-
-<!//(o) TODO_previousSQL dbFeature (documented it when all tests ok)
-<!          2  , PREVIOUSSQL , sqlCommand                  ,       , //If specified the given sql command (or commands) will be called before the sqlQuery. Useful for example for sql commands like ATTACH, CREATE TEMP VIEW etc.
 
    <examples>
       gastSample
@@ -237,72 +236,6 @@ public class cmdLoopTable implements commandable
             "SET TABLE",
          };
    }
-   
-   private static void addSubCommand (Eva commands, int indxComm, Eva target)
-   {
-      int row = target.rows ();
-      target.setValue ("", row, 0); // ensure at least an empty line
-      for (int ii = 2; ii < commands.cols (indxComm); ii ++)
-      {
-         target.setValue (commands.getValue(indxComm, ii), row, ii - 2);
-      }
-   }
-
-   public static int indxSkipingOptions (Eva commands, int indxComm, Eva embeddedFormat)
-   {
-      return indxSkipingOptions (commands, indxComm, null, embeddedFormat, null, null);
-   }
-
-   // this method is public in order to share it with the class cmdRunLoopTable and others
-   //
-   public static int indxSkipingOptions (Eva commands, int indxComm, Eva headerFormat, Eva bodyFormat, Eva tailFormat, Eva if0RowLsxFormat)
-   {
-      // go through the options of the loop ...
-      //
-      int indxPassOpt = indxComm + 1;
-      while (indxPassOpt < commands.rows () &&
-             commands.cols(indxPassOpt) > 1 &&
-             commands.getValue(indxPassOpt, 0).equals("")
-             )
-      {
-         String optName = commands.getValue(indxPassOpt, 1);
-
-         if (optName.equals("") || optName.equalsIgnoreCase("BODY"))
-         {
-            // detected body format within the options (embedded loop format), e.g.
-            //
-            //       LOOP, ETC
-            //           ,, format
-            //           ,, etc
-            //
-            if (bodyFormat != null)
-               addSubCommand (commands, indxPassOpt, bodyFormat);
-         }
-         else if (optName.equalsIgnoreCase("HEAD") || optName.equalsIgnoreCase("HEADER"))
-         {
-            if (headerFormat != null)
-               addSubCommand (commands, indxPassOpt, headerFormat);
-         }
-         else if (optName.equalsIgnoreCase("TAIL"))
-         {
-            if (tailFormat != null)
-               addSubCommand (commands, indxPassOpt, tailFormat);
-         }
-         else if (optName.equalsIgnoreCase("IF NO RECORD") || optName.equalsIgnoreCase("IF EMPTY") || optName.equalsIgnoreCase("IF 0 ROWS"))
-         {
-            // detected fallback body in case the loop has no rows
-            //
-            //       LOOP, ETC
-            //           ,IF 0 ROWS, format
-            //           ,IF 0 ROWS, etc
-            //
-            if (if0RowLsxFormat != null)
-               addSubCommand (commands, indxPassOpt, if0RowLsxFormat);
-         }
-         indxPassOpt ++;
-      }
-      return indxPassOpt;
-   }
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -320,18 +253,8 @@ public class cmdLoopTable implements commandable
 
       if (nova == null) return 1;
 
-      // Note: the names of this Evas are irrelevant, they are not used at all
-      Eva inHeadFormat = new Eva ("loop_head_format");  
-      Eva inlineFormat = new Eva ("loop_body_format");
-      Eva inTailFormat = new Eva ("loop_tail_format");
-      Eva inlineIf0RowFormat = new Eva ("loop_onNoRecord_format");
-
-      int indxPassOpt = indxSkipingOptions(commands, indxComm, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
-
-      if (inlineFormat.rows () > 0 || 
-          inHeadFormat.rows () > 0 || 
-          inTailFormat.rows () > 0 || 
-          inlineIf0RowFormat.rows () > 0)
+      tableRunner taru = new tableRunner (cmdData);
+      if (taru.hasContents ())
       {
          // embedded loop format found, perform the loop with it
          //
@@ -343,54 +266,15 @@ public class cmdLoopTable implements commandable
          that.getTableCursorStack ().pushTableCursor (new tableCursor (nova));
 
          that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         runningTables.runLoopTable (that, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
-         that.getTableCursorStack ().end_RUNTABLE ();
-         return 1;
-      }
-
-      //(o) TODO 2014.01.11 03:53 DEPRECATE OLD INLINE BODY OF LOOP TABLE!!!!
-      //       uncomment the log error and remove the rest of the method except the last return
-      //
-      //that.log().err (4, "LOOP TABLE", "No body, header or tail found for the loop, LOOP not set!");
-      
-      that.log().dbg (4, "LOOP TABLE", "inline format");
-        
-      // 2013.07.14
-      // NOTE: supporting "inline format after options" is a very old feature 
-      //        not anymore used since the standard inline format is much better and clear 
-      //        "inline format after options" should be deprecated !!
-      //
-      
-
-      // check if exists inline format after the options, e.g.
-      //
-      //       LOOP, ETC
-      //           , xxx
-      //       //format
-      //       //etc
-      //       ,,
-      //       continue...
-
-      int passRows = 0;
-
-      // if there are more lines and they are not commands then
-      // the format to run is inline
-      if (commands.rows () > indxPassOpt &&
-          commands.cols (indxPassOpt) == 1)
-      {
-         // do format inline
-         //
-         that.getTableCursorStack ().pushTableCursor (new tableCursor (nova));
-
-         that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         passRows = runningTables.runLoopTableInlineAfterOptions (that, "", commands, indxPassOpt);
+         taru.doLoopTable ();
          that.getTableCursorStack ().end_RUNTABLE ();
       }
       else
       {
-         that.log().err ("LOOP TABLE", "No body found for the loop, LOOP not set!");
+         that.log().err ("LOOP TABLE", "No body, header or tail found for the loop, LOOP not set!");
       }
 
-      return indxPassOpt - indxComm + passRows; // the command was SET TABLE among errors
+      cmdData.checkRemainingOptions ();
+      return 1;
    }
 }

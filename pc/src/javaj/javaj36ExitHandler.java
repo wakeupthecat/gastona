@@ -146,6 +146,7 @@ public class javaj36ExitHandler implements MensakaTarget
       // message to allow a kind of "launch after exit"
       //
       Mensaka.sendPacket (TX_EXIT_JAVAJ_EXIT, null);
+      de.elxala.langutil.filedir.fileUtil.destroyAllTmpDirDestroyables ();
 
       if (! globalJavaj.logCat.isShowing ())
          System.exit (0);

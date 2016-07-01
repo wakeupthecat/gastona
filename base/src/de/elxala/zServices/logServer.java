@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005,2106 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -96,7 +96,7 @@ public class logServer
    private static int firstClientID = 100;
    private static long globCounter = 10000;
    private static List listClientNames = new Vector ();     // client Names       vector<String>
-   private static int globalLogLevel = LOG_WARNING;
+   private static int globalLogLevel = LOG_DEBUG_1;
    private static String directory2Log = null;
    private static EvaUnit currentLogConfig = null;
 
@@ -109,8 +109,6 @@ public class logServer
    private static String   logErrorsFileName = "";
    private static TextFile logErrorsFile = null;
    private static TextFile logBatchFile = null;
-   //(o) elxala_logServer_notes log clients and the exception of TextFile
-   private static logger voidLogger = new logger (null, "", null);
    private static boolean errorDue2FopenDone = false;
 
 
@@ -120,7 +118,9 @@ public class logServer
       firstClientID = 100;
       globCounter = 10000;
       listClientNames = new Vector ();     // client Names       vector<String>
-      globalLogLevel = LOG_WARNING;
+
+      configure (LOG_DEBUG_1);
+
       directory2Log = null;
       currentLogConfig = null;
       meAsClient = null;
@@ -130,12 +130,9 @@ public class logServer
       logErrorsFileName = "";
       logErrorsFile = null;
       logBatchFile = null;
-      voidLogger = new logger (null, "", null);
       errorDue2FopenDone = false;
    }
 
-
-//   private static boolean ACCEPT_NEW_CLIENTS = true; // to avoid clients from own objects!
 
    public static int getDefaultMaxLogLevel ()
    {
@@ -165,7 +162,6 @@ public class logServer
       staticConfigName = configuratorName;
       staticConfigNote = configuratorNote;
 
-//      ACCEPT_NEW_CLIENTS = false;
       directory2Log = logDirectory;
       if (directory2Log != null)
       {
@@ -180,9 +176,8 @@ public class logServer
             // there is no current logConfiguration.eva file in log directory
             // we create an empty one to help the user, but it will not be used in this session! (currentLogConfig remains null)
 
-            //(o) elxala_logServer_notes log clients and the exception of TextFile
-            TextFile defConf = new TextFile (voidLogger);
-            //...defConf.assignLogger (voidLogger);
+            //(o) techNotes/logServer/Depencency with TextFile
+            TextFile defConf = new TextFile (null);
 
             if (defConf.fopen (directory2Log + "logConfiguration.eva", "w"))
             {
@@ -215,26 +210,26 @@ public class logServer
                //int cliLevel = -1; //getClientLogLevel (cliName);
                int cliLevel = getClientLogLevel (cliName);
 
-               // System.out.println ("LOGO A PAYASO \"" + cliName + "\" con su cliLevel " + cliLevel + " !!!");
+               // System.out.println ("LOGO A \"" + cliName + "\" con su cliLevel " + cliLevel + " !!!");
                logOneRegisteredClient (firstClientID + ii, cliName, cliLevel, null);
             }
             closeBatchFile ();
          }
       }
-//      ACCEPT_NEW_CLIENTS = true;
    }
 
    public static void configure (int maxGlobalLevel)
    {
+      if (maxGlobalLevel == -1) return;
       globalLogLevel = maxGlobalLevel;
+      logNativePrinter.message ("logServer", "Configure globalLogLevel " + maxGlobalLevel);
    }
 
    public static void configure (int maxGlobalLevel, Eva clientConf)
    {
       //System.out.println ("ME LAMAN " + maxGlobalLevel + " eva::"  + clientConf);
 
-      if (maxGlobalLevel != -1) globalLogLevel = maxGlobalLevel;
-      logNativePrinter.message ("logServer", "Configure maxLevel " + maxGlobalLevel);
+      configure (maxGlobalLevel);
       if (clientConf != null)
       {
          logNativePrinter.message ("logServer", "given list of client configuration of size " + (clientConf.rows () - 1));
@@ -267,9 +262,8 @@ public class logServer
       String modus = "a";
       if (logBatchFile == null)
       {
-         //(o) elxala_logServer_notes log clients and the exception of TextFile
-         logBatchFile = new TextFile (voidLogger);
-         //....logBatchFile.assignLogger (voidLogger);
+         //(o) techNotes/logServer/Depencency with TextFile
+         logBatchFile = new TextFile (null);
          modus = "w";
       }
       if (! logBatchFile.fopen (getLogDirectory () + "logSession.sql", modus))
@@ -324,25 +318,23 @@ public class logServer
       logBatchFile.fclose ();
    }
 
-   private static void onceErrorLogCannotBeOpened (String fileName)
-   {
-      if (errorDue2FopenDone) return;
-
-      // write just once a message to note this problem
-      String errMsg = "FATAL ERROR: de.elxala.zServices.logServer the file \"" + fileName + "logSession.sql" + "\" could not be opened for output at least once!";
-      logNativePrinter.error ("logServer", errMsg);
-      errorDue2FopenDone = true;
-   }
-
    // give a filename to store all errors, if any
    // it works independently of other log configurations
    public static void configureErrorLog (String fileName)
    {
       logErrorsFileName = fileName;
-      logErrorsFile = new TextFile (voidLogger);
+      //(o) elxala_logServer_notes log clients and the exception of TextFile
+      logErrorsFile = new TextFile (null);
    }
 
-   public static void logError (String errorMsg)
+   private static void logError (String context, String errorMsg)
+   {
+      if (context != null)
+         logNativePrinter.error (context, errorMsg);
+      storeError (errorMsg);
+   }
+
+   public static void storeError (String errorMsg)
    {
       if (logErrorsFile == null) return; // not configured to be logged
 
@@ -356,13 +348,18 @@ public class logServer
 
    }
 
+   private static void onceErrorLogCannotBeOpened (String fileName)
+   {
+      if (errorDue2FopenDone) return;
+
+      // write just once a message to note this problem
+      String errMsg = "FATAL ERROR: de.elxala.zServices.logServer the file \"" + fileName + "logSession.sql" + "\" could not be opened for output at least once!";
+      logError ("logServer", errMsg);
+      errorDue2FopenDone = true;
+   }
+
    public static void registerClient (logClient cli)
    {
-//      if (!ACCEPT_NEW_CLIENTS)
-//      {
-//         System.out.println ("NO ACEPTO AL PAYASO \"" + cli.clientStr + "\" !!");
-//         return ;
-//      }
       if (cli == null || cli.clientStr.equals (""))
       {
          //System.out.println ("Anonym log client!");
@@ -441,12 +438,12 @@ public class logServer
          //
          if (cli.arrExtraFields != null)
          {
-            String specialFields = "";
+            StringBuffer specialFields = new StringBuffer ();
             for (int ii = 0; ii < cli.arrExtraFields.length; ii ++)
             {
-               specialFields +=  ", " + cli.arrExtraFields[ii] + " text";
+               specialFields.append (", " + cli.arrExtraFields[ii] + " text");
             }
-            logBatchFile.writeLine ("CREATE TABLE logCustom_" + cli.clientStr + " (msgCounter int, milliStamp int, clientID int, level int, context text, message text" + specialFields + ");");
+            logBatchFile.writeLine ("CREATE TABLE logCustom_" + cli.clientStr + " (msgCounter int, milliStamp int, clientID int, level int, context text, message text" + specialFields.toString () + ");");
 
             // o-o  Add deepSql connections info
             logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("cli", "logCustom_" + cli.clientStr, "clientID", "logClients", "clientID"));
@@ -563,8 +560,6 @@ public class logServer
 
    protected static void doFirstMessage ()
    {
-      pendingFirstMessage = false;  //important to stop recursivity!
-
       logClient meAsClient = new logClient();
       meAsClient.clientID = 0;
 
@@ -590,6 +585,7 @@ public class logServer
 
       if (pendingFirstMessage)
       {
+         pendingFirstMessage = false;  //important since doFirstMessage call storeMessage!
          doFirstMessage ();
       }
 
@@ -663,13 +659,21 @@ public class logServer
                strMsgError.append (arrStkElem[ii].toString () + "\n");
             }
          }
-
-         logNativePrinter.error (cli.clientStr, strMsgError.toString ());
-         logError (strMsgError.toString ());
+         logError (cli.clientStr, strMsgError.toString ());
       }
       else
       {
-         logNativePrinter.message (cli.clientStr, context + ((context.length () > 0) ? " : ":"") + message);
+         StringBuffer msgForm = new StringBuffer ((context.length () > 0) ? context + " : ":"");
+         msgForm.append (message);
+         if (extraInfo != null)
+         {
+            msgForm.append (" [");
+            for (int ii = 0; ii < extraInfo.length; ii ++)
+               msgForm.append ((ii == 0 ? "": "|") + extraInfo[ii]);
+            msgForm.append ("]");
+         }
+
+         logNativePrinter.message (cli.clientStr, msgForm.toString ());
       }
 
       if (getLogDirectory () != null)
@@ -684,10 +688,10 @@ public class logServer
             {
                // Custom table message
                //write custom log
-               String specialValues = "";
+               StringBuffer specialValues = new StringBuffer ();
                for (int ii = 0; ii < extraInfo.length; ii ++)
                {
-                  specialValues += ", '" + de.elxala.db.utilEscapeStr.escapeStrTruncate(extraInfo[ii], MAX_TEXT) + "'";
+                  specialValues.append (", '" + de.elxala.db.utilEscapeStr.escapeStrTruncate(extraInfo[ii], MAX_TEXT) + "'");
                }
                logBatchFile.writeLine ("INSERT INTO logCustom_" + cli.clientStr + " VALUES (" +
                                       (globCounter + "") + ", '" +
@@ -696,7 +700,7 @@ public class logServer
                                       (msgLevel + "") + "', '" +
                                       context + "', '" +
                                       de.elxala.db.utilEscapeStr.escapeStrTruncate(message, MAX_TEXT) + "'" +
-                                      specialValues +
+                                      specialValues.toString () +
                                       ");");
             }
             else
@@ -763,12 +767,13 @@ public class logServer
                // ===
 
                // ========== OLD Stack log
-               String stackMsg = "";
+               StringBuffer stackMsg = new StringBuffer ();
                for (int ii = 0; ii < arrStkElem.length; ii ++)
                {
-                  stackMsg += "\n" + arrStkElem[ii].toString ();
+                  stackMsg.append ("\n");
+                  stackMsg.append (arrStkElem[ii]);
                }
-               logBatchFile.writeLine ("INSERT INTO logStack4Errors VALUES (" + (globCounter + "") + ", '" + de.elxala.db.utilEscapeStr.escapeStr(stackMsg) + "');");
+               logBatchFile.writeLine ("INSERT INTO logStack4Errors VALUES (" + (globCounter + "") + ", '" + de.elxala.db.utilEscapeStr.escapeStr(stackMsg.toString ()) + "');");
                // ===
 
             }
@@ -801,23 +806,22 @@ public class logServer
    //      } while (true);
    //         String stackMsg = caller.toString ();
 
-         String stackMsg = "";
+         StringBuffer stackMsg = new StringBuffer ();
          StackTraceElement [] arrStkElem = (stackElements != null) ? stackElements: jsys.getNowStackTrace();
          for (int ii = 0; ii < arrStkElem.length; ii ++)
          {
-            stackMsg += "\n" + arrStkElem[ii].toString ();
+            stackMsg.append ("\n");
+            stackMsg.append (arrStkElem[ii]);
          }
 
-         String mess = "FATAL ERROR ON "   + cli.clientStr + " :\n" +
-                       context + " : " + message + "\n" +
-                       stackMsg;
+         String mess = "FATAL ERROR \"" + message + "\" BY " + cli.clientStr + " AT " + context + "\n";
 
+         // only store it
+         logError (null, mess + stackMsg.toString ());
 
-         logNativePrinter.errorBox (mess, "so sorry but the application will be closed!");
+         //errorBox will exit the application !!
+         logNativePrinter.errorBox (mess + stackMsg.toString (), "so sorry but the application will be closed!");
          yoMismo = false;
-
-         //errorBox will exit the application
-         //System.exit(1);
       }
 
       if (extraInfo != null)
@@ -834,7 +838,6 @@ public class logServer
          //server::storeExtraInfo (extraInfo);
       }
 
-
       yoMismo = false;
    }
 
@@ -847,7 +850,7 @@ public class logServer
    {
       return time0milliseconds;
    }
-   
+
    public static long elapsedMillis ()
    {
       long incTime = System.currentTimeMillis () - initMilis;

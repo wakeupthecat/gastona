@@ -102,8 +102,8 @@
    <-- bSqliteOrg>
       CHECK, VAR, iSQLCmds selected.sqliteHtmlName
       IN CASE, @<iSQLCmds selected.sqliteHtmlName>
-             , pragma, CALL, //CMD /C start "" "http://www.sqlite.org/@<iSQLCmds selected.sqliteHtmlName>.html"
-             , ELSE  , CALL, //CMD /C start "" "http://www.sqlite.org/lang_@<iSQLCmds selected.sqliteHtmlName>.html"
+             , pragma, BROWSE, //http://www.sqlite.org/@<iSQLCmds selected.sqliteHtmlName>.html
+             , ELSE  , BROWSE, //http://www.sqlite.org/lang_@<iSQLCmds selected.sqliteHtmlName>.html
 
    <-- rgSqlGroups>
       VAR=, filterSqlGroup, @<rgSqlGroups selected.filterSql>

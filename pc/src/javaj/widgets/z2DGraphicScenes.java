@@ -378,7 +378,9 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
             Object pe = ob.objElements.get (oo);
             if (pe instanceof uniPath)
             {
-               System.out.println ( ((uniPath) pe).mEdiPaths.toString ());
+               String sal = ((uniPath) pe).mEdiPaths.toString ();
+               Mensaka.sendPacket (getName () + " dumping", null, new String [] { sal });
+               System.out.println (sal);
             }
          }
       }

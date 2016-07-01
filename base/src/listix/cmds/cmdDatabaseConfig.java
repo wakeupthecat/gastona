@@ -281,7 +281,7 @@ public class cmdDatabaseConfig implements commandable
          cmd.getLog().dbg (2, "DATABASE CONFIG", "attach alias list [" + aliasPropStr + "]");
       }
       
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

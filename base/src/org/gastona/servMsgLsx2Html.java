@@ -44,7 +44,7 @@ import de.elxala.mensaka.*;
       MSG, "listix2Html targetHtmlFile", D
 
       MSG, "listix2Html doit"
-      CALL, //CMD /C start "" "tmpIntern.html"
+      BROWSE, tmpIntern.html
 */
 public class servMsgLsx2Html implements MensakaTarget
 {

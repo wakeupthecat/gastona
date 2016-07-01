@@ -128,7 +128,7 @@ public class cmdAudio2Buffer implements commandable
       else if (oper.equalsIgnoreCase ("RESUME PLAY"))   audioRec2Buffer.playResume ();
       else if (oper.equalsIgnoreCase ("STOP PLAY"))     audioRec2Buffer.playStop ();
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

@@ -1,7 +1,7 @@
 #gastona#
 
    <LOG WAKEUP>
-   
+
    <fusion>
       META-GASTONA/utilApp/editor/EmergencyEditor.gasti
       META-GASTONA/utilApp/editor/javaErrorsClickAndGo.gasti
@@ -18,11 +18,11 @@
          , lJavac path    , eJavacPath, bGenerateJar
          , lBinary archive, eBinaryArchive,  kRemove temp
       X  , o1Consola      , - , -
-      X  , layJavaErrorsClickAndGo  , - , -
+      X  , layJavaErrorsClickAndGo, - , -
 
 #data#
 
-   <gastonaVersion>  //1.00.151220 \"ERipley +1.00.67 binas\"
+   <gastonaVersion>  //1.00.160619 \"ERipley +1.00.985102 achetepos\"
 
    <kRemove temp selected> 1
    <eJavacPath>     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe
@@ -37,11 +37,11 @@
 
    <traspasosTo>
       fromSubDir            , toSubDir
-      
-      META-GASTONA/img, javaj/img
+
+      META-GASTONA/img      , javaj/img
       META-GASTONA/js
       META-GASTONA/javaj
-      META-GASTONA/muTools        
+      META-GASTONA/muTools
       META-GASTONA/WelcomeGastona
       META-GASTONA/utilApp/arces
       META-GASTONA/utilApp/logAnalysis
@@ -87,11 +87,11 @@
 
    <! ------- CONSTANTS AND VARIABLES
    <! -------
-   <BASE DIR GASTONA> '..\..\
-   <PATH FOR SOURCES> '@<BASE DIR GASTONA>\pc\src;@<BASE DIR GASTONA>\base\src;
-   <destDir>         '@<:sys java.io.tmpdir>jarraTMP4_@<jarName>_DIR
-   <manifestSource>  '@<destDir>/META-INF/MANIFEST.MF
-   <javac options>  '-nowarn 
+   <BASE DIR GASTONA> //..\..\
+   <PATH FOR SOURCES> //@<BASE DIR GASTONA>\pc\src;@<BASE DIR GASTONA>\base\src;
+   <destDir>          //@<:sys java.io.tmpdir>jarraTMP4_@<jarName>_DIR
+   <manifestSource>   //@<destDir>/META-INF/MANIFEST.MF
+   <javac options>    //-nowarn
 
    <main0>
       LOAD, data, "@<:sys user.home>/.gastonaLocal"
@@ -151,12 +151,12 @@
       //
       LOOP, SQL,, //@<java names pc> EXCEPT @<class names>
           ,, //  @<name>.java
-      
-      
+
+
    <class names>        //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-6) AS name FROM scan_all WHERE extension = "class"
    <java names base>    //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel = "base"
    <java names pc>      //SELECT SUBSTR(subpath, 1, LENGTH(subpath)-5) AS name FROM scan_all WHERE extension = "java" AND rootLabel = "pc"
-      
+
    <copias>
       LOOP, EVA, traspasosTo
          ,, IF, @<toSubDir>,

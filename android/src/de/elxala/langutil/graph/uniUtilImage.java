@@ -176,7 +176,7 @@ public class uniUtilImage
 //
 //      oblo.loadObjectFromEva ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
 //
-//      String imSize = System.getProperty ("gastona.defaultGraffitiSize", null);
+//      String imSize = System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE, null);
 //      if (imSize != null)
 //         IMG_SX = IMG_SY = de.elxala.langutil.stdlib.atoi (imSize);
 //

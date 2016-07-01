@@ -309,7 +309,7 @@ public class parameters4LsxGenerate
          cmd.getLog().dbg (2, cmd.cmdName, "option TARGET VAR [" + targetEvaName + "]");
       }
 
-      int remainOpt = cmd.checkRemainingOptions (true);
+      int remainOpt = cmd.checkRemainingOptions ();
       return (StrictOptionsErrors && remainOpt != 0) ? false: true;
    }
 }

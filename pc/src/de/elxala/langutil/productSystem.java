@@ -26,4 +26,19 @@ public class productSystem
    {
       return false;
    }
+   
+   protected static void launchOpenFile (String fileName)
+   {
+      String command = utilSys.isOSWindows () ? "cmd /C start \"\"": "xdg-open";
+      String DQUOT   = utilSys.isOSLinux () ? "": "\"";
+      String launchCommand = command + " " + DQUOT + fileName + DQUOT;
+      utilSys.log.dbg (4, "launchOpenFile", "launch command [" + launchCommand + "]");
+      javaRun.executePreShell (null, launchCommand , false);
+   }
+
+   public static void launchBrowser (String laurl)
+   {
+      // for pc BROWSER === OPEN FILE
+      launchOpenFile (laurl);
+   }
 }

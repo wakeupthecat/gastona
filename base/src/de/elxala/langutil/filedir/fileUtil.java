@@ -23,12 +23,13 @@ package de.elxala.langutil.filedir;
    Alejandro Xalabarder
 */
 
+import java.util.*;
 import java.io.*;
 import de.elxala.zServices.*;
 import de.elxala.langutil.*;
 
 /**
-   class TextFile
+   class fileUtil
    @author Alejandro Xalabarder Aulet
    @date   2006
 
@@ -128,6 +129,22 @@ public class fileUtil
          path = path.substring (0, path.length ()-1);
       return path;
    }
+
+   public static String getPathOsSeparator (String path)
+   {
+      return  File.separator.equals ("/") ? getPathLinuxSeparator (path): getPathWinSeparator (path);
+   }
+
+   public static String getPathWinSeparator (String path)
+   {
+      return path.replace ('/', '\\');
+   }
+
+   public static String getPathLinuxSeparator (String path)
+   {
+      return  path.replace ('\\', '/');
+   }
+
 
    private static int indxNextSlash (String path, int pos)
    {
@@ -232,6 +249,7 @@ public class fileUtil
    {
       return System.getProperty ("user.dir");
    }
+
    public static String createTemporal ()
    {
       return createTemporal ("tmp", "tmp");
@@ -258,27 +276,27 @@ public class fileUtil
       return createTemporal (prefix, sufix, tempdir, true);
    }
 
-   public static String createTemporal (String prefix, String sufix, String tempdir, boolean DeleteItOnExit)
+   public static String createTemporal (String prefix, String sufix, String tempdir, boolean tryToRemoveItOnExit)
    {
       File uniqFileTmp;
 
       if (prefix.length() == 0)
       {
          // avoid java.lang.IllegalArgumentException: Prefix string too short
-         prefix = "TMP";
+         prefix = "tmp";
       }
 
       try
       {
-         // Asegurar directorio temporar (debido a "gastonaTemp")
-         // Seguramente es necesario hacelo asi, aunque podría ser suficiente
+         // Asegurar directorio temporal (debido a "gastonaTemp")
+         // Seguramente es necesario hacelo asi, aunque podri'a ser suficiente
          // hacerlo solo la primera vez que se cree un fichero temporar "delete on exit"
-         File tmpDir = new File (tempdir + "/check");
+         File tmpDir = new File (tempdir);
          tmpDir.mkdirs ();
 
          uniqFileTmp = File.createTempFile(prefix, sufix, new File (tempdir));
          log.dbg (2, "createTemporal", "temp file to create \"" + uniqFileTmp + "\"");
-         if (DeleteItOnExit)
+         if (tryToRemoveItOnExit)
          {
             uniFileUtil.deleteTmpFileOnExit (uniqFileTmp);
          }
@@ -298,22 +316,45 @@ public class fileUtil
       return null;
    }
 
-   public static String createTempDir(String prefix, String dirBase, boolean DeleteItOnExit)
+   public static String createTempDir (String prefix, boolean doDestroyItOnExit)
+   {
+      return createTempDir (prefix, getTemporalDirBase (), doDestroyItOnExit);
+   }
+
+   public static String createTempDir(String prefix, String dirBase, boolean doDestroyItOnExit)
    {
       if (dirBase == null)
          dirBase = getTemporalDirBase ();
 
       //(o) ensure_mkdirs!
-      String tempDir = createTemporal(prefix, "tmpDir", dirBase, false);  // NO SE PUEDE BORRAR AL SALIR!
+      String tempDir = createTemporal(prefix, "tmpDir", dirBase, true);
+      if (tempDir == null)
+      {
+         // for some reason it did not create a unique file!
+         return null;
+      }
 
+      //delete the file and do mkdirs to create it as directory using the same name!
+      //
       File tDir = new File (tempDir);
       tDir.delete();
-      if (!tDir.mkdir())
+      if (!tDir.mkdirs())
       {
          log.fatal ("createTempDir", "cannot make dir of path [" + tempDir + "]");
+         return null;
       }
-      if (DeleteItOnExit)
+
+      // Now we are sure that this directory has been created new
+      // so its contain can be removed with no danger for other directories
+      //
+      if (doDestroyItOnExit)
+      {
+         //safe try delete
          uniFileUtil.deleteTmpFileOnExit (tDir);
+
+         //agressive delete
+         destroyDirOnExit (tDir);
+      }
 
       return tempDir;
    }
@@ -468,6 +509,77 @@ public class fileUtil
       return getRootDirectoryOf (parent, rootMark);
    }
 
+   //
+   // ensure remove temporary dir and its contains
+   // use with care!
+   // must be ensure that the directory is new created before
+   // puting into the list destroyableTmpDirs
+   //
+   //  destroyFileOrDirRecursively removes all inside !
+   //
+   private static final boolean ACTIVATE_AGRESSIVE_DESTROY_TMP_DIR = false;
+   // NOTE about when to use ACTIVATE_AGRESSIVE_DESTROY_TMP_DIR
+   //
+   // currently not used because
+   //    we have control about every single temporary file and directory being created
+   //    so applying File::deleteOnExit to each one is enough to ensure its deletion in normal scenarios
+   //    (unless they are in use by other application!)
+   //
+   // should be used if
+   //    When replacing sqlite by dbsql (sqlite + BerkeleyDB), since when we create a new temporary db
+   //    actually BDB is creating more files inside the directory xxxx-journal
+   //    Want to use the construction
+   //          @<myTempDir>/myUniquefile1.txt
+   //    so the user is creating her unique files and File::deleteOnExit cannot be applied on them
+   //
+
+   private static List destroyableTmpDirs = new Vector ();
+
+   private static void destroyDirOnExit (File fi)
+   {
+      log.dbg (2, "destroyDirOnExit", "directory " + fi.getAbsolutePath () + " will be destroyed on exit the current script");
+      destroyableTmpDirs.add (fi);
+   }
+
+   private static void destroyFileOrDirRecursively (File dir)
+   {
+      if (dir.isDirectory ())
+      {
+         File [] arrfi = dir.listFiles ();
+         log.dbg (4, "destroyFileOrDirRecursively", "deleting directory " + dir.getAbsolutePath () + " with " + arrfi.length + " entries");
+
+         for (int ff =0; ff < arrfi.length; ff ++)
+            if (arrfi[ff].exists ())
+               destroyFileOrDirRecursively (arrfi[ff]);
+      }
+      if (ACTIVATE_AGRESSIVE_DESTROY_TMP_DIR)
+      {
+         log.dbg (2, "destroyFileOrDirRecursively", "delete [" + dir.getAbsolutePath () + "]!");
+         dir.delete ();
+      }
+      else log.dbg (0, "destroyFileOrDirRecursively", "would delete [" + dir.getAbsolutePath () + "]!");
+   }
+
+   public static void destroyAllTmpDirDestroyables ()
+   {
+      log.dbg (2, "destroyAllTmpDirDestroyables", "deleting " + destroyableTmpDirs.size () + " entries");
+
+      // doing it in reverse order is better so we delete from the most recent to the oldest object
+      //
+      for (int ii = destroyableTmpDirs.size ()-1; ii >= 0; ii --)
+      {
+         File fi = (File) destroyableTmpDirs.get (ii);
+         log.dbg (4, "destroyAllTmpDirDestroyables", "deleting " + fi.getName ());
+         if (!fi.exists ())
+         {
+            log.dbg (4, "destroyAllTmpDirDestroyables", "it does not exist!");
+            continue;
+         }
+
+         destroyFileOrDirRecursively (fi); // or file
+      }
+      destroyableTmpDirs = new Vector ();
+   }
 
    public static boolean looksLikeUrl (String fileName)
    {

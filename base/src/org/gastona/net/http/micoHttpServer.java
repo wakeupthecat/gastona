@@ -215,7 +215,7 @@ public class micoHttpServer extends Thread
             verboseFile.writeLine (System.currentTimeMillis () + ": " + msg);
             verboseFile.fclose ();
          }
-         else System.out.println (msg);
+         else System.out.println ("micoHttp: " + msg);
       }
       log.dbg (level, msg);
    }
@@ -407,7 +407,7 @@ public class micoHttpServer extends Thread
          return;
       }
 
-      out (0, "estamos en la labor ... atendiendo a port " + getLocalPort ());
+      out (0, "running ... listening port " + getLocalPort ());
 
       while (state == STATE_AWAKE)
       {
@@ -422,7 +422,7 @@ public class micoHttpServer extends Thread
             //(o) TODO_Remove this workaround !!!! needed or IE and Chrome !! Safari and Firefox seems not to need it!
             // possible explanation pointed in
             // http://stackoverflow.com/questions/4761913/server-socket-receives-2-http-requests-when-i-send-from-chrome-and-receives-one
-            // .. Apparently, Chrome opens a “speculative socket”, to be able to make the
+            // .. Apparently, Chrome opens a speculative socket, to be able to make the
             //    request immediately in case a new request needs to be made.
             //
             // Other http servers might not have a problem with this speculative socket
@@ -454,11 +454,11 @@ public class micoHttpServer extends Thread
                }
             }
 
-            out (2, "hemos aceptado a un pavo! " + getCurrentClietnIP ());
+            out (2, "request accepted from " + getCurrentClietnIP ());
 
             httpStreamReader reqReader = new httpStreamReader (inputStream);
             reke.processRequest (reqReader, getResposeStrID ());
-            reke.dump ("nos requestan");
+            reke.dump ("on request");
 
             // detect kill
             //
@@ -467,7 +467,7 @@ public class micoHttpServer extends Thread
                httpResponseData respa = new httpResponseData (outputStream, PAGE_ACABADO, null, null);
                respa.send ();
                client.close ();
-               reke.dump ("nos matan!");
+               reke.dump ("on finish");
                break;
             }
 
@@ -500,7 +500,7 @@ public class micoHttpServer extends Thread
 
             if (file2serve != null)
             {
-               out ("we want to serve the file [" + file2serve + "]");
+               out ("want to serve the file [" + file2serve + "]");
                // serving a file
                respa = new httpResponseData (outputStream,
                                              file2serve,
@@ -518,7 +518,7 @@ public class micoHttpServer extends Thread
                //!!     respa = defaultHTML ("with no response for [" + lsxFormat + "]!");
                //!!  }
 
-               out ("we want to serve from listix [" + getLsxFormat4Response (reke) + "]");
+               out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
                // build response using listix
                //
                respa = new httpResponseData (outputStream, buildResponse (reke), getContentType (reke), responseHeaders);

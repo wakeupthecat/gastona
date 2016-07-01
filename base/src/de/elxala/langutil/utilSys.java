@@ -26,11 +26,14 @@ package de.elxala.langutil;
 import java.io.*;
 import de.elxala.langutil.filedir.*;
 import java.util.*;
+import de.elxala.zServices.*;
 
 /**
 */
 public class utilSys
 {
+   protected static logger log = new logger (null, "de.elxala.langutil.utilSys", null);
+
    public static final String dirSeparator = File.separator;
    public static final boolean isSysUnix = dirSeparator.equals ("/");
 
@@ -66,15 +69,16 @@ public class utilSys
    public static boolean isOSArchArm     () { getSysInfo (); return isARM; }
    public static boolean isOSNameMacOX   () { getSysInfo (); return isMacOX; }
 
-   public static String launchOpenFileCommand ()
+   public static void launchOpenFile (String fileName)
    {
-      return utilSys.isOSWindows () ? "cmd /C start \"\"": "xdg-open";
+      productSystem.launchOpenFile (fileName);
    }
 
-   public static String launchOpenFileCommand (String fileName)
+   public static void launchBrowser (String url)
    {
-      String DQUOT = utilSys.isOSLinux () ? "": "\"";
-      return launchOpenFileCommand () + " " + DQUOT + fileName + DQUOT;
+      // NOTE: for pc launchOpenFile === launchBrowser but not for android !!
+      //
+      productSystem.launchBrowser (url);
    }
 
    private static void getSysInfo ()

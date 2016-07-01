@@ -168,7 +168,7 @@ public class cmdCGate implements commandable
       //
       cmd.getListix ().printTextLsx (result);
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

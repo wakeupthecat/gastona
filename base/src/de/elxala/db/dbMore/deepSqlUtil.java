@@ -20,7 +20,6 @@ package de.elxala.db.dbMore;
 
 import java.util.*;
 import de.elxala.Eva.*;
-import de.elxala.langutil.Cadena;
 import de.elxala.zServices.*;
 
 //import de.elxala.db.sqlite.*;

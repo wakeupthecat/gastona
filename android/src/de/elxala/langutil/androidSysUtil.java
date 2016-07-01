@@ -111,7 +111,8 @@ public class androidSysUtil
    {
       InputStream is = null;
       
-      try {
+      try 
+      {
          is = getMainActivity().getAssets().open (fileName);
       }      
       catch (Exception e) {}

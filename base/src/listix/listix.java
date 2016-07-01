@@ -28,6 +28,7 @@ import de.elxala.langutil.graph.*;
 import de.elxala.Eva.*;
 import de.elxala.db.sqlite.*;
 import de.elxala.zServices.*;
+import de.elxala.db.utilEscapeStr;
 
 import listix.table.*;
 import listix.cmds.*;
@@ -71,7 +72,6 @@ public class listix
    //
    //       context  msg        meaning
    //       -------  -------    ---------------------------------------------------
-   //       open     Capture    open as capture (special programming feature)
    //       open     StdOut     open as standard output (print out on the console)
    //       open     File(x)    open as file where x may be 'w' = open for write or 'a' = open for append
    //       flow     subCmd     start a subcommand (some commands accept sub-commands)
@@ -81,7 +81,6 @@ public class listix
    //
    //       context  msg        meaning
    //       -------  -------    ---------------------------------------------------
-   //       print    Capture     text printed out in Capture mode
    //       print    StdOut      text printed out on the console
    //       print    File        text printed out in a file
    //       print    Var         text printed out in an Eva variable
@@ -89,15 +88,6 @@ public class listix
 
    // makedir
    public static boolean MAKE_TARGET_DIRS = true;
-
-   // if CAPTURE_FILES is true then all the files will be write in memory in a
-   // static EvaUnit 'eunitCapturedFiles' which have as many Eva's as files,
-   // the Eva name is the filename and the contents the text
-   //
-   public static EvaUnit eunitCapturedFiles = new EvaUnit("generatedFiles");
-   public static boolean CAPTURE_FILES = false;
-
-   public Eva evaCurrentCaptureFile = null;
 
    private TextFile globFile = null;
    private boolean  openByMe = false;
@@ -299,9 +289,25 @@ public class listix
       String defDB = sqlUtil.getGlobalDefaultDB ();
       if (defDB == null || defDB.equals(""))
       {
-         defDB = fileUtil.createTemporal ("lsx", ".db");
+         // CREATE ONCE THE TEMPORARY DEFAULT DATABASE
+         //
+
+         // FILE INSIDE UNIQUE DIRECTORY WITHOUT CREATING THE FILE !! (for Berkeley DB)
+         //
+         defDB = fileUtil.createTempDir ("defdb", true); // destruction on exit!!
          log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
+
+         defDB = defDB + "/defaultDB.db";
          sqlUtil.setGlobalDefaultDB (defDB);
+
+         // safe delete if exists etc
+         uniFileUtil.deleteTmpFileOnExit (new java.io.File (defDB));
+         
+         // (old) AS FILE (ok for sqlite)
+         //
+         // defDB = fileUtil.createTemporal ("lsx", ".db");
+         // log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
+         // sqlUtil.setGlobalDefaultDB (defDB);
       }
 
       return defDB;
@@ -335,23 +341,6 @@ public class listix
 
    public synchronized boolean openTargetFile (String fileName, boolean append)
    {
-      if (CAPTURE_FILES)
-      {
-         log_flow.dbg (FLOWLEVEL_2, "open", "Capture", new String [] { fileName, "" + ciclon.depth () });
-         evaCurrentCaptureFile = eunitCapturedFiles.getSomeHowEva (fileName);
-         //(o) TOSEE_listix should implement append inf case Capture files ? (old feature CAPTURE_FILES!)
-         //
-         //    Strictly the right thing is to reset the Eva if append is false
-         //
-         // if (! append) evaCurrentCaptureFile.clear ();
-         //
-         //    The question is in which case it would be needed ?
-         //    Note that if we write more times on the same file due to a mistake
-         //    this is going to be seen if we add per default
-         //
-         return true;
-      }
-
       if (fileName.equals("") || fileName.equals("con") || fileName.equals("stdout"))
       {
          log_flow.dbg (FLOWLEVEL_2, "open", "StdOut", new String [] { fileName, "" + ciclon.depth () });
@@ -379,7 +368,7 @@ public class listix
 
    public synchronized void closeTargetFile ()
    {
-      if (openByMe && ! CAPTURE_FILES && globFile != null)
+      if (openByMe && globFile != null)
       {
          globFile.fclose ();
       }
@@ -449,6 +438,19 @@ public class listix
       if (! checkGlobs ()) return null;
 
       Eva [] evaArr = new Eva [1];
+
+      // first check if primitive
+      //
+      String valor = valPrimitive (name);
+      if (valor != null)
+      {
+         evaArr[0] = new Eva ("variable " + name); // any name ...
+         evaArr[0].setValueVar (valor);
+         return evaArr[0];
+      }
+
+      // now check if column value
+      //
       if (formatIsValue (name, evaArr))
          return evaArr[0];
 
@@ -474,7 +476,9 @@ public class listix
    //
    private synchronized String valPrimitive (String name)
    {
-      if (name.length () == 0 || (name.charAt (0) != ':' && ! name.equals("@")) )
+// changed on 2016.03.12 (remove comments if no side effect)
+//      if (name.length () == 0 || (name.charAt (0) != ':' && ! name.equals("@")) )
+      if (name.length () == 0 || name.charAt (0) != ':')
          return null;
 
       //(o) TODO_listix improve the scan of primitive with a regular expresion
@@ -495,37 +499,10 @@ public class listix
          if (lowName.equals ("firstrow")) return "" + ((tablon.getCurrentDataRow () == 0) ? "1": "0");
          if (lowName.equals ("lastrow"))  return "" + ((tablon.getCurrentDataRow () == tablon.getCurrentDataRows () -1) ? "1": "0");
 
-         //(o) todo_listix [ ] anyadir var primitiva ":listix ROW+" ":listix ROW-" ?
-         //
-         //          NOTE : These functions are dangerous (very easy to create endless loops)
-         //                 and they does not seem to be very useful
-         //
-         // //ESTA SE PODRIA ANYADIR SIN PROBLEMAS
-         //
-         // if (lsxFormat.equalsIgnoreCase (":listix ROW+"))
-         // {
-         //    tablon.increment_RUNTABLE ();
-         //    return "";
-         // }
-         //
-         // //ESTA ES MAS COMPLICADO POR LA CORRECTA IMPLEMENTACION decrement_RUNTABLE EN TODOS
-         //
-         // if (lsxFormat.equalsIgnoreCase (":listix ROW-"))
-         // {
-         //    tablon.decrement_RUNTABLE ();
-         //    return "";
-         // }
-
          //(o) todo_listix anyadir las primitivas <:listix cols> y <:listix colName x>
          //
          // if (lowName.equals ("cols"))  return "" + tablon.getCurrentDataCols ();
          // if (lowName.startsWith ("colname")) ... return "" + tablon.getCurrentDataColName (x);
-
-         //12.06.2009 20:22
-         //eliminar (No cambiar)
-         //   <:lsx tmpFile> por <:lsx tmp1>
-         //y cambiar
-         //   <:lsx newTmpFile> <:lsx newTempFile> por <:lsx tmp extension>
 
          //return default db
          //
@@ -600,6 +577,20 @@ public class listix
             return "" + DateFormat.getStr (new Date (), pattern);
          }
 
+         // UUID only from 1.5 !!!!
+         //
+         //if (lowName.startsWith ("uuid"))
+         //{
+         //   UUID eso = UUID.randomUUID ();
+         //   if (lowName.length () == 4) // "@<:lsx uuid>"
+         //      return eso.toString ();
+         //
+         //   //@<:lsx uuid ,>
+         //   return eso.getLeastSignificantBits () +
+         //          lowName.getChar (lowName.length ()-1) +
+         //          eso.getMostSignificantBits ();
+         //}
+
          if (lowName.equals ("paramcount") || lowName.equals ("argcount"))
          {
             // @<:listix paramCounter>
@@ -662,7 +653,198 @@ public class listix
          String propName = name.substring (5);
          return System.getProperty (propName, "");
       }
+
+      // ASUME ":PRIMITIVE VARIABLE" GROUP
+      //
+      // ---- primitives processing the content of a variable
+      //      :[raw]-PRIMITIVE[-OPT] variable
+      //
+      //      where
+      //         PRIMITIVE       OPT
+      //         path            win, linux
+      //         encode          utf8, iso- latex, html ... raw (to avoid listix var solving within the var content)
+      //         decode          (same as encode)
+      //         xorencrypt      (they and indices are given in the property gastona.xorencrypt.key)
+
+      //
+      //    note : we cannot have something like @<:encode-utf8 :raw myvar>
+      //           since ":raw myvar" would return a string containing variables @ that in the next
+      //           step would be tried to be solved
+
+      int lenPrimi = lowName.indexOf (" ");
+      if (lenPrimi == -1)
+      {
+         log.err ("valPrimitive", "whitespace in primitive (" + name + ") expected to separate variable name!");
+         return "";
+      }
+      String [] primiVar = new String [] { lowName.substring (1, lenPrimi) };
+      String varname = name.substring (1 + lenPrimi); // not lowered!
+
+      // it just means that if the variable or file does not exists it should return "" and no error message (silent)
+      boolean beSilent = primitiveExtract (primiVar, new String [] {"check", "silent"});
+
+      // not solve = raw = text is default (more robust) unlike in listix commands
+      //
+      boolean solveVar = primitiveExtract (primiVar, new String [] {"solve", "sol", "lsx", "listix" }); // in spite of ambiguation "@<:lsx date> !
+
+      // simply remove these ones since they are the default mode
+      primitiveExtract (primiVar, new String [] {"raw", "astext", "text", "txt" });
+
+      // now check if it is
+      //     :infile filename
+      // or
+      //     :else variable
+      if (primitiveExtract (primiVar, new String [] {"infile"}))
+      {
+         printFileLsx (varname, solveVar, beSilent);
+         return "";
+      }
+
+      // now check if it is
+      //     :hex hexstring
+      if (primitiveExtract (primiVar, new String [] {"hex"}))
+      {
+         return new String (stdlib.hexStr2charArr (varname));
+      }
+
+      StringBuffer strBufvar = evaVarToText (varname, solveVar);
+      if (strBufvar == null)
+      {
+         if (!beSilent)
+            log.err ("valPrimitive", "variable " + varname + " not found in primitive (" + name + ") !");
+         return "";
+      }
+
+      if (primiVar[0].length () == 0)
+      {
+         // no primitive ? then is wanted to print out the variable itself with given options
+         // e.g.  @<:check myvar>  or  @<:raw-check myvar> etc
+         return strBufvar.toString ();
+      }
+
+      if (primitiveExtract (primiVar, new String [] {"path"}))
+      {
+         if (primitiveExtract (primiVar, new String [] {"win"}))
+            return fileUtil.getPathWinSeparator (strBufvar.toString ());
+         if (primitiveExtract (primiVar, new String [] {"linux"}))
+            return fileUtil.getPathLinuxSeparator (strBufvar.toString ());
+
+         // nothing or "os"
+         return fileUtil.getPathOsSeparator (strBufvar.toString ());
+      }
+
+      boolean encode = primitiveExtract (primiVar, new String [] {"encode", "escape"});
+      boolean decode = primitiveExtract (primiVar, new String [] {"decode", "unescape"});
+      if (encode || decode)
+      {
+         // extract "db" since it is the default!
+         primitiveExtract (primiVar, new String [] {"db"});
+         if (encode)
+         {
+            if (primitiveExtract (primiVar, new String [] {"html"}))
+               return strEncoder.getHtmlEncoder ().encode (strBufvar.toString ());
+            if (primitiveExtract (primiVar, new String [] {"latex"}))
+               return strEncoder.getLatexEncoder ().encode (strBufvar.toString ());
+
+            return utilEscapeStr.escapeStr (strBufvar.toString (), primiVar[0]);
+         }
+         else
+         {
+            if (primitiveExtract (primiVar, new String [] {"html"}))
+               return strEncoder.getHtmlEncoder ().decode (strBufvar.toString ());
+            if (primitiveExtract (primiVar, new String [] {"latex"}))
+               return strEncoder.getLatexEncoder ().decode (strBufvar.toString ());
+
+            return utilEscapeStr.desEscapeStr (strBufvar.toString (), primiVar[0]);
+         }
+      }
+
+      if (primitiveExtract (primiVar, new String [] {"xorencrypt", "xordecrypt", "xor", "encrypt", "decrypt"}))
+      {
+         String passkey = System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_XORENCRYPTKEY);
+         if (passkey == null)
+         {
+            log.err("valPrimitive", "cannot retrieve a valid key for XOR encryption from " + org.gastona.gastonaCtes.PROP_GASTONA_XORENCRYPTKEY + " !");
+            return "";
+         }
+         return strEncoder.xorEncrypt (strBufvar, passkey).toString ();
+      }
+
+      if (primiVar[0].length () > 0)
+      {
+         log.err("valPrimitive", "list primitive \"" + primiVar[0] +  "\" not recognized!");
+         return "";
+      }
+
+      // actually it should not happen
       return null;
+   }
+
+   // example
+   //    String [] primiVar = new String [] { ":raw-osio-encadenax-utf-8" };
+   //    System.out.println (primitiveExtract (primiVar, new String [] {"osea", "osio"}));
+   //    System.out.println (primiVar[0]); // ":raw-encadenax-utf-8"
+   //    System.out.println (primitiveExtract (primiVar, new String [] {"raw"}));
+   //    System.out.println (primiVar[0]); // ":encadenax-utf-8"
+   //
+   private static boolean primitiveExtract (String [] prim, String [] options)
+   {
+      int plen = prim[0].length ();
+      for (int oo = 0; oo < options.length; oo ++)
+      {
+         int indx = prim[0].indexOf (options[oo]);
+         if (indx > -1)
+         {
+            int ole = options[oo].length ();
+            if (indx+ole+1 < plen && prim[0].charAt (indx+ole+1) == '-') ole ++; // remove - as well
+            // System.out.println ("indx = " + indx + " ole = " + ole);
+            prim[0] = prim[0].substring (0, indx) + (indx+ole+1 < plen ? prim[0].substring (indx+ole+1): "");
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public boolean printFileLsx (String fileName, boolean solve, boolean silentIfFail)
+   {
+      TextFile fix = new TextFile ();
+
+      if (!fix.fopen (fileName, "r"))
+      {
+         if (!silentIfFail)
+            log.err ("printFileLsx", "the file [" + fileName + "] could not be read!");
+         return false;
+      }
+
+      int nlines = 0;
+      while (fix.readLine ())
+      {
+         if (nlines ++ > 0) newLineOnTarget ();
+
+         if (solve)
+              printTextLsx (fix.TheLine ());
+         else writeStringOnTarget (fix.TheLine ());
+      }
+      fix.fclose ();
+      return true;
+   }
+
+   public StringBuffer evaVarToText (String varName, boolean solvingVars)
+   {
+      Eva srcEva = getReadVarEva (varName);
+      if (srcEva == null)
+         return null;
+
+      StringBuffer str = new StringBuffer ();
+      for (int rr = 0; rr < srcEva.rows (); rr ++)
+      {
+         //(o) TODO document this behaviour (if variable contain more rows, columns ... etc)
+         str.append (rr != 0 ? "\n":  "");
+         if (solvingVars)
+              str.append (solveStrAsString (srcEva.getValue (rr, 0)));
+         else str.append (srcEva.getValue (rr, 0));
+      }
+      return str;
    }
 
 
@@ -679,15 +861,6 @@ public class listix
    */
    public synchronized boolean formatIsValue (String lsxFormat, Eva [] retEva)
    {
-      String valor = valPrimitive (lsxFormat);
-
-      if (valor != null)
-      {
-         retEva[0] = new Eva ("variable " + lsxFormat); // any name ...
-         retEva[0].setValueVar (valor);
-         return true;
-      }
-
       // ... a last record field ?
       //
       boolean oldValue = false;
@@ -709,6 +882,18 @@ public class listix
          return true;
       }
 
+      return false;
+   }
+
+   public synchronized boolean writeOnTargetIfPrimitive (String lsxFormat)
+   {
+      String valor = valPrimitive (lsxFormat);
+
+      if (valor != null)
+      {
+         writeStringOnTarget (valor);
+         return true;
+      }
       return false;
    }
 
@@ -845,8 +1030,11 @@ public class listix
          log_flow.dbg (FLOWLEVEL_1, "info", "special format @", new String [] { lsxFormat, "" + ciclon.depth () });
          printTextLsx ("@");
       }
-
-      // else if .. a primitive value (<:listix ..> or a record field or a previous record field from a table
+      else if (writeOnTargetIfPrimitive (lsxFormat))
+      {
+         log_flow.dbg (FLOWLEVEL_1, "flow", "prim", new String [] { lsxFormat, "" + ciclon.depth () });
+      }
+      // else if .. a record field or a previous record field from a table
       else if (formatIsValue (lsxFormat, retFormat))
       {
          log_flow.dbg (FLOWLEVEL_1, "flow", "var", new String [] { lsxFormat, "" + ciclon.depth () });
@@ -932,9 +1120,9 @@ public class listix
    //
    public synchronized void doFormat (Eva eFormat)
    {
+      if (eFormat == null) return;
       boolean needReturn = false;
       int rr = 0;
-      if (eFormat == null) return;
       while (rr < eFormat.rows ())
       {
          // is it a text ? or a command
@@ -991,16 +1179,16 @@ public class listix
       {
          String prevStr  = line.substring (0, ini_fin[0]);
          String variable = line.substring (ini_fin[2], ini_fin[3]);
-         String restStr  = line.substring (ini_fin[1]);
+         line = line.substring (ini_fin[1]);
+         // line = line.delete (0, ini_fin[1]);
 
          writeStringOnTarget (prevStr);
          printLsxFormat (variable);
-         line = restStr;
       }
 
       // print the rest
       if (line.length () > 0)
-         writeStringOnTarget (line);
+         writeStringOnTarget (line.toString ()); //(o) TODO_listix optimization using StringBuffer when possible! until we have writeStringOnTarget (StringBuffer) ...
    }
 
    public synchronized int countLsxFormatWhileText (Eva eFormat, int fromRow)
@@ -1076,25 +1264,7 @@ public class listix
       }
       else if (globTargetEva == null)
       {
-         if (CAPTURE_FILES)
-         {
-            if (evaCurrentCaptureFile != null)
-            {
-               iMark = 1; // dbgMark = "Cap"; // capture
-
-               int currRow = evaCurrentCaptureFile.rows() - 1;
-               currRow = (currRow < 0) ? 0: currRow;
-               String line = evaCurrentCaptureFile.getValue(currRow);
-               line += str;
-               evaCurrentCaptureFile.setValueRow(line, currRow);
-            }
-            else
-            {
-               log.severe ("writeStringOnTarget", "CAPTURE_FILES is TRUE but cannot write the output on target");
-               return false;
-            }
-         }
-         else if (globFile == null)
+         if (globFile == null)
          {
             // output to the standard stdout
             iMark = 2; // dbgMark = "Out"; // stdout
@@ -1136,13 +1306,7 @@ public class listix
       }
       else if (globTargetEva == null)
       {
-         if (CAPTURE_FILES)
-         {
-            if (evaCurrentCaptureFile != null)
-                 evaCurrentCaptureFile.addRow ("");
-            else log.severe ("newLineOnTarget", "CAPTURE_FILES is TRUE but cannot write the output on target");
-         }
-         else if (globFile != null && !globFile.feof ())
+         if (globFile != null && !globFile.feof ())
          {
             globFile.writeNewLine (theNewLineString);
          }

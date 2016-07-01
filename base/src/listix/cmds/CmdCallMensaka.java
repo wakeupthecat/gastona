@@ -213,7 +213,7 @@ public class CmdCallMensaka implements commandable
       that.log().dbg (2, "MESSAGE", "send message [" + message + "] parSize " + param.length );
       Mensaka.sendPacket (message, that.getGlobalData (), param);
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

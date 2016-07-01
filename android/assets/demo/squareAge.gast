@@ -1,0 +1,65 @@
+#javaj#
+
+   <frames> main, Square your age
+
+   <layout of main>
+      EVA,
+
+         ,            , X
+         , lYour age  , eAge
+         , bSquare it , -
+
+#listix#
+
+   <main0>
+      SETVAR, tmp, @<:lsx tmp html>
+
+   <!   Actions of "Square it":
+   <!      - check the entered age for reasonable limits
+   <!      - generate the html for this age
+   <!      - call the browser with the generated html
+   <!
+   <-- bSquare it>
+      CHECK, ==, 1, @<age positive>,      BOX, T, We'll wait until you born
+      CHECK, ==, 1, @<age less than 200>, BOX, T, The age is too much old!
+      GEN, @<tmp>, html content
+      BROWSER, //file://@<tmp>
+
+
+   <!   Formulas (command "=") has to be given appart or
+   <!   using SET NUM
+   <!
+   <age positive>      =, eAge > 0
+   <age less than 200> =, eAge < 200
+
+   <cuad> =, int(sqr(eAge)+.99)
+
+   <incrementa>
+      SETNUM, yearsOld, yearsOld+1
+
+   <dentro> =, yearsOld <= eAge
+
+   <show yearsOld>
+      IF, @<dentro>, =, 1, @<yearsOld>
+        , ELSE, -
+
+   <!   Template for the html generation
+   <!   it is implemented using two nested loops
+   <!
+   <html content>
+      //<html><body>
+      //
+      // You are in the age square of @<cuad>
+      // <table border=1>
+      //
+      SETNUM, yearsOld, 1
+      LOOP, FOR, rr, 1, @<cuad>
+          ,, //   <tr>
+          ,, LOOP, FOR, cc, 1, @<cuad>
+          ,,     ,, //    <td>@<show yearsOld>@<incrementa>
+          ,, //   </tr>
+
+      //
+      // </table>
+      //
+      //</body></html>

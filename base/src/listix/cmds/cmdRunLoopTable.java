@@ -37,14 +37,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // PARTIAL LOOP or SUB LOOP continues a given loop changing the loop conditions for it. 
+      // PARTIAL LOOP or SUB LOOP continues a given loop changing the loop conditions for it.
       // Note that is not really a nested loop actually it does not start any loop but either:
       //   continue the current one until one column change its value (option WHILE SAME)
-      //   or 
+      //   or
       //   skips rows while a column has the same value (option ON DIFFERENT)
       //
-      // It is mainly thought for header-detail reports, where the table is suppossed to contain sorted 
-      // header-detail information. Using PARTIAL LOOP command such reports can be done using just a single 
+      // It is mainly thought for header-detail reports, where the table is suppossed to contain sorted
+      // header-detail information. Using PARTIAL LOOP command such reports can be done using just a single
       // loop, for instance if we build the following table about sales of products (e.g. using SQL)
       //
       //       customer, date, product, quantity, price, paid
@@ -74,7 +74,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //           LOOP for all products in a date of a customer
       //
       // this would result into "Number of customers" x "Number of dates per customer" loops
-      // and therefore such number of sql queries as well (1). 
+      // and therefore such number of sql queries as well (1).
       //
       // The options WHILE HEADER and DIFFERENT HEADER have a single column name as parameter
       // but the meaning actually is "either the column or one of the previous columns keep/change its
@@ -87,8 +87,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //             ,, //inline format
       //             ,, //etc..
       //
-      // (1) Nevertheless, it has to be say that it is still a more intiutive and readable solution that the one using 
-      //     PARTIAL LOOP. To improve the readbility of such constructions it could help having two separate commands, 
+      // (1) Nevertheless, it has to be say that it is still a more intiutive and readable solution that the one using
+      //     PARTIAL LOOP. To improve the readbility of such constructions it could help having two separate commands,
       //     for instance: "SKIP ROWS WITH SAME" and "LOOP BODY WHILE" instead on only one command with two syntaxes.
       //
 
@@ -183,6 +183,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package listix.cmds;
 
 import listix.*;
+import listix.table.*;
 import de.elxala.Eva.*;
 
 public class cmdRunLoopTable implements commandable
@@ -220,57 +221,22 @@ public class cmdRunLoopTable implements commandable
          cmdData.getLog().err  ("tableAccessEva", "Too many arguments in command LOOP, EVA! last " + (cmdData.getArgSize()-1) + " discarded!" );
       }
 
+      tableRunner taru = new tableRunner (cmdData);
 
-      // Note: the names of this Evas are irrelevant, they are not used at all
-      Eva inHeadFormat = new Eva ("loop_head_format");  
-      Eva inlineFormat = new Eva ("loop_body_format");
-      Eva inTailFormat = new Eva ("loop_tail_format");
-      Eva inlineIf0RowFormat = new Eva ("loop_onNoRecord_format");
-      int indxPassOpt = cmdLoopTable.indxSkipingOptions(commands, indxComm, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
-
-      if (inlineFormat.rows () > 0)
-      {
-         // embedded loop format found, perform the loop with it
-         //
-         //       LOOP, ETC
-         //           ,, format
-         //           ,, etc
-         //
-         that.log().dbg (4, "RUN LOOP", "embedded format");
-         that.getTableCursorStack ().set_RUNTABLE (cmdData);
-         runningTables.runLoopTable (that, inHeadFormat, inlineFormat, inTailFormat, inlineIf0RowFormat);
-         that.getTableCursorStack ().end_RUNTABLE ();
-         return 1;
-      }
-
+      // support the original syntax of RUN LOOP, where the first parameter is the format name
       //
-      // do format inline
-      //
-
-      //
-      // RUN TABLE,
-      //
-      that.getTableCursorStack ().set_RUNTABLE (cmdData); // comm, commands, indxComm);
-
       //    RUN TABLE, lsxFormat (eva)
       //
-      String lsxFormatName = cmdData.getArg(0);
-      if (!lsxFormatName.equals (""))
+      taru.setBodyFormatName (cmdData.getArg(0));
+
+      if (taru.hasContents ())
       {
-         that.log().dbg (4, "RUN LOOP", "explicit format [" + lsxFormatName + "]");
-      }
-      else
-      {
-         if (commands.rows () > indxPassOpt && commands.cols (indxPassOpt) == 1)
-            that.log().dbg (4, "RUN LOOP", "inline format");
-         else
-            that.log().err ("RUN LOOP", "No body found for the loop, LOOP not performed!");
+         that.getTableCursorStack ().set_RUNTABLE (cmdData);
+         taru.doLoopTable ();
+         that.getTableCursorStack ().end_RUNTABLE ();
       }
 
-      int passRows = runningTables.runLoopTableInlineAfterOptions (that, lsxFormatName, commands, indxPassOpt);
-
-      that.getTableCursorStack ().end_RUNTABLE ();
-
-      return indxPassOpt - indxComm + passRows; // the command was SET TABLE among errors
+      cmdData.checkRemainingOptions ();
+      return 1;
    }
 }

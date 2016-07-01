@@ -193,7 +193,7 @@ public class cmdPerl implements commandable
       // so we cannot check the remaining options now
       // we should pass cmd to callCapture, then remaining options will be ok at this point
       //
-      //cmd.checkRemainingOptions (true);
+      //cmd.checkRemainingOptions ();
       return 1;
    }
 }

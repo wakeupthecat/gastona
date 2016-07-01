@@ -17,23 +17,28 @@
    <help>
       //
       //   Listix primitive variables are a special set of read only variables
-      //   which contents might change on each use of it. The prupose of this variables
-      //   is to provide System or internal information.
+      //   that start always with colon (:). On each invocation the variables are evaluated
+      //   using an internal listix function.
       //
-      //   The variables start either with ":sys" or ":listix", while ":lsx" is accepted
-      //   as synonym of ":listix". Here are described all existent listix primitive variables.
+      //   There are three main groups of listix primitives
       //
-      //      @<:sys javaProperty>
+      //   --- System properties, start with ":sys" or ":prop"
       //
-      //         Returns the value of the java property 'javaProperty', see java documentation
-      //         of java.util.Properties for more information about java Properties.
+      //    Any system property can be read using the variable syntax
       //
-      //         Example:
+      //      @<:sys javaProperty> or @<:prop javaProperty>
+      //
+      //      Returns the value of the java property 'javaProperty', see java documentation
+      //      of java.util.Properties for more information about java Properties.
+      //
+      //      Example:
       //
       //            //user @<:sys user.name> has the home directory @<:sys user.home>
       //
-      //         Since property "user.name" is the current user and "user.home" the user home directory.
+      //   --- Listix primitives, start with ":listix" or ":lsx"
       //
+      //    There are several syntaxes, all of them usually reporting system information
+      //    or listix state information.
       //
       //      @<:lsx DATE [pattern]>
       //
@@ -79,15 +84,15 @@
       //
       //      @<:lsx host name>
       //
-      //         Returns the host name
+      //         Returns (or tries to return) the host name
       //
       //      @<:lsx host nameupper>
       //
-      //         Returns the host name in upper case
+      //         Returns (or tries to return) the host name in upper case
       //
       //      @<:lsx host ip>
       //
-      //         Returns the host IP address
+      //         Returns (or tries to return) the host IP address
       //
       //      @<:lsx ROWS>
       //
@@ -119,6 +124,118 @@
       //
       //         Returns the height in pixels of the whole screen
       //
+      //   --- Convert or process content of a variable or literal (e.g. file name)
+      //
+      //      This syntax permit making complex processes to the contents of a variable or 
+      //      file. For example
+      //
+      //          @<:encode-utf8 myText>
+      //
+      //           will encode in UTF-8 the contents of the variable myText
+      //
+      //          @<:infile META-GASTONA/js/jGastona.js>
+      //
+      //           will include the given file as text
+      //
+      //      All these primitives have the syntax
+      //
+      //          @<:OPERATION TARGET>
+      //
+      //       where TARGET is the name of the eva variable or file name in case of primitive "infile"
+      //       which content will be processed with the OPERATION, returning usually a string.
+      //
+      //       OPERATION still has the syntax
+      //
+      //          [OPT-]PRIMITIVE[-PARAM]
+      //
+      //       here are listed all supported primitives, its posible options and parameters
+      //
+      //          PRIMITIVE         OPTIONS            PARAMETERS
+      //          ---------------   --------------     ------------------
+      //          hex               
+      //          infile            check, solve/raw
+      //          path                                 win, linux, os
+      //          encode            check, solve/raw   html, latex or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
+      //          decode            check, solve/raw   html, latex or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
+      //          xorencrypt        check, solve/raw
+      //          --nothing--       check, solve/raw
+      //
+      //       option check (or silent):
+      //              If given and the target (variable or file) does not exists then it returns an empty string and
+      //              no error will be triggered (silent).
+      //
+      //       option solve / raw:
+      //              By default the contents of the variable is treated as plain text (raw) so no variable solving (@<..>) will be
+      //              performed unless the option "solve" is explicitly given. "raw" can be omited since it is the default option.
+      //
+      //       --nothing--
+      //              If no primitive is given then simply the variable will be returned, this make sense if some options are
+      //              given, for example
+      //
+      //             @<:raw myVar> or @<:check-solve myVar>
+      //
+      //             Note that @<:solve myVar> is equivalent to @<myVar>
+      //
+      //      Primitives:
+      //
+      //      @<:hex hexString>
+      //
+      //          convert to bytes the hexString where every byte is given by 2 characters.
+      //
+      //         Example:
+      //
+      //             @<:hex 09>
+      //
+      //          whill print a tabulator
+      //
+      //      @<:infile filename>
+      //
+      //         Important! fileName is the name itself not a variable
+      //         Behaves as if the entired given file where into a listix variable. It is similar to the listix command "IN FILE"
+      //         but here the default behavior here is "raw" = not solving variables
+      //
+      //         Example:
+      //
+      //             @<:infile META-GASTONA/js/jGastona.js>
+      //               
+      //             which would be the same as
+      //
+      //             IN FILE, META-GASTONA/js/jGastona.js
+      //                    , SOLVE, 0
+      //
+      //      @<:path varWithPath>
+      //
+      //       Replaces the path delimiters of the path contained in the variable varWithPath
+      //       with the ones appropiated to the current operative system (mainly windows or not windows)
+      //
+      //      @<:encode-CODE var>
+      //      @<:decode-CODE var>
+      //
+      //       Encode or decode the contents of the variable named "var" using the encoding model CODE
+      //       which can be one of html (basic), latex (basic) or utf-8, iso-8859-1 and any other accepted by java.net.URLDecoder
+      //       CODE might be empty as well, in this case an internal gastona encoding model used by default for sqlite
+      //       texts will be used.
+      //
+      //          Example:
+      //
+      //            @<:encode-utf8 myVar>
+      //
+      //       @<:xorencrypt var>
+      //
+      //         Perform a xor encryption using the key given in the property gastona.xorEncryptKey. See also the syntax
+      //         XOR ENCRYPT of the listix command STRCONV
+      //
+      //          Example:
+      //
+      //             @<:xorencrypt myText>
+      //
+      //            this is equivalent to the listix command
+      //
+      //             STRCONV, XOR ENCRYPT, @<:sys gastona.xorEncryptKey>, -1, -1, -1
+      //                    , IN VAR, myText
+      //
+
+
 
    <examples>
       gastSample
@@ -162,7 +279,7 @@
       //      system current directory            , @<:sys user.dir>
       //      system property temp dir            , @<:sys java.io.tmpdir>
       //      system property file separator      , @<:sys file.separator>
-      
+
    <example java system properties>
       //#javaj#
       //
@@ -185,11 +302,11 @@
       //      LOOP, EVA, propertyList
       //          ,, // @<sysvar>: @<desc>
       //          ,, //     @<@><:sys @<sysvar>> [@<varValue>]
-      //          ,, // 
+      //          ,, //
       //
       //	<varValue>
       //		LSX, //:sys @<sysvar>
-      //      
+      //
       //
       //   <propertyList>
       //      sysvar         , desc
@@ -214,7 +331,7 @@
       //      user.language, //The two-letter language code of the default locale
       //      user.name, //The username of the current user
       //      user.region, //The two-letter country code of the default locale
-      //      user.timezone, //The default time zone      
+      //      user.timezone, //The default time zone
 
 
 #**FIN_EVA#

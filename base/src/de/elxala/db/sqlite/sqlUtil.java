@@ -42,8 +42,8 @@ import de.elxala.db.*;
 */
 public class sqlUtil
 {
-   public static final String sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME = "gastona.defaultDB";
-   public static final String sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS  = "gastona.defaultDBaliasAttach";
+   public static final String sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_DATABASE_NAME;
+   public static final String sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS  = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_ATTACHED_DBS;
 
 
    public static String getGlobalDefaultDB ()

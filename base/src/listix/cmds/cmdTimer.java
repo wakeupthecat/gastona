@@ -122,7 +122,11 @@ public class cmdTimer implements commandable
          {
             public void run ()
             {
-               if (count >= maxRepeat) return;
+               if (count >= maxRepeat) 
+               {
+                  timo.cancel(); // end the thread
+                  return;
+               }
                count ++;
                if (ptrListix != null)
                {

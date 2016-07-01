@@ -25,46 +25,34 @@ public class stdlib
       return (val >= 0) ? val: 256 + val;
    }
 
- 	public static int atoi (String sInt)
- 	{
-//		int reto = 0;
-//
-//		try {
-//			Integer inte = new Integer (sInt);
-//			reto = inte.intValue ();
-//		}
-//		catch (Exception e) {}
-//
-//		return reto;
+   public static int atoi (String sInt)
+   {
+      return (int) (atof (sInt));
+   }
 
-      // atoi (9.2) should give 9 !!
- 	   return (int) atof (sInt);
- 	}
+   public static long atol (String sLong)
+   {
+      return (long) (atof (sLong));
+   }
 
- 	public static long atol (String sLong)
- 	{
- 	   return (long) atof (sLong);
- 	}
+   public static double atof (String sDob)
+   {
+      double reto = 0.;
 
- 	public static double atof (String sDob)
- 	{
-		double reto = 0.;
+      try {
+         reto = Double.parseDouble(sDob);
+      }
+      catch (Exception e) {}
 
-		try {
-			Double xx = new Double (sDob);
-			reto = xx.doubleValue ();
-		}
-		catch (Exception e) {}
+      return reto;
+   }
 
-		return reto;
- 	}
-
- 	public static String numberFix (float number, int decim)
+   public static String numberFix (float number, int decim)
    {
       return numberFix (number, decim, false);
    }
-   
- 	public static String numberFix (float number, int decim, boolean removeZeroes)
+
+   public static String numberFix (float number, int decim, boolean removeZeroes)
    {
       String sal = de.elxala.math.utilMath.round (number, decim) + "000000000000000".substring (0, decim);
       int indx = sal.indexOf (".");
@@ -83,10 +71,31 @@ public class stdlib
       return sal;
    }
 
- 	public static String removeDotZero (String number)
- 	{
+   public static String removeDotZero (String number)
+   {
       if (number.endsWith (".0"))
          return number.substring (0, number.length () -2);
-		return number;
- 	}
+      return number;
+   }
+
+   public static int hexchar2int (char car)
+   {
+      return (car >= '0' && car <= '9') ? car - '0' :
+             (car >= 'A' && car <= 'F') ? 10 + car- 'A' :
+             (car >= 'a' && car <= 'f') ? 10 + car - 'a' : -1;
+   }
+
+   public static char[] hexStr2charArr (String str)
+   {
+      int len = str.length();
+      if (len % 2 == 1) len --; // don't compute last one!
+      if (len < 2) return new char [0];
+
+      char[] data = new char[len / 2];
+      for (int ii = 0, indx = 0; ii < len; ii += 2, indx ++)
+      {
+         data[indx] = (char) (hexchar2int (str.charAt (ii)) * 16 + hexchar2int (str.charAt (ii+1)));
+      }
+      return data;
+   }
 }

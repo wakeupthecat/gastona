@@ -471,7 +471,7 @@ public class cmdScanFiles implements commandable
       {
          String rootPath2Delete = cmd.takeOptionString("ROOTPATH");
          doRemove (dbName, currentRootLabel, rootPath2Delete);
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -548,7 +548,7 @@ public class cmdScanFiles implements commandable
       myDB.runSQL (dbName);
 
       theLog.dbg (2, "SCAN", "scan done.");
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

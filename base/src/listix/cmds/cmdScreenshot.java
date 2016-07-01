@@ -145,7 +145,7 @@ public class cmdScreenshot implements commandable
       log = that.log();
       snappa (fileName, formatName, x0, y0, dx, dy);
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

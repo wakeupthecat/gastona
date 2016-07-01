@@ -6,7 +6,7 @@
       LSX, print schema (db), ""
 
    <print schema (db)>
-      SETVAR, theDB, @<p1>
+      VAR=, theDB, @<p1>
       DB, @<theDB>, SCHEMA, theschema
 
       //=================== Schema (short form) from @<theDB>
@@ -22,32 +22,21 @@
 
    <print short (schema)>
       LOOP, EVA, theschema
-      @<oneTable1>
-      =,,
+          ,, //@<tabType> @<tableName>  (
+          ,, BODY WHILE, id
+          ,,           , LINK, ", "
+          ,,           ,, @<columnName>
+          ,, //)
 
    <print long (schema)>
       LOOP, EVA, theschema
-      @<oneTable2>
-
-   <oneTable1>
-      @<tabType> @<tableName>  (
-      RUN LOOP,,
-            , WHILE, id
-            , LINK, ", "
-      @<columnName>
-      =,,
-      //)
-
-   <oneTable2>
-      //@<tabType> @<tableName> :
-      //
-      //@<see connections>
-      RUN LOOP,,
-            , WHILE, id
-      //   @<columnName>,
-      =,,
-      //
-      //
+         ,, //@<tabType> @<tableName> :
+         ,, //
+         ,, //@<see connections>
+         ,, BODY WHILE, id
+         ,,           ,, //   @<columnName>,
+         ,, //
+         ,, //
 
 
    <! acording to field names
@@ -57,23 +46,18 @@
 
    <see connections>
       <! store "tableName" separately because now it will be masked by the next loop!
-      SETVAR, theTableName, @<tableName>
+      VAR=, theTableName, @<tableName>
 
       <! loop of 1 to know if "__dbMore_connections" is there
       LOOP, EVA, theschema
           , FILTER, tableName, ==, __dbMore_connections
           , FILTER, columnName, ==, connName
-      @<print connections>
-
-   <print connections>
-      LOOP, SQL, @<theDB>, //SELECT * FROM __dbMore_connections WHERE sourceTable = '@<theTableName>'
-      //   o--o Connection [@<connName>] to table [@<targetTable>] through (@<keys connection>)
-      =,,
+          ,, LOOP, SQL, @<theDB>, //SELECT * FROM __dbMore_connections WHERE sourceTable = '@<theTableName>'
+          ,,     ,, //   o--o Connection [@<connName>] to table [@<targetTable>] through (@<keys connection>)
       //
       //
 
    <keys connection>
-      RUN LOOP,,
-            , WHILE, sourceTable
+      BODY WHILE, sourceTable
             , LINK, ", "
-      //@<sourceKey>
+                ,, //@<sourceKey>

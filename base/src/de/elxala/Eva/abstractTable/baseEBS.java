@@ -22,8 +22,6 @@ package de.elxala.Eva.abstractTable;
 import de.elxala.Eva.*;
 import de.elxala.zServices.*;
 
-// NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-
 /*
    //(o) TODO_elxala_eva  this class should be in de.elxala.Eva instead of abstractTable
 

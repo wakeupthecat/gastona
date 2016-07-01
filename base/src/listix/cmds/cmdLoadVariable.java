@@ -219,7 +219,7 @@ public class cmdLoadVariable implements commandable
          theVar.merge (eva, Eva.MERGE_ADD, false);         
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

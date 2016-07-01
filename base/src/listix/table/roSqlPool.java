@@ -45,7 +45,7 @@ public class roSqlPool
    private static List /* <tableROSelect> */ roSelectStackPool = new Vector();
 
 
-   public static tableROSelect getElement (String dbName, String query, String previousSql)
+   public static tableROSelect getElement (String dbName, String query)
    {
       //System.out.println ("getElement, nElementsActive " + nElementsActive + ", roSelectStackPool.size ()" + roSelectStackPool.size ());
       tableROSelect este = null;
@@ -64,7 +64,7 @@ public class roSqlPool
          EvaUnit myDataAndCtrl =  new EvaUnit ();
          este.setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
          if (query != null && query.length() > 0)
-            este.setSelectQuery (dbName, query, previousSql);
+            este.setSelectQuery (dbName, query);
 
       }
       else
@@ -73,7 +73,7 @@ public class roSqlPool
          //ASSERT (nElementsActive == roSelectStackPool.size ())
 
          //System.out.println ("quereamos usno");
-         este = new tableROSelect (dbName, query, previousSql);
+         este = new tableROSelect (dbName, query);
          roSelectStackPool.add (este);
       }
       nElementsActive ++;

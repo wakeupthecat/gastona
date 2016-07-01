@@ -200,7 +200,7 @@ public class cmdDump implements commandable
          that.writeStringOnTarget ("" + filt);
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

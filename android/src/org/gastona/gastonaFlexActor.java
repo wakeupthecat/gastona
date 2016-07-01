@@ -75,47 +75,6 @@ public class gastonaFlexActor extends Activity
          return getNoView (co);
       }
 
-//!//       //--!-- if (javajST.existFrame (layoutName))
-//!//       {
-//!//          View fr = (View) utilSys.objectSacGet (NAME4UIFRAME + "." + fileName);
-//!//          if (fr != null)
-//!//          {
-//!//             log.dbg (2, "loadFrame", "frame [" + fileName + "] was already loaded");
-//!// 
-//!//             //(o) TODO reestructurar esto, por ahora para no perder el titulo en caso de frame cargado...
-//!//             String title = (String) utilSys.objectSacGet (NAME4UIFRAMETITLE + "." + fileName);
-//!//             if (co instanceof Activity)
-//!//             {
-//!//                ((Activity) co).setTitle (title);
-//!// //NO SE PUEDE POR : Cannot make a static reference to the non-static method requestWindowFeature(int)
-//!// //               if (title.length () == 0)
-//!// //                    requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
-//!// //               else ((Activity) co).setTitle (title);
-//!//             }
-//!// 
-//!//             // retrieve gastona object for the activity
-//!//             gastona gastPtr = (gastona) utilSys.objectSacGet (NAME4UIGASTONA + "." + fileName);
-//!//             if (gastPtr != null && gastPtr.myMensaka4listix != null)
-//!//             {
-//!//                String [] reduzParam = new String [0];
-//!//                if (allParams != null && allParams.length > 1)
-//!//                {
-//!//                   reduzParam = new String [allParams.length-1];
-//!//                   for (int ii = 0; ii < reduzParam.length; ii ++)
-//!//                      reduzParam [ii] = allParams[ii+1];
-//!//                }
-//!//                //(o) Android_startup calling main and main0 by reload
-//!//                gastPtr.myMensaka4listix.runListixFormat("main", reduzParam);
-//!//             }
-//!//             return fr;
-//!//          }
-//!//       }
-
-//      else
-//      {
-//         javajST.addFrame (layoutName);
-//      }
-
       String frameTitle = "";
 
       log.dbg (2, "loadFrame", fileName);
@@ -206,12 +165,12 @@ public class gastonaFlexActor extends Activity
          View la1 = loadFrame (this, params);
          // evitar exception ?!
          android.view.ViewGroup vigu = (android.view.ViewGroup) la1.getParent();
-         if (vigu != null) 
+         if (vigu != null)
          {
             System.out.println ("TEST:: Hemos evitado una desgracia en FlexActor!");
             vigu.removeView(la1);
          }
-         
+
          setContentView(la1);
       }
    }
@@ -248,7 +207,7 @@ public class gastonaFlexActor extends Activity
       finish ();
       log.dbg (0, "onStop");
    }
-   
+
    protected void onDestroy()
    {
       //13.11.2010 13:26

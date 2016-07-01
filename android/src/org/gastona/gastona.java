@@ -251,7 +251,7 @@ public class gastona
       if (fileName == null)
       {
          log.dbg (2, "searchingApp", "application not found, show copyright");
-         showAboutGastona (null);         
+         showAboutGastona (null);
          log.err ("init", "not found gast file at all!");
          if (! globalJavaj.logCat.isShowing ())
             System.exit (0);

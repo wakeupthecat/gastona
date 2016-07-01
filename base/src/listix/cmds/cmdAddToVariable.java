@@ -148,7 +148,7 @@ public class cmdAddToVariable implements commandable
          theVar.setValue (value, row, cc-1);
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

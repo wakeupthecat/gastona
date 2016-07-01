@@ -111,7 +111,7 @@ public class cmdReplaceBmp implements commandable
       boolean optKeepOld = "1".equals (cmd.takeOptionString(new String [] { "KEEPOLD", "KEEPBMP", "KEEP" }, "0" ));
 
       de.elxala.langutil.graph.replaceBmp.convertBMPtoPNG (new String [] { file }, optKeepOld);
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

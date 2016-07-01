@@ -164,8 +164,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           1  , SOLVE LSX             , 1 / 0    ,    1  , If false (0) the values found in the source Eva will be insterted without any listix resolve (variables @<..>) at all
           2  , SOLVE LSX             , 1 / 0    ,    1  , If false (0) the values found in the source Eva will be insterted without any listix resolve (variables @<..>) at all
 
-<!//(o) TODO_previousSQL dbFeature (document it when all tests ok)
-<!          3  , PREVIOUS SQL          , "sqlCommand", "", If specified the given sql command (or commands) will be called before the sqlQuery. Useful for example for sql commands like ATTACH, CREATE TEMP VIEW etc. Note : this option has no effect if option FROMFILE is given
           3  , TRANSACTION           , 1 / 0    ,    1 , If false (0) the block with be executed without sqlite transactions (see sqlite transaction). Note : this option has no effect if option FROMFILE is given
           3  , FROM FILE             , fileNameWithSQLScript, "", If specified a filename this will be used by sqlite instead of any given query. Note that the file should contain the sqlite commands BEGIN TRANSACTION; END; for a fast execution
           3  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
@@ -314,7 +312,7 @@ public class cmdDatabase implements commandable
          if (!cmd.checkParamSize (3, 3)) return 1;
          obtainSchema (cmd);
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -363,19 +361,15 @@ public class cmdDatabase implements commandable
             // the query (argument 2)
             String querySQL = cmd.getArg(2);
 
-            String previousSQL = cmd.takeOptionString("PREVIOUSSQL");
-            cmd.getLog().dbg (2, "DATABASE", "option PREVIOUSSQL = [" + previousSQL + "]");
-
             // create the script from the query
             //
             cliDB.openScript (withTransaction);
-            cliDB.writeScript (previousSQL);
             cliDB.writeScript (querySQL);
             cliDB.closeScript ();
          }
 
          cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -502,7 +496,7 @@ public class cmdDatabase implements commandable
       cliDB.closeScript ();
       cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

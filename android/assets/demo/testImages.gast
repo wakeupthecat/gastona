@@ -1,0 +1,21 @@
+#javaj#
+
+   <frames> main
+
+   <layout of main>
+      EVA, 3, 3, 2, 2
+
+         ,              ,  X
+         , lInternal image, mJavaj
+         , lBarcelona, -
+         , mBarcelona, -
+         , lHamburg, -
+         , mHamburg, -
+
+#data#
+
+   <mJavaj>      'javaj.png
+   <mBarcelona>  'http://www.elxala.de/images/monolitOxidChat.jpg
+   <mHamburg>    'http://www.elxala.de/images/speicherstadt_petit.jpg
+
+

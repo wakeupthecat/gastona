@@ -165,7 +165,7 @@ public class cmdGPS implements commandable
          cmd.getLog().err ("GPS", "Operation [" + oper + "] unknown");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

@@ -148,7 +148,7 @@ public class cmdSetNumeric implements commandable
          theVar.setValue (value, 0, cc-1);
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

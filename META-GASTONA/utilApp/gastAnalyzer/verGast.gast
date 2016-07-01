@@ -112,4 +112,4 @@
    <see logic png>
       GEN, @<dotFile>, dotGraph lsxLogic, , lsxLogic2dot.lsx
       CALL, //CMD /C @<eDotExe> -Tpng "@<dotFile>" -o "@<pngFile>"
-      LAUNCH, //CMD /C start "" "@<pngFile>"
+      OPEN, @<pngFile>

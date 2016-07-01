@@ -195,7 +195,8 @@ public class zCheckBoxTable extends JPanel implements MensakaTarget
       {
          selectCheckIndex (mIndx, isSelected ());
          helper.updateSelectedInTable ();
-         helper.signalAction ();
+         if (!SILENT_SELECTION)
+            helper.signalAction ();
       }
 
       // public String label;
@@ -260,6 +261,19 @@ public class zCheckBoxTable extends JPanel implements MensakaTarget
             //selecting elements
             //  do it silently (not producing a real selection)
             helper.doSelect (pars);
+            SILENT_SELECTION = true;
+
+            // clear all!
+            for (int indx = 0; indx < arrChecks.length; indx ++)
+               arrChecks[indx].setSelected (false);
+            int [] arrsel = helper.getSelectedIndices ();
+            for (int ii = 0; ii < arrsel.length; ii ++)
+            {
+               int indx = arrsel[ii];
+               if (arrChecks != null && indx >= 0 && indx < arrChecks.length)
+                  arrChecks[indx].setSelected (true);
+            }
+            SILENT_SELECTION = false;
             helper.updateSelectedInTable ();
             break;
 

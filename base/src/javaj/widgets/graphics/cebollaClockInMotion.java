@@ -654,7 +654,7 @@ public class cebollaClockInMotion // solo idea ... public cebollaInMotion
    public int getMIN_DISTANCE_TWO_PTS ()
    {
       // poner mas grande si se quiere evitar "lineas-tiembla",
-      // pero la reducción es más óptima si se mantiene en 1
+      // pero la reduccio'n es ma's o'ptima si se mantiene en 1
       // tanto para trazos de gran superficie como para los de poca superficie
       return 1;
    }

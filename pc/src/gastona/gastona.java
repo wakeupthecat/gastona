@@ -245,7 +245,7 @@ public class gastona
          System.setProperty ("java.io.tmpdir", newTempDir);
       }
 
-      SwingUtilities.invokeLater(new Runnable() { public void run() 
+      SwingUtilities.invokeLater(new Runnable() { public void run()
       {
          try
          {
@@ -389,7 +389,16 @@ public class gastona
 
       if (unitJavaj.size () == 0 && unitListix.size () == 0)
       {
-         log.fatal ("loadUnits", "no javaj or listix units found in [" + fileName + "], Nothing to do!");
+         // check wether the fileName exists or simply it does not contain the units
+         //
+         TextFile ckfile = new TextFile ();
+         if (ckfile.fopen (fileName, "r"))
+         {
+            ckfile.fclose ();
+            log.fatal ("loadUnits", "no javaj or listix units found in [" + fileName + "], Nothing to do!");
+         }
+         else log.fatal ("loadUnits", "gast file [" + fileName + "] not found or cannot be opened!");
+
          return false;
       }
       return true;
@@ -641,7 +650,7 @@ public class gastona
    {
       javax.swing.JOptionPane.showMessageDialog (
             null,
-            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2015\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
+            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2016\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
             "About",
             javax.swing.JOptionPane.INFORMATION_MESSAGE);
    }

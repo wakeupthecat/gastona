@@ -39,8 +39,7 @@ public class callCaptureInpOut
 
       // that.log().dbg (4, "CALLCAP", "inline script");
 
-      Eva inlineScript = new Eva ("inline_stdin");
-      int indxPassOpt = cmdLoopTable.indxSkipingOptions(commandEva, indxComm, inlineScript);
+      Eva inlineScript = cmd.takeOptionAsEva (new String [] { "", "BODY" });
 
       String fileIn = cmd.takeOptionString(new String [] { "FILEIN", "FILEINPUT" }, "" );
       String fileOut = cmd.takeOptionString(new String [] { "FILEOUT", "FILEOUTPUT" }, "" );
@@ -49,9 +48,12 @@ public class callCaptureInpOut
       serialTextBuffer theInputScript = new serialTextBuffer ();
       abstractStreamTextReader [] outputs = new abstractStreamTextReader [2];
 
-      theInputScript.writeln (firstInlineScript);
-      for (int ii = 0; ii < inlineScript.rows (); ii ++)
-         theInputScript.writeln (that.solveStrAsString (inlineScript.getValue (ii, 0)));
+      if (firstInlineScript != null)
+         theInputScript.writeln (firstInlineScript);
+
+      if (inlineScript != null)
+         for (int ii = 0; ii < inlineScript.rows (); ii ++)
+            theInputScript.writeln (that.solveStrAsString (inlineScript.getValue (ii, 0)));
 
       //call CALLCAP
       //
@@ -63,8 +65,8 @@ public class callCaptureInpOut
       //send the output if any to the listix target
       //
       abstractStreamTextReader theOut = (outputs != null && outputs.length > 0 && outputs[0] != null) ? outputs[0] : null;
-      
-      // if we have collected output and the output does not go to a file 
+
+      // if we have collected output and the output does not go to a file
       // print it out onto the listix target
       //
       if (theOut != null && fileOut.length() == 0)
@@ -76,7 +78,7 @@ public class callCaptureInpOut
             that.printTextLsx (theOut.getLine(ii));
          }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return true;
    }
 }

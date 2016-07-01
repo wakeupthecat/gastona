@@ -330,7 +330,7 @@ public class cmdJavaMain implements commandable
          else that.log().dbg (2, "JAVAMAIN", "return value of the called method [" + mainMeth + "] is not of type String, no return value");
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

@@ -26,11 +26,11 @@ import de.elxala.langutil.*;
 /**
    class TextFile
    @author Alejandro Xalabarder Aulet
-   
+
    used by base/.../fileUtil
-   
+
    each product (e.g. pc / android) has to implement its methods
-   
+
 
 */
 public class uniFileUtil
@@ -76,7 +76,7 @@ public class uniFileUtil
 
       if (avis)
       {
-         String mess = "Temporary directory path contain strange characters\n [" + tempDirBase + "]\n applications like sqlite may not work properly.\n Creating a root or sub-directory named tmp might avoid such problems.";
+         String mess = "Temporary directory path contain inconvenient characters\n [" + tempDirBase + "]\n applications like sqlite may not work properly.\n Creating a root or sub-directory named tmp might avoid such problems.";
          fileUtil.log.err ("getTemporalDirBase", mess);
 
          javax.swing.JOptionPane.showMessageDialog (

@@ -33,7 +33,7 @@ import de.elxala.mensaka.*;
 
    20.07.2014 support Raspberry PI by including arm architecture checking
               deprecate old getExeSqlite and do an exception only in case of Mac OX
-   
+
 
    31.08.2013 Going back to the old approach since a instalation of Ubuntu DOES NOT INCLUDE sqlite3 by default!!!
                 Also the microtool concept has to be imposed, we want to pack ruby, lua, perl and python for linux as well
@@ -198,9 +198,9 @@ public class microToolInstaller
       String full = baseDir + osString + "/" + moduleName + "/" + binaryName;
       return full.replace ('/', File.separatorChar);
    }
-   
-   // 
-   // this method does not look up the intern tool configuration but 
+
+   //
+   // this method does not look up the intern tool configuration but
    // directly assigns the full path where the tool can be found
    // toolPath empty or null removes the the tool full path
    //
@@ -210,13 +210,13 @@ public class microToolInstaller
       int indx = installedTools.rowOf (toolLogicName);
       if (indx != -1)
       {
-         if (unInstall) 
+         if (unInstall)
               installedTools.removeLine (indx);
          else installedTools.setValue (toolPath, indx, 1);
       }
       else
-      {      
-         if (!unInstall) 
+      {
+         if (!unInstall)
             installedTools.addLine (new EvaLine (new String [] { toolLogicName , toolPath } ));
       }
       if (unInstall)
@@ -230,7 +230,7 @@ public class microToolInstaller
       //            (it worked well but then not anymore...)
       if (utilSys.isOSNameMacOX () && toolLogicName.equalsIgnoreCase("sqlite"))
       {
-         return "/usr/bin/sqlite3"; 
+         return "/usr/bin/sqlite3";
       }
 
       // already installed ? then return the full path

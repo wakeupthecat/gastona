@@ -42,7 +42,7 @@ public class uniFileUtil
    {
       androidFileUtil.deleteTmpFileOnExit (fi);
    }
-   
+
    public static String getTemporalDirBase ()
    {
       if (androidFileUtil.getAndroidCacheDir () != null) return androidFileUtil.getAndroidCacheDir ();
@@ -59,12 +59,7 @@ public class uniFileUtil
       // then return the path from application dir
       if (vagueFileName.charAt(0) != '/' && !fileUtil.looksLikeUrl (vagueFileName))
       {
-         if (androidFileUtil.statPersistDir == null)
-         {
-            fileUtil.log.severe ("resolveCurrentDirFileName", "applicationDir not set yet, the method resolveCurrentDirFileName cannot be used!");
-            return vagueFileName;
-         }
-         return fileUtil.getApplicationDir () + "/" + vagueFileName;
+         return androidFileUtil.getExternalStoragePath () + "/gastona/" + vagueFileName;
       }
 
       return vagueFileName;

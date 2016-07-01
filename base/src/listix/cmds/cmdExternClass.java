@@ -169,7 +169,7 @@ public class cmdExternClass implements commandable
          return 1;
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

@@ -203,7 +203,7 @@ public class cmdResourceUtil implements commandable
          String resName = cmd.getArg(1);
          that.printTextLsx (javaLoad.existsResource (resName) ? "1": "0");
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -213,7 +213,7 @@ public class cmdResourceUtil implements commandable
       {
          that.printTextLsx (urlUtil.urlExists (cmd.getArg(1)) ? "1": "0");
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -233,7 +233,7 @@ public class cmdResourceUtil implements commandable
          else
             that.printTextLsx (microToolInstaller.getExeToolPath (miniToolName));
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -244,7 +244,7 @@ public class cmdResourceUtil implements commandable
 
          microToolInstaller.assignPath4MuTool (miniToolName, newpath);
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -264,7 +264,7 @@ public class cmdResourceUtil implements commandable
             that.log ().err ("RESUTIL", "Copy from [" + resourceName + "] to [" + toFileName + "] failed!");
          }
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -284,11 +284,11 @@ public class cmdResourceUtil implements commandable
             that.log ().err ("RESUTIL", "URL copy from [" + resourceName + "] to [" + toFileName + "] failed!");
          }
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

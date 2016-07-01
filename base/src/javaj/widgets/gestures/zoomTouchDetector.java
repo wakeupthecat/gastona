@@ -87,7 +87,7 @@ public class zoomTouchDetector // extends multiFingerTouchDetector
                 );
    }
 
-   public void calcRectangles ()
+   private void setRectangles ()
    {
       rectP1 = rectP2 = null;
 
@@ -205,7 +205,7 @@ public class zoomTouchDetector // extends multiFingerTouchDetector
       {
          if (nowDedos == 2 || (nowDedos == 1 && pulp.mFingers[0].oneFingerZoomActive ()))
          {
-            calcRectangles ();
+            setRectangles ();
             if (plausibleZoom ())
                myInterested.onGestureContinue(this);
          }

@@ -69,6 +69,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //       LAUNCH, //CMD /C start "" "test.html"
       //
+      //  see also commands BROWSE and OPEN FILE which are system independent
+      //
       //
       //  ------ General Troubleshooting ------
       //
@@ -311,7 +313,7 @@ public class cmdCall implements commandable
       long incMilis = System.currentTimeMillis () - initMilis;
       cmd.getLog().dbg ((verbose >= 2) ? 0: 2, "CALL", "consuming time = " + (incMilis/1000.) + " seconds");
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 

@@ -73,7 +73,7 @@ public class logNativePrinter
       if (wakeupDiag != null && wakeupDiag.accept (logWakeup.MESSAGES))
          wakeupDiag.message (context, msg2print);
       else
-         System.out.println (context + " / " + msg2print);
+         System.out.println ("\nlogMSG(" + context + "): " + msg2print);
    }
 
    public static void warning (String context, String msg2print)
@@ -81,7 +81,7 @@ public class logNativePrinter
       if (wakeupDiag != null && wakeupDiag.accept (logWakeup.WARNINGS))
          wakeupDiag.warning (context, msg2print);
       else
-         System.out.println (context + " / " + msg2print);
+         System.out.println ("\nlogWARN(" + context + "): " + msg2print);
    }
 
    public static void error (String context, String msg2print)
@@ -89,7 +89,7 @@ public class logNativePrinter
       if (wakeupDiag != null && wakeupDiag.accept (logWakeup.ERRORS))
          wakeupDiag.error (context, msg2print);
       else
-         System.err.println (context + " / " + msg2print);
+         System.out.println ("\nlogERR(" + context + "): " + msg2print);
    }
 
    public static void errorBox (String msg2print, String title)
@@ -114,7 +114,7 @@ public class logNativePrinter
       lay.addLine (new EvaLine ("300, +    , -"));
       lay.addLine (new EvaLine ("   , bSalida, -"));
 
-         pane.setLayout (new de.elxala.Eva.layout.EvaLayout(lay));
+      pane.setLayout (new de.elxala.Eva.layout.EvaLayout(lay));
 
 
       // text content

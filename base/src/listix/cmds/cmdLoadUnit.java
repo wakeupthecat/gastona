@@ -170,7 +170,7 @@ public class cmdLoadUnit implements commandable
 
       uTarget.merge (uSource, iMergeType);
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

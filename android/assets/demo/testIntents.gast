@@ -1,0 +1,24 @@
+#javaj#
+
+   <frames> main, "Sample Intents"
+
+   <layout of main>
+
+      EVA, 10, 10, 5, 5
+      ---, X
+         , bSee contacts
+         , lTelephone number
+         , eTelNumber
+         , bDial it
+
+#data#
+
+   <eTelNumber> 0049
+
+#listix#
+
+   <-- bSee contacts>
+      INTENT, VIEW, content://contacts/people/
+
+   <-- bDial it>
+      INTENT, DIAL, tel:@<eTelNumber>

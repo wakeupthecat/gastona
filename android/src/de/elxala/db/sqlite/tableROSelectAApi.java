@@ -19,8 +19,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package de.elxala.db.sqlite;
 
 
-// NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-
 /*
    history
    =====================================================
@@ -197,7 +195,6 @@ public class tableROSelectAApi extends absTableWindowingEBS
    public static final String sATTR_DB_DATABASE_NAME      = "dbName";
    public static final String sATTR_DB_SQL_SELECT_QUERY   = "sqlSelect";
    public static final String sATTR_DB_EXTRA_FILTER       = "sqlExtraFilter";
-   public static final String sATTR_DB_PREVIOUS_TO_SELECT = "sqlPrevious";
 
    private sqlSolver myDB = new sqlSolver ();  // database client caller
 
@@ -209,6 +206,10 @@ public class tableROSelectAApi extends absTableWindowingEBS
       executeIfDataContainsSQL ();
    }
 
+   /**
+      Constructor to be used without setting data and control
+      It is not appropiated to be used into zWidgets!
+   */
    public tableROSelectAApi (String databaseFile, String SQLSelect)
    {
       super (new baseEBS ("default_tableROSelect", null, null));
@@ -218,23 +219,7 @@ public class tableROSelectAApi extends absTableWindowingEBS
       setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
 
       if (SQLSelect != null && SQLSelect.length() > 0)
-         setSelectQuery (databaseFile, SQLSelect, "");
-   }
-
-   /**
-      Constructor to be used without setting data and control
-      It is not appropiated to be used into zWidgets!
-   */
-   public tableROSelectAApi (String databaseFile, String SQLSelect, String previousSQL)
-   {
-      super (new baseEBS ("default_tableROSelect", null, null));
-
-      // data & control all in one
-      EvaUnit myDataAndCtrl = new EvaUnit ();
-      setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
-
-      if (SQLSelect != null && SQLSelect.length() > 0)
-         setSelectQuery (databaseFile, SQLSelect, previousSQL);
+         setSelectQuery (databaseFile, SQLSelect);
    }
 
 // no podemos hacer esto porque sino sera'n llamados antes de la construccio'n de la misma clase ...
@@ -281,19 +266,10 @@ public class tableROSelectAApi extends absTableWindowingEBS
 
    public void setSelectQuery (String databaseFile, String sqlSelect)
    {
-      setSelectQuery (databaseFile, sqlSelect, "");
-   }
-
-   public void setSelectQuery (String databaseFile, String sqlSelect, String previousSql)
-   {
       setSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME, databaseFile);
       //(o) TODO_db Tables: if sqlQuery has more one line !!!
       //
       setSimpleAttribute(DATA, sATTR_DB_SQL_SELECT_QUERY, sqlSelect);
-
-      //setSimpleAttribute(DATA, sATTR_DB_PREVIOUS_TO_SELECT, previousSql);
-      if (previousSql != null && previousSql.length () > 0)
-         log.err ("tableROSelect.setSelectQuery", "attribute " + sATTR_DB_PREVIOUS_TO_SELECT + " is deprecated! [" + previousSql + "]");
 
       executeQuery ();
    }
@@ -404,7 +380,6 @@ public class tableROSelectAApi extends absTableWindowingEBS
       }
       else if (sqlStart6.equalsIgnoreCase("SELECT"))
       {
-         //iniciaSelect_NoOptimizado ();
          initCache (0);
          setTotalRecords (0);
          QueryViewResult ();
@@ -424,11 +399,6 @@ public class tableROSelectAApi extends absTableWindowingEBS
       @brief executing the final select query (note: not for pragmas!) taking into account
              the possible previous sql queries, the real query (desired query) and the possible
              extra filter.
-
-      @param finalQuery usually one of these two:
-               "SELECT count(*) FROM " + VIEW_TEMP_NAME + ";"
-               "SELECT * FROM " + VIEW_TEMP_NAME + " LIMIT " + offsetRowStart + "," + MAX_CACHE + ";"
-
    */
    private void QueryViewResult ()
    {
@@ -452,14 +422,6 @@ public class tableROSelectAApi extends absTableWindowingEBS
       }
       String realQuery = eRealQuery.getAsText ();
       log.dbg (2, "tableROSelect.QueryViewResult", "real Query [" + realQuery + "]");
-
-      //from variable <... sqlPrevious>
-      //get previous to query if any (for instance "attach database ..." "create temp view..." etc)
-      //
-
-      Eva ePreviousQuery = getAttribute (DATA, false, sATTR_DB_PREVIOUS_TO_SELECT);
-      if (ePreviousQuery != null && ePreviousQuery.rows () > 0)
-         log.err ("tableROSelect.QueryViewResult", "attribute " + sATTR_DB_PREVIOUS_TO_SELECT + " is deprecated! [" + ePreviousQuery + "]");
 
       //from variable <... sqlExtraFilter>
       //get extra filter if any

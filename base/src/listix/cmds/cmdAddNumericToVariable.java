@@ -139,7 +139,7 @@ public class cmdAddNumericToVariable implements commandable
          cmd.getLog().dbg (2, "ADD NUM TO VAR", variableName + " [" + formula + "] = " + value);
       }
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

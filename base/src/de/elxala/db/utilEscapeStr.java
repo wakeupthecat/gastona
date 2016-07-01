@@ -33,9 +33,9 @@ public class utilEscapeStr
    {
       ENCODE_MODEL_NAME = encodeName;
    }
-   
+
    private static strEncoder encoderClassicNativ = null;
-   
+
 
    private static String [][] mapaEscapa =
    {
@@ -82,13 +82,13 @@ public class utilEscapeStr
       if (str == null) return "null"; // or nothing ?, I think is better this
 
       boolean truncated = str.length() > bytesLimit;
-      
+
       if (str.length() > bytesLimit)
          return gastNativeEscape (str.substring (0, bytesLimit)) + " **TRUNCATED!! TOTAL SIZE WAS " + str.length () + "**";
 
       return gastNativeEscape (str);
    }
-   
+
    private static strEncoder getNewEncoderNativ ()
    {
       if (encoderClassicNativ == null)
@@ -114,7 +114,7 @@ public class utilEscapeStr
       }
       return encoderClassicNativ;
    }
-   
+
    private static String gastNativeEscape (String str)
    {
       return getNewEncoderNativ ().encode (str);
@@ -150,7 +150,7 @@ public class utilEscapeStr
       cad.replaceMeOnce (mapaDesEscapa);
       return cad.o_str;
    }
-   
+
 
    public static String escapeStr (String str)
    {
@@ -168,7 +168,7 @@ public class utilEscapeStr
             result = java.net.URLEncoder.encode (str, escapeModel);
          }
          catch (Exception e) { }
-         
+
          return result;
       }
       return gastNativeEscape (str);
@@ -189,7 +189,7 @@ public class utilEscapeStr
    {
       return desEscapeStr (str, ENCODE_MODEL_NAME);
    }
-   
+
    public static String desEscapeStr (String str, String escapeModel)
    {
       //System.out.println ("descapa con [" + escapeModel + "]");

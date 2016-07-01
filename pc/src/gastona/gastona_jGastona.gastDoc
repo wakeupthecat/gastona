@@ -106,7 +106,7 @@
       //     IN FILE, META-GASTONA/js/LayoutManager.js
       //     IN FILE, META-GASTONA/js/jGastona.js
       //     //
-      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<MainGastInUTF8>"));
+      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
       //     //   jgas.AJAXPost ("questionToU",
       //     //                  "this is the body of the question",
@@ -114,9 +114,6 @@
       //     //                 );
       //     //
       //     //</script></body></html>
-      //
-      //   <MainGastInUTF8>
-      //      STRCONV, ENCODE VAR, UTF-8, MAIN_JGAST
       //
       //   <MAIN_JGAST>
       //      //#javaj#
@@ -170,12 +167,9 @@
       //     IN FILE, META-GASTONA/js/LayoutManager.js
       //     IN FILE, META-GASTONA/js/jGastona.js
       //     //
-      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<MainGastInUTF8>"));
+      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
       //     //</script></body></html>
-      //
-      //   <MainGastInUTF8>
-      //      STRCONV, ENCODE VAR, UTF-8, MAIN_JGAST
       //
       //   <MAIN_JGAST>
       //      //#javaj#
@@ -223,7 +217,7 @@
       //          , , xEventDesc
       //          , , eEventDate
       //
-      //      DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<eEventTitle>', '@<encodeDesc>');
+      //      DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<:encode eEventTitle>', '@<:encode xEventDesc>');
       //
       //   <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-operation': 'del', 'REQ-id': '@<id>'}, false);
       //
@@ -233,7 +227,7 @@
       //      //
       //      LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
       //          ,, // <tr> <td>
-      //          ,, //       <table> <tr> <td> @<date> <td> @<decodeTitle> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
+      //          ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 decodeTitle> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
       //          ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
       //          ,, //       </table>
       //          ,, // </tr>
@@ -247,12 +241,7 @@
       //             , del, DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-id> ;
       //             , ELSE, //
       //
-      //   <encodeDesc>
-      //      STRCONV, TEXT-STR, xEventDesc
-      //
-      //   <decodeTitle>
-      //      STRCONV, DECODE, UTF-8, @<title>
-      
+
 #**FIN_EVA#
 
 */

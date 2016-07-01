@@ -27,7 +27,7 @@ import de.elxala.zServices.logger;
    read a http header until empty line
    the header can be either the request header as well as the
    multipart body header, content-disposition header etc
-   
+
 */
 public class headerTextReader
 {
@@ -48,12 +48,12 @@ public class headerTextReader
    {
       return linesBuffer;
    }
-   
+
    public boolean EOH ()
    {
       return vEOH;
    }
-   
+
    private void clear ()
    {
       lastLine = "";
@@ -61,7 +61,7 @@ public class headerTextReader
       vEOH = false;
       lastCR = false;
    }
-   
+
    public int readHeader (httpStreamReader inStream)
    {
       clear ();
@@ -72,10 +72,10 @@ public class headerTextReader
          inStream.readBytes ();
          if (isDebugging (10)) out (10, "insReadBytes length " + inStream.getArrayLength ());
          if (inStream.getArrayLength () <= 0) break;
-   
+
          if (isDebugging (6))
             out (6, "reading header " + inStream.getArrayLength () +  " bytes");
-         
+
          inStream.pushBackBytesFrom (consumeBytes (inStream.getByteArray (), inStream.getArrayLength ()));
          //out (10, "BRUTOX [" + new String (fuente) + " ]");
       }
@@ -112,7 +112,7 @@ public class headerTextReader
 
       return "";
    }
-   
+
    //(o) devnote_algorithms_reading manually RT LF
 
    private static final byte CR = 13;
@@ -145,15 +145,15 @@ public class headerTextReader
       {
          int hasta = tok;
          while (hasta < len && data[hasta] != CR && data[hasta] != LF) hasta ++;
-         
+
          if (isDebugging (16))
             out (16, "consumeBytes [" + new String (data, tok, hasta-tok) + "]");
-         
+
          addToLines (new String (data, tok, hasta-tok), (hasta < len));
 
          if (isDebugging (16))
             out (16, "tok " + tok + " hasta " + hasta);
-         
+
          boolean wasRTLF = (hasta+1 < len && data[hasta] == CR && data[hasta+1] == LF);
          tok = hasta + (wasRTLF ? 2 : 1);
       }
@@ -173,7 +173,7 @@ public class headerTextReader
       {
          // ignore all CRLF previous to request line
          // only for fist Header of http request!!!!
-         return;  
+         return;
       }
 
       // add the line to the lines buffer
@@ -186,12 +186,12 @@ public class headerTextReader
 
       vEOH = emptyLine;
    }
-   
+
    public boolean isDebugging ()
    {
       return micoHttpServer.isDebugging ();
    }
-   
+
    public boolean isDebugging (int verboseLev)
    {
       return micoHttpServer.isDebugging (verboseLev);

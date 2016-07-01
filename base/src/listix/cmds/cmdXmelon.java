@@ -488,7 +488,7 @@ public class cmdXmelon implements commandable
          {
             theJsonMelon.clearCache ();
          }
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -510,7 +510,7 @@ public class cmdXmelon implements commandable
 
          that.doFormat (myCommand);
 
-         cmd.checkRemainingOptions (true);
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -623,7 +623,7 @@ public class cmdXmelon implements commandable
 
       if (sendMessages) Mensaka.sendPacket (LIGHT_MSG_END, null); // ... )))
 
-      cmd.checkRemainingOptions (true);
+      cmd.checkRemainingOptions ();
       return 1;
    }
 }

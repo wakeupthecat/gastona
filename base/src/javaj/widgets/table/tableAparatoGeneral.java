@@ -82,7 +82,7 @@ public class tableAparatoGeneral extends basicTableAparato
    //         helper.setNameDataAndControl (null, euData, null);
    //     from
    //         helper.ebsTable ().setNameDataAndControl (null, euData, null);
-   //       
+   //
    //     the first one call this method which do a lot of things more than super.setNameDataAndControl
    //
    // public void setNameDataAndControl (String nameWidget, EvaUnit pData, EvaUnit pControl)
@@ -254,8 +254,7 @@ public class tableAparatoGeneral extends basicTableAparato
       }
       else if (doSelectArg.length < 2)
       {
-         // nothing
-         log.err ("tableAparato::doSelect",  "need more arguments");
+         // nothing given then unselect all
       }
       else if (doSelectArg[0].length () > 0 && doSelectArg[0].charAt (0) == '#')
       {
@@ -463,7 +462,7 @@ public class tableAparatoGeneral extends basicTableAparato
       int indxSel = tab.getColumnIndex ("selected");
       if (indxSel == -1)
          indxSel = tab.getColumnCount ();
-      
+
       int tama = tab.getTotalRecords ();
       for (int ii = 0; ii < tama; ii ++)
       {
@@ -471,4 +470,3 @@ public class tableAparatoGeneral extends basicTableAparato
       }
    }
 }
-
