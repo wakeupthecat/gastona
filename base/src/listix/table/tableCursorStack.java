@@ -22,11 +22,13 @@ import java.util.*;
 import listix.*;
 import de.elxala.Eva.*;
 import de.elxala.zServices.logger;
+import de.elxala.langutil.*;
+
 
 /**
    holds the table cursor stack used by listix
 
-   Each time a command SET TABLE or RUN TABLE is performed a new table cursor is
+   Each time a command LOOP or SUB LOOP is performed a new table cursor is
    created and pushed in this stack. This is a LIFO stack, the last table cursor becomes
    the current one. The meaning of this LIFO behaviour is used in the method 'findValueColumn'.
    A column will be search first in the last table cursor added, if not found the will be
@@ -156,9 +158,24 @@ public class tableCursorStack
       named 'columnName', if this table is found than the value of that column
       at the current row position is returned, otherwise returns null.
    */
-   public String findValueColumn (String columnName, boolean oldRow)
+   public String findValueColumn (String columnName)
    {
       if (pilaTablas == null || pilaTablas.size () == 0) return null;
+
+      // take into account primitive ":lsx prev fiedlName"
+      //
+      boolean oldRow = false;
+      if (miscUtil.startsWithIgnoreCase (columnName, ":lsx prev "))
+      {
+         columnName = columnName.substring (":lsx prev ".length ());
+         oldRow = true;
+      }
+      if (miscUtil.startsWithIgnoreCase (columnName, ":listix prev "))
+      {
+         columnName = columnName.substring (":listix prev ".length ());
+         oldRow = true;
+      }
+
 
       int colIndx = -1;
       int posLook = pilaTablas.size () - 1;

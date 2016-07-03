@@ -331,7 +331,7 @@ public class micoHttpServer extends Thread
          return defaultHTML ("with no response for [" + lsxFormat + "]!");
       }
 
-      String MEM_RESP_FILE = ":mem httResponse mono" + monoInstanceNr; // this memory file is only used internally ...
+      String MEM_RESP_FILE = ":mem httResponse mono" + monoInstanceNr; // this memory file is used only internally ...
 
       theListixLogic.setNewLineString ("\r\n"); // required for HTTP!
       lsxWriter.makeFile (theListixLogic.getGlobalData (),

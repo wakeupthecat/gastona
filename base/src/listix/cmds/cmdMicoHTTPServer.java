@@ -35,21 +35,77 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <groupInfo>  internet
    <javaClass>  listix.cmds.cmdMicoHTTPServer
    <importance> 3
-   <desc>       //Starts a mico http server
+   <desc>       //Mini http server using listix language
 
 
    <help>
       //
-      // Experimental : mini http server gastona/listix based
+      // Micohttp is a http server that uses listix language to generate the http responses.
       //
-      // mini HTTTP server which respond to http requests either with files (file server)
-      // if they exist. For example a request "GET /index.html" would serve index.html if found.
-      // If the file does not exists then it looks for a variable (listix format) with that name
-      // (e.g. "<GET /index.html>")if this is found the variable is executed and the resulting string is served.
+      // The server can be started listening to a specific available TCP/IP port.
+      // Once started it can accept http requests and respond with contents.
       //
-      // On executing the listix format all parameters and headers of the request are accesible by their names.
-      // The body of the request, if any, is accessible as well by reading the memory file ":mem serverName httpRequestBODY"
-      // where you have to change "serverName" whith the name of your server given in the START syntax.
+      //## Responding to Http requests
+      //
+      // Given a general GET request, for instance
+      //
+      //        GET /myresource?parameters
+      //
+      // If the file "myresurce" exists as a physical file starting from the current directory where micoHttp is running,
+      // then the file is served as response for the request.
+      //
+      // If the file does not exist then it looks for a listix format or variable with the name "GET /myresource" (in the example) 
+      // and if the format exists it is executed and the output sent as response for the request.
+      //
+      // The parameters of the request are passed as if they where variables to the format
+      //
+      // For example the format
+      //
+      //       <GET /hola>
+      //           //Hola @<nombre>!
+      //
+      // Will respond with the text 
+      //
+      //        "Hola pavo!"
+      //
+      // if we do the request
+      //
+      //        GET /hola?nombre=pavo
+      //
+      // The rest of methods like POST, PUT, etc are served using formats as done by GET when the file does not exists.
+      //
+      // For example a POST receiver delegating the task to another listix format
+      //
+      //       <POST /saveThat>
+      //          LSX, saveContent
+      //          //ok, done
+      //
+      //## Variables accesibles while processing a request
+      //
+      // On each request, if this is going to be processed by a listix format, following 
+      // information is accessible via these variables
+      //
+      //        _myMicoName       Name of the mico server that receives the request (name is given in START syntax)
+      //        _requestIP        IP of the client that do the request
+      //        _bodyMemFileName  Name of the memory file containing the body of the request if any
+      //                          (this name can be obtained also as ":mem @<_myMicoName> httpRequestBODY")
+      //
+      //        _uploadedFilesCount  Number of files to be uploaded in case of upload
+      //        _uploadedFileX       File name of file X, where X is a number between 0 and _uploadedFilesCount - 1
+      //
+      //## Serving files
+      //
+      // The described way of serving files with the method GET is the default one and it limits
+      // the "visibility" to the current directory and subdirectories plus following restrictions:
+      //
+      // <ul>
+      //    <li> Files or paths starting with "hide_", "hidden_" or "nopublic"
+      //    <li> Files and folders under the directory "hide" or "hidden"
+      // </ul>
+      //
+      // But micoHttp can also be abilitated to serve any file in the operative system, so a simple
+      // file server can be built easily with it. This behaviour can be achieved using the option "FILE SERVER STR"
+      // in the syntax START.
       //
 
    <aliases>
@@ -94,8 +150,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName  , parameters, defVal, desc
 
-      1      , FILE SERVER STR, string, ":SF:/" , //Tells micoHttp to serve any file of the file system when request a "GET /FSStr/fullPath" where FSStr is the string given in the option as parameter, otherwise micoHttp only serve files from subdirs js, html, img and files
-      1      , MONOCLIENT     , 0 / 1, 0, //Instructs this server to accept ONLY ONE CLIENT, namely the first one, the client might close the server using "GET /acabamico"
+      1      , FILE SERVER STR, string, ":SF:/" , //Tells micoHttp to serve any file of the file system when request a "GET /FSStr/fullPath" where FSStr is the string given in the option as parameter, otherwise micoHttp only serve files from its current directory
+      1      , MONOCLIENT     , 0 / 1, 0, //Instructs this server to accept ONLY ONE CLIENT, namely the first one, the client might close the server using the request "GET /acabamico"
       1      , VERBOSE        , level, 12, //Set the verbosity of the server towards standard output
       1      , VERBOSE FILE   , filename, serverName/log, //Set the log file to output the trace generated by the server, the file will be always open for append
 
@@ -137,7 +193,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //     IN CASE, @<yourHobby>
       //            , soccer, Maradona
       //            , tennis, McEnroe
-      //            , baseball, DiMagio
+      //            , baseball, DiMaggio
       //            , formula1, Fittipaldi
       //            , chess, Bobby Fischer
       //            , ELSE, Champion
@@ -181,20 +237,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //         alert("Your browser does not support XMLHTTP!");
       //      //      }
       //      //      htepo.onreadystatechange = function () {
-      //      //            if (htepo.readyState === 4)
-      //      //            {
-      //      //               if (htepo.status === 200)
-      //      //               {
+      //      //            if (htepo.readyState === 4) {
+      //      //               if (htepo.status === 200) {
       //      //                  document.miForm.responsivo.innerHTML = htepo.responseText;
       //      //               }
-      //      //               else
-      //      //               {
+      //      //               else {
       //      //                  var amsosorry = "Sorry! the server does not respond\n save your data somewhere and try it again later";
       //      //                  document.getElementById ("statusLabel").innerHTML = (amsosorry);
       //      //                  alert (amsosorry);
       //      //               }
       //      //            }
       //      //         }
+      //      //
       //      //      htepo.open("POST","quedise.ajax",true);
       //      //      htepo.send("dime cual " + document.miForm.username.value + " cosa");
       //      //   }
@@ -315,23 +369,20 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <template generaDoc>
       //      //<!DOCTYPE html>
-      //      //<html>
-      //      //   <head>
+      //      //<html> <head>
       //      //      <title>@<theTitle></title>
       //      //   <style type="text/css">
       //      //
       //      IN FILE, META-GASTONA/js/marketes.css
       //      //
-      //      //   </style>
-      //      //  </head>
+      //      //   </style></head>
       //      //<body>
       //      //
-      //      //   <div id="sitio">
-      //      //   </div>
+      //      //   <div id="sitio">  </div>
       //      //
       //      //   <script>
       //      //
-      //      IN FILE, META-GASTONA/js/marketes.js
+      //      @<:infile META-GASTONA/js/marketes.js>
       //      //
       //      //   var miDoc = "@<:encode-utf8 xArticle>".replace (/\+/g, "%20");
       //      //

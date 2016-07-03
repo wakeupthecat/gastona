@@ -210,13 +210,7 @@ public class cmdCheck implements commandable
          {
             // it is not directly an Eva variable but it still might be a loop variable
 
-            boolean oldValue = false;
-            if (evaName.startsWith (":-"))
-            {
-               evaName = evaName.substring (2);
-               oldValue = true;
-            }
-            if (that.getTableCursorStack ().findValueColumn (evaName, oldValue) == null)
+            if (that.getTableCursorStack ().findValueColumn (evaName) == null)
                checked = false;  // checked fails!
          }
       }

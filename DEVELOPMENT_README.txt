@@ -15,34 +15,47 @@
    together in the jar file.
 
    Currently gastona scripts are used to generate gastona.jar (gastona generates itself!).
+
    For that you will need a gastona.jar binary which can be found at sourceforge
 
       http://sourceforge.net/projects/gastona/
 
+   Once you have some version of gastona.jar you can use the scripts to gerate a new gastona.jar
+   from your sources.
 
-   A way to do it in two steps is using gastona scripts
+   1) Generate the gastona documentation database
+   
+      This database is used by WelcomeGastona.gast (default script) to get the documentation and samples.
+      It has to be found by gastona in the file
+      
+         META-GASTONA\WelcomeGastona\gastonaDocScript.sql
 
-      1) Generate the gastona documentation database:
+      If it is not there or simply want to generate it again due to some change
+      in the documentation texts following commands will do it
 
-         This database is used by WelcomeGastona.gast (default script) to get the documentation and samples.
+         cd META-GASTONA\WelcomeGastona 
+         java -jar gastona.jar generateGastDocSQLScript.gast
+         
 
-         go to META-GASTONA\WelcomeGastona\genDB and launch generateGastDocDB.gast
-         for example: java -jar gastona.jar generateGastDocDB.gast
-         it will generate gastonaDoc.db in META-GASTONA\WelcomeGastona\genDB
+    2) Compile and generate gastona.jar
+    
+       The script GENJAR_GASTONA.gast will generate gastona.jar properly
 
-       2) Compile and generate gastona.jar
+         cd BUILD\pc-jar 
+         java -jar gastona.jar GENJAR_GASTONA.gast
+         
+       eventually, you might want to give the full path of the javac.exe you want to use
+       
+       If the generation succeed the final product can be found at 
 
-          go to BUILD\pc-jar and launch the gastona script GENJAR_GASTONA.gast
-          for example: java -jar gastona.jar GENJAR_GASTONA.gast
-          (eventually, you might enter the full path of the javac.exe you want to use)
-          it will generate the gastona.jar file in BUILD\gastona.jar
+          BUILD\gastona.jar
 
 
    Useful scripts
    ----------------------------------------------------------
 
    META-GASTONA\WelcomeGastona\WelcomeGastona.gast            script to launch WelcomeGastona (default script)
-   META-GASTONA\WelcomeGastona\genDB\generateGastDocDB.gast   script to generate gastona's documentation database
+   META-GASTONA\WelcomeGastona\generateGastDocSQLScript.gast  script to generate gastona's documentation database
    BUILD\pc-jar\GENJAR_GASTONA.gast                           script to generate gastona.jar
 
 
@@ -87,16 +100,15 @@
    Now starting path from src (e.g. pc/src, android/src or base/src):
 
 
-   de/elxala/db            stuff related with sqlite db (native sql for gastona)
+   de/elxala/db            all db and sqlite related stuff
    de/elxala/Eva           base structure and format used in gastona scripts
    de/elxala/langutil      general java language utilities and facilities (e.g. javaRun, TextFile)
-   de/elxala/math          math stuff including 2D calculations
-   de/elxala/mensaka       gastona's component communication mechanism (used by javaj widgets, listix messages ...)
+   de/elxala/math          math stuff including 2D calculations for drawing etc
+   de/elxala/mensaka       gastona's component communication mechanism used by javaj widgets, listix messages ...
    de/elxala/parse         parsing classes: general text parsing, svg, xml and json
-   de/elxala/zServices     logging system and microTool concept (used to launch sqlite and ruby, lua and perl in windows version)
+   de/elxala/zServices     logging system and microTool concept used to launch sqlite (also ruby, lua and perl in windows version)
 
    javaj                   all related with GUI engine (javaj) and its widgets (zWidgets)
    listix                  all related with Logic engine listix (main class listix/listix.java) and its commands (listix/cmds/cmdXXXX.java)
 
    org/gastona/net         features related with network communication UDP and the HTTP miniserver micoHTTP server
-

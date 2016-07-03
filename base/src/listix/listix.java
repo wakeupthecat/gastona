@@ -302,7 +302,7 @@ public class listix
 
          // safe delete if exists etc
          uniFileUtil.deleteTmpFileOnExit (new java.io.File (defDB));
-         
+
          // (old) AS FILE (ok for sqlite)
          //
          // defDB = fileUtil.createTemporal ("lsx", ".db");
@@ -498,6 +498,8 @@ public class listix
 
          if (lowName.equals ("firstrow")) return "" + ((tablon.getCurrentDataRow () == 0) ? "1": "0");
          if (lowName.equals ("lastrow"))  return "" + ((tablon.getCurrentDataRow () == tablon.getCurrentDataRows () -1) ? "1": "0");
+
+         if (lowName.startsWith ("prev "))  return "" + tablon.findValueColumn (":lsx " + name); // findValue detects :lsx as well !
 
          //(o) todo_listix anyadir las primitivas <:listix cols> y <:listix colName x>
          //
@@ -851,7 +853,7 @@ public class listix
    /**
       checks if the 'lsxFormat' format is either
          a primitive value (e.g. <:listix date>)
-         or a previous record field of the current table stack (e.g. <:- name>)
+         or a previous record field of the current table stack (e.g. <:lsx prev name>)
          or a record field of the current table stack
       if it is one of them then returns in 'retEva' its value and returns true
       if not then returns false.
@@ -861,20 +863,11 @@ public class listix
    */
    public synchronized boolean formatIsValue (String lsxFormat, Eva [] retEva)
    {
-      // ... a last record field ?
-      //
-      boolean oldValue = false;
-      if (lsxFormat.startsWith (":-"))
-      {
-         lsxFormat = lsxFormat.substring (2);
-         oldValue = true;
-      }
-
       // ... a normal record field of the current table data ?
       //
       // look if it is a field
       //
-      String deTabla = tablon.findValueColumn (lsxFormat, oldValue);
+      String deTabla = tablon.findValueColumn (lsxFormat);
       if (deTabla != null)
       {
          retEva[0] = new Eva ("field " + lsxFormat); // any name ...
