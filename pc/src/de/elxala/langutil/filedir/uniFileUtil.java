@@ -47,7 +47,7 @@ public class uniFileUtil
    }
 
    private static String tempDirBase = null;
-   public static String getTemporalDirBase ()
+   public static String getTemporalDirInitial ()
    {
       // temporal directories with accents (e.g. spanish ...Configuración Local...)
       // DOES NOT work with sqlite !!!
@@ -72,12 +72,16 @@ public class uniFileUtil
 
       boolean avis = false;
       for (int ii = 0; ii < tempDirBase.length (); ii++)
-         if (tempDirBase.charAt (ii) > '~') avis=true;
+         if (tempDirBase.charAt (ii) > '~')
+         {
+            avis = true;
+            break;
+         }
 
       if (avis)
       {
          String mess = "Temporary directory path contain inconvenient characters\n [" + tempDirBase + "]\n applications like sqlite may not work properly.\n Creating a root or sub-directory named tmp might avoid such problems.";
-         fileUtil.log.err ("getTemporalDirBase", mess);
+         fileUtil.log.err ("getTemporalDirInitial", mess);
 
          javax.swing.JOptionPane.showMessageDialog (
                null,
@@ -87,5 +91,10 @@ public class uniFileUtil
       }
 
       return tempDirBase;
+   }
+
+   public static String getTemporalDirApp ()
+   {
+      return System.getProperty("java.io.tmpdir", ".");
    }
 }

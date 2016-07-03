@@ -231,7 +231,7 @@ public class gastona
       //(o) TODO_gastona_META to be configured in something like META-GASTONA/gastonaConfig.eva  <tempPolicy>
       //Setting gastona's temporary directory
       {
-         String oldTmpDir = fileUtil.getTemporalDirBase ();
+         String oldTmpDir = fileUtil.getTemporalDirInitial ();
          // NOTE that it wouldn't be enough to make dirs now to ensure
          // the existence of the temporary directory. For example:
          // A gastona application start - without creating any temporary file -

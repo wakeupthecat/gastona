@@ -43,12 +43,21 @@ public class uniFileUtil
       androidFileUtil.deleteTmpFileOnExit (fi);
    }
 
-   public static String getTemporalDirBase ()
+   public static String getTemporalDirInitial ()
    {
       if (androidFileUtil.getAndroidCacheDir () != null) return androidFileUtil.getAndroidCacheDir ();
       // mensaje de error ?
       return null;
    }
+   
+   public static String getTemporalDirApp ()
+   {
+      //(o) android/TODO/temporal files/Review if return property as it is done in pc version
+      //   return System.getProperty("java.io.tmpdir", "."); 
+   
+      return getTemporalDirInitial ();
+   }
+
 
    public static String resolveCurrentDirFileName (String vagueFileName)
    {

@@ -260,15 +260,19 @@ public class fileUtil
       return createTemporal (prefix, "tmp");
    }
 
-   public static String getTemporalDirBase ()
+   public static String getTemporalDirInitial ()
    {
-      return uniFileUtil.getTemporalDirBase ();
+      return uniFileUtil.getTemporalDirInitial ();
+   }
+
+   public static String getTemporalDirApp ()
+   {
+      return uniFileUtil.getTemporalDirApp ();
    }
 
    public static String createTemporal (String prefix, String sufix)
    {
-      String tempdir = System.getProperty("java.io.tmpdir", ".");
-      return createTemporal (prefix, sufix, tempdir, true);
+      return createTemporal (prefix, sufix, getTemporalDirApp (), true);
    }
 
    public static String createTemporal (String prefix, String sufix, String tempdir)
@@ -318,13 +322,13 @@ public class fileUtil
 
    public static String createTempDir (String prefix, boolean doDestroyItOnExit)
    {
-      return createTempDir (prefix, getTemporalDirBase (), doDestroyItOnExit);
+      return createTempDir (prefix, getTemporalDirApp (), doDestroyItOnExit);
    }
 
    public static String createTempDir(String prefix, String dirBase, boolean doDestroyItOnExit)
    {
       if (dirBase == null)
-         dirBase = getTemporalDirBase ();
+         dirBase = getTemporalDirApp ();
 
       //(o) ensure_mkdirs!
       String tempDir = createTemporal(prefix, "tmpDir", dirBase, true);
