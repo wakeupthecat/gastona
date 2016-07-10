@@ -32,12 +32,12 @@ import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 import de.elxala.zServices.*;
 
-import org.gastona.cmds.CmdMsgBox;
+import org.gastona.cmds.*;
 
 
 public class gastonaMainActor extends Activity implements MensakaTarget
 {
-   private static logger log = new logger (null, gastonaAppConfig.getAppMainActorClassName (), null);
+   private static logger log = new logger (null, "gastonaMainActor", null);
 
    private MessageHandle TX_FRAMES_ARE_MOUNTED = new MessageHandle ();
    private MessageHandle TX_SHOW_FRAMES        = new MessageHandle ();
@@ -102,9 +102,20 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       Mensaka.declare (this, TX_SHOW_FRAMES       , javaj.javajEBSbase.msgSHOW_FRAMES, logServer.LOG_DEBUG_0);
       Mensaka.declare (this, TX_FRAMES_ARE_VISIBLE, javaj.javajEBSbase.msgFRAMES_VISIBLE, logServer.LOG_DEBUG_0);
 
-
-      log.dbg (2, "info", "starting gastona main script");
-      View la1 = gastonaAppConfig.loadMainAppScript (this);
+      // Add stuff to allow lauching the mainActor with parameters (e.g. gast file)
+      //
+      String [] params = getIntent().getStringArrayExtra(CmdLaunchGastona.EXTRA_VALUE_NAME);
+      View la1 = null;
+      if (params != null)
+      {
+         log.dbg (2, "onCreate", "gast file [" + fileUtil.resolveCurrentDirFileName (params[0]) + "]");
+         la1 = gastonaFlexActor.loadFrame (this, params);
+      }
+      else
+      {
+         log.dbg (2, "onCreate", "starting gastona main script");
+         la1 = gastonaAppConfig.loadMainAppScript (this);
+      }
       if (la1 == null)
       {
          CmdMsgBox.alerta (CmdMsgBox.WARNING_MESSAGE,
@@ -118,10 +129,9 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       android.view.ViewGroup vigu = (android.view.ViewGroup) la1.getParent();
       if (vigu != null)
       {
-         //System.out.println ("TEST:: Hemos evitado una desgracia!");
+         log.dbg (2, "onCreate", "TEST:: Hemos evitado una desgracia!");
          vigu.removeView(la1);
       }
-
       setContentView(la1);
 
       // message to permit controllers arrange the widgets
@@ -164,42 +174,40 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       super.onStart ();
 
       androidSysUtil.setCurrentActivity (this);
-      log.dbg (0, "gastona onStart!");
+      log.dbg (2, "onStart", "gastonaMainActor started");
    }
 
    protected void onRestart()
    {
       super.onRestart ();
-      log.dbg (0, "gastona onRestart!");
+      log.dbg (2, "onRestart", "gastonaMainActor restarted");
    }
 
    protected void onResume()
    {
       super.onResume ();
-      log.dbg (0, "gastona onResume!");
+      log.dbg (2, "onResume", "gastonaMainActor resumed");
    }
 
    protected void onPause()
    {
       super.onPause ();
-      log.dbg (0, "gastona onPause!");
+      log.dbg (2, "onPause", "gastonaMainActor paused");
    }
 
    protected void onStop()
    {
       super.onStop ();
       // finish ();
-      log.dbg (0, "gastona onStop!");
+      log.dbg (2, "onStop", "gastonaMainActor stopped");
    }
 
    protected void onDestroy()
    {
       super.onDestroy ();
-      log.dbg (0, "gastona onDestroy!");
-
       //javaj36.finalizeJavaj ();
       Mensaka.sendPacket ("javaj exit", null);
-      log.dbg (0, "gastona", "This is the end my friend.");
+      log.dbg (2, "onDestroy", "This is the end my friend.");
       Mensaka.destroyCommunications ();
       utilSys.destroySac ();
       javaj.globalJavaj.destroyStatic ();

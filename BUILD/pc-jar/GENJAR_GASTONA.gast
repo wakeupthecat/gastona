@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.00.160703 \"ERipley +1.00.985268 termicos\"
+   <gastonaVersion>  //1.00.160711 \"ERipley +1.00.987101 udpdebby\"
 
    <kRemove temp selected> 1
    <eJavacPath>     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe

@@ -46,6 +46,7 @@ import de.elxala.Eva.*;
 import de.elxala.langutil.filedir.*;
 import de.elxala.langutil.*;
 import de.elxala.mensaka.*;
+import org.gastona.net.udp.*;
 
 /**
    @date 10.04.2008 21:54
@@ -111,6 +112,8 @@ public class logServer
    private static TextFile logBatchFile = null;
    private static boolean errorDue2FopenDone = false;
 
+   private static udpSocketLogAgent udpAgent = null;
+   public static int DEFAULT_UPD_DEBUG_PORT = 11882;
 
    public static void resetStatic ()
    {
@@ -327,6 +330,23 @@ public class logServer
       logErrorsFile = new TextFile (null);
    }
 
+   public static void setUDPDebugPort (int port)
+   {
+      setUDPDebugPort (port, "anacleto");
+   }
+
+   public static void setUDPDebugPort (int port, String udpagentName)
+   {
+      if (udpAgent != null)
+      {
+         // we don't allow changing the agent basically because we cannot stop the old one
+         // is also not very useful
+         logNativePrinter.error ("setUDPDebugPort", "udp debug port already set");
+      }
+      else
+         udpAgent = new udpSocketLogAgent (udpagentName, port > 0 ? port: DEFAULT_UPD_DEBUG_PORT);
+   }
+
    private static void logError (String context, String errorMsg)
    {
       if (context != null)
@@ -345,7 +365,6 @@ public class logServer
       }
       else
          onceErrorLogCannotBeOpened (logErrorsFileName);
-
    }
 
    private static void onceErrorLogCannotBeOpened (String fileName)
@@ -582,6 +601,9 @@ public class logServer
       {
          return;
       }
+
+      if (udpAgent != null)
+         udpAgent.emitMessage (msgLevel, context, message, extraInfo, stackElements);
 
       if (pendingFirstMessage)
       {

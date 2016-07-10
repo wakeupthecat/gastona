@@ -132,6 +132,12 @@ public class gastona
       // given <sessionLog> ?
       if (unitGastona != null)
       {
+         if (unitGastona.getEva ("UDP_DEBUG_PORT") != null)
+         {
+            int port = stdlib.atoi (unitGastona.getEva ("UDP_DEBUG_PORT").getValue ());
+            logServer.setUDPDebugPort (port);
+         }
+
          if (unitGastona.getEva ("sessionLog") != null)
          {
             String dir = unitGastona.getEva ("sessionLog").getValue ();

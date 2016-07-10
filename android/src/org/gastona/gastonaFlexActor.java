@@ -44,7 +44,7 @@ import org.gastona.*;
 
 public class gastonaFlexActor extends Activity
 {
-   private static logger log = new logger (null, gastonaAppConfig.getAppFlexActorClassName (), null);
+   private static logger log = new logger (null, "gastonaFlexActor", null);
    public static final String NAME4UIFRAME = "javaj.frame";
    public static final String NAME4UIFRAMETITLE = "javaj.frameTitle";
    public static final String NAME4UIGASTONA = "gastona.object";
@@ -167,7 +167,7 @@ public class gastonaFlexActor extends Activity
          android.view.ViewGroup vigu = (android.view.ViewGroup) la1.getParent();
          if (vigu != null)
          {
-            System.out.println ("TEST:: Hemos evitado una desgracia en FlexActor!");
+            log.dbg (2, "onCreate", "TEST:: Hemos evitado una desgracia en FlexActor!");
             vigu.removeView(la1);
          }
 

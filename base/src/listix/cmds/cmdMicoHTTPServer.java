@@ -54,7 +54,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       // If the file "myresurce" exists as a physical file starting from the current directory where micoHttp is running,
       // then the file is served as response for the request.
       //
-      // If the file does not exist then it looks for a listix format or variable with the name "GET /myresource" (in the example) 
+      // If the file does not exist then it looks for a listix format or variable with the name "GET /myresource" (in the example)
       // and if the format exists it is executed and the output sent as response for the request.
       //
       // The parameters of the request are passed as if they where variables to the format
@@ -64,7 +64,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       <GET /hola>
       //           //Hola @<nombre>!
       //
-      // Will respond with the text 
+      // Will respond with the text
       //
       //        "Hola pavo!"
       //
@@ -82,7 +82,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //## Variables accesibles while processing a request
       //
-      // On each request, if this is going to be processed by a listix format, following 
+      // On each request, if this is going to be processed by a listix format, following
       // information is accessible via these variables
       //
       //        _myMicoName       Name of the mico server that receives the request (name is given in START syntax)
@@ -311,7 +311,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <GET />
       //      VAR=, USER CODE, LSX, xCodeArea
-      //      IN FILE, META-GASTONA/js/executorJS.lsx.js
+      //      @<:infile META-GASTONA/js/executorJS.lsx.js>
       //
       //   <POST /JSresponse>
       //      micohttp, stop, Servako
@@ -373,7 +373,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //      <title>@<theTitle></title>
       //      //   <style type="text/css">
       //      //
-      //      IN FILE, META-GASTONA/js/marketes.css
+      //      @<:infile META-GASTONA/js/marketes.css>
       //      //
       //      //   </style></head>
       //      //<body>
@@ -547,8 +547,8 @@ public class cmdMicoHTTPServer implements commandable
       micoHttpServer ol = getServerByName (cmd, name);
       if (ol != null)
       {
-         cmd.getLog().dbg (4, "MicoHttpServer", "stoping udp agent " + name);
-         cmd.getLog().dbg (0, "MICO!", "stoping udp agent " + name);
+         cmd.getLog().dbg (4, "MicoHttpServer", "stoping http agent " + name);
+         cmd.getLog().dbg (0, "MICO!", "stoping http agent " + name);
          ol.close ();
          micoServers.remove (name);
       }
