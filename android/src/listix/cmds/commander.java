@@ -41,6 +41,8 @@ public class commander extends commanderBase
    public void load_specific_commands ()
    {
       loadCommandable (new cmdIntent ());
-      loadCommandable (new cmdGPS ());
+
+      //(o) TODO/android/review command GPS
+      // loadCommandable (new cmdGPS ());
    }
 }

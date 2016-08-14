@@ -188,17 +188,14 @@ public class logServer
                defConf.writeLine ("");
                defConf.writeLine ("    <" + EVACONF_LOG_LEVELS_BY_CLIENT + ">"); // <logLevels>
                defConf.writeLine ("          clientName, maxLogLevel");
+               defConf.writeLine ("          <!  listix_flow, 16");
+               defConf.writeLine ("          <!  listix_command, 16");
                defConf.writeLine ("");
                defConf.writeLine ("#**FIN_EVA#");
                defConf.fclose ();
             }
          }
-         // System.out.println ("TENGO .. TENGO UNA RAMISA NUEVA ..." + currentLogConfig);
-
-
          //System.out.println ("currentLogConfig is " + currentLogConfig);
-         //System.out.println ("REGISTER TEMPRANOS!  con listClientNames.size () " + listClientNames.size ());
-         // log all "early" log clients
 
          // to ensure that openBatchFile really create the tables
          if (logBatchFile != null) logBatchFile.fclose ();
@@ -230,8 +227,6 @@ public class logServer
 
    public static void configure (int maxGlobalLevel, Eva clientConf)
    {
-      //System.out.println ("ME LAMAN " + maxGlobalLevel + " eva::"  + clientConf);
-
       configure (maxGlobalLevel);
       if (clientConf != null)
       {
@@ -287,13 +282,11 @@ public class logServer
          //
          logBatchFile.writeLine ("CREATE TABLE logClients (clientID int, milliStamp int, clientName text, maxLogLevel int, clientFirstObj text, UNIQUE(clientID));");
          logBatchFile.writeLine ("CREATE TABLE logMessages (msgCounter int, milliStamp int, clientID int, level int, context text, message text, UNIQUE(msgCounter));");
-         logBatchFile.writeLine ("CREATE TABLE logStack4Errors (msgCounter int, stackInfo text, UNIQUE(msgCounter));");
          logBatchFile.writeLine ("CREATE TABLE logStacksOnError (msgCounter int, stackType text, nLine int, stackItem text, UNIQUE(msgCounter, stackType, nLine));");
 
          // o-o  Add dbMore connections info
          logBatchFile.writeLine (deepSqlUtil.getSQL_CreateTableConnections ());
          logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("cli", "logMessages", "clientID", "logClients", "clientID"));
-         logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("msg", "logStack4Errors", "msgCounter", "logMessages", "msgCounter"));
          logBatchFile.writeLine (deepSqlUtil.getSQL_InsertConnection("msg", "logStacksOnError", "msgCounter", "logMessages", "msgCounter"));
 
          // trigger for the first message (log server message)
@@ -435,7 +428,7 @@ public class logServer
    {
       //(o) elxala_logServer logging registered clients
 
-      if (directory2Log == null) return; // not yet possible ... wait until having directory2Log (if this can happens!)
+      if (directory2Log == null) return; // not yet possible ... wait until having directory2Log (if this can happen!)
 
       if (pendingFirstMessage)
       {
@@ -527,7 +520,6 @@ public class logServer
             //System.out.println ("max level is " + currentLogConfig);
          }
       }
-      //else  System.out.println ("CAHARAMBAS! currentLogConfig is null ???????");
 
       return maxLevel;
    }
@@ -777,6 +769,12 @@ public class logServer
                //
                StackTraceElement [] arrStkElem = (stackElements != null) ? stackElements: jsys.getNowStackTrace();
 
+               // additionally we write the stack into a immediately "visible" file (do not have to open log sql file in these cases)
+               //
+               TextFile stackFile = new TextFile ();
+               if (!stackFile.fopen (getLogDirectory () + "/SEVERE_ERROR.txt", "a"))
+                  stackFile = null;
+
                // ========== NEW Stack log
                for (int ii = 0; ii < arrStkElem.length; ii ++)
                {
@@ -785,19 +783,11 @@ public class logServer
                                          ", 'java call'" +
                                          ", " + ii +
                                          ", '" + de.elxala.db.utilEscapeStr.escapeStr(arrStkElem[ii].toString ()) + "');");
+                  if (stackFile != null)
+                     stackFile.writeLine (arrStkElem[ii].toString ());
                }
-               // ===
-
-               // ========== OLD Stack log
-               StringBuffer stackMsg = new StringBuffer ();
-               for (int ii = 0; ii < arrStkElem.length; ii ++)
-               {
-                  stackMsg.append ("\n");
-                  stackMsg.append (arrStkElem[ii]);
-               }
-               logBatchFile.writeLine ("INSERT INTO logStack4Errors VALUES (" + (globCounter + "") + ", '" + de.elxala.db.utilEscapeStr.escapeStr(stackMsg.toString ()) + "');");
-               // ===
-
+               if (stackFile != null)
+                  stackFile.fclose ();
             }
 
             closeBatchFile ();
@@ -875,13 +865,7 @@ public class logServer
 
    public static long elapsedMillis ()
    {
-      long incTime = System.currentTimeMillis () - initMilis;
-      if (incTime > 100000000L) // almost 28 hours
-      {
-         initMilis = System.currentTimeMillis ();
-         incTime = 0;
-      }
-
-      return incTime;
+      // NOTE: no overflow of the difference is possible in the praxis (many hundred of years!)
+      return System.currentTimeMillis () - initMilis;
    }
 }

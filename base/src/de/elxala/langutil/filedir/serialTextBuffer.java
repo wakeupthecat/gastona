@@ -307,6 +307,7 @@ public class serialTextBuffer
    private void writeMemToOpenFile (TextFile otfile)
    {
       int lastIndx = memlines.linesArray.size () - 1;
+      if (lastIndx < 0) return;
 
       // write all lines+RT but the last one!
       //

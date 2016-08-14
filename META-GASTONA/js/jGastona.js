@@ -48,7 +48,6 @@ function jGastona (evaConfig, existingPlaceId)
 
 
    // default action
-   corpiny = existingPlaceId;
    loadJast (evaConfig);
    document.body.onresize = function () { adaptaLayout () };
 
@@ -127,7 +126,7 @@ function jGastona (evaConfig, existingPlaceId)
       //
       if (!corpiny)
       {
-         var STAMM = "jGastonaStammHtmlElem";
+         var STAMM = existingPlaceId ? existingPlaceId: "jGastonaStammHtmlElem";
          if (! document.getElementById(STAMM))
             document.body.innerHTML = "<div id='" + STAMM + "' style = 'position:relative;'></div>";
          corpiny = document.getElementById(STAMM);
@@ -319,6 +318,13 @@ function jGastona (evaConfig, existingPlaceId)
             zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, "data!": updateSimpleValue } );
             break;
 
+
+         // NOTE: actually we don't need a special character for submit
+         //       we can use a button and set its property "type" to submit (<bSendIt type> //'submit)
+         // case 'u':
+         //    zwid = fabricaStandard ("input", name, { type: "submit", onchange: assignValue, "data!": updateSimpleLabel } );
+         //    break;
+
          case 'f': // file to upload
                    // Note set data to this component make no sense but to empty string for reseting it
                    // for instance, if we try anything else in Chrome we get :
@@ -367,17 +373,25 @@ function jGastona (evaConfig, existingPlaceId)
 
                      for (row in evaData)
                      {
-                        rowele = document.createElement ("tr");
-
-                        for (col in evaData[row])
+                        if (row === "0" && evaData[0].length == 1 && evaData[0][0] === "")
                         {
-                           colele = document.createElement (row === "0" ? "th": "td");
-
-                           // use instead ? colele.value = evaData[row][col];
-                           setValueToElement (colele, evaData[row][col]);
-                           rowele.appendChild (colele);
+                           // row === "0" only one column and empty ==> no headers
+                           // no headers!
                         }
-                        etabla.appendChild (rowele);
+                        else
+                        {
+                           rowele = document.createElement ("tr");
+
+                           for (col in evaData[row])
+                           {
+                              colele = document.createElement (row === "0" ? "th": "td");
+
+                              // use instead ? colele.value = evaData[row][col];
+                              setValueToElement (colele, evaData[row][col]);
+                              rowele.appendChild (colele);
+                           }
+                           etabla.appendChild (rowele);
+                        }
                      }
                      this.appendChild (etabla);
                   }
@@ -424,6 +438,10 @@ function jGastona (evaConfig, existingPlaceId)
          corpiny.appendChild (zwid);
 
          updatezWidget (zwid);
+
+         // experimental! all widgets need data!
+         if (!dataUnit[name]) 
+            dataUnit[name] = [ [ "" ] ];         
       }
    }
 

@@ -75,17 +75,52 @@ public class gastonaFlexActor extends Activity
          return getNoView (co);
       }
 
+      //--!-- if (javajST.existFrame (layoutName))
+      {
+         View fr = (View) utilSys.objectSacGet (NAME4UIFRAME + "." + fileName);
+         if (fr != null)
+         {
+            log.dbg (2, "loadFrame", "frame [" + fileName + "] was already loaded");
+
+            //(o) TODO reestructurar esto, por ahora para no perder el titulo en caso de frame cargado...
+            String title = (String) utilSys.objectSacGet (NAME4UIFRAMETITLE + "." + fileName);
+            if (co instanceof Activity)
+            {
+               ((Activity) co).setTitle (title);
+//NO SE PUEDE POR : Cannot make a static reference to the non-static method requestWindowFeature(int)
+//               if (title.length () == 0)
+//                    requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+//               else ((Activity) co).setTitle (title);
+            }
+
+            // retrieve gastona object for the activity
+            gastona gastPtr = (gastona) utilSys.objectSacGet (NAME4UIGASTONA + "." + fileName);
+            if (gastPtr != null && gastPtr.myMensaka4listix != null)
+            {
+               String [] reduzParam = new String [0];
+               if (allParams != null && allParams.length > 1)
+               {
+                  reduzParam = new String [allParams.length-1];
+                  for (int ii = 0; ii < reduzParam.length; ii ++)
+                     reduzParam [ii] = allParams[ii+1];
+               }
+               //(o) Android_startup calling main and main0 by reload
+               gastPtr.myMensaka4listix.runListixFormat("main", reduzParam);
+            }
+            return fr;
+         }
+      }
+//      else
+//      {
+//         javajST.addFrame (layoutName);
+//      }
+
       String frameTitle = "";
 
-      log.dbg (2, "loadFrame", fileName);
-      EvaUnit eu = null;
+      gastona.main (allParams);
+      log.dbg (2, "loadFrame", fileName + " loaded!");
 
-      EvaUnit [] trio = gastonaAppConfig.getAppHardcodedGastonaTrio (fileName);
-      if (trio != null)
-         eu = trio[1];
-      else
-         eu = EvaFile.loadEvaUnit (fileName, "javaj");
-
+      EvaUnit eu = gastona.lastGastona.unitJavaj;
       if (eu == null || eu.size () == 0)
       {
          log.err ("loadFrame", "file [" + fileName + "] or javaj unit not found in file !");
@@ -122,15 +157,12 @@ public class gastonaFlexActor extends Activity
          log.err ("loadFrame", "layout of " + mainFrameName + " not found!");
          return getNoView (co);
       }
-      log.dbg (2, "loadFrame", fileName + " loaded!");
-
 
       View ela = laying.laya_EvaLayout (co, null, null, mainlay);
 
       // poblaDatos
       //EvaUnit rasa = EvaFile.loadEvaUnit (fileName, "data");
 
-      gastona.main (allParams);
       if (gastona.lastGastona != null)
       {
          Mensaka.sendPacket (javaj.javajEBS.msgCONTEXT_BASE, gastona.lastGastona.unitData);
@@ -180,32 +212,34 @@ public class gastonaFlexActor extends Activity
    {
       super.onStart ();
       androidSysUtil.setCurrentActivity (this);
-      log.dbg (0, "onStart");
+      log.dbg (2, "flexActor", "onStart");
    }
 
    protected void onRestart()
    {
       super.onRestart ();
-      log.dbg (0, "onRestart");
+      log.dbg (2, "flexActor", "onRestart");
    }
 
    protected void onResume()
    {
       super.onResume ();
-      log.dbg (0, "onResume");
+      log.dbg (2, "flexActor", "onResume");
    }
 
    protected void onPause()
    {
       super.onPause ();
-      log.dbg (0, "onPause");
+      log.dbg (2, "flexActor", "onPause");
    }
 
    protected void onStop()
    {
       super.onStop ();
+      Mensaka.sendPacket ("javaj exit", null);
+      
       finish ();
-      log.dbg (0, "onStop");
+      log.dbg (2, "flexActor", "onStop");
    }
 
    protected void onDestroy()
@@ -220,7 +254,7 @@ public class gastonaFlexActor extends Activity
       super.onDestroy ();
 
       //Mensaka.unsubscribe (this);
-      log.dbg (0, "onDestroy");
+      log.dbg (2, "flexActor", "onDestroy");
    }
 }
 

@@ -1,0 +1,112 @@
+#h Working with databases
+
+-- Setting default database
+
+The most usual case for a script is to work with a single database. If it is the case
+then we better set the default database once unless we want to specify the database name
+on each single DATABASE command and on each widget using database as source data.
+
+--- Setting default database
+
+This can be done in a single command, usually it is enough to do it in the main or main0 formats
+
+   <main>
+      DB CONFIG, DEFAULT, myDatabase.db
+      
+Then all commands using database just leave empty the parameter database name.
+
+         DB,, EXECUTE, //INSERT ....
+         
+         LOOP, SQL,, //SELECT ...
+         
+--- Using a variable instead
+
+An alternative could be setting a variable with the database name and use it in all commands. For instance
+
+    #data#
+      <db> myDatabase.db
+
+    #listix#
+
+      <main>
+         DB, @<db>, EXECUTE, //INSERT ....
+         
+         LOOP, SQL, @<db>, //SELECT ...
+         
+note though that for widgets the following 
+
+    #data#
+    
+        <tMytable dbName> @<db>
+
+would not work!. The reason is that widget variables do not do the variable solving as listix always does.
+This is to allow such expressions simple as text which make sense.
+
+So for setting the database in widgets using a varible we have to perform a SET VAR command or similar
+
+   
+      VAR=, tMytable dbName, @<db>
+      or
+      -->, tMytable data!, dbName, @<db>
+
+-- Loading data from a file
+
+If we have a file with all the SQL commands that we want to execute the option FROM FILE
+can be used in the listix command DATABASE. For example
+
+
+      DB, mydata.db, EXECUTE
+        , FROM FILE, myFile2Load.sql
+
+would execute all commands contained in the file myFile2Load.sql
+
+Important to note is that this option changes automatically the option TRANSACTION to 0 (usually is 1).
+This means that it is expected that the input file already start and end a TRANSACTION for all the
+commands in order not to fall in a very unefficient load if the file contain more than one command.
+
+If for some reason it is not the case we should add the transaction ourselves. This can be done in several
+ways.
+
+--- Adding TRANSACTION in android
+
+In gastona for android is possible to set the option TRANSACTION to 1 explictly
+
+      DB, mydata.db, EXECUTE
+        , FROM FILE, myFile2Load.sql
+        , TRANSACTION, 1
+
+--- Adding TRANSACTION in pc
+
+For PC this option cannot be set to 1. Instead we have to do any of following things
+
+---- The direct way
+
+We can generate a new file with the transaction commands
+
+      <myFileWithBEGIN-END>
+         //BEGIN;
+         //@<:infile myFile2Load.sql>
+         //COMMIT;
+      ...
+
+      GEN, :mem myFileBis, myFileWithBEGIN-END
+      DB, mydata.db, EXECUTE
+        , FROM FILE, :mem myFileBis
+
+but this can be very unefficient in the the file is big.
+
+---- Using the read command of sqlite
+
+To avoid creating a new file, we can use the read command of sqlite and give
+it following file to execute instead
+
+      <myFileWithBEGIN-END>
+         //BEGIN;
+         //.read myFile2Load.sql
+         //COMMIT;
+      ...
+
+      GEN, :mem myFileBis, myFileWithBEGIN-END
+      DB, mydata.db, EXECUTE
+        , FROM FILE, :mem myFileBis
+

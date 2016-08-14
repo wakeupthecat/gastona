@@ -19,7 +19,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package org.gastona;
 
 import org.gastona.cmds.*;
-import javaj.widgets.table.util.utilMetadata;
 
 import de.elxala.Eva.*;
 import de.elxala.langutil.filedir.*;
@@ -134,6 +133,7 @@ public class mensaka4listix implements MensakaTarget
       theListix.addInternCommand (new CmdMsgBox ());        // command "MSGBOX"
       theListix.addInternCommand (new CmdJavaj ());         // command "JAVAJ"
       theListix.addInternCommand (new CmdLaunchGastona ()); // command "LAUNCH GASTONA"
+      theListix.addInternCommand (new CmdGast2 ()); // command "LAUNCH GASTONA2"
    }
 
    /**

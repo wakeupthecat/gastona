@@ -158,6 +158,7 @@ function evaFileStr2obj (fileStr)
       }
    }
 
+
    return parseFileStr (fileStr);
 
    /*
@@ -168,10 +169,10 @@ function evaFileStr2obj (fileStr)
       // name = / isThis aName?/
       // rest = /yes it is/
    */
-   function isname (line, charStart, charEnd, /*var*/ indx)
+   function isname (line, charStart, charEnd)
    {
       if (line.indexOf (charStart) != 0) return;
-      indx = line.indexOf (charEnd, 1);
+      var indx = line.indexOf (charEnd, 1);
       if (indx > 0)
          return {
             name: line.substr (1, indx-1),      // do not trim names

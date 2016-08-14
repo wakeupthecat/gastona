@@ -171,7 +171,6 @@ public class tableAccessPathFiles extends tableAccessBase
 
    public void rowIsIncremented ()
    {
-      //lastCmdData.getLog().dbg (0, "JEURGASS!");
       prepareRow (currRow);
    }
 

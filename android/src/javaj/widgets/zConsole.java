@@ -154,6 +154,11 @@ public class zConsole extends EditText
       plug ();
    }
 
+   //(o) android/widgets/note Handler included in bildID 12412	2015-11-29
+   // 
+   // to avoid android.view.ViewRootImpl$CalledFromWrongThreadException
+   // when, for example, we change the content due to a http event (MICO http)
+   //
    protected static final int HANDLER_OP_SETTEXT   = 0;
    protected static final int HANDLER_OP_APPEND    = 1;
 
@@ -162,7 +167,7 @@ public class zConsole extends EditText
       {
          int op = msg.getData().getInt("operation");
          String value = msg.getData().getString("value");
-         
+
          switch (op)
          {
             case HANDLER_OP_APPEND:     append  (value); break;

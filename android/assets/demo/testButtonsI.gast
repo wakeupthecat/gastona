@@ -1,16 +1,23 @@
+
+   In the unit #javaj# we build the User Interface (GUI)
+   
+      we define a frame called "main"
+
+      we describe its contents as having three buttons and a label
+
+   In the unit #listix# the logic will be implemented
+
+    In this case we just react to the
+    three button's actions always filling
+    the label with some text. The three ways
+    are equivalent
+
+
 #javaj#
 
-   <! in #javaj# we build the User Interface (GUI)
-   <!
-   <! we define a frame called "main"
-   <!
    <frames>
       main, Buttons basic
 
-   <! we describe its contents
-   <! in this case, three buttons and
-   <! a label
-   <!
    <layout of main>
       EVA,
 
@@ -22,20 +29,13 @@
 
 #listix#
 
-   <! #listix# will implement the logic
-   <!
-   <! In this case we just react to the
-   <! three button's actions always filling
-   <! the label with some text. The three ways
-   <! are equivalent
-
    <-- bButton>
-      SET VAR, lMyLabel, Button pressed
+      VAR=, lMyLabel, Button pressed
       MSG, lMyLabel data!
 
    <-- bBoton>
-      SET DATA!, lMyLabel,, Boton pulsado
+      MSG, lMyLabel data!,, Boton pulsado
 
    <-- bKnopf>
-      -->, lMyLabel,, Knopf gedrueckt
+      -->, lMyLabel data!,, Knopf gedrueckt
 

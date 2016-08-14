@@ -1,0 +1,422 @@
+#h Gastona and Evalayout js Boletin sample
+
+-- Boletin sample
+
+This sample shows the use of Gastona and EvaLayout js libraries to create a
+functional http server.
+
+The server will create a page where events - composed by date, title and description -
+can be stored into a database in the server side. All done in a Form that
+allows to enter, show and delete the events.
+
+-- Application concept
+
+
+      _______________                               _______________                               _______________
+             db                                          server                                        client
+          (sqlite)                                      (gastona)                                     (browser)
+      _______________                               _______________                               _______________
+             ~                                             ~                                             ~
+             |                                             |                                             |
+             |                            Ensure schema    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |    star MICO & launch Browser               |
+             |                                             |-------------------------------------------->|
+             |                                             |                                    GET /    |
+             |                                             |<--------------------------------------------|
+             |                                             |                                             |
+             |                                             |    send JGAST boletin                       |
+             |                                             |-------------------------------------------->|  Now Boletin GUI is shown
+             |                                             |                                             |  in the browser
+             |                                             |                                             |
+             |                                             |                                             |
+             |                                             |                                             |  User input some
+             |                                             |                                             |  event with date
+             |                                             |                                             |  title and text
+             |                                             |                                             |  and press "Save"
+             |                                             |                        POST /insertEvent    |
+             |                                             |<--------------------------------------------|
+             |                                             |                                             |
+             |                'INSERT INTO boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |                                             |
+             |                                             |    ok                                       |
+             |                                             |-------------------------------------------->|
+             |                                             |                                             |
+             |                                             |            POST /getIdContent (dBoletin)    |
+             |                                             |<--------------------------------------------|
+             |                                             |                                             |
+             |              'SELECT * FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |                                             |
+             |                                             |    <table> ... </table>                     |
+             |                                             |-------------------------------------------->|  Now all current events
+             |                                             |                                             |  are shown
+             |                                             |                                             |
+             |                                             |                                             |
+             |                                             |                                             |
+             |                                             |  POST /getIdContent (dBoletin) (req del)    |  User press delete button
+             |                                             |<--------------------------------------------|  of an event
+             |                                             |                                             |
+             |                'DELETE FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |              'SELECT * FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |                                             |
+             |                                             |    <table> ... </table>                     |
+             |                                             |-------------------------------------------->|  Now all current events
+             |                                             |                                             |  are updated
+             |                                             |                                             |
+      _______________                               _______________                               _______________
+             db                                          server                                        client
+      _______________                               _______________                               _______________
+
+
+
+Mais idealmente volemos
+
+      _______________                               _______________                               _______________
+             db                                          server                                        client
+          (sqlite)                                      (gastona)                                     (browser)
+      _______________                               _______________                               _______________
+             ~                                             ~                                             ~
+             |                                             |                                             |
+             |                            Ensure schema    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |    star MICO & launch Browser               |
+             |                                             |-------------------------------------------->|
+             |                                             |                                    GET /    |
+             |                                             |<--------------------------------------------|
+             |                                             |                                             |
+             |                                             |    send JGAST boletin                       |
+             |                                             |-------------------------------------------->|  Now Boletin GUI is shown
+             |                                             |                                             |  in the browser
+             |                                             |                                             |
+             ~                                             ~                                             ~
+             ~                                             ~                                             ~
+             |                                             |                                             |
+             |                                             |                                             |  User input some
+             |                                             |                                             |  event with date
+             |                                             |                        POST /getIdContent   |  title and text
+             |                                             |                        REQ-type : insert    |  and press "Save"
+             |                                             |<--------------------------------------------|
+             |                                             |                                             |
+             |                'INSERT INTO boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |              'SELECT * FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |    <table> ... </table>                     |
+             |                                             |-------------------------------------------->|  Now the new current event
+             |                                             |                                             |  is shown in the list
+             |                                             |                                             |
+             ~                                             ~                                             ~
+             ~                                             ~                                             ~
+             |                                             |                        POST /getIdContent   |
+             |                                             |                        REQ-type : delete    |  User press delete button
+             |                                             |<--------------------------------------------|  of an event
+             |                                             |                                             |
+             |                'DELETE FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |              'SELECT * FROM boletin ...'    |                                             |
+             |<--------------------------------------------|                                             |
+             |                                             |                                             |
+             |                                             |    <table> ... </table>                     |
+             |                                             |-------------------------------------------->|  Now all current events
+             |                                             |                                             |  are updated
+             |                                             |                                             |
+      _______________                               _______________                               _______________
+             db                                          server                                        client
+      _______________                               _______________                               _______________
+
+
+
+
+
+-- The server GUI
+
+The server itself actually does not need a GUI, indeed a real server might not have
+GUI interface at all.
+
+For the sample we open a single console to show the server activity. Also closing the window
+will terminate the server.
+
+      #javaj#
+
+          <frames> oConsola
+
+-- Starting the server
+
+The server is started with a single command MICOHTTP but before doing it
+we want to ensure that the underlying database exists and it has desired schema.
+
+      #listix#
+
+          <main>
+             <! DB CONFIG, DEFAULT, boletin.db
+             DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+             micohttp, start, monoMico
+
+the sample works just with temporary database, this can be easily changed as indicated in the first commented out line.
+
+
+-- Initial HTML
+
+Mico http server will build the response for the first request in the variable "GET /".
+Basically we load a simple css for the text areas, include the Gastona and EvaLayout libraries
+and load the main jGastona script from the variable MAIN_JGAST.
+
+    #listix#
+      ....
+
+      <css>
+          // textarea {
+          //     width: 100%;
+          //     height: 150px;
+          //     padding: 10px 10px;
+          //     resize: none;
+          // }
+
+
+      <GET />
+        //<html>
+        //<head>
+        //</head> <style> @<css> </style>
+        //<body>
+        //   <!-- nothing! -->
+        //<script>
+        //
+        @<:infile META-GASTONA/js/jGastonaEva-min.js>
+        //
+        //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+        //
+        //</script></body></html>
+
+-- jGast Script for Boletin
+
+The variable MAIN_JGAST contains the whole JGAST script needed for jGastona
+
+The GUI in the client side constist of a left side to enter the event and
+a right side to show the alredy existing events. In particular dBoletin is here
+simply a div html element for the list of elements that we will create and send from
+the server (see server side)
+
+      <MAIN_JGAST>
+         //#javaj#
+         //
+         //   <layout of main>
+         //        EVA, 15, 15, 20, 20
+         //        grid, X           , X
+         //            , lNew Event  , lBulletin Board
+         //          X , layInput    , dBoletin
+         //
+         //   <layout of layInput>
+         //        EVA, 15, 15, 20, 20
+         //        grid,             , X
+         //            , eEventDate  , eEventTitle
+         //          X , xEventDesc  , -
+         //            , bSave       , -
+         //
+         //#data#
+         //
+         //    <eEventDate type>   //'date
+         //    <eEventTitle placeholder>   //'Event Name
+         //    <xEventDesc placeholder>  //'Event Description
+         //    <eEventDate placeholder>  //'Event Date
+         //    <dBoletin>
+         //       //<p> Loading contents ... </p>
+         //
+         ...
+
+The logic that we need to be handle by jGastona is quite simple.
+
+On pressing the "bSave" button send an ajax message with the variables in the body using the
+POST command "insertEvent".
+
+Since presumably the database content will change on saving a new element we want at this instant
+also update the right side ("dBoletin") with the current envents. For that we use the given
+AJAXgetIdContent jGastona call.
+
+
+      <MAIN_JGAST>
+         ...
+         //
+         //#listix#
+         //
+         //  <-- bSave>
+         //     //jgas.AJAXSendBody ("insertEvent");
+         //
+         //  <-- ajaxResponse insertEvent>
+         //     //jgas.AJAXgetIdContent ("dBoletin", "all");
+         //
+
+-- Http Server logic
+
+The intital html content on the request GET / is already explained. The server has still to process
+two more request in this sample
+
+--- POST /insertEvent
+
+The job here is just decode the body into variables and perform an SQL insert command into the database
+
+      <POST /insertEvent>
+         VAR=, tmpProceso, @<process_insert>
+         //ok
+
+      <process_insert>
+         VAR&, eEventTitle,
+             , FILE, @<_bodyMemFileName>
+             , UNIT, unitAjaxRequest
+             , , xEventDesc
+             , , eEventDate
+
+         DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<:encode eEventTitle>', '@<:encode xEventDesc>');
+
+
+--- POST /getIdContent
+
+This request will be sent from MAIN_JGAST after saving an element as we have seen but we will also
+use the event to perform a delete operation. So on this request the server can actually do one of
+two things :
+
+<ul>
+<li> Just update the list of events
+<li> Delete a specific element and update the list of events
+</ul>
+
+      <POST /getIdContent>
+         LSX, checkOperations
+         //<table>
+         //
+         LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
+             ,, // <tr> <td>
+             ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 title> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
+             ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
+             ,, //       </table>
+             ,, // </tr>
+         //
+         //</table>
+
+      <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-operation': 'del', 'REQ-id': '@<id>'}, false);
+
+      <checkOperations>
+         CHECK, VAR, REQ-operation
+         CHECK, VAR, REQ-id
+         IN CASE, @<REQ-operation>
+                , del, DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-id> ;
+                , ELSE, //
+
+
+The first line calls checkOperations which will perform the delete operation if required
+and then we will populate the table with the first 50 events found in the database.
+
+On each event we insert a delete button with the special command AJAXgetIdContent for delete operation.
+
+
+-- Complete Boletin Sample
+
+
+      #javaj#
+
+          <frames> oConsola
+
+      #listix#
+
+          <main>
+             <! DB CONFIG, DEFAULT, boletin.db
+             DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+             micohttp, start, monoMico
+
+         <css>
+             // textarea {
+             //     width: 100%;
+             //     height: 150px;
+             //     padding: 10px 10px;
+             //     resize: none;
+             // }
+
+
+         <GET />
+           //<html>
+           //<head>
+           //</head> <style> @<css> </style>
+           //<body>
+           //   <!-- nothing! -->
+           //<script>
+           //
+           @<:infile META-GASTONA/js/jGastonaEva-min.js>
+           //
+           //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+           //
+           //</script></body></html>
+
+         <MAIN_JGAST>
+            //#javaj#
+            //
+            //   <layout of main>
+            //        EVA, 15, 15, 20, 20
+            //        grid, X           , X
+            //            , lNew Event  , lBulletin Board
+            //          X , layInput    , dBoletin
+            //
+            //   <layout of layInput>
+            //        EVA, 15, 15, 20, 20
+            //        grid,             , X
+            //            , eEventDate  , eEventTitle
+            //          X , xEventDesc  , -
+            //            , bSave       , -
+            //
+            //#data#
+            //
+            //    <eEventDate type>   //'date
+            //    <eEventTitle placeholder>   //'Event Name
+            //    <xEventDesc placeholder>  //'Event Description
+            //    <eEventDate placeholder>  //'Event Date
+            //    <dBoletin>
+            //       //<p> Loading contents ... </p>
+            //
+            //
+            //#listix#
+            //
+            //  <-- bSave>
+            //     //jgas.AJAXSendBody ("insertEvent");
+            //
+            //  <-- ajaxResponse insertEvent>
+            //     //jgas.AJAXgetIdContent ("dBoletin", "all");
+            //
+
+
+         <POST /insertEvent>
+            VAR=, tmpProceso, @<process_insert>
+            //ok
+
+         <process_insert>
+            VAR&, eEventTitle,
+                , FILE, @<_bodyMemFileName>
+                , UNIT, unitAjaxRequest
+                , , xEventDesc
+                , , eEventDate
+
+            DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<:encode eEventTitle>', '@<:encode xEventDesc>');
+
+
+         <POST /getIdContent>
+            LSX, checkOperations
+            //<table>
+            //
+            LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
+                ,, // <tr> <td>
+                ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 title> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
+                ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
+                ,, //       </table>
+                ,, // </tr>
+            //
+            //</table>
+
+         <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-operation': 'del', 'REQ-id': '@<id>'}, false);
+
+         <checkOperations>
+            CHECK, VAR, REQ-operation
+            CHECK, VAR, REQ-id
+            IN CASE, @<REQ-operation>
+                   , del, DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-id> ;
+                   , ELSE, //

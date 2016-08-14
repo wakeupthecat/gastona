@@ -101,10 +101,7 @@
       //     //
       //     //<script>
       //     //
-      //     IN FILE, META-GASTONA/js/Eva.js
-      //     IN FILE, META-GASTONA/js/EvaLayout.js
-      //     IN FILE, META-GASTONA/js/LayoutManager.js
-      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     @<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
       //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
@@ -151,21 +148,28 @@
       //       micohttp, start, monoMico
       //
       //   <ensureDB>
-      //      <!!!(uncomment this to persist db)!!! DB CONFIG, DEFAULT, boletin.db
+      //      <!  uncomment next line to make the database persistent
+      //      <!  DB CONFIG, DEFAULT, boletin.db
       //      DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+      //
+      //   <css>
+      //       // textarea {
+      //       //     width: 100%;
+      //       //     height: 150px;
+      //       //     padding: 10px 10px;
+      //       //     resize: none;
+      //       // }
       //
       //
       //   <GET />
       //     //<html>
       //     //<head>
-      //     //</head><body>
+      //     //</head> <style> @<css> </style>
+      //     //<body>
       //     //   <!-- nothing! -->
       //     //<script>
       //     //
-      //     IN FILE, META-GASTONA/js/Eva.js
-      //     IN FILE, META-GASTONA/js/EvaLayout.js
-      //     IN FILE, META-GASTONA/js/LayoutManager.js
-      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     @<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
       //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
@@ -227,7 +231,7 @@
       //      //
       //      LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
       //          ,, // <tr> <td>
-      //          ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 decodeTitle> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
+      //          ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 title> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
       //          ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
       //          ,, //       </table>
       //          ,, // </tr>

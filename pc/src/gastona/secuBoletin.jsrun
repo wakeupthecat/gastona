@@ -1,0 +1,27 @@
+
+
+@<:infile META-GASTONA\js\conSecuencioPlain.js>
+
+var conSecuData = {
+     distanceAgents   : 20,
+     distanceTimeUnit : 3,
+     autoElapsed      : true,
+     sequenceTable    : [
+         [ "time", "source", "target", "message" ],
+        [11, "client", "server", "GET /"],
+        [12, "server", "client", "send JGAST boletin"],
+        [13, "client", "server", "POST /insertEvent"],
+        [14, "server", "db", "'INSERT INTO boletin ...'"],
+        [15, "server", "client", "ok"],
+        [16, "client", "server", "POST /getIdContent (dBoletin)"],
+        [17, "server", "db", "'SELECT * FROM boletin ...'"],
+        [18, "server", "client", "<table> ... </table>"],
+        [19, "client", "server", "POST /getIdContent (dBoletin) (req del)"],
+        [20, "server", "db", "'DELETE FROM boletin ...'"],
+        [21, "server", "client", "<table> ... </table>"],
+     ]
+};
+
+out (conSecuencioPlain (conSecuData, 45, 1));
+
+//debug

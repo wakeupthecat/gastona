@@ -162,7 +162,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       micoAjaxWithForm
       javascriptExecutor
       marketesPublisher
-
+      whoareyou
+      
+      
    <micoHttpExample1>
       //#javaj#
       //
@@ -249,8 +251,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //            }
       //      //         }
       //      //
-      //      //      htepo.open("POST","quedise.ajax",true);
-      //      //      htepo.send("dime cual " + document.miForm.username.value + " cosa");
+      //      //      htepo.open("POST","habla.ajax",true);
+      //      //      htepo.send("tellme " + encodeURI (document.miForm.username.value) + " fin.");
       //      //   }
       //      //</script>
       //      //
@@ -311,7 +313,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <GET />
       //      VAR=, USER CODE, LSX, xCodeArea
-      //      @<:infile META-GASTONA/js/executorJS.lsx.js>
+      //      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
       //
       //   <POST /JSresponse>
       //      micohttp, stop, Servako
@@ -394,6 +396,29 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //</html>
       //
       //
+
+   <whoareyou>
+      //#javaj#
+      //
+      //   <frames> oCanso
+      //   
+      //#listix#
+      //
+      //	  <PORTOS> 1616
+      //
+      //   <main0>
+      //      //CONNECT TO ME TO KNOW WHO ARE YOU
+      //      // http://@<:lsx host name>:@<PORTOS>
+      //      // http://@<:lsx host ip>:@<PORTOS>
+      //      //
+      //      mico, start, whou, @<PORTOS>
+      //          , VERBOSE, 2
+      //
+      //      
+      //   <GET />
+      //      //<h1> YOUR IP IS @<_requestIP></h1><br>
+      //      //
+
 
 #**FIN_EVA#
 */

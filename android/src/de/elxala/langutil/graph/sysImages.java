@@ -16,50 +16,6 @@ this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/*
-   //(o) WelcomeGastona_source_javaj_variables sysDefaultImages
-
-   ========================================================================================
-   ================ documentation for WelcomeGastona.gast =================================
-   ========================================================================================
-
-#gastonaDoc#
-
-   <docType>    javaj_ variables
-   <name>       sysDefaultImages
-   <groupInfo>  look
-   <javaClass>  de.elxala.langutil.graph.sysImages
-   <importance> 2
-   <desc>       //Define default images for some java GUI Swing components icon properties
-
-   <help>
-      //
-      //  This variable permits setting default images for certain java Swing components (GUI components).
-      //  For example setting default icons for all the trees.
-      //  Note: This option use the java class javax.swing.UIManager for more information consult the java
-      //  documentation about UIManager and Swing Components.
-      //
-      //  Syntax:
-      //
-      //    <sysDefaultImages>
-      //       imageFile,  Component, ...
-      //       ...
-      //
-      //  Example:
-      //
-      //    <sysDefaultImages>
-      //         javaj/img/leaf.png    ,  Tree.leafIcon
-      //         javaj/img/folder.png  ,  Tree.closedIcon, Tree.rootIcon, Tree.secondRootIcon
-      //         javaj/img/folder.png  ,  Tree.openIcon
-      //         javaj/img/node1.png   ,  Tree.collapsedIcon
-      //         javaj/img/node2.png   ,  Tree.expandedIcon
-      //
-      //
-
-#**FIN_EVA#
-
-*/
-
 package de.elxala.langutil.graph;
 
 import javax.swing.*;
@@ -113,5 +69,4 @@ public class sysImages
       //Tree.rightChildIndent Integer 0  This plus Tree.leftChildIndent account for the total space, along the y axis, to offset nodes from their parent.
       //Tree.rowHeight Integer -1  Row height for the Tree.
    }
-
 }

@@ -1,0 +1,63 @@
+#h Temporary assets and session files
+
+## Needs of temporary allocation
+
+There are several situations where the temporary use of files or directories may be needed
+
+### muTools
+
+The so called micro tools or muTools which are binaries contained in gastona.jar (or another final jar) that
+has to be extracted in order to be used by gastona. The most important muTool in Gastona is sqlite which
+implements all SQL functionality provided in javaj and listix.
+
+### Automatic creation of temporary files
+
+Gastona might create temporary files in some situations. For instance if using SQL features without specifing a database,
+a default (and temporary) one is created automatically by Gastona. Also when using memory files, if a file 
+exceeds some ammount in size a temporary file might be created as well.
+
+### User temporary files
+
+Finally the user might want to create temporary files that has to be deleted after the script execution is finished.
+
+## Clean principle vs sharing assets
+
+If a gastona script that is not intended to change the file system is executed it should leave 
+the file system untouched when finishing. Although this is in general desirable in the case of
+extracting muTools might a little bit unefficient.
+
+## Approach for muTools
+
+Add version or stamp to muTools and use it on the creation of the mutools subdirectory, for example
+
+      c:/tmp/gastonaTMP/muT_vWakat.201608.001/sqlite/etc...
+      
+all instaces using the same gastona (muTools) version will share the same mutools directory but
+complying with following rules
+
+      Want to use a mutool
+
+      - First check if any mutool has been used before (by the instance itself). If not it has to 
+        create a temporary file "firstuse" in the mutools subfolder. This file serves as guard to 
+        protect the directory to be deleted by another instance.
+        
+      - check if the mutool exists in the subdirectory, if not unpack it in to the folder.
+      
+      Exiting the instace
+
+      - Remove the own "firstuse" temporary file from the mutools folder. 
+      - If there are no more "firstuse" files from other instances then remove completely the folder mutools.
+
+This approach will reduce the use of temporary files and improve the launch time for all instances except the first one.
+
+Also a policy of "always mutools" is trivially implementable by creating manually a "firstuse" file, since it will not be
+removed by any instance and therefore the mutools subfolder will not be deleted. 
+      
+## Issues with some temporary locations
+
+Under windows there might be lots of issues due to the temporary path name that
+the system assign by default. Some applications might not be able to handle very long 
+file names, have problems with spaces or special characters (accent in spanish Windows!) within the names.
+
+To address and fix the windows issue Gastona implement some rules before deciding which will be
+the temporary folder to be used.

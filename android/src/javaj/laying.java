@@ -405,6 +405,8 @@ public class laying
             case 'm': compos = new zImage (co, name);                         break;
             case 'r': compos = new zRadioButtons (co, name);                  break;
             case 'c': compos = new zComboBox (co, name);                      break;
+            //case 'w': compos = scrollWrap (co, new zWebkit (co, name));       break;
+            case 'w': compos = new zWebkit (co, name);                        break;
 
             case '2':
                   if (miscUtil.startsWithIgnoreCase (name, "2D"))

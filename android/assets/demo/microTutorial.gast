@@ -15,19 +15,13 @@
    <iGastSamples>
       name         , gastFile    , icon, textDetail,
 
-      Boton probas,  botonprobas.gast
-      Buttons basic, demo/testButtonsI.gast,  button.png             , //Place some buttons and react to its clicks
-      Buttons II   , demo/testButtonsII.gast, button.png             , //Show more button types and layout posibilities
-      Box messages , demo/testBoxes.gast   ,                         , //Opening different message boxes and dialogs
-      Sql in action, demo/testSql.gast    ,  data.png                , //Demonstrate the power of having an enbedded sql engine
-      Html calling , demo/testBrowsers.gast,                         , //Open the intern browser with an online url and for a local generated html as well
-      Some intents , demo/testIntents.gast,                          , //Demonstrate how easy and useful can be calling Android intents
-      A scene      , demo/testScene.gast,                            , //Simple graphic scene
-      Degrees converter, demo/degreesConverter.gast,                 , //Simple converter Celsius to Fahrenheit and viceversa
-      Another sample   , demo/testVario.gast,                        , //Another sample with widgets
-      Square age       , demo/squareAge.gast,                        , //Age squarizer
-      Online Images    , demo/testImages.gast,                       , //Loading images from internet
-      Fledy            , demo/fledy.gast ,                           , //2D scene
+      Buttons basic, demo/testButtonsI.gast,  button.png  , //Place some buttons and react to its clicks
+      Buttons II   , demo/testButtonsII.gast, button.png  , //Show more button types and layout posibilities
+      Box messages , demo/testBoxes.gast   ,              , //Opening different message boxes and dialogs
+      Sql in action, demo/testSql.gast    ,  data.png     , //Demonstrate the power of having an enbedded sql engine
+      Some intents , demo/testIntents.gast,               , //Demonstrate how easy and useful can be calling Android intents
+      Degrees converter, demo/degreesConverter.gast,      , //Simple converter Celsius to Fahrenheit and viceversa
+      Fledy            , demo/fledy.gast ,                , //2D scene
 
 #listix#
 

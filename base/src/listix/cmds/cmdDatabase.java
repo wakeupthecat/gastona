@@ -136,6 +136,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          2   ,    7      , //Add values to the table 'tableName' from the eva variable 'evaData', if not given 'evaData' then 'tableName' will be used as Eva name
          3   ,    5      , //Executes the query sqlQuery on the sqlite database 'sqliteDBName'.
          4   ,    3      , //Extracts the schema of the database (only table structure) into an Eva variable (table) with the columns (id, tabType, tableName, columnCid, columnName, columnType, not_null, def_value, pk)
+         5   ,    5      , //Erases all tables, indexes and triggers in the database still keeping the file.
+         6   ,    6      , //Rebuilds the entire database. See sqlite documentation
 
    <syntaxParams>
       synIndx, name           , defVal    , desc
@@ -157,6 +159,11 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          4   , SCHEMA       ,           , //
          4   , evaData      ,           , //Eva variable name where to put the resultant schema (table of tabtype, name, cid, )
 
+         5   , sqliteDBName , default db, //Database name (a file name)
+         5   , DROP ALL     ,           , //
+
+         6   , sqliteDBName , default db, //Database name (a file name)
+         6   , VACUUM       ,           , //
 
    <options>
       synIndx, optionName            , parameters, defVal, desc
@@ -168,6 +175,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           3  , FROM FILE             , fileNameWithSQLScript, "", If specified a filename this will be used by sqlite instead of any given query. Note that the file should contain the sqlite commands BEGIN TRANSACTION; END; for a fast execution
           3  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
           3  , ERRORS TO FILE        , errOutputFile        , "", File to print out the error output of the execute command (sqlite errors). Note: it is still possible that some errors are printed out into the output file instead of the error file (due to the use of sqlite of the stdout and stderr streams)
+
+          5  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
+          5  , ERRORS TO FILE        , errOutputFile        , "", File to print out the error output of the execute command (sqlite errors). Note: it is still possible that some errors are printed out into the output file instead of the error file (due to the use of sqlite of the stdout and stderr streams)
+
+          6  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
+          6  , ERRORS TO FILE        , errOutputFile        , "", File to print out the error output of the execute command (sqlite errors). Note: it is still possible that some errors are printed out into the output file instead of the error file (due to the use of sqlite of the stdout and stderr streams)
 
    <examples>
       gastSample
@@ -257,6 +270,8 @@ public class cmdDatabase implements commandable
       //      DATABASE,         ,  ADDTABLE,     mieva,      mievaAdiciono
       //      DATABASE,         ,  EXECUTE,      query
       //      DATABASE,         ,  SCHEMA,       miEva
+      //      DATABASE,         ,  DROPALL
+      //      DATABASE,         ,  VACUUM
       //
 
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
@@ -268,8 +283,10 @@ public class cmdDatabase implements commandable
       boolean optAdd     = cmd.meantConstantString (oper, new String [] { "ADDTABLE", "ADDTOTABLE", "ADD" });
       boolean optExecute = cmd.meantConstantString (oper, new String [] { "EXECUTE" });
       boolean optShema   = cmd.meantConstantString (oper, new String [] { "SCHEMA", "SCHEME", "ESQUEMA" });
+      boolean optDropAll = cmd.meantConstantString (oper, new String [] { "CLEARALLDATA", "DROPALLTABLES", "DROPALL" });
+      boolean optVacuum  = cmd.meantConstantString (oper, new String [] { "VACUUM" });
 
-      if (optCreate || optAdd || optExecute || optShema)
+      if (optCreate || optAdd || optExecute || optShema || optDropAll || optVacuum)
       {
          // ok
       }
@@ -318,14 +335,10 @@ public class cmdDatabase implements commandable
 
       sqlSolver cliDB = new sqlSolver ();
 
-      // ------> EXECUTE
-      if (optExecute)
+      if (optExecute || optDropAll || optVacuum)
       {
-         // DATABASE, dbName, EXECUTE, sqlQuery
-         if (!cmd.checkParamSize (2, 3)) return 1;
-
-         //look if option FROMFILE is given
-         String  customFile = cmd.takeOptionString(new String [] { "FROMFILE", "FILE" }, "" );
+         // common options to both commands: OUTPUT TO FILE and ERRORS TO FILE
+         //
          String  customOutFile = cmd.takeOptionString(new String [] { "OUTPUTTOFILE", "OUT", "OUTPUT", "TOFILE" }, "" );
          String  customErrFile = cmd.takeOptionString(new String [] { "ERRORSTOFILE", "ERRTOFILE" }, "" );
 
@@ -344,6 +357,16 @@ public class cmdDatabase implements commandable
             cmd.getLog().dbg (2, "DATABASE", "option ERRORSTOFILE = '" + customErrFile + "'");
             cliDB.setErrOutputFile (customErrFile);
          }
+      }
+
+         // ------> EXECUTE
+      if (optExecute)
+      {
+         // DATABASE, dbName, EXECUTE, sqlQuery
+         if (!cmd.checkParamSize (2, 3)) return 1;
+
+         //look if option FROMFILE is given
+         String  customFile = cmd.takeOptionString(new String [] { "FROMFILE", "FILE" }, "" );
 
          if (customFile.length () > 0)
          {
@@ -367,6 +390,43 @@ public class cmdDatabase implements commandable
             cliDB.writeScript (querySQL);
             cliDB.closeScript ();
          }
+
+         cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+         cmd.checkRemainingOptions ();
+         return 1;
+      }
+      
+      if (optDropAll)
+      {
+         // DATABASE, dbName, DROP ALL
+         if (!cmd.checkParamSize (2, 2)) return 1;
+
+         // sql commands for drop all 
+         // trick taken from http://stackoverflow.com/questions/525512/drop-all-tables-command
+         //
+         cliDB.openScript (false);
+         cliDB.writeScript ("PRAGMA writable_schema = 1 ;");
+         cliDB.writeScript ("DELETE FROM sqlite_master WHERE type IN ('table', 'index', 'trigger') ;");
+         cliDB.writeScript ("PRAGMA writable_schema = 0 ;");
+         cliDB.writeScript ("VACUUM ;");
+         cliDB.writeScript ("PRAGMA INTEGRITY_CHECK ;");
+         cliDB.closeScript ();
+
+         cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+         cmd.checkRemainingOptions ();
+         return 1;
+      }
+
+      if (optVacuum)
+      {
+         // DATABASE, dbName, VACUUM
+         if (!cmd.checkParamSize (2, 2)) return 1;
+
+         //
+         cliDB.openScript (false);
+         cliDB.writeScript ("VACUUM ;");
+         cliDB.writeScript ("PRAGMA INTEGRITY_CHECK ;");
+         cliDB.closeScript ();
 
          cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
          cmd.checkRemainingOptions ();

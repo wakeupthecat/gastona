@@ -31,7 +31,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <docType>    listix_command
    <name>       INTENT
-   <groupInfo>  system_run
+   <groupInfo>  android_system_run
    <javaClass>  listix.cmds.cmdIntent
    <importance> 6
    <desc>       //To call an android intent
@@ -95,7 +95,6 @@ import de.elxala.langutil.filedir.*;
 import android.net.*;
 import android.content.Intent;
 import android.app.Activity;
-import android.webkit.WebView;
 
 public class cmdIntent implements commandable
 {
@@ -110,7 +109,7 @@ public class cmdIntent implements commandable
        };
    }
 
-   
+
    //public static void doEmail (String [] listTO, String [] listCC, String subject, String body, List filesList)
    public static void doEmail (listixCmdStruct cmd)
    {
@@ -126,7 +125,7 @@ public class cmdIntent implements commandable
             filesList.add (optAttach[ii]);
          optAttach = cmd.takeOptionParameters ("ATTACH");
       }
-         
+
       try
       {
          Intent procura = new Intent (Intent.ACTION_SEND_MULTIPLE);
@@ -146,16 +145,16 @@ public class cmdIntent implements commandable
                arrUri.add (Uri.fromFile(new File((String) filesList.get (ii))));
             procura.putParcelableArrayListExtra (Intent.EXTRA_STREAM, arrUri);
          }
-         
+
          androidSysUtil.getMainActivity ().startActivity(Intent.createChooser(procura, "Send mail..."));
          //androidSysUtil.getMainActivity ().startActivity(procura);
       }
       catch (Exception e)
       {
          cmd.getLog().err ("INTENT", "exception launching intent SEND_MULTIPLE [" + e + "]");
-      }      
+      }
    }
-   
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -178,9 +177,9 @@ public class cmdIntent implements commandable
       if (pAction.equalsIgnoreCase ("EDIT")) sAction = Intent.ACTION_EDIT;
       if (pAction.equalsIgnoreCase ("INSERT")) sAction = Intent.ACTION_INSERT;
       if (pAction.equalsIgnoreCase ("SENDTO")) sAction = Intent.ACTION_SENDTO;
-      if (pAction.equalsIgnoreCase ("EMAIL") || 
+      if (pAction.equalsIgnoreCase ("EMAIL") ||
           pAction.equalsIgnoreCase ("SEND_MULTIPLE") ||
-          pAction.equalsIgnoreCase ("EMILIO")) 
+          pAction.equalsIgnoreCase ("EMILIO"))
       {
          doEmail (cmd);
          cmd.checkRemainingOptions ();
@@ -220,8 +219,8 @@ startActivity(Intent.createChooser(emailIntent, "Send email..."));
 ----------------------
 
 Intent send = new Intent(Intent.ACTION_SENDTO);
-String uriText = "mailto:" + Uri.encode("email@gmail.com") + 
-          "?subject=" + Uri.encode("the subject") + 
+String uriText = "mailto:" + Uri.encode("email@gmail.com") +
+          "?subject=" + Uri.encode("the subject") +
           "&body=" + Uri.encode("the body of the message");
 Uri uri = Uri.parse(uriText);
 
@@ -230,7 +229,7 @@ startActivity(Intent.createChooser(send, "Send mail..."));
 
 
 -----------------------
-whith attachment 
+whith attachment
 
 public static void email(Context context, String emailTo, String emailCC, String subject, String emailText, List<String> filePaths)
 {
@@ -250,7 +249,7 @@ public static void email(Context context, String emailTo, String emailCC, String
 }
 
 -----------------------
-whith attachment 
+whith attachment
 
 
 
@@ -265,7 +264,7 @@ startActivity(Intent.createChooser(intent, "Send email"));
 
 
 -----------------------
-whith attachment 
+whith attachment
 
 
 Bitmap screenshot = Bitmap.createBitmap(_rootView.getWidth(), _rootView.getHeight(), Bitmap.Config.RGB_565);
@@ -282,7 +281,7 @@ emailIntent.setType("image/png");
 startActivity(Intent.createChooser(emailIntent, "Send email using"));
 
 -----------------------
-whith attachment 
+whith attachment
 
           Intent sendIntent = new Intent(Intent.ACTION_SEND);
         sendIntent.setType("image/jpeg");

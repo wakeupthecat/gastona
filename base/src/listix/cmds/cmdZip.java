@@ -629,7 +629,7 @@ public class cmdZip implements commandable
                   targetFileName = tryBetterFileName(targetFileName);
                   if (!fileUtil.ensureDirsForFile (targetFileName + "dum"))
                   {
-                     theLog.dbg (2, "ZIP", "could not create directories [" + targetFileName + "]");
+                     theLog.warn ("ZIP", "could not create directories [" + targetFileName + "]");
                      while (in.read(buff) != -1);
                      continue;
                   }

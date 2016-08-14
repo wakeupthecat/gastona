@@ -87,6 +87,11 @@ h4
    text-rendering: optimizeLegibility;
 }
 
+table td {
+    border: 1px solid #ddd;
+    padding: 6px 13px;
+}
+
 code {
    background-color: rgb(241, 241, 241);
    border-color: rgb(221, 221, 221);

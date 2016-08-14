@@ -26,7 +26,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    This embedded EvaUnit describe the documentation for this listix command. Basically contains
    the syntaxes, options and examples for the listix commnad.
 
-#gastonaDoc#
+//(o) TODO/android/review command GPS
+#  ---  gastonaDoc ----   #
 
    <docType>    listix_command
    <name>       GPS

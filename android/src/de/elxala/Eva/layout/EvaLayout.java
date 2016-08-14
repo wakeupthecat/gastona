@@ -393,15 +393,15 @@ public class EvaLayout extends ViewGroup
          // do not return! some variables has to be initialized anyway
       }
 
-      log.dbg (2, "precalculateAll", "layout " + lay.getName () + " perform precalculation.");
+      log.dbg (8, "precalculateAll", "layout " + lay.getName () + " perform precalculation.");
 
       Hmargin = Math.max (0, stdlib.atoi (lay.getValue (0,1)));
       Vmargin = Math.max (0, stdlib.atoi (lay.getValue (0,2)));
       Hgap    = Math.max (0, stdlib.atoi (lay.getValue (0,3)));
       Vgap    = Math.max (0, stdlib.atoi (lay.getValue (0,4)));
 
-      log.dbg (4, "precalculateAll", nColumns() + " columns x " + nRows() + " rows");
-      log.dbg (4, "precalculateAll", "margins xm=" + Hmargin + ", ym=" + Vmargin  + ", yg=" + Hgap  + ", yg=" + Vgap);
+      log.dbg (8, "precalculateAll", nColumns() + " columns x " + nRows() + " rows");
+      log.dbg (8, "precalculateAll", "margins xm=" + Hmargin + ", ym=" + Vmargin  + ", yg=" + Hgap  + ", yg=" + Vgap);
 
       mnCols = -1;   // reset cached number of cols
       mnRows = -1;   // reset cached number of rows
@@ -439,18 +439,18 @@ public class EvaLayout extends ViewGroup
             // maximum-minimum of the row
             VdimPref[rr] = minHeightOfRow(rr, true);
             VdimMin[rr]  = minHeightOfRow(rr, false);
-            log.dbg (2, "precalculateAll", "Adaption... VdimPref[rr] = " + VdimPref[rr]);
+            log.dbg (8, "precalculateAll", "Adaption... VdimPref[rr] = " + VdimPref[rr]);
          }
          else if (typ == HEADER_EXPAND)
          {
             rowsReparto.add (new int [] { rr });    // compute later
-            log.dbg (2, "precalculateAll", "Expand... VdimPref[rr] = " + VdimPref[rr]);
+            log.dbg (8, "precalculateAll", "Expand... VdimPref[rr] = " + VdimPref[rr]);
          }
          else
          {
             // indicated size
             VdimPref[rr] = VdimMin[rr] = stdlib.atoi(heaRow);
-            log.dbg (2, "precalculateAll", "Explicit... VdimPref[rr] = " + VdimPref[rr]);
+            log.dbg (8, "precalculateAll", "Explicit... VdimPref[rr] = " + VdimPref[rr]);
          }
 
          Vpos[rr] = fijoV + gap;
@@ -458,16 +458,16 @@ public class EvaLayout extends ViewGroup
          fijoV += gap;
       }
       fijoV += Vmargin;
-      log.dbg (2, "precalculateAll", "fijoV = " + fijoV + " Vmargin = " + Vmargin + " Vgap = " + Vgap);
+      log.dbg (8, "precalculateAll", "fijoV = " + fijoV + " Vmargin = " + Vmargin + " Vgap = " + Vgap);
 
       //DEBUG ....
-      if (log.isDebugging (2))
+      if (log.isDebugging (8))
       {
          String vertical = "Vertical array (posY/prefHeight/minHeight)";
          for (int rr = 0; rr < Vpos.length; rr++)
             vertical += "  " + rr + ") " + Vpos[rr] + "/" + VdimPref[rr] + "/" + VdimMin[rr];
 
-         log.dbg (2, "precalculateAll", vertical);
+         log.dbg (8, "precalculateAll", vertical);
       }
 
       // compute Hdim (Note: it might be precalculated if needed)
@@ -494,7 +494,7 @@ public class EvaLayout extends ViewGroup
          fijoH += gap;
       }
       fijoH += Hmargin;
-      log.dbg (2, "precalculateAll", "fijoH = " + fijoH);
+      log.dbg (8, "precalculateAll", "fijoH = " + fijoH);
 
       //DEBUG ....
       if (log.isDebugging (2))
@@ -503,7 +503,7 @@ public class EvaLayout extends ViewGroup
          for (int cc = 0; cc < Hpos.length; cc++)
             horizontal += "  " + cc + ") " + Hpos[cc] + "/" + HdimPref[cc] + "/" + HdimMin[cc];
 
-         log.dbg (2, "precalculateAll", horizontal);
+         log.dbg (8, "precalculateAll", horizontal);
       }
 
       // finding all components in the layout array
@@ -534,7 +534,7 @@ public class EvaLayout extends ViewGroup
             //DEBUG ....
             if (log.isDebugging (2))
             {
-               log.dbg (2, "precalculateAll", wid.name + " leftTop (" + wid.posCol0 + ", "  + wid.posRow0 + ") rightBottom (" + wid.posCol1 + ", "  + wid.posRow1 + ")");
+               log.dbg (8, "precalculateAll", wid.name + " leftTop (" + wid.posCol0 + ", "  + wid.posRow0 + ") rightBottom (" + wid.posCol1 + ", "  + wid.posRow1 + ")");
             }
          }
       }
@@ -629,7 +629,7 @@ public class EvaLayout extends ViewGroup
    {
        ///*EXPERIMENT!!!*/invalidatePreCalc ();
        Dimensio di = getLayoutSize(posX0, posY0, posX1, posY1, true);
-       log.dbg (2, "preferredLayoutSize", lay.getName() + " preferredLayoutSize (" + di.width + ", " + di.height + ")");
+       log.dbg (9, "preferredLayoutSize", lay.getName() + " preferredLayoutSize (" + di.width + ", " + di.height + ")");
 
        //(o) TODO_javaj_layingOut Problem: preferredLayoutSize
        //19.04.2009 19:50 Problem: preferredLayoutSize is called when pack and after that no more
@@ -648,7 +648,7 @@ public class EvaLayout extends ViewGroup
    public Dimensio minimumLayoutSize(int posX0, int posY0, int posX1, int posY1)
    {
        Dimensio di = getLayoutSize(posX0, posY0, posX1, posY1, false);
-       log.dbg (2, "minimumLayoutSize", lay.getName() + " minimumLayoutSize (" + di.width + ", " + di.height + ")");
+       log.dbg (9, "minimumLayoutSize", lay.getName() + " minimumLayoutSize (" + di.width + ", " + di.height + ")");
        return di;
    }
 
@@ -657,7 +657,7 @@ public class EvaLayout extends ViewGroup
     */
    protected Dimensio getLayoutSize(int posX0, int posY0, int posX1, int posY1, boolean isPreferred)
    {
-      log.dbg (2, "getLayoutSize", lay.getName());
+      log.dbg (9, "getLayoutSize", lay.getName());
       precalculateAll ();
 
       // In precalculateAll the methods minWidthOfColumn and minHeightOfRow
@@ -703,7 +703,7 @@ public class EvaLayout extends ViewGroup
          int csizWidth  = (vi instanceof izWidget) ? ((izWidget)vi).getDefaultWidth(): 300;
          int csizHeight = (vi instanceof izWidget) ? ((izWidget)vi).getDefaultHeight(): 400;
 
-         log.dbg (2, "getLayoutSize",  lp.name + " dim (" + csizWidth + ", " + csizHeight + ")");
+         log.dbg (9, "getLayoutSize",  lp.name + " dim (" + csizWidth + ", " + csizHeight + ")");
 
          // some column expandable ?
          //
@@ -779,7 +779,7 @@ public class EvaLayout extends ViewGroup
       tot_width  += Hgap * (nColumns() - 1) + 2 * Hmargin;
       tot_height += Vgap * (nRows() - 1)    + 2 * Vmargin;
 
-      log.dbg (2, "getLayoutSize",  "returning tot_width " + tot_width + ", tot_height " + tot_height);
+      log.dbg (9, "getLayoutSize",  "returning tot_width " + tot_width + ", tot_height " + tot_height);
       // System.out.println ("getLayoutSize pref=" + isPreferred + " nos sale (" + tot_width + ", " + tot_height + ")");
       return new Dimensio (tot_width > 0 ? tot_width: 100, tot_height > 0 ? tot_height: 100);
    }
@@ -874,8 +874,7 @@ public class EvaLayout extends ViewGroup
    public void layoutContainer(int posX0, int posY0, int posX1, int posY1)
    {
       //isPrecalculated = false;
-      if (log.isDebugging(4))
-         log.dbg (4, "layoutContainer", lay.getName ());
+      log.dbg (9, "layoutContainer", lay.getName ());
 
       precalculateAll ();
 
@@ -888,8 +887,7 @@ public class EvaLayout extends ViewGroup
          int parDx = posX1 - posX0;
          int parDy = posY1 - posY0;
 
-         if (log.isDebugging(4))
-            log.dbg (4, "layoutContainer", "parent size =" + parDx + ", " + parDy);
+         log.dbg (9, "layoutContainer", "parent size =" + parDx + ", " + parDy);
 
          int repartH = parDx - fijoH;
          int repartV = parDy - fijoV;
@@ -897,8 +895,7 @@ public class EvaLayout extends ViewGroup
          int [] HextraPos = new int [HdimPref.length];
          int [] VextraPos = new int [VdimPref.length];
 
-         if (log.isDebugging(4))
-            log.dbg (4, "layoutContainer", "repartH=" + repartH + " repartV=" + repartV);
+         log.dbg (9, "layoutContainer", "repartH=" + repartH + " repartV=" + repartV);
 
          // repartir H
          if (columnsReparto.size() > 0)
@@ -931,9 +928,7 @@ public class EvaLayout extends ViewGroup
             View vi = getChildAt(co);
             LayoutParams lp = (EvaLayout.LayoutParams) vi.getLayoutParams();
 
-            if (log.isDebugging(4))
-               log.dbg (4, "layoutContainer", "element [" + lp.name + "]");
-            // System.out.println ("componente " + lp.name);
+            log.dbg (9, "layoutContainer", "element [" + lp.name + "]");
 
             if (! lp.isLaidOut) continue;
 
@@ -943,9 +938,6 @@ public class EvaLayout extends ViewGroup
             int y = Vpos[lp.posRow0] + VextraPos[lp.posRow0];
             int dx = 0;
             int dy = 0;
-
-            //if (log.isDebugging(4))
-            //    log.dbg (4, "SIGUEY", "1) y = " + y + " Vpos[lp.posRow0] = " + Vpos[lp.posRow0] + " VextraPos[lp.posRow0] = " + VextraPos[lp.posRow0]);
 
             for (int mm = lp.posCol0; mm <= lp.posCol1; mm ++)
             {
@@ -969,8 +961,7 @@ public class EvaLayout extends ViewGroup
             //vi.setHeight (dy);
             setMeasuredDimension(dx, dy);
             vi.layout(x, y, x+dx, y+dy);
-            if (log.isDebugging(4))
-               log.dbg (4, "layoutContainer", "vi.name [" + lp.name + "] (" + x + ", " + y + ") (" + dx + ", " + dy + ")");
+            log.dbg (9, "layoutContainer", "vi.name [" + lp.name + "] (" + x + ", " + y + ") (" + dx + ", " + dy + ")");
          }
        } // end synchronized
    }

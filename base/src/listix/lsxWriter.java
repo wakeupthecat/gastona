@@ -164,7 +164,7 @@ public class lsxWriter
       //bOpenNewFile = true;
       if (bOpenNewFile)
       {
-         writer.log().dbg (0, "lsxWriter::makeFile(1)", "generating file \"" + outputFile + "\"");
+         writer.log().dbg (2, "lsxWriter::makeFile(1)", "generating file \"" + outputFile + "\"");
          if (!writer.openTargetFile (outputFile))
          {
             writer.log().err ("lsxWriter::makeFile(1)", "output file \"" + outputFile + "\" could not be opened!");
@@ -214,7 +214,7 @@ public class lsxWriter
       //bOpenNewFile = true;
       if (bOpenNewFile)
       {
-         writer.log().dbg (0, "lsxWriter::makeFile(2)", "generating file \"" + outputFile + "\"");
+         writer.log().dbg (2, "lsxWriter::makeFile(2)", "generating file \"" + outputFile + "\"");
          if (!writer.openTargetFile (outputFile, append))
          {
             writer.log().err ("lsxWriter::makeFile(2)", "output file \"" + outputFile + "\" could not be opened!");

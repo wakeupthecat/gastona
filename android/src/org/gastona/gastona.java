@@ -165,20 +165,9 @@ public class gastona
       }
       // else System.out.println ("OUT:gastona_max_debug_level not clear...");
 
-
-      EvaUnit [] trio = gastonaAppConfig.getAppHardcodedGastonaTrio (fileName);
-      if (trio != null)
-      {
-         unitListix = trio[0];
-         unitJavaj = trio[1];
-         unitData = trio[2];
-      }
-      else
-      {
-         unitListix  = EvaFile.loadEvaUnit (fileName, UNIT_LISTIX);
-         unitJavaj   = EvaFile.loadEvaUnit (fileName, UNIT_JAVAJ);
-         unitData    = EvaFile.loadEvaUnit (fileName, UNIT_DATA);
-      }
+      unitListix  = EvaFile.loadEvaUnit (fileName, UNIT_LISTIX);
+      unitJavaj   = EvaFile.loadEvaUnit (fileName, UNIT_JAVAJ);
+      unitData    = EvaFile.loadEvaUnit (fileName, UNIT_DATA);
 
       if (unitGastona == null) unitGastona = new EvaUnit ("gastona");
       if (unitListix == null)  unitListix = new EvaUnit ("listix");

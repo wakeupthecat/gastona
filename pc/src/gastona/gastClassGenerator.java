@@ -18,8 +18,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package gastona;
 
-//import javaj.widgets.table.util.utilMetadata;
-
 //import org.gastona.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.filedir.*;

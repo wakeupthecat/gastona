@@ -1,0 +1,144 @@
+#data#
+
+   <html> secuencioPlainDiagram.html
+
+#listix#
+
+   <main>
+      GEN, :mem loadDB, load logfile
+      DB,, EXECUTE
+        , FROM FILE, :mem loadDB
+
+      GEN, @<html>, secuencial
+      OPEN, @<html>
+
+
+   <load logfile>
+      //begin ;
+      //.read logSession.sql
+      //commit ;
+      //
+
+   <SQL_FLOWS>
+      // SELECT
+      //    milliStamp/1000. AS time,
+      //    "ERROR" AS message,
+      //    "at "||context||" "||message AS value,
+      //    0 AS formatStackDepth
+      //    FROM logMessages
+      //    WHERE level+0 < 10
+      // UNION
+      // SELECT
+      //    milliStamp/1000. AS time, message, value, formatStackDepth
+      //  FROM logCustom_listix_flow
+      //  WHERE (message LIKE 'format%') AND LENGTH (value) > 0
+
+   <secuencial>
+     //<!DOCTYPE html>
+     //<html>
+     //	<head>
+     //		<title>Listix format and commands diagram</title>
+     //		<style type="text/css">
+     //
+     //       textArea {
+     //           height: auto;
+     //           font: 11px/normal  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+     //       }
+     //
+     //		</style>
+     //	</head>
+     //<body>
+     //
+     //<textArea id="myDiagram">
+     //</textArea>
+     //
+     //   <script>
+     //
+     //@<:infile META-GASTONA/js/Eva.js>
+     //
+     //@<:infile META-GASTONA/js/conSecuencioPlain.js>
+     //
+     //var DATAinline = function diagram () { /*
+     //
+     //  #data#
+     //
+     //     <distanceAgents> 50
+     //     <distanceTimeUnit> 5
+     //     <autoElapsed> true
+     //     <maxGapTime> 6
+     //
+     //     <sequence>
+     //
+     //        time, source, target, message
+     //
+     VAR=, CURRLEV, 0
+     LOOP, SQL,, @<SQL_FLOWS>
+         ,, LSX, DECIDE
+         ,, //  @<time>, @<source>, @<target>, @<theMsg>
+     //
+     //#**#
+     //*/}.toString ();
+     //
+     //   function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
+     //   function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
+     //   function adapta ()
+     //   {
+     //      if (texta)
+     //      {
+     //         texta.style.width  = (getWindowWidth () - texta.style.left  - 35) + "px";
+     //         texta.style.height = (getWindowHeight () - texta.style.top - 35) + "px";
+     //      }
+     //   }
+     //
+     //   function getProp (evaunit, prop) { return evaunit[prop] ? evaunit[prop][0][0]: null; }
+     //
+     //   var texta = document.getElementById('myDiagram');
+     //   var data = evaFileStr2obj (DATAinline)["data"];
+     //   if (data) {
+     //      var diagData = {
+     //           sequenceTable    : data["sequence"],
+     //           distanceAgents   : getProp (data ,"distanceAgents"),
+     //           distanceTimeUnit : getProp (data ,"distanceTimeUnit"),
+     //           maxGapTime       : getProp (data ,"maxGapTime"),
+     //           autoElapsed      : getProp (data ,"autoElapsed"),
+     //        };
+     //        texta.value = conSecuencioPlain (diagData);
+     //   }
+     //   adapta () ;
+     //
+     //   document.body.onresize = adapta;
+     //
+     //</script>
+     //
+     //</body>
+     //</html>
+
+
+   <DECIDE>
+      IN CASE, @<message>
+             , format, VAR=, STARTOF_@<value>, @<time>
+             , format, VAR=, theMsg, //<@<value>>
+             , format, VAR=, source, STACK_@<FORMAT_PREV>
+             , format, VAR=, target, STACK_@<FORMAT_LEVEL>
+
+             , formatEnd, VAR=, theMsg, //<@<value>> (@<ELAPSED>)
+             , formatEnd, VAR=, source, STACK_@<FORMAT_NEXT>
+             , formatEnd, VAR=, target, STACK_@<FORMAT_LEVEL>
+
+             , cmd, VAR=, theMsg, //CMD: @<value>
+             , cmd, VAR=, source, STACK_@<FORMAT_PREV>
+             , cmd, VAR=, target, STACK_@<FORMAT_LEVEL>
+
+             , ERROR, VAR=, theMsg, //******* ERROR! @<value>
+             , ERROR, VAR=, source, STACK_0
+             , ERROR, VAR=, target, STACK_1
+
+
+   <ELAPSED>
+      =, int((time-STARTOF)*1000)/1000
+
+   <STARTOF> VALUE OF, STARTOF_@<value>
+
+   <FORMAT_LEVEL> =, formatStackDepth
+   <FORMAT_NEXT>  =, formatStackDepth + 1
+   <FORMAT_PREV>  =, formatStackDepth - 1

@@ -1,10 +1,5 @@
 #javaj#
 
-   <! GUI
-   <! layout of the labels, edit fields and converter button
-   <! for Celsius and Fahrenheit degrees
-   <!
-
    <frames> main, Conversor
 
    <layout of main>
@@ -20,25 +15,19 @@
 
 #listix#
 
-   <! React on pressing button "To Fahrenheit"
-   <!
    <-- bTo Fahrenheit>
-      SET NUM, eFahrenheit, eCelsius * 9 / 5 + 32
+      NUM=, eFahrenheit, int(10*(eCelsius * 9 / 5 + 32))/10
       MSG, eFahrenheit data!
-      @<check 86>
+      LSX, check 86
 
-   <! React on pressing button "To Celsius"
-   <!
    <-- bTo Celsius>
-      SET NUM, eCelsius, (eFahrenheit - 32) * 5 / 9
+      NUM=, eCelsius, int(10*((eFahrenheit - 32) * 5 / 9))/10
       MSG, eCelsius data!
-      @<check 86>
+      LSX, check 86
 
-   <! Just add some logic if 86 Fahrenheit degrees is entered
-   <!
    <check 86>
-      CHECK, =, @<eFahrenheit>, 86, -->, xSay,, ""
-      -->, xSay,, @<sausalito>
+      CHECK, =, @<eFahrenheit>, 86, -->, xSay data!,, ""
+      -->, xSay data!,, @<sausalito>
 
    <sausalito>
       // ...

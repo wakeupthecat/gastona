@@ -30,16 +30,61 @@ import java.lang.StringBuffer;
 
 import java.io.InputStream;   // for files from jar file (resources)
 import java.net.URL;
-// import java.net.URI;
 import de.elxala.langutil.*;
 import de.elxala.zServices.logger;
 
 /**
    class TextFile
    @author Alejandro Xalabarder Aulet
-   @date   2001
+   @date   2001 - 2016
 
-   Class to facilitate the job with text files.
+   Initilly this class was thought to work with text files as the name indicates
+
+   Currently is a key class in the gastona library and can read and write text, binary
+   and memory files and read transparently contents from java resource and urls.
+   In particular for read operations the file name is simply an abstraction
+   and the contents are actually searched in
+
+         - the file system
+         - as java resource (e.g. typically within the jar)
+         - as url
+
+   This is used vastly in gastona features by javaj and listix so many resources
+   including images can be read directly from the jar file without having to
+   explicitly specify it.
+
+   It also implements a convenient memory file (all file names starting with ":mem ")
+   that can be used in many contexts.
+
+   some typical methods are
+
+
+    Open close
+
+         boolean fopen (String nom, String modo)
+         boolean feof ()
+         void fclose ()
+
+    As text file
+
+         boolean readLine ()
+         String TheLine ()
+         boolean writeLine (final String line)
+         boolean writeString (final String line)
+
+    As binary file
+
+         int readBytes (byte[] cbuf)
+         boolean writeBytes (byte [] data)
+         boolean writeBytes (byte [] data, int len)
+         boolean writeBytes (byte [] data, int offset, int len)
+
+    other methods
+
+         void writeFileContents (String fileName)
+         static StringBuffer readFileIntoStringBuffer (String Nombre, String lineSeparator)
+         static String [] readFile (String Nombre)
+         static boolean writeFile (String Nombre, String [] contents, boolean addReturn)
 
    <pre>
    Example:
@@ -64,8 +109,6 @@ import de.elxala.zServices.logger;
          }
       }
    </pre>
-
-   02.02.2005 12:00 EVA Text File Specification v1.0
 */
 public class TextFile
 {
@@ -76,8 +119,6 @@ public class TextFile
    public static final String NEWLINE_RT13   = new String (new byte [] {13});
    public static final String NEWLINE_LF10   = new String (new byte [] {10});
 
-//(o) elxala_TextFile preparation for opneAs parameter (file system --> java resource --> url)
-//    (maybe has no interest at all to make it parametrizable, the default behaviour should be good enough)
    public static final int TRY_AS_FILESYSTEMS = 1;
    public static final int TRY_AS_JAVARESOURCES = 2;
    public static final int TRY_AS_URL = 4;
@@ -169,9 +210,6 @@ public class TextFile
    {
       return m_fmem != null;
    }
-
-//(o) elxala_TextFile preparation for opneAs parameter (file system --> java resource --> url)
-//   public boolean fopen (final String nom, final String modo, int tryOpenAs)
 
    public boolean fopen (String nom, String modo)
    {
@@ -297,12 +335,9 @@ public class TextFile
       InputStream is1 = javaLoad.openResource (nom);
       if (is1 != null)
       {
-         // System.out.println ("OUT:textFile HABEMUS RESORSO! [" + m_FileName + "]");
-
          log.dbg (5, "fopen", "file [" + m_FileName + "] opened from resource file system");
          return assignOpenInputStream (is1, modo);
       }
-      // else System.out.println ("OUT:textFile GOSAL POSAL RESORSO! [" + nom + "]");
 
       // 3nd chance!, search as pure URL
       //
@@ -754,7 +789,7 @@ public class TextFile
 
       List lineas = new Vector ();
       while (fix.readLine ())
-         lineas.add (fix.TheLine ()); // NOTE: this is "unchecked" for java 1.5 "what a pitty!" but this code has to compile with 1.1 and run as well in older JVM's
+         lineas.add (fix.TheLine ());
       fix.fclose ();
 
       String [] Contenido = new String [lineas.size ()];

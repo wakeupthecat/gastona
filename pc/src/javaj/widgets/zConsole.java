@@ -589,7 +589,7 @@ public class zConsole extends JTextArea implements MensakaTarget
 
       boolean ok = TextFile.writeFile (fileName, getText ());
       if (ok)
-           widgetLogger.log ().dbg (0, "zConsole", "save, contents saved into file " + fileName);
+           widgetLogger.log ().dbg (2, "zConsole", "save, contents saved into file " + fileName);
       else widgetLogger.log ().err ("zConsole", "save, error writing into file " + fileName);
    }
 

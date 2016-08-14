@@ -1,0 +1,191 @@
+#javaj#
+
+    <frames>
+      main, File ciervo
+
+    <layout of main>
+      EVA, 7,7, 4, 4
+
+          , X
+          , lCiervo file server
+          , lListeningOn
+          , bGET IP AND NAME
+        X , oCanso
+          , bDISCONNECT
+
+   <sysDefaultFonts>
+      Consolas, 16, 0, TextArea.font
+      Verdana,  16, 0, Button, ToggleButton, Label
+
+
+#data#
+
+   <PORTOS> 7878
+
+   <eCurrentDir>
+
+   <FS> //:SFILE:
+
+#listix#
+
+   <-- javaj exit>
+      RARAR, RARAR COMPENDIO!
+      micohttp, stop, monoMico
+
+
+   <main>
+       VAR=, eCurrentDir, @<:sys user.dir>
+       -->, lListeningOn data!,, listening on @<PORTOS>
+       LSX, START_CIERVO
+
+   <-- bGET IP AND NAME>
+      -->, oCanso clear
+      //try one of these urls in your browser
+      http://@<:lsx host name>:@<PORTOS>
+      http://@<:lsx host ip>:@<PORTOS>
+
+    <START_CIERVO>
+       -->, oCanso clear
+       micohttp, start, monoMico, @<PORTOS>
+               , FILE SERVER STR, @<FS>
+               , VERBOSE LEVEL, 2
+
+   <-- bDISCONNECT>
+      IN CASE, @<bDISCONNECT>
+           , DISCONNECT, MicoHttpServer, STOP, monoMico
+           , DISCONNECT, -->, bDISCONNECT data!,, CONNECT
+           , CONNECT, LSX, START_CIERVO
+           , CONNECT, -->, bDISCONNECT data!,, DISCONNECT
+
+   <ICO_CARP> //<canvas width="100" height="100" class="iconFolder"></canvas>
+   <ICO_FILE> //<canvas width="100" height="100" class="iconFile"></canvas>
+
+   <GET />
+     //<html>
+     //@<css stuff>
+     //<body>
+     //   Current Path : <a href="/setdir?dir=@<eCurrentDir>">@<eCurrentDir></a><br><br>
+     //
+     // <table border="0">
+     //    <tr> <td> <a href="/parent">@<ICO_CARP></a> <td> .. <td><td><td> </tr>
+     //
+     LOOP, DIRS, @<eCurrentDir>
+         , RECURSIVE, 0
+         ,, <tr> <td> <a href="/setdir?dir=@<fullPath>">@<ICO_CARP></a> <td>  @<fileName> <td> <td> <td></tr>
+
+     //
+     LOOP, FILES, @<eCurrentDir>
+         , RECURSIVE, 0
+         ,, <tr> <td> <a href="@<FS>/@<:linux-path fullPath>"> @<ICO_FILE> <td> @<fileName> <td align="right"> @<TAMA> <td> </tr>
+     // </table>
+     //
+     //   <br><br><a href="/thisIsTheEndMyFriend">END FILE SERVER</a><br>
+     //  <script>
+     //@<js stuff>
+     //  </script>
+     //
+     //</body>
+     //</html>
+
+   <GET /setdir>
+     VAR=, eCurrentDir, @<dir>
+     LSX, GET /
+
+   <GET /parent>
+     VAR=, eCurrentDir, @<prevDir>
+     LSX, GET /
+
+
+   <GET /thisIsTheEndMyFriend>
+      MicoHttpServer, STOP, monoMico
+      MSG, javaj doExit
+
+   <prevDir>
+      STRCONV, PATH-SOLVE, @<eCurrentDir>/..
+
+   <TAMA>
+      CHECK, NUM, "log (size) < 8.", LSX, formatNum, 1e9, GB
+      CHECK, NUM, "log (size) < 5.", LSX, formatNum, 1e6, MB
+      CHECK, NUM, "log (size) < 2.", LSX, formatNum, 1e3, Kb
+      //@<size> <td> bytes
+
+   <formatNum>
+      =, //int (0.05 + 10 * size / p1) / 10.
+      // <td> @<p2>
+
+   <carpeta_trazos>
+      defstyle, tinta3, "fc:+255127039"
+      defstyle, tinta1, "fc:+234234234"
+
+      z,322,399,tinta3,"jauz,16,-53,27,-77,57,-15,49,5,53,7,45,12,15,22,-6,35,-16,64,-28,53,-46,4,-45,-3,-78,-15,-45,-22"
+      z,391,369,tinta1,"jau,0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30"
+      z,317,420,tinta3,"jauz,-20,-63,-13,-75,56,-5,107,15,30,6,23,32,28,70,7,51,-35,10,-47,-2,-58,-12,-48,-12"
+      z,440,209,tinta1,"jau,26,-9,26,2,19,8"
+      z,470,217,tinta1,"jau,12,0,19,8,15,-1"
+      z,418,240,tinta1,"jau,27,-3,25,5"
+      z,440,269,tinta1,"jau,51,3,20,-3"
+
+   <carpeta_fulla>
+      defstyle, tinta1, "fc:+234234234"
+      z,391,369,tinta1,"jau,0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30"
+      z,440,209,tinta1,"jau,26,-9,26,2,19,8"
+      z,470,217,tinta1,"jau,12,0,19,8,15,-1"
+      z,418,240,tinta1,"jau,27,-3,25,5"
+      z,440,269,tinta1,"jau,51,3,20,-3"
+
+   <js stuff>
+      //
+      @<:infile META-GASTONA/js/trazos2D.js>
+      //
+      //  function drawFolder (canv)
+      //  {
+      //     if (!(canv instanceof HTMLCanvasElement)) return ;
+      //     var c2d = canv.getContext('2d');
+      //     c2d.lineWidth = 7;
+      STRCONV, TRAZOS-JS, carpeta_trazos, 0, 85, 85, 1
+      //  }
+      //
+      //  function drawFile (canv)
+      //  {
+      //     if (!(canv instanceof HTMLCanvasElement)) return ;
+      //     var c2d = canv.getContext('2d');
+      //     c2d.lineWidth = 7;
+      STRCONV, TRAZOS-JS, carpeta_fulla, 0, 75, 75, 1
+      //  }
+      //
+      //   window.onload = function(e)
+      //   {
+      //      var arr = document.getElementsByClassName ("iconFolder");
+      //      for (var indx in arr) drawFolder (arr[indx]);
+      //      arr = document.getElementsByClassName ("iconFile");
+      //      for (var indx in arr) drawFile (arr[indx]);
+      //   };
+      //
+
+  <css stuff>
+      // <style>
+      //
+      // *
+      // {
+      //    font-family: Tahoma, Consolas, sans-serif;
+      //    margin-left: 6px;
+      //    margin-right: 6px;
+      // }
+      //
+      // .iconFile
+      // {
+      //    width : 40px;
+      //    height: 40px;
+      //    border:  0px;
+      // }
+      //
+      // .iconFolder
+      // {
+      //    width : 40px;
+      //    height: 40px;
+      //    border:  0px;
+      // }
+      //
+      // </style>
+
+#**#

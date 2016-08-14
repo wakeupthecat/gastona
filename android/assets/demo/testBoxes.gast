@@ -22,9 +22,6 @@
       //and can contain line breaks
 
 
-   <! Data for the selection box
-   <!
-
    <my choices>
       name, id, text
 
@@ -47,26 +44,18 @@
    <-- bError>
       BOX, E, "And here you see what kind of error and its consequences etc..", "Ups, one error"
 
-   <! Selection BOX
-   <!
    <-- bSelection>
       BOX, S, my choices
 
-   <! Reaction to a selection (message "my choice")
-   <!
    <-- my choices>
       CHECK, VAR, my choices selected.name, BOX, I, //You haven't select anything!
       BOX, I, //You've selected @<my choices selected.name> which id is @<my choices selected.id> and the text "@<my choices selected.text>"
 
-   <! Question BOX
-   <!
    <-- bQuestion>
       BOX, Q, "Da ya think I'm Gastona ?", "This is my question"
          , LABELS  , "Yes, think so", "No", "Don't know"
          , MESSAGES, "answYes", "answNo", "answDontKnow"
 
-   <! Reaction to the Question BOX
-   <!
    <-- answYes>      BOX, T, //That's right!
    <-- answNo>       BOX, T, //That is not right!
    <-- answDontKnow> BOX, T, //I'll ask you again sometime ...

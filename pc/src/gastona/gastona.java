@@ -38,19 +38,82 @@ package gastona;
       //
       //  The most important units in a Gastona application are #javaj# and #listix# together with
       //  #data#, since all the functionality is performed by these two components. The job of Gastona
-      //  is starting Javaj and Listix with their configurations and data. There are few things to
-      //  configure in #gastona# unit
+      //  is starting Javaj and Listix with their configurations and data. There still some few things
+      //  you can configure in #gastona# unit
       //
-      //  Variable <PAINT LAYOUT>
-      //  -----------------------
+      //-- Variable PAINT LAYOUT
       //
       //    Only the presence of this variable make the components of all visible frames to paint its
       //    limits using a red line. This can be useful during the layout design. In some samples this
       //    variable is commented out (<!PAINT LAYOUT>), it is enough to remove the "!" symbol to
-      //    activate this feature.
+      //    activate the feature.
       //
-      //  Variable <fusion>
-      //  -----------------------
+      //-- Debug configurations
+      //
+      //---- Variable <sessionLog>
+      //
+      // In general just creating the folder sessionLog in the folder where the script
+      // is found would activate a trace activity into files in that directory.
+      //
+      // This can be done also using the variable <sessionLog> setting there the
+      // folder to be used.
+      //
+      // The general debug level for all modules can be set using the variable
+      //
+      //       <logLevelGlobal> generalLevel
+      //
+      // where generalLevel is a number from 0 to 19
+      //
+      // It is possible also to set the debug levels individually per module
+      // using the "table" variable
+      //
+      //       <logLevels>
+      //          clientName, maxLogLevel
+      //          ...
+      //
+      //-- Variable UDP_DEBUG_PORT
+      //
+      //    If this variable is set, then the given port (if empty then the value 11882 is used)
+      //    will be opened for UDP communication and for debug output purposes. A client can open the
+      //    UDP port on the host and send any of following commands
+      //
+      //          SETLEVEL level
+      //          SHOWLEVEL
+      //          ON
+      //          OFF
+      //
+      //    then it will receive the debug output according to the debug level set unless it
+      //    switches the debug to OFF.
+      //
+      //-- Different debug console pop ups
+      //
+      //To enable different console popup messages set following variables
+      //
+      //      <LOG WAKEUP> or <ERRORS WAKEUP>
+      //
+      //Just if error messages occurs
+      //
+      //      <LOG WAKEUP1> or <WARNINGS WAKEUP>
+      //
+      //If error or warning messages occurs
+      //
+      //      <LOG WAKEUP2> or <DEBUG WAKEUP>
+      //
+      //If any messages occur
+      //
+      //-- Generate a java class for the gast script
+      //
+      //It is always possible to convert a gast script into a java class in a way
+      //that the generated class, if compiled, will do the same job as the script.
+      //
+      //For that set the variable GENERATE GASTCLASS with the desired class name.
+      //For example
+      //
+      //       <GENERATE GASTCLASS> myClass
+      //
+      //would generate a clas myClass.java
+      //
+      //-- Variable <fusion>
       //
       //    It is possible to have a Gastona script divided in several files, using this varible
       //    Gastona load these files and merge the units together to form the final Gastona script.
@@ -81,6 +144,11 @@ package gastona;
       //
       //    NOTE: This mechanism is not recursive, variables <fusion> found in loaded files will
       //          have no effect!
+      //
+      //-- Other gastona variables
+      //
+      //       <AUTODETECT_NUMERIC>
+      //       <DB_ESCAPE_MODEL>
 
    <examples>
       gastSample
@@ -567,6 +635,8 @@ public class gastona
 
          //try to copy log helper (viewer)
          microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/logViewer.gast", sessionLogDirSlash + "logViewer.gast");
+         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowPlain.gast", sessionLogDirSlash + "showFlowPlain.gast");
+         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowCanvas.gast", sessionLogDirSlash + "showFlowCanvas.gast");
       }
 
       loadMetadata ();

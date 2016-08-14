@@ -1,0 +1,350 @@
+#javaj#
+
+    <frames>
+      main, ProgramMe
+
+    <layout of main>
+      EVA, 7,7, 4, 4
+
+          , X
+          , lProgramMe
+          , bINTRO_Pme
+          , bGET CONNECTION URL
+        X , oConsola
+          , bDISCONNECT_Pme
+
+   <sysDefaultFonts>
+      Consolas, 16, 0, TextArea.font
+      Verdana,  16, 0, Button, ToggleButton, Label
+
+#listix#
+
+   <main>
+      -->, bDISCONNECT_Pme data!,, @<LABEL DISCONNECT>
+      -->, lProgramMe data!,, ProgramMe listening on port @<PORTOS>
+      LSX, START_LISTENING
+
+   <PORTOS> 7676
+
+   <-- bINTRO_Pme>
+      -->, oConsola clear
+      LSX, intro
+
+   <-- bGET CONNECTION URL>
+      -->, oConsola clear
+      //
+      //try one of these urls in your browser
+      //
+      http://@<:lsx host name>:@<PORTOS>
+      http://@<:lsx host ip>:@<PORTOS>
+
+   <START_LISTENING>
+      -->, oConsola clear
+      micohttp, start, APPLAPIZ, @<PORTOS>
+            , VERBOSE LEVEL, 2
+
+   <-- bDISCONNECT_Pme>
+      IN CASE, @<bDISCONNECT_Pme>
+           , @<LABEL DISCONNECT>, micohttp, STOP, APPLAPIZ
+           , @<LABEL DISCONNECT>, -->, bDISCONNECT_Pme data!,, @<LABEL CONNECT>
+           , @<LABEL CONNECT>, LSX, START_LISTENING
+           , @<LABEL CONNECT>, -->, bDISCONNECT_Pme data!,, @<LABEL DISCONNECT>
+
+
+   <! ----- ((( ----------- initial page
+   <GET />
+      LSX, index_html
+
+   <! ----- ((( ----------- load main frame from variable "jastName"_jast or file "jastName".jast
+   <POST /loadRootJast>
+      CHECK, VAR, ajaxREQ-jastName
+      CHECK, VAR, @<ajaxREQ-jastName>_jast, LSX, tryLoadFile, @<ajaxREQ-jastName>.jast
+      LSX, @<ajaxREQ-jastName>_jast
+
+   <! ----- ((( ----------- get data of specific contents by id
+   <POST /getIdContent>
+      CHECK, VAR, ajaxREQ-id
+      CHECK, VAR, getIdContent @<ajaxREQ-id>
+      LSX, getIdContent @<ajaxREQ-id>, @<ajaxREQ-param>
+
+   <getIdContent dDir>
+      VAR=, eldir, @<SOLVED_DIR>
+      //eDir:@<eldir>
+      //:
+      //
+      LSX, LOAD_DIR, @<eldir>
+
+   <getIdContent xFileContent>
+      //eFileName:@<p1>
+      //:
+      //
+      LSX, tryLoadFile, @<p1>
+
+   <getIdContent checkFileName>
+      //fileName allowed:@<ALLOWED_FILENAME>
+      //fileName exists:@<EXISTS_FILENAME>
+      //:
+      //1
+
+   <ALLOWED_FILENAME>
+      CHECK, <>, "programMe.gast", @<p1>, 0
+      1
+
+   <EXISTS_FILENAME>
+      CHECK, FILE, @<p1>, 0
+      1
+
+   <! ----- ((( ----------- test current script in target
+   <POST /testgast>
+      GAST, @<_bodyMemFileName>
+
+   <! ----- ((( ----------- save current script in target
+   <POST /savegast>
+      CHECK, <>, @<ajaxREQ-gastName>, programMe.gast
+      FILEUTIL, COPY, @<_bodyMemFileName>, @<ajaxREQ-gastName>
+      LSX, LOAD_DIR, @<ajaxREQ-gastName>/..
+
+   <LOAD_DIR>
+      VAR=, eldir, @<SOLVED_DIR>
+      IN CASE, @<elDir>
+             , "..", LSX, viewDir, "."
+             , ""  , LSX, viewDir, "."
+             , ELSE, CHECK, DIR, @<elDir>
+             , ELSE, LSX, viewDir, @<elDir>
+
+   <SOLVED_DIR>
+      STRCONV, PATH-SOLVE, @<p1>
+
+   <tryLoadFile>
+      CHECK, FILE, @<p1>
+      IN FILE, @<p1>
+             , SOLVE, 0
+
+   <ELEM_FILE_DOWNLOAD> //<a href="/@<FULLNORM>"> <canvas width="@<cDX>px" height="@<cDY>px" class="iconFile"/></a>
+   <ELEM_FILE_EDIT>     //<button onclick="luix.AJAXgetIdContent('xFileContent', '@<FULLNORM>', true)">load</button>
+
+   <viewDir>
+     VAR=, DIRLABEL, @<p1>
+     // <p id="dirlabel">Path : @<p1>
+     IN CASE, @<p1>
+            , "."   , //
+            , ELSE  , //  <button onclick="luix.AJAXgetIdContent ('dDir', '@<DIRLABEL>/..', true)">back</button>
+     //</p>
+     // <table>
+     //
+     LOOP, DIRS, @<DIRLABEL>
+         , RECURSIVE, 0
+         ,, //<tr> <td> <canvas width="@<cDX>px" height="@<cDY>px" class="iconFolder" onclick="luix.AJAXgetIdContent ('dDir', '@<FULLNORM>', true)"/> <td>  @<fileName> </tr>
+
+     //
+     LOOP, FILES, @<DIRLABEL>, gast
+         , RECURSIVE, 0
+         ,, CHECK, <>, @<fileName>, programMe.gast
+         ,, CHECK, <>, @<fileName>, autoStart.gast
+         ,, // <tr> <td> @<ELEM_FILE_DOWNLOAD> <td> @<ELEM_FILE_EDIT> <td> @<fileName></tr>
+     // </table>
+
+   <FULLNORM>
+      LOOP, SQL,, //SELECT REPLACE("@<DIRLABEL>/@<fullSubPath>", "\", "/") AS va
+          ,, @<va>
+
+   <index_html>
+      //<!DOCTYPE html>
+      //<html>
+      //  <head>
+      //    <title>Demo jGastona</title>
+      //     <style type="text/css">
+      //
+      LSX, programMe_CSS
+      //
+      //    </style>
+      //  </head>
+      //<body>
+      //
+      //<script>
+      //
+      //
+      @<:infile META-GASTONA/js/trazos2D.js>
+      //
+      @<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //
+      //   var luix = jGastona ();
+      //
+      //   window.onload = function() {
+      //      luix.AJAXLoadRootJast ("programMe");
+      //   }
+      //
+      //   function updateFileNameCheck () {
+      //      var allow = luix.getData ("fileName allowed");
+      //      var exists = luix.getData ("fileName exists");
+      //      if (! allow || !exists) return;
+      //      var ele = document.getElementById ("eFileName");
+      //      ele.style["background-color"] = (allow==="0" ? "red": (exists === "1" ? "white": "green"));
+      //   }
+      //
+      //  function drawFolder (canv) {
+      //     if (!(canv instanceof HTMLCanvasElement)) return ;
+      //     var c2d = canv.getContext('2d');
+      //     c2d.lineWidth = 12;
+      //     c2d.translate (2, 2);
+      //
+      STRCONV, TRAZOS-JS, icon folder, 1, @<DX>, @<DY>, 1
+      //
+      //  }
+      //
+      //  function drawText (canv) {
+      //     if (!(canv instanceof HTMLCanvasElement)) return ;
+      //     var c2d = canv.getContext('2d');
+      //     c2d.lineWidth = 12;
+      //     c2d.translate (2, 2);
+      //
+      STRCONV, TRAZOS-JS, icon text, 1, @<DX>, @<DY>, 1
+      //
+      //  }
+      //
+      //  function drawAll () {
+      //      var arr = document.getElementsByClassName ("iconFolder");
+      //      for (var indx in arr) drawFolder (arr[indx]);
+      //      arr = document.getElementsByClassName ("iconFile");
+      //      for (var indx in arr) drawText (arr[indx]);
+      //  }
+      // </script>
+      //
+      //</body>
+      //</html>
+      //
+
+   <programMe_jast>
+      //#javaj#
+      //
+      //   <layout of main>
+      //
+      //      Eva, 30, 30, 7, 7
+      //      -- , X   ,             , X
+      //         ,     , lScript Name, eFileName, bSave
+      //      X  , dDir, xFileContent, --
+      //         , +   , bTest, --
+      //
+      //#data#
+      //
+      //   <bSave> Save to device
+      //   <bTest> Test into device
+      //
+      //   <eFileName onkeyup>
+      //      //luix.AJAXgetIdContent ("checkFileName", luix.getIdValue("eFileName"), true);
+      //
+      //   <eFileName>  //
+      //
+      //   <xFileContent>  //
+      //
+      //   <dDir>
+      //      //<p> Loading contents ... </p>
+      //
+      //#listix#
+      //
+      //   <-- ajaxResponse loadRootJast>
+      //      //luix.AJAXgetIdContent ("dDir", ".", true);
+      //
+      //   <-- ajaxResponse getIdContent>
+      //      //updateFileNameCheck (); drawAll ();
+      //
+      //   <-- bSave>
+      //      //luix.AJAXPost ("savegast", luix.getIdValue ("xFileContent"), { "ajaxREQ-gastName": luix.getIdValue("eFileName") });
+      //
+      //   <-- bTest>
+      //      //luix.AJAXPost ("testgast", luix.getIdValue ("xFileContent"));
+      //
+
+#data#
+
+   <LABEL DISCONNECT> //DISCONNECT
+   <LABEL CONNECT>    //CONNECT
+
+   <intro>
+      //
+      // programMe allows to program your android device
+      // from a browser in another connected device (e.g. PC via WiFi).
+      // You can load, edit, test and save scripts
+      //
+      // 1. Open a browser in your PC with the url and port (GET CONNECTION URL)
+      //
+      // All scripts currently in your device.
+      //
+      // 2. Press load on one script will load its source code on your browser
+      //
+      // You can modify it or just create a new one in the textarea
+      //
+      // 3. Pressing "test" will send the current script and execute it on the device
+      //
+      // 4. Pressing "save" will store the script on the given name (use it with care to not
+      //    overwrite some script unintentionally!)
+      //
+
+   <icon folder>
+      defstyle,naranja,fc:#ff8b1a
+      z, 01, 75,naranja,"jau,19,-37,44,-119,27,-49,72,-5,194,1,60,-4,-10,28,-29,56,-35,83,-22,61,-13,36,-39,9,-66,0,-72,-10,-93,0,-44,-5,6,-41"
+      z,-12,125,naranja,"jau,-52,-143,-1,-75,82,-9,160,7,79,9,14,44,16,66,20,76,2,31,-50,6,-109,-2,-69,-1,-44,-2,-42,-1"
+
+   <icon text>
+      defstyle,tinta1,fc:yellow;sw:1
+      defstyle,notinta,fc:none;sw:1
+      z,293,422,tinta1,"jau,2,-63,5,-24,12,-33,32,-52,48,-30,98,-1,-38,70,-16,38,-10,51,-1,56,-48,5,-80,-4"
+      z,280,417,tinta1,"jau,-11,-80,7,-62,27,-35,80,-11,37,0,17,22,-18,67,-4,48,0,62,-28,9,-32,-2,-44,-1,-30,-5"
+      z,264,432,tinta1,"jau,-4,-22,-10,-24,-15,-43,-12,-37,-3,-33,21,-17,24,-4,51,1,36,19,28,90,27,70,-30,11,-32,3,-49,-1,-31,-15"
+      z,245,292,notinta,"jau,36,-6,20,5"
+      z,268,315,notinta,"jau,20,-9,19,5,18,-4,14,3"
+      z,255,345,notinta,"jau,12,-4,18,4,6,-5"
+      z,291,370,notinta,"jau,13,-5,30,4,12,-5"
+      z,317,402,notinta,"jau,21,0,29,-8"
+
+
+   <DX> 30
+   <DY> 30
+
+   <cDX> 34
+   <cDY> 34
+
+   <programMe_CSS>
+      //* {-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;
+      //  font: 14px/bold  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'source-code-pro', monospace;
+      //}
+      //
+      //
+      //#dirlabel { font: 18px/normal  'Tahoma', 'Verdana', 'Arial' }
+      //
+      //
+      //textarea {
+      //   font: 11px/normal  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'source-code-pro', monospace;
+      //   color: #A9B3B3;
+      //   background-color: #002B36;
+      //   padding: 4px;
+      //}
+      //
+      //button {
+      //	-moz-box-shadow:inset 0px 1px 0px 0px #caefab;
+      //	-webkit-box-shadow:inset 0px 1px 0px 0px #caefab;
+      //	box-shadow:inset 0px 1px 0px 0px #caefab;
+      //	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a', endColorstr='#5cb811',GradientType=0);
+      //	background-color:#77d42a;
+      //	-moz-border-radius:6px;
+      //	-webkit-border-radius:6px;
+      //	border-radius:6px;
+      //	border:1px solid #268a16;
+      //	display:inline-block;
+      //	cursor:pointer;
+      //	color:#306108;
+      //	font-family:Arial;
+      //	font-size:17px;
+      //	font-weight:bold;
+      ////	padding:7px 24px;
+      //	text-decoration:none;
+      //	text-shadow:0px 1px 0px #aade7c;
+      //}
+      //button:hover {
+      //	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811', endColorstr='#77d42a',GradientType=0);
+      //	background-color:#5cb811;
+      //}
+      //button:active {
+      //	position:relative;
+      //	top:1px;
+      //}

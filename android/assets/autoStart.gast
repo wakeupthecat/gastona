@@ -1,23 +1,20 @@
 #gastona#
 
-   <logLevels >
-      client, level
-
-      javaj.widgets.graphics.sceneInMotion, 19
-      javaj.widgets, 19
+   <UDP_DEBUG_PORT>
 
 #javaj#
 
    <frames> main, Welcome to gastona
 
    <layout of main>
-      EVA, 7, 7, 6, 6
+      EVA,
 
          ,  X
          , bIntroduction
          , bMicro Tutorial
-         , bDirMes demo
-       X , 2DcamposSo, -
+         , bFile Ciervo
+         , bProgramMe
+       X , iFilesGast
 
 #data#
 
@@ -25,11 +22,30 @@
    <bMicro Tutorial image> tutorial.png
    <bDirMes demo image>   folder_explorer.png
 
+   <appInfo>
+       //#javaj#
+       //
+       //   <frames> main, Welcome to gastona
+       //
+       //   <layout of main>
+       //      EVA, 7, 7, 6, 6
+       //
+       //         ,  X
+       //       X , wIntro
+       //
+       //#data#
+       //   <wIntro fileName> demo/gastona_intro.html
+       //
+
+
 
 #listix#
 
+   <main>
+      GEN, :mem Intro, appInfo
+
    <-- bIntroduction>
-      BROWSER, file://@<gastona intro file>
+      GAST, :mem Intro
 
    <-- bMicro Tutorial>
       GAST, demo/microTutorial.gast
@@ -37,7 +53,8 @@
    <-- bDirMes demo>
       GAST, demo/dirMes.gast
 
-   <gastona intro file>
-      STRCONV, PATH-CANONICAL, demo/gastona_intro.html
+   <-- bFile Ciervo>
+      GAST, fileCiervo.gast
 
-   
+   <-- bProgramMe>
+      GAST, programMe.gast

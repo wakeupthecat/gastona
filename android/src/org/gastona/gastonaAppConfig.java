@@ -49,20 +49,6 @@ public class gastonaAppConfig
       return "gastonaMainActor";
    }
 
-   public static EvaUnit [] getAppHardcodedGastonaTrio (String gastFileName)
-   {
-      EvaUnit [] euRet = null;
-      //if (gastFileName.equalsIgnoreCase("scriptHardCoded1.gast"))
-      //{
-      //   euRet = new EvaUnit [3];
-      //   euRet[0] = scriptHardCoded1.getlistix ();
-      //   euRet[1] = scriptHardCoded1.getjavaj ();
-      //   euRet[2] = scriptHardCoded1.getdata ();
-      //}
-
-      return euRet;
-   }
-
    public static View loadMainAppScript (Context who)
    {
       View lamainView = gastonaFlexActor.loadFrame (who, "autoStart.gast");

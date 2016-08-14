@@ -18,23 +18,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package org.gastona.cmds;
 
-import java.util.*;
 import android.content.Intent;
 import listix.*;
 import listix.cmds.*;
 import listix.cmds.commandable;
 
-import de.elxala.db.utilEscapeStr;
-import org.gastona.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.*;
-import de.elxala.langutil.filedir.*;
 
 /**
       LAUNCH GASTONA, filegast, parametros, ...
 
 */
-public class CmdLaunchGastona implements commandable
+public class CmdGast2 implements commandable
 {
    public static final String EXTRA_VALUE_NAME = "gastonaFlex.LaunchGastonaParameters";
 
@@ -44,9 +40,7 @@ public class CmdLaunchGastona implements commandable
    public String [] getNames ()
    {
       return new String [] {
-          "LAUNCH GASTONA",
-          "GASTONA",
-          "GAST",
+          "GAST2",
        };
    }
 
@@ -62,28 +56,18 @@ public class CmdLaunchGastona implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      String [] aa = cmd.getArgs (true);
-      if (aa.length > 0)
-         aa[0] = org.gastona.commonGastona.getGastConformFileName (aa[0]);
+      // copy parameters
+      String [] aa = new String [cmd.getArgSize ()];
+      for (int ii = 0; ii < cmd.getArgSize (); ii ++)
+         aa[ii] = cmd.getArg (ii);
 
-      cmd.getLog().dbg (2, "GAST", "passed parameters " + aa.length);
+      cmd.getLog().dbg (2, "GAST2", "passed parameters " + aa.length);
 
-      Intent sekunda = new Intent(androidSysUtil.getMainActivity (), org.gastona.gastonaFlexActor.class);
-      // sekunda.setClassName("org.gastona", "org.gastona.gastonaFlexActor");
-      sekunda.setClassName (intentFlexPackage (), intentFlexClass ());
+      Intent sekunda = new Intent(androidSysUtil.getMainActivity (), org.gastona.gastonaMainActor.class);
+      sekunda.setClassName("org.gastona", "org.gastona.gastonaMainActor");
       sekunda.putExtra (EXTRA_VALUE_NAME, aa);
       androidSysUtil.getMainActivity ().startActivity (sekunda);
 
       return 1;
-   }
-
-   private String intentFlexPackage ()
-   {
-      return gastonaAppConfig.getAppPackageString ();
-   }
-
-   private String intentFlexClass ()
-   {
-      return gastonaAppConfig.getAppPackageString () + "." + gastonaAppConfig.getAppFlexActorClassName ();
    }
 }

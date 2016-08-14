@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005-2014 Alejandro Xalabarder Aulet
+Copyright (C) 2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -39,7 +39,7 @@ import android.os.Message;
 /**
 */
 public class zTextArea extends EditText
-                        implements MensakaTarget, izWidget
+                  implements MensakaTarget, izWidget
 {
    private textAparato helper = null;
 
@@ -99,6 +99,8 @@ public class zTextArea extends EditText
    protected static final int HANDLER_OP_SETTEXT   = 0;
    protected static final int HANDLER_OP_APPEND    = 1;
 
+   // (see note in zConsole Handler)
+   //
    protected final Handler UIhandler = new Handler() {
       public void handleMessage(Message msg)
       {
@@ -225,35 +227,6 @@ public class zTextArea extends EditText
       if (helper.ebsText().hasAll ())
       {
          attakWidget (HANDLER_OP_SETTEXT, helper.ebsText ().getText ());
-         //??android?? setTabSize (helper.ebsText ().getTabulator ());
-
-//(o) android_TODO borrar pues no tiene sentido implementar la funcion gotoLine, o ?
-//         int lineNr = helper.ebsText ().getLineToGo ();
-//         if (lineNr == -1)
-//         {
-//            // want to go to end of file
-//         }
-//         else
-//         {
-//            // GO TO LINE lineNr
-//            //
-//            int llevoLines = 0;
-//            int posCaret = 0;
-//            while (llevoLines < lineNr)
-//            {
-//               posCaret = getText().indexOf(13, posCaret);
-//               if (posCaret == -1) break;
-//               // int p10 = getText().indexOf(10, posCaret);
-//               llevoLines ++;
-//            }
-//
-//            if (posCaret >= 0)
-//            {
-//               // para evitar el idiota scroll hasta el final del texto!
-//               // avoids stupid scroll to the end of the text
-//               setCaretPosition (posCaret);
-//            }
-//         }
 
          changeDirty (false);
       }

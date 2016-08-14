@@ -23,7 +23,7 @@
    Once you have some version of gastona.jar you can use the scripts to gerate a new gastona.jar
    from your sources.
 
-   1) Generate the gastona documentation database
+   1) Generate - if needed - the gastona documentation database
    
       This database is used by WelcomeGastona.gast (default script) to get the documentation and samples.
       It has to be found by gastona in the file
