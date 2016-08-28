@@ -76,18 +76,10 @@ import javaj.widgets.panels.*;
       control!,  in    , update control
               ,  out   , button has been selected
 
-
    <examples>
       gastSample
 
-      <!data4Tester
       hello zRadioButton
-
-   <data4Tester>
-      //#data#
-      //
-      //    <rName> Caption for the button
-      //
 
    <hello zRadioButton>
       //#javaj#

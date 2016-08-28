@@ -98,23 +98,8 @@ import javaj.widgets.kits.dndFileTransHandler;
    <examples>
      gastSample
 
-     <!data4Tester
      hello zList
      list of listix commands
-
-   <data4Tester>
-      //#data#
-      //
-      //    <iName visibleColumns>  name
-      //
-      //    <iName>
-      //       id, name, telephone
-      //
-      //       12, Michael,  5563
-      //       56, Evariste, 1811
-      //      231, Alea,     2112
-      //      108, Simago,   3222
-      //
 
    <hello zList>
       //#javaj#

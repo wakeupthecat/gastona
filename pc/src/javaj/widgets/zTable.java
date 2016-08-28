@@ -94,7 +94,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <examples>
       gastSample
-<!      data4Tester
       hello zTable
       hello zTable select
       hello zTable select2
@@ -102,18 +101,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 <! (see  //(o) TODO_zWidgets_zTable drag & drop on table.)
 <!      table drop files
       tabla de multiplicar
-
-   <data4Tester>
-      //#data#
-      //
-      //    <tName>
-      //
-      //       id, name, telephone
-      //
-      //       12, Michael,  5563
-      //       56, Evariste, 1811
-      //      231, Alea,     2112
-      //      108, Carl,     3222
 
    <hello zTable>
       //#javaj#
@@ -345,8 +332,8 @@ public class zTable extends JTable
 //(o) TOREVIEW_changesLaptop No se d donde viene o porque este cambio, encontrado en copias de portatil
 /*
   String constNMame = "";
-   
-   
+
+
    public zTable (String map_name)
    {
       super (2, 3);  // por poner algo ...
@@ -366,7 +353,7 @@ public class zTable extends JTable
 //      SwingUtilities.invokeLater(puesBuild);
    }
 
-   // needed to avoid following exception 
+   // needed to avoid following exception
    //     java.lang.NullPointerException
    //         at javax.swing.border.EmptyBorder.<init>(EmptyBorder.java:54)
    Runnable puesBuild = new Runnable()

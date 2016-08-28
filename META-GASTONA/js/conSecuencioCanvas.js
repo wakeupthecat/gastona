@@ -17,7 +17,7 @@ function conSecuencioCanvas (c2d, diagData)
    if (typeof maxGapTime === "string") maxGapTime = parseInt (maxGapTime);
 
    if (arr.length == 0) return ;
-   
+
    // expected schema of sequenceTable (columns):  time, source, target, message
    //
    var iTimeStamp = arr[0].indexOf ("time");
@@ -32,7 +32,7 @@ function conSecuencioCanvas (c2d, diagData)
    {
       return iTimeStamp != -1;
    }
-   
+
    function getAgents (mats, tx, rx)
    {
       var agArr = [];
@@ -53,7 +53,7 @@ function conSecuencioCanvas (c2d, diagData)
 
       return agArr;
    }
-     
+
    function getElapsed (tnow, indxFrom, indxTo, /**/ telapsed)
    {
       if (!autoElapsed) return "";
@@ -68,7 +68,7 @@ function conSecuencioCanvas (c2d, diagData)
       else timesIda["" + indxFrom + "/" + indxTo] = tnow;
       return telapsed;
    }
-   
+
 
    // ----- CANVAS
 
@@ -81,9 +81,9 @@ function conSecuencioCanvas (c2d, diagData)
 
    function textWidth (txt) { return c2d.measureText (txt).width ; }
 
-   c2d.font = "22px Tahoma";
+   c2d.font = "14px Consolas";
    var PIX_CHAR = textWidth ("X"); // suppose width == height for X
-   var DIM_PTA = PIX_CHAR * .6;
+   var DIM_PTA = PIX_CHAR * .8;
    var DIM_PTAx2 = 2 * DIM_PTA;
    var DIM_PTAx4 = 4 * DIM_PTA;
 
@@ -103,7 +103,7 @@ function conSecuencioCanvas (c2d, diagData)
       // line from end to base   ---------------| >
       c2d.moveTo (xend, y0);
       c2d.lineTo (xbase, y0);
-      
+
       // arrow    | >
       c2d.moveTo (xbase, y0 - DIM_PTA);
       c2d.lineTo (xbase, y0 + DIM_PTA);
@@ -113,65 +113,21 @@ function conSecuencioCanvas (c2d, diagData)
 
       if (text && text.length > 0)
       {
-         // text background 
+         // text background
          c2d.fillStyle = "#EEEEEE";
-         c2d.fillRect (xtext - DIM_PTA, 
-                       y0 - DIM_PTAx2, 
-                       DIM_PTA + DIM_PTAx2 + textWidth (text), 
+         c2d.fillRect (xtext - DIM_PTA,
+                       y0 - DIM_PTAx2,
+                       DIM_PTA + DIM_PTAx2 + textWidth (text),
                        DIM_PTAx2 * 2);
-      
+
          // text itself
          c2d.fillStyle = "#000000";
          c2d.fillText (text, xtext, y0 + DIM_PTA);
       }
    }
 
-   function label (timo, indxFrom, indxTo, txt)
-   {
-      ////
-      ////// split text into a text array if larger than distance between agents
-      //////
-      ////if (dia < 2) dia = 2;   // some minimum
-      ////
-      ////// make array of strings if needed
-      ////var txtarr = [];
-      ////for (p1 = 0, ii = 0; p1 < txt.length; p1 += (dia-sPre.length), ii ++)
-      ////{
-      ////   txtarr [ii] = txt.substring (p1, p1+(dia-sPre.length));
-      ////}
-      ////
-      ////// time
-      //////
-      ////var stim = timo >= 0 ? (timo + ""): "";
-      ////
-      ////// first line(s) for label
-      //////
-      ////var sPos, title, b1, b2;
-      ////for (ii = 0; ii < txtarr.length; ii ++)
-      ////{
-      ////   sPos = rechar (' ', dia - sPre.length - txtarr[ii].length);
-      ////   title, b1, b2;
-      ////
-      ////   if (indxFrom < indxTo)
-      ////   {
-      ////      title = sPre + txtarr[ii] + sPos;
-      ////      b1 = i0;
-      ////      b2 = agents.length - i0 - 2;
-      ////   }
-      ////   else
-      ////   {
-      ////      title = sPos + txtarr[ii] + sPre;
-      ////      b1 = i1 - 1;
-      ////      b2 = agents.length - i1 - 1;
-      ////   }
-      ////
-      ////   // label
-      ////   out (rechar (' ', stim.length) + barras (b1) + title + barras (b2));
-      ////}
-   }
-
    var timeLine = dia * .50;
-   var x0, y0 = 2*DIM_PTAx4, x1;
+   var x0, y0 = 2*DIM_PTAx4, x1, y1 = y0;
    var currTim = 0.;
    var dtFin = dit * 2 * arr.length;
 
@@ -199,9 +155,10 @@ function conSecuencioCanvas (c2d, diagData)
    c2d.stroke();
    c2d.setLineDash([1,0]);
 
-   y0 += dit;
+   y1 += dit;
 
    var ti, a1, a2, tx, dirLR, dimFlex = DIM_PTA;
+   var lapsos = [];
 
    for (var aa in arr)
    {
@@ -219,33 +176,51 @@ function conSecuencioCanvas (c2d, diagData)
       if (dit > 0 && ti >= 0)
       {
          if (!hasTime () || (ti - currTim) < maxGapTime)
-            y0 += Math.max(DIM_PTAx2 + DIM_PTAx4, (ti - currTim) * dit);
+            y1 += Math.max(DIM_PTAx2 + DIM_PTAx4, (ti - currTim) * dit);
          else
          {
-            // text background 
-            c2d.fillStyle = "#EEEEEE";
-            c2d.fillRect (-DIM_PTAx4 + timeLine, y0 + DIM_PTAx4, dia * (agents.length - 1) + 2 * DIM_PTAx4, DIM_PTAx4);
-            c2d.fillStyle = "#000000";
-            c2d.fillText ("... " + Math.round (ti - currTim) + " s ...", DIM_PTAx2 + timeLine, y0 + DIM_PTAx4 + DIM_PTAx2 + DIM_PTA);
+            // draw this later to cover agent lines
+            lapsos[lapsos.length] = { posy: y1, text: "... " + Math.round (ti - currTim) + " s ..." };
 
-            y0 += (3 * DIM_PTAx2 + dit);
+            y1 += (3 * DIM_PTAx2 + dit);
          }
          currTim = ti;
       }
-      
+
       if (hasTime () && currTim > 0)
       {
          x0 = timeLine - 3 * DIM_PTA - textWidth (currTim);
-         c2d.fillText (currTim, x0, y0 + DIM_PTA);
+         c2d.fillText (currTim, x0, y1 + DIM_PTA);
       }
 
       x0 = timeLine + (dirLR ? a1: a2) * dia;
       x1 = timeLine + (dirLR ? a2: a1) * dia;
 
       if (dirLR)
-           c2d.fillText (tx, x0 + DIM_PTAx2, y0 - DIM_PTAx2);
-      else c2d.fillText (tx, x1 - DIM_PTAx2 - textWidth (tx), y0 - DIM_PTA);
+           c2d.fillText (tx, x0 + DIM_PTAx2, y1 - DIM_PTA);
+      else c2d.fillText (tx, x1 - DIM_PTAx2 - textWidth (tx), y1 - DIM_PTA);
 
-      flecha (x0, x1, y0, dirLR, getElapsed (ti, a1, a2));
+      flecha (x0, x1, y1, dirLR, getElapsed (ti, a1, a2));
+   }
+
+   c2d.beginPath();
+   c2d.setLineDash([3,6]);
+
+   // draw all agent time lines
+   //
+   for (var ag = 0, x0 = timeLine; ag < agents.length; ag ++, x0 += dia)
+   {
+      c2d.moveTo (x0, y0);
+      c2d.lineTo (x0, y1 + dit);
+   }
+   c2d.stroke();
+
+   for (var lap in lapsos)
+   {
+      // text background
+      c2d.fillStyle = "#EEEEEE";
+      c2d.fillRect (-DIM_PTAx4 + timeLine, lapsos[lap].posy + DIM_PTAx4, dia * (agents.length - 1) + 2 * DIM_PTAx4, DIM_PTAx4);
+      c2d.fillStyle = "#000000";
+      c2d.fillText (lapsos[lap].text, DIM_PTAx2 + timeLine, lapsos[lap].posy + DIM_PTAx4 + DIM_PTAx2 + DIM_PTA);
    }
 }

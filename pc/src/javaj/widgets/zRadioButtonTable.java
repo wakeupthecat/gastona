@@ -104,17 +104,7 @@ import de.elxala.mensaka.*;
    <examples>
       gastSample
 
-      <!data4Tester
       hello zRadioButtonTable
-
-   <data4Tester>
-      //#data#
-      //
-      //    <rgName>
-      //       label
-      //       First button
-      //       Second button
-      //
 
    <hello zRadioButtonTable>
       //#javaj#

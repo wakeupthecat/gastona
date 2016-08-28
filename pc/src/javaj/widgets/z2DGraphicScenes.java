@@ -300,9 +300,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
          case widgetConsts.RX_UPDATE_CONTROL:
             helper.ebs ().setDataControlAttributes (null, euData, pars);
 
-            String sval = "";
-
-            sval = helper.ebs ().getSimpleDataAttribute ("gestic");
+            String sval = helper.ebs ().getSimpleDataAttribute ("gestic");
             if (sval != null)
                miEscena.setGestureMode (stdlib.atoi (sval));
 
@@ -404,6 +402,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
          miEscena.laEscena.addObject (obLo);
       }
 
+      //(o) TODO/javaj/GraphicScene support also FONDOgraphic from trazos format
       // paint attribute graphic
       graphicObjectLoader obLo = new graphicObjectLoader ();
       obLo.loadObjectFromEva ("FONDOgraphic",
@@ -434,7 +433,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
          String graphname = scene.getValue (ii, 0);
          String basicMov  = scene.getValue (ii, 1);
 
-         widgetLogger.log ().dbg (2, "paintSceneData", "loading graph for [" + graphname + "]");
+         widgetLogger.log ().dbg (2, "loadSceneData", "loading graph for [" + graphname + "]");
 
          float posx = numAt(el, 2);
          float posy = numAt(el, 3);
@@ -443,6 +442,8 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
          if (scalex == .0f) scalex = 1.f;
          if (scaley == .0f) scaley = 1.f;
 
+         // support for graphic and graphicPress (quasi svg paths)
+         //
          if (helper.ebs ().getDataAttribute ("graphic " + graphname) != null)
          {
             widgetLogger.log ().dbg (2, "paintSceneData", "found graphic attribute for [" + graphname + "]");
@@ -452,6 +453,21 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
                                     helper.ebs ().getDataAttribute ("graphicPress " + graphname),
                                     basicMov,
                                     new offsetAndScale (posx, posy, scalex, scaley));
+            miEscena.laEscena.addObject (obLo);
+         }
+
+         // support for trazos and trazosPress (editable paths)
+         //
+         if (helper.ebs ().getDataAttribute ("trazos " + graphname) != null)
+         {
+            widgetLogger.log ().dbg (2, "paintSceneData", "found trazos attribute for [" + graphname + "]");
+            graphicObjectLoader obLo = new graphicObjectLoader ();
+            
+            obLo.loadObjectFromEvaTrazos (graphname, 
+                                          helper.ebs ().getDataAttribute ("trazos " + graphname),
+                                          helper.ebs ().getDataAttribute ("graphicPress " + graphname),
+                                          basicMov,
+                                          new offsetAndScale (posx, posy, scalex, scaley));
             miEscena.laEscena.addObject (obLo);
          }
       }

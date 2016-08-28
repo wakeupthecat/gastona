@@ -20,12 +20,11 @@
 #data#
 
    <radios>
-      "label"   , text
+      label   , text
 
       Short Wave, "Hi freq"
       FM        , "No static at all"
       Radio Gaga, "All we hear is ..."
-
 
 #listix#
 

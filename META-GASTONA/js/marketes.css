@@ -2,7 +2,7 @@
    font-family: monospace;
 }
 
-* 
+*
 {
    font-family: Ubuntu, Tahoma, sans-serif;
    margin-left: 0px;
@@ -17,12 +17,12 @@ p, h1, h2, h3, h4, code
 
 header {
     background: linear-gradient(to right, rgb(242, 110, 41), rgb(188, 56, 6));
-    
+
     color:white;
     font-size: 20px;
     height: 36px;
     font-weight: normal;
-    padding:16px; 
+    padding:16px;
     margin-left: 0px;
     margin-right: 0px;
 }

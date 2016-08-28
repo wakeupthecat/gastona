@@ -159,12 +159,12 @@ public class uniUtilImage
 		return ok;
 	}
 
-   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti)
+   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String graffFormat)
    {
-      return graffitiToBufferedImage (evaGraffiti, 20, 20, null);
+      return graffitiToBufferedImage (evaGraffiti, graffFormat, 20, 20, null);
    }
 
-   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, int IMG_SX, int IMG_SY, Color backColor)
+   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String graffFormat, int IMG_SX, int IMG_SY, Color backColor)
    {
       // not implemented due to lack of
       //

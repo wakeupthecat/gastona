@@ -154,21 +154,9 @@ import de.elxala.langutil.*;
    <examples>
       gastSample
 
-<!      data4Tester
       hello zTree
       icons tree
       icon explorer
-
-   <data4Tester>
-      //#data#
-      //
-      //    <aName>
-      //        nodeInfo
-      //        root/dir1/File1
-      //        root/dir1/File2
-      //        root/dir2/File3
-      //        root/dir2/dir3/LastFile
-      //
 
    <hello zTree>
       //#javaj#

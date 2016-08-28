@@ -61,6 +61,31 @@ public class CmdMsgBox implements commandable
        };
    }
 
+   public static void createToastada (final String msg)
+   {
+       androidSysUtil.getCurrentActivity().runOnUiThread(new Runnable() 
+       {
+           public void run() 
+           {
+               //Note: Maybe it could be used org.gastona.gastonaFlexActor.lastActivity here
+               //      instead of the root Activity, but since the Toast seems to work as it is
+               //      there is no reason to change it
+               Toast.makeText(androidSysUtil.getMainActivity (), msg, Toast.LENGTH_SHORT).show();
+           }
+       });
+   }
+
+   public static void showAlertBox (final AlertDialog alert)
+   {
+       androidSysUtil.getCurrentActivity().runOnUiThread(new Runnable() 
+       {
+           public void run() 
+           {
+               alert.show ();
+           }
+       });
+   }
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -98,10 +123,7 @@ public class CmdMsgBox implements commandable
 
       if (msgType == TOAST_MESSAGE)
       {
-         //Note: Maybe it could be used org.gastona.gastonaFlexActor.lastActivity here
-         //      instead of the root Activity, but since the Toast seems to work as it is
-         //      there is no reason to change it
-         Toast.makeText(androidSysUtil.getMainActivity (), message, Toast.LENGTH_SHORT).show();
+         createToastada (message);
          return 1;
       }
 
@@ -152,8 +174,7 @@ public class CmdMsgBox implements commandable
                selectItem (item);
              }
          });
-         AlertDialog alert = builder.create();
-         alert.show ();
+         showAlertBox (builder.create());
          return 1;
       }
 
@@ -193,7 +214,8 @@ public class CmdMsgBox implements commandable
          case QUESTION_MESSAGE:    sIcon = "question.png"; break;
          case TOAST_MESSAGE:
             {
-               Toast.makeText(androidSysUtil.getMainActivity (), text, Toast.LENGTH_SHORT).show();
+               createToastada (text);
+               // Toast.makeText(androidSysUtil.getMainActivity (), text, Toast.LENGTH_SHORT).show();
                return;
             }
          default:
@@ -221,7 +243,7 @@ public class CmdMsgBox implements commandable
 
       aldi.setTitle(title);
       aldi.setMessage(text);
-      if (arrLabels == null) 
+      if (arrLabels == null)
          aldi.setButton(AlertDialog.BUTTON_POSITIVE, "Ok", liso);
       else
       {
@@ -230,7 +252,8 @@ public class CmdMsgBox implements commandable
          if (arrLabels.length > 2 && arrLabels[2] != null && arrLabels[2].length () > 0) aldi.setButton(AlertDialog.BUTTON_NEUTRAL , arrLabels[2], liso);
       }
 
-      aldi.show ();
+      showAlertBox (aldi);
+      // aldi.show ();
    }
 
    private Eva lastSelectTable = null;

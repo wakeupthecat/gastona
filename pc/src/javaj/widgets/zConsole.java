@@ -88,12 +88,9 @@ import javaj.widgets.basics.*;
    <examples>
       gastSample
 
-<!      data4Tester
       hello zConsole
 <!      zConsole advanced
       all consoles
-
-   <data4Tester>
 
    <hello zConsole>
       //#javaj#
@@ -223,12 +220,12 @@ public class zConsole extends JTextArea implements MensakaTarget
    }
 
    private basicAparato helper = null;
-   
+
    private void setColors ()
    {
       setColors (null, null);
    }
-   
+
    private void setColors (Color bkCol, Color fgCol)
    {
       if (helper.ebs ().hasAll ())
@@ -253,7 +250,7 @@ public class zConsole extends JTextArea implements MensakaTarget
                                         new Color (col[0], col[1], col[2], col[3]);
          }
       }
-      
+
       if (bkCol != null) setBackground (bkCol);
       if (fgCol != null) setForeground (fgCol);
    }
@@ -341,7 +338,7 @@ public class zConsole extends JTextArea implements MensakaTarget
          case widgetConsts.RX_UPDATE_CONTROL:
             helper.ebs ().setDataControlAttributes (null, euData, pars);
             setEnabled (helper.ebs ().getEnabled ());
-            
+
             setColors ();
 
             //(o) TODO_REVIEW visibility issue
@@ -489,7 +486,7 @@ public class zConsole extends JTextArea implements MensakaTarget
    {
       setText("");
       sizeOfText = 0;
-      
+
       //checked, following code does not prodce an uncontrolled recursion
       //          <-- CONSOLE_ERROR_DETECTED>
       //                -->, myConsole clear

@@ -130,4 +130,9 @@ public class utilSys
    {
       objectMap = new TreeMap ();
    }
+
+   public static int getSacSize ()
+   {
+      return objectMap == null ? 0: ((TreeMap) objectMap).size ();
+   }
 }

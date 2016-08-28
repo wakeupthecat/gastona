@@ -114,27 +114,9 @@ import javaj.widgets.table.util.*;
    <examples>
      gastSample
 
-     <!data4Tester
      assist basic example
      assist sample gastonaDoc
      assist sample gastonaDoc plus export
-
-   <data4Tester>
-      //#data#
-      //
-      //    <sName sqlSelect> //SELECT * FROM someData
-      //
-      //#listix#
-      //
-      //    <main0>
-      //       DATABASE,,CREATETABLE, someData
-      //
-      //    <someData>
-      //          id , name,     city           , age
-      //          718, Ricardo,  San Francisco  , 12
-      //          321, Abelardo, Betanzos       , 45
-      //          112, Joseba  , Bilbo          , 21
-      //
 
    <assist basic example>
       //#javaj#

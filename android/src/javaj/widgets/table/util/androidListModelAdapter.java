@@ -131,65 +131,125 @@ public class androidListModelAdapter implements ListAdapter
       long millis = System.currentTimeMillis () - start;
       if (bida != null)
       {
-         //System.out.println ("ENCONTRADO! [" + pngName + "] champinyon!");
          widgetLogger.log().dbg (2, "getDrawableByRow", "loading icon " + pngName + " took " + millis + " ms");
       }
-      else 
+      else
       {
-         //System.out.println ("FALLADO! [" + pngName + "] champinyon!");
          widgetLogger.log().dbg (2, "getDrawableByRow", "loading icon " + pngName + " (not found) " + millis + " ms");
       }
 
       return bida;
    }
 
-   public long getItemId(int position)
+   public long getItemId (int position)
    {
       return position; // pa que la quiere .. ?
    }
 
-   public int getItemViewType(int position)
+   @Override
+   public int getItemViewType (int position)
    {
-      //widgetLogger.log ().dbg (4, "androidListModelAdapter::getItemViewType", "me askean typo!!");
       return 0; // a ver si le gusta ...
    }
 
+   @Override
+   public int getViewTypeCount ()
+   {
+       return 1;
+   }
+
+   static class loHolder // so called ViewHolder, not a view!
+   {
+      public TextView tTitle = null;
+      public TextView tDetail = null;
+   }
+
+   @Override
    public View getView(int position, View convertView, ViewGroup parent)
    {
-      float txtSize = sysFonts.getStandardTextSizeInScaledPixels ();
+      // reuse views
+      // 9.4 View holder pattern
+      // http://www.vogella.com/tutorials/AndroidListView/article.html
+      //
+      boolean hasDetail = getItemTextDetail(position) != null;
 
-	   LinearLayout lila = new LinearLayout(androidSysUtil.getCurrentActivity ());
-	   lila.setOrientation (LinearLayout.VERTICAL);
-
-      TextView tTitle = new TextView (androidSysUtil.getCurrentActivity ());
-
-      tTitle.setTextSize (txtSize);
-      tTitle.setPadding (3, 3, 3, 3);
-      tTitle.setText ((String) getItem(position));
-      tTitle.setCompoundDrawablesWithIntrinsicBounds (getDrawableByRow(position), null, null, null);
-
-      lila.addView (tTitle);
-
-      String detailStr = getItemTextDetail(position);
-      if (detailStr != null)
+      if (convertView == null)
       {
-         // add detail
-         TextView tDetail = new TextView (androidSysUtil.getCurrentActivity ());
+         float txtSize = sysFonts.getStandardTextSizeInScaledPixels ();
 
-         tDetail.setTextSize (txtSize);
-         tDetail.setText ((String) getItemTextDetail(position));
-         tDetail.setPadding (3, 3, 3, 3);
+         // create the holder
+         loHolder holdi = new loHolder ();
 
-         lila.addView (tDetail);
+         holdi.tTitle = new TextView (androidSysUtil.getCurrentActivity ());
+         holdi.tTitle.setTextSize (txtSize);
+         holdi.tTitle.setPadding (3, 3, 3, 3);
+         //holdi.tTitle.setText ((String) getItem(position));
+         //holdi.tTitle.setCompoundDrawablesWithIntrinsicBounds (getDrawableByRow(position), null, null, null);
+
+         if (hasDetail)
+         {
+            holdi.tDetail = new TextView (androidSysUtil.getCurrentActivity ());
+            holdi.tDetail.setTextSize (txtSize);
+            holdi.tDetail.setPadding (3, 3, 3, 3);
+            // holdi.tDetail.setText ((String) getItemTextDetail(position));
+         }
+         if (! hasDetail || tabletaVisible.getColumnIndex ("icon") >= 0)
+         {
+            // change size and aspect of title
+            holdi.tTitle.setTextSize (1.3f * txtSize);
+            //tTitle.setTypeface (android.graphics.Typeface.BOLD);
+         }
+
+         // creating and setting the layout
+         LinearLayout lila = new LinearLayout(androidSysUtil.getCurrentActivity ());
+         lila.setOrientation (LinearLayout.VERTICAL);
+
+         //(o) issue/android/ListView/ugly effects scrolling
+         //     also not complete selection in short entries
+         //     giving these layout params does not help!, no difference with or without this
+         //
+         // lila.setLayoutParams (new android.widget.AbsListView.LayoutParams(android.widget.AbsListView.LayoutParams.FILL_PARENT, android.widget.AbsListView.LayoutParams.WRAP_CONTENT, 1));
+         // holdi.tTitle.setLayoutParams (new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+         lila.addView (holdi.tTitle);
+         if (hasDetail) {
+
+            //(o) issue/android/ListView/ugly effects scrolling
+            // holdi.tDetail.setLayoutParams (new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            lila.addView (holdi.tDetail);
+         }
+
+         convertView = lila;
+
+         // store the new holder
+         convertView.setTag (holdi);
       }
-      if (detailStr != null || tabletaVisible.getColumnIndex ("icon") >= 0)
+
+      // get the holder
+      loHolder holdi = (loHolder) convertView.getTag ();
+
+      holdi.tTitle.setText ((String) getItem(position));
+      holdi.tTitle.setCompoundDrawablesWithIntrinsicBounds (getDrawableByRow(position), null, null, null);
+
+      if (holdi.tDetail != null)
       {
-         // change size and aspect of title
-         tTitle.setTextSize (1.3f * txtSize);
-         //tTitle.setTypeface (android.graphics.Typeface.BOLD);
+         String detailStr = getItemTextDetail(position);
+         if (detailStr == null)  // actually not possible...
+            detailStr = "";
+
+         holdi.tDetail.setText (detailStr);
       }
 
-      return lila;
+      // try to fix visual issue with selecting items in the list (specially short ones)
+      // with the suggestion in http://stackoverflow.com/a/5258168/573554
+      // but it does not work!
+      //convertView.setOnClickListener (
+      //            new android.view.View.OnClickListener() {
+      //               @Override
+      //                  public void onClick(View view) {
+      //                  }
+      //            });
+      return convertView;
 
 ////// INTENTO CON EVALAYOUT ....
 ////      Eva layamo = new Eva ();
@@ -219,15 +279,6 @@ public class androidListModelAdapter implements ListAdapter
 
    }
 
-
-
-
-
-   public int getViewTypeCount()
-   {
-      return 1;
-   }
-
    public boolean hasStableIds()
    {
       return false;
@@ -238,11 +289,13 @@ public class androidListModelAdapter implements ListAdapter
       return getCount() == 0;
    }
 
+   @Override
    public void registerDataSetObserver(android.database.DataSetObserver observer)
    {
       // hecho!
    }
 
+   @Override
    public void unregisterDataSetObserver(android.database.DataSetObserver observer)
    {
       // o que pena, te vas!

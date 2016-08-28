@@ -22,12 +22,20 @@ import android.content.Intent;
 import listix.*;
 import listix.cmds.*;
 import listix.cmds.commandable;
+//import android.widget.Toast;
 
 import de.elxala.Eva.*;
 import de.elxala.langutil.*;
 
 /**
       LAUNCH GASTONA, filegast, parametros, ...
+
+      NOTE: ONLY FOR EXPERIMENTAL USE, INDEED IT DOES NOT WORK PROPERLY!
+
+      2016.08.24
+      We want to launch gastonaMainActor as if it would be launched from another
+      explorer, just as an own "process" (activity), but it seems that it do it
+      within the same process so when finishing the sub-main activity it freezes!
 
 */
 public class CmdGast2 implements commandable
@@ -56,17 +64,33 @@ public class CmdGast2 implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
+      //String message = "GAST2 IS JUST FOR EXPERIMENTAL USE! Actually it freezes the caller when back from launched gast";
+      //Toast.makeText(androidSysUtil.getMainActivity (), message, Toast.LENGTH_SHORT).show();
+      
       // copy parameters
       String [] aa = new String [cmd.getArgSize ()];
       for (int ii = 0; ii < cmd.getArgSize (); ii ++)
          aa[ii] = cmd.getArg (ii);
 
-      cmd.getLog().dbg (2, "GAST2", "passed parameters " + aa.length);
+      if (aa.length == 0) 
+      {
+         cmd.getLog().dbg (2, "GAST2", "called with no parameters, nothing to do");
+         return 1;
+      }
 
-      Intent sekunda = new Intent(androidSysUtil.getMainActivity (), org.gastona.gastonaMainActor.class);
-      sekunda.setClassName("org.gastona", "org.gastona.gastonaMainActor");
-      sekunda.putExtra (EXTRA_VALUE_NAME, aa);
-      androidSysUtil.getMainActivity ().startActivity (sekunda);
+      cmd.getLog().dbg (2, "GAST2", "passed parameters " + aa.length);
+      
+      //!//   Intent sekunda = new Intent(androidSysUtil.getMainActivity (), org.gastona.gastonaMainActor.class);
+      //!//   sekunda.setClassName("org.gastona", "org.gastona.gastonaMainActor");
+      //!//   sekunda.putExtra (EXTRA_VALUE_NAME, aa);
+      //!//   androidSysUtil.getMainActivity ().startActivity (sekunda);
+
+      Intent tryGast = new Intent ();
+      tryGast.setAction (Intent.ACTION_VIEW);
+      tryGast.setData (android.net.Uri.parse ("file://" + aa[0]));
+      tryGast.setClassName ("org.gastona", "org.gastona.gastonaMainActor");
+      // tryGast.putExtra (EXTRA_VALUE_NAME, aa);
+      androidSysUtil.getMainActivity ().startActivity (tryGast);
 
       return 1;
    }

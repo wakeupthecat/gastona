@@ -77,15 +77,7 @@ import javaj.widgets.basics.*;
    <examples>
       gastSample
 
-      <!data4Tester
       hello zCheckBox
-
-   <data4Tester>
-      //#data#
-      //
-      //    <kName>  Caption of the checkbox
-      //    <kName selected> 1
-      //
 
    <hello zCheckBox>
       //#javaj#

@@ -70,19 +70,10 @@ import javaj.widgets.basics.*;
       data!   ,  in , update data
       control!,  in , update control
 
-
    <examples>
      gastSample
 
-     <!data4Tester
      hello zLabel
-
-
-   <data4Tester>
-      //#data#
-      //
-      //    <lName> Caption for the button
-      //
 
    <hello zLabel>
       //#javaj#

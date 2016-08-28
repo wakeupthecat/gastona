@@ -91,14 +91,7 @@ import javaj.widgets.text.*;
    <examples>
       gastSample
 
-      <!data4Tester
       hello zEditField
-
-   <data4Tester>
-      //#data#
-      //
-      //    <eName> Contents of test zEditField
-      //
 
    <hello zEditField>
       //#javaj#

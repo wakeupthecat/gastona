@@ -89,6 +89,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          9   , NUMEXPR ,               ,
          9   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparation opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
 
+        10   , ANDROID ,                ,
+        10   , elseSubCommand,          ,//If the target system seems to be not android (e.g. gastona.jar), the given subcommand will be executed
+
    <options>
       synIndx, optionName  , parameters , defVal, desc
           x  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
@@ -144,9 +147,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //Ok, gastona/gastona.class checked as read file
       //
       //   <chk5>
-      //      CHECK, LINUX,
-      //           , ELSE , //Operative system seems to be Windows
+      //      CHECK, LINUX, //Operative system seems to be Windows
       //      //Operative system seems to be Linux
+      //
+      //   <chk6>
+      //      CHECK, ANDROID, //Running NOT on an Android device
+      //      //Running on an Android device
       //
 
 #**FIN_EVA#
@@ -192,7 +198,7 @@ public class cmdCheck implements commandable
       //      arguments has to be not solved!
       int nargRead = 0;
 
-      String chkType = cmd.getArg(nargRead ++);
+      String chkType = cmd.getArg(nargRead ++).toUpperCase ();
       //String second  = cmd.getArg(1);
 
       that.log().dbg (2, "CHECK", chkType);
@@ -246,6 +252,12 @@ public class cmdCheck implements commandable
          checked = target.exists () && target.isDirectory ();
       }
       else if (chkType.equals("LINUX"))
+      {
+         //e.g.   CHECK, LINUX
+         //
+         checked = utilSys.isSysUnix;
+      }
+      else if (chkType.equals("ANDROID"))
       {
          //e.g.   CHECK, LINUX
          //

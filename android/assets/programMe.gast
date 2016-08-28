@@ -9,7 +9,7 @@
           , X
           , lProgramMe
           , bINTRO_Pme
-          , bGET CONNECTION URL
+          , bSHOW CONNECTION URL
         X , oConsola
           , bDISCONNECT_Pme
 
@@ -17,7 +17,27 @@
       Consolas, 16, 0, TextArea.font
       Verdana,  16, 0, Button, ToggleButton, Label
 
+#data#
+
+   <bINTRO_Pme> Intro to ProgramMe
+
+   <LABEL DISCONNECT> //DISCONNECT
+   <LABEL CONNECT>    //CONNECT
+
+   <DX> 30
+   <DY> 30
+
+   <cDX> 34
+   <cDY> 34
+   
+   <SPECIAL_HELLO> //(hello template)
+
 #listix#
+
+   <! cannot be closed to allow tests from browser
+   <-- javaj exit>
+      BOX, T, //Me quiero salir y stop APPLAPIZ!
+      micohttp, stop, APPLAPIZ
 
    <main>
       -->, bDISCONNECT_Pme data!,, @<LABEL DISCONNECT>
@@ -30,7 +50,7 @@
       -->, oConsola clear
       LSX, intro
 
-   <-- bGET CONNECTION URL>
+   <-- bSHOW CONNECTION URL>
       -->, oConsola clear
       //
       //try one of these urls in your browser
@@ -42,6 +62,7 @@
       -->, oConsola clear
       micohttp, start, APPLAPIZ, @<PORTOS>
             , VERBOSE LEVEL, 2
+            , IGNOREBINDEXCEPTION, 1
 
    <-- bDISCONNECT_Pme>
       IN CASE, @<bDISCONNECT_Pme>
@@ -67,6 +88,21 @@
       CHECK, VAR, getIdContent @<ajaxREQ-id>
       LSX, getIdContent @<ajaxREQ-id>, @<ajaxREQ-param>
 
+   <!   NOTE! Feature (button) disabled until a solution is found
+   <!         
+   <! ----- ((( ----------- test current script in target
+   <POST /testgast>
+      GAST, @<_bodyMemFileName>
+      <!  CHECK, ANDROID, GAST, @<_bodyMemFileName>
+      <!  BOX, T, //Feature is not yet ready for android :(
+
+   <! ----- ((( ----------- save current script in target
+   <POST /savegast>
+      CHECK, <>, @<ajaxREQ-gastName>, ""
+      CHECK, <>, @<ajaxREQ-gastName>, programMe.gast
+      FILEUTIL, COPY, @<_bodyMemFileName>, @<ajaxREQ-gastName>
+      LSX, LOAD_DIR, @<ajaxREQ-gastName>/..
+
    <getIdContent dDir>
       VAR=, eldir, @<SOLVED_DIR>
       //eDir:@<eldir>
@@ -87,22 +123,14 @@
       //1
 
    <ALLOWED_FILENAME>
+      <! just don't allow to overwrite these two scripts from programMe for "safety comfort"
+      CHECK, <>, "autoStart.gast", @<p1>, 0
       CHECK, <>, "programMe.gast", @<p1>, 0
       1
 
    <EXISTS_FILENAME>
       CHECK, FILE, @<p1>, 0
       1
-
-   <! ----- ((( ----------- test current script in target
-   <POST /testgast>
-      GAST, @<_bodyMemFileName>
-
-   <! ----- ((( ----------- save current script in target
-   <POST /savegast>
-      CHECK, <>, @<ajaxREQ-gastName>, programMe.gast
-      FILEUTIL, COPY, @<_bodyMemFileName>, @<ajaxREQ-gastName>
-      LSX, LOAD_DIR, @<ajaxREQ-gastName>/..
 
    <LOAD_DIR>
       VAR=, eldir, @<SOLVED_DIR>
@@ -116,12 +144,14 @@
       STRCONV, PATH-SOLVE, @<p1>
 
    <tryLoadFile>
+      CHECK, !=, @<p1>, @<SPECIAL_HELLO>, @<:infile demo/justHello.gast>
       CHECK, FILE, @<p1>
       IN FILE, @<p1>
              , SOLVE, 0
 
    <ELEM_FILE_DOWNLOAD> //<a href="/@<FULLNORM>"> <canvas width="@<cDX>px" height="@<cDY>px" class="iconFile"/></a>
-   <ELEM_FILE_EDIT>     //<button onclick="luix.AJAXgetIdContent('xFileContent', '@<FULLNORM>', true)">load</button>
+   <ELEM_FILE_EDIT>     //<button onclick="loadAndOverwriteFileContent ('@<FULLNORM>')">load</button>
+   
 
    <viewDir>
      VAR=, DIRLABEL, @<p1>
@@ -144,9 +174,7 @@
          ,, // <tr> <td> @<ELEM_FILE_DOWNLOAD> <td> @<ELEM_FILE_EDIT> <td> @<fileName></tr>
      // </table>
 
-   <FULLNORM>
-      LOOP, SQL,, //SELECT REPLACE("@<DIRLABEL>/@<fullSubPath>", "\", "/") AS va
-          ,, @<va>
+   <FULLNORM>  //@<:linux-path DIRLABEL>/@<:linux-path fullSubPath>
 
    <index_html>
       //<!DOCTYPE html>
@@ -169,17 +197,31 @@
       @<:infile META-GASTONA/js/jGastonaEva-min.js>
       //
       //   var luix = jGastona ();
+      //   var isFileContentDirty = false;
       //
       //   window.onload = function() {
       //      luix.AJAXLoadRootJast ("programMe");
       //   }
+      //
+      //   function setToDirty (dirty) {
+      //       isFileContentDirty = dirty;
+      //   }
+      //
+      //   function loadAndOverwriteFileContent (pathToLoad) {
+      //      if (isFileContentDirty && false == confirm("Load " + pathToLoad + " and overwrite edition ?")) 
+      //         return; // do nothing!
+      //
+      //      luix.AJAXgetIdContent('xFileContent', pathToLoad, true);
+      //      setToDirty (false);
+      //   }
+      //
       //
       //   function updateFileNameCheck () {
       //      var allow = luix.getData ("fileName allowed");
       //      var exists = luix.getData ("fileName exists");
       //      if (! allow || !exists) return;
       //      var ele = document.getElementById ("eFileName");
-      //      ele.style["background-color"] = (allow==="0" ? "red": (exists === "1" ? "white": "green"));
+      //      ele.style["background-color"] = (allow==="0" ? "red": (exists === "1" ? "#FAA0B7": "#A6FC7C"));
       //   }
       //
       //  function drawFolder (canv) {
@@ -220,15 +262,17 @@
       //   <layout of main>
       //
       //      Eva, 30, 30, 7, 7
-      //      -- , X   ,             , X
-      //         ,     , lScript Name, eFileName, bSave
-      //      X  , dDir, xFileContent, --
-      //         , +   , bTest, --
+      //      -- , X    ,        ,             , X
+      //         , lRoot, bEmpty , lScript file, eFileName, bSave
+      //      X  , dDir ,   -    , xFileContent, --
+      //         , +    ,        , bTest, --
       //
       //#data#
       //
-      //   <bSave> Save to device
-      //   <bTest> Test into device
+      //   <lRoot> //(from /mnt/sdcard/gastona)
+      //   <bEmpty> load Hello template
+      //   <bSave> Save script on device
+      //   <bTest> Test/execute script on device
       //
       //   <eFileName onkeyup>
       //      //luix.AJAXgetIdContent ("checkFileName", luix.getIdValue("eFileName"), true);
@@ -236,6 +280,9 @@
       //   <eFileName>  //
       //
       //   <xFileContent>  //
+      //
+      //   <xFileContent onkeyup>
+      //      //setToDirty (true);
       //
       //   <dDir>
       //      //<p> Loading contents ... </p>
@@ -254,21 +301,18 @@
       //   <-- bTest>
       //      //luix.AJAXPost ("testgast", luix.getIdValue ("xFileContent"));
       //
-
-#data#
-
-   <LABEL DISCONNECT> //DISCONNECT
-   <LABEL CONNECT>    //CONNECT
+      //   <-- bEmpty> 
+      //      //loadAndOverwriteFileContent ('@<SPECIAL_HELLO>');
 
    <intro>
       //
       // programMe allows to program your android device
       // from a browser in another connected device (e.g. PC via WiFi).
-      // You can load, edit, test and save scripts
+      // You can load, edit, test and save scripts remotely
       //
-      // 1. Open a browser in your PC with the url and port (GET CONNECTION URL)
+      // 1. Open a browser in your PC with the url and port (SHOW CONNECTION URL)
       //
-      // All scripts currently in your device.
+      // All scripts currently in your device should be visible
       //
       // 2. Press load on one script will load its source code on your browser
       //
@@ -281,13 +325,13 @@
       //
 
    <icon folder>
-      defstyle,naranja,fc:#ff8b1a
+      defstyle,naranja,fc:#ff8b1a;sw:6
       z, 01, 75,naranja,"jau,19,-37,44,-119,27,-49,72,-5,194,1,60,-4,-10,28,-29,56,-35,83,-22,61,-13,36,-39,9,-66,0,-72,-10,-93,0,-44,-5,6,-41"
       z,-12,125,naranja,"jau,-52,-143,-1,-75,82,-9,160,7,79,9,14,44,16,66,20,76,2,31,-50,6,-109,-2,-69,-1,-44,-2,-42,-1"
 
    <icon text>
-      defstyle,tinta1,fc:yellow;sw:1
-      defstyle,notinta,fc:none;sw:1
+      defstyle,tinta1,fc:yellow;sw:6
+      defstyle,notinta,fc:none;sw:6
       z,293,422,tinta1,"jau,2,-63,5,-24,12,-33,32,-52,48,-30,98,-1,-38,70,-16,38,-10,51,-1,56,-48,5,-80,-4"
       z,280,417,tinta1,"jau,-11,-80,7,-62,27,-35,80,-11,37,0,17,22,-18,67,-4,48,0,62,-28,9,-32,-2,-44,-1,-30,-5"
       z,264,432,tinta1,"jau,-4,-22,-10,-24,-15,-43,-12,-37,-3,-33,21,-17,24,-4,51,1,36,19,28,90,27,70,-30,11,-32,3,-49,-1,-31,-15"
@@ -296,13 +340,6 @@
       z,255,345,notinta,"jau,12,-4,18,4,6,-5"
       z,291,370,notinta,"jau,13,-5,30,4,12,-5"
       z,317,402,notinta,"jau,21,0,29,-8"
-
-
-   <DX> 30
-   <DY> 30
-
-   <cDX> 34
-   <cDY> 34
 
    <programMe_CSS>
       //* {-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;

@@ -75,20 +75,12 @@ import javaj.widgets.basics.*;
       control!,  in    , update control
         ,  out   , the slider has been changed
 
-
    <examples>
       gastSample
 
-<!      data4Tester
       hello zSliderLabels
       slider ranges
       slider oriented
-
-   <data4Tester>
-      //#data#
-      //
-      //    <sName> 6
-      //
 
    <hello zSliderLabels>
       //#javaj#

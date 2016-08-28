@@ -173,7 +173,6 @@ public class zRadioButtons extends RadioGroup implements MensakaTarget, izWidget
             addView (radio, ii, lapa);
 
             radioIDs [ii] = radio.getId ();
-            //android.util.Log.d ("yono", "radioIDs [" + ii + "] = " + radioIDs [ii]);
          }
       }
    }
@@ -196,14 +195,12 @@ public class zRadioButtons extends RadioGroup implements MensakaTarget, izWidget
                break;
             }
 
-      //android.util.Log.d ("yono", "checkedId = " + checkedId + " selectedIndx = " + indxSelected);
       helper.log.dbg (2, "onCheckedChanged", "checkedId = " + checkedId + " selectedIndx = " + indxSelected);
       selectRadioButton (indxSelected);
    }
 
    public void selectRadioButton (int indx)
    {
-      //android.util.Log.d ("yono", "selectedRadioButton indx is " + indx);
       if (indx == -1)
          helper.storeAllSelectedIndices (new int [] {});
       else

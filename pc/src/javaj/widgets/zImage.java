@@ -78,15 +78,8 @@ import javaj.widgets.basics.*;
    <examples>
       gastSample
 
-<!      data4Tester
       hello Image
       image viewer
-
-   <data4Tester>
-      //#data#
-      //
-      //    <mName> javaj/img/miDesto.png
-      //
 
    <hello Image>
       //#javaj#

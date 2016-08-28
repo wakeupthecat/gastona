@@ -177,7 +177,7 @@ public class logServer
          else
          {
             // there is no current logConfiguration.eva file in log directory
-            // we create an empty one to help the user, but it will not be used in this session! (currentLogConfig remains null)
+            // we create a default one
 
             //(o) techNotes/logServer/Depencency with TextFile
             TextFile defConf = new TextFile (null);
@@ -188,12 +188,15 @@ public class logServer
                defConf.writeLine ("");
                defConf.writeLine ("    <" + EVACONF_LOG_LEVELS_BY_CLIENT + ">"); // <logLevels>
                defConf.writeLine ("          clientName, maxLogLevel");
-               defConf.writeLine ("          <!  listix_flow, 16");
-               defConf.writeLine ("          <!  listix_command, 16");
+               defConf.writeLine ("          listix_flow, 12");
+               defConf.writeLine ("          <!  listix_command, 12");
                defConf.writeLine ("");
                defConf.writeLine ("#**FIN_EVA#");
                defConf.fclose ();
             }
+            // load the configuration just written
+            currentLogConfig = EvaFile.loadEvaUnit (directory2Log + "logConfiguration.eva", "data");
+            currentValidStamp ++;
          }
          //System.out.println ("currentLogConfig is " + currentLogConfig);
 

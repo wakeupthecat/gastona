@@ -1,0 +1,19 @@
+
+#javaj#
+
+  <layout of main>
+     EVA, 4, 4, 2, 2
+ 
+      --,  X
+        , bBoton
+      X , oConsola
+
+#listix#
+
+   <main> 
+      //Hello ...
+      //
+
+   <-- bBoton>
+      //... its me!
+      //

@@ -71,7 +71,7 @@ public class logger
    /**
       facility to avoid unnecesary loops or preparation of extra data for log if this is not active
    */
-   public boolean isLogging (int msgLevel)
+   public boolean isMsgLevelActive (int msgLevel)
    {
       return logServer.isLogging (cli, msgLevel);
    }

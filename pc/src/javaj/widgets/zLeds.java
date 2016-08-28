@@ -108,14 +108,7 @@ import javaj.widgets.basics.*;
    <examples>
      gastSample
 
-     <!data4Tester
      hello zLeds
-
-
-   <data4Tester>
-      //
-      //
-
 
    <hello zLeds>
       //   #listix#

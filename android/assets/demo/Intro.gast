@@ -1,0 +1,13 @@
+#javaj#
+
+   <frames> main, Welcome to gastona
+
+   <layout of main>
+      EVA, 7, 7, 6, 6
+
+         ,  X
+       X , wIntro
+
+#data#
+
+   <wIntro fileName> demo/gastona_intro.html

@@ -583,7 +583,7 @@ public class sqlSolverAApi
 //         te.close ();
 //      }
 //      catch (Exception e) {}
-      log.dbg (1, "checkClient", "using SQLite android API, sqlite version : " + sqliteClientVersion);
+      log.dbg (2, "checkClient", "using SQLite android API, sqlite version : " + sqliteClientVersion);
       bCheckDone = true;
       return true;
    }

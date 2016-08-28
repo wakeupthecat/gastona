@@ -91,13 +91,7 @@ public class mensaka4listix implements MensakaTarget
       if (euJavaj != null && euJavaj.size () > 0)
       {
          log.dbg (2, "constructor", "preparing javaj");
-         // 11.08.2009 23:13 remove old mechanism default db
-         // facilitateSameDefaultDatabaseName (euListix, euData);
          theJavaj = new javaj36 (euJavaj, euData);
-//         if (! theJavaj.loadJavajFile (euJavaj, euData, aa, 0))
-//         {
-//            theJavaj = null;
-//         }
       }
 
       if (theJavaj != null)
@@ -135,6 +129,8 @@ public class mensaka4listix implements MensakaTarget
    private void prepareListix (EvaUnit euListix, String [] aa)
    {
       // preload listix : only the formats to add the gastona specific listix commands
+      if (theListix != null)
+         theListix.destroy ();
       theListix = new listix (euListix, null /* data */, new tableCursorStack (), aa);
       //theListix.addInternCommand (new CmdCallMensaka ());   // command "MSG"
       //theListix.addInternCommand (new CmdSetUpdate ());     // command "-->"
@@ -152,58 +148,6 @@ public class mensaka4listix implements MensakaTarget
       if (theListix != null)
          theListix.destroy ();
    }
-
-   // 11.08.2009 23:13 remove old mechanism default db
-//   private void facilitateSameDefaultDatabaseName (EvaUnit listixFormats, EvaUnit data)
-//   {
-//      // Note that javaj alone does not have a default database implicitly like listix
-//      // in a pure javaj application this has to be explicity specified via "global_defaultDatabaseName" attribute.
-//      // Therefore to achieve that javaj widgets are using the same default database as listix
-//      // there are to possibilities:
-//      //      a) in all gastona scripts using default database set in the data unit the variable
-//      //             <global_defaultDatabaseName> "fullpath of default datbase"
-//      //             (is not possible to use @<:listix defaultDBName> in data for javaj!!)
-//      //      b) gastona set this variable automatically
-//      //
-//      //  Here we implement the option b) but unfortunatly gastona has no idea if any of the
-//      //  javaj widgets will use or not the default database. This variable and the default database
-//      //  whill be created always and not "on demand" as make listix usually
-//      //
-//
-//      String GLOB_DB_ATTR = de.elxala.db.sqlite.tableROSelect.sGLOB_ATTR_DB_DEFAULT_DATABASE_NAME;
-//
-//      Eva evaFormatsDefDB = listixFormats.getEva (GLOB_DB_ATTR);
-//      Eva evaDataDefDB    = data.getEva (GLOB_DB_ATTR);
-//
-//      if (evaFormatsDefDB != null)
-//      {
-//         // for listix is ok but java need it in data!
-//         // then copy it to data
-//         //
-//         if (evaDataDefDB != null && evaDataDefDB.getValue ().length() > 0)
-//         {
-//            log.err ("facilitateSameDefaultDatabaseName",
-//                     "ambigous " + GLOB_DB_ATTR + " specified!" +
-//                     " in listix unit [" + evaFormatsDefDB.getValue () + "]" +
-//                     " and in data unit [" + evaDataDefDB.getValue () + " ]");
-//            return;
-//         }
-//
-//         // copy from formats to data
-//         evaDataDefDB.setValue (evaFormatsDefDB.getValue ());
-//         return;
-//      }
-//
-//      if (evaDataDefDB != null && evaDataDefDB.getValue ().length() > 0)
-//      {
-//         // specified, do not touch it
-//         return;
-//      }
-//
-//      // not specified in data set the listix default database
-//      //
-//      data.getSomeHowEva (GLOB_DB_ATTR).setValue (theListix.getDefaultDBName());
-//   }
 
    private void startListixMain (EvaUnit pData, String script)
    {

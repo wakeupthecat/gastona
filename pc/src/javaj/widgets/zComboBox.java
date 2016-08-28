@@ -105,18 +105,6 @@ import javaj.widgets.table.util.*;
    <examples>
       gastSample
 
-      <!data4Tester
-      hello zComboBox
-
-   <data4Tester>
-      //#data#
-      //
-      //    <cName>
-      //       name      , value
-      //       Option 1  , 1
-      //       Option 2  , 2
-      //       No Option , 0
-
    <hello zComboBox>
       //#javaj#
       //

@@ -52,7 +52,7 @@ public class commonGastona
       //(o) gast_INIT_FindMainGast
       // search .gast file
       //
-      if (aa.length > 0)
+      if (aa != null && aa.length > 0)
       {
          int indxStart = miscUtil.startsWithIgnoreCase (aa[0], UTF8_PARAM) ? UTF8_PARAM.length ():
                          miscUtil.startsWithIgnoreCase (aa[0], UTF8_PARAM2) ? UTF8_PARAM2.length (): 0;
@@ -116,7 +116,7 @@ public class commonGastona
    */
    public static String searchGastonaApplication (String [] aa)
    {
-      if (aa.length > 0)
+      if (aa != null && aa.length > 0)
       {
          log.dbg (2, "searchingApp", "given in parameter [" + aa[0] + "]");
 

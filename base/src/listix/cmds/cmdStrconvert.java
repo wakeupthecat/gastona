@@ -221,8 +221,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       28     , mult            , 0     , //Multiplier to shift the key
       28     , offset2         , 0     , //Second offset used to shift the key
 
-      29     , TRAZOS-JS       ,       , //
-      29     , evaName         ,       , //Variable name (eva) containing the trazos
+      29     , 2DTRAZOS-JS     ,       , //
+      29     , evaName         ,       , //Variable name (eva) containing the 2d trazos
       29     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trazos2D.js is included
       29     , canvasX         , 0     , //If > 0 width of canvas where the image has to fit
       29     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
@@ -235,6 +235,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       30     , fileType        , 0     , //File type, default is "png"
       30     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
       30     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
+
+      31     , 2DTRAZOS-FILE   ,       , //
+      31     , evaName         ,       , //Variable name (eva) containing the 2d trazos
+      31     , imageFilename   , 1     , //Target file name for image
+      31     , fileType        , 0     , //File type, default is "png"
+      31     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
+      31     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
 <! XOR ENCRYPT, KEY, offset1, mult, offset2
 <!            , IN FILE KEY,
@@ -623,7 +630,7 @@ public class cmdStrconvert implements commandable
          //Eva theVar = that.getVarEva (p1);
          String sResult = de.elxala.db.utilEscapeStr.escapeStrArray (theVar.getAsArray ());
 
-         if (that.log().isLogging (2)) // toString might be expensive!
+         if (that.log().isDebugging (2)) // toString might be expensive!
             that.log().dbg(2, "STRCONV", "TEXT-STR result [" + sResult.toString () + "]");
 
          if (p2.length () == 0)
@@ -811,7 +818,7 @@ public class cmdStrconvert implements commandable
          // in encryption nor decryption case
          OptSolveVar = false;
       }
-      else if (oper.equals ("TRAZOS-JS"))
+      else if (oper.equals ("2DTRAZOS-JS") || oper.equals ("TRAZOS-JS"))
       {
          //    STRCONV, TRAZOS-JS, evaname, uselib
 
@@ -826,21 +833,14 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("2DPATHS-FILE"))
       {
-         //    STRCONV, 2DPATHS-PNG, evaname, pngFileName, filetype[png], dx, dy
-
-         Eva source = that.getReadVarEva (p1);
-         String fileName = p2;
-         String fileFormat = p3.equals ("") ? "png": p3;
-
-         int dx = stdlib.atoi (cmd.getArg(4));
-         int dy = stdlib.atoi (cmd.getArg(5));
-
-         BufferedImage ima = null;
-         if (dx > 0)
-              ima = uniUtilImage.graffitiToBufferedImage (source, dx, dy == 0 ? dx: dy, null);
-         else ima = uniUtilImage.graffitiToBufferedImage (source);
-
-         uniUtilImage.saveBufferedImageTofile (ima, fileName, fileFormat);
+         //    STRCONV, 2DPATHS-FILE, evaname, pngFileName, filetype[png], dx, dy
+         dosD2File ("paths", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
+         strResult = "";
+      }
+      else if (oper.equals ("2DTRAZOS-FILE") || oper.equals ("TRAZOS-FILE"))
+      {
+         //    STRCONV, 2DTRAZOS-FILE, evaname, pngFileName, filetype[png], dx, dy
+         dosD2File ("trazos", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
          strResult = "";
       }
       else
@@ -855,6 +855,21 @@ public class cmdStrconvert implements commandable
            that.printTextLsx (strResult);
       else that.writeStringOnTarget (strResult);
       return 1;
+   }
+
+
+   private void dosD2File (String graffitiFormat, Eva source, String fileName, String fileformat, String sdx, String sdy)
+   {
+      int dx = stdlib.atoi (sdx);
+      int dy = stdlib.atoi (sdy);
+
+      String fileFormat = fileformat.equals ("") ? "png": fileformat;
+      BufferedImage ima = null;
+      if (dx > 0)
+           ima = uniUtilImage.graffitiToBufferedImage (source, graffitiFormat, dx, dy == 0 ? dx: dy, null);
+      else ima = uniUtilImage.graffitiToBufferedImage (source, graffitiFormat);
+
+      uniUtilImage.saveBufferedImageTofile (ima, fileName, fileFormat);
    }
 
    private boolean requiredEvas(listix that, String subCmdName, String e1, String e2, boolean e2Mandatory)

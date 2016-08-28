@@ -82,6 +82,7 @@ function jGastona (evaConfig, existingPlaceId)
    // due to IE compatib.
    function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
    function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
+   if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
 
    function adaptaLayout ()
    {

@@ -91,14 +91,8 @@ import javaj.widgets.basics.*;
    <examples>
       gastSample
 
-      <!data4Tester
       little editor
       <!zMiniEditor autotest
-
-   <data4Tester>
-      //
-      //    <fName> test.txt
-      //
 
    <little editor>
       //#javaj#

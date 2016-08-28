@@ -38,13 +38,13 @@ public class javajEBS extends javajEBSbase
    {
       super (euData);
    }
-   
+
    private Eva getEvaFromDefaultData (String name)
    {
       if (euDefaultIcons == null)
          euDefaultIcons = EvaFile.loadEvaUnit ("META-GASTONA/javaj/defaultIcons.eva", "data");
       if (euDefaultIcons == null) return null;
-      
+
       return euDefaultIcons.getEva (name);
    }
 
@@ -58,6 +58,7 @@ public class javajEBS extends javajEBSbase
       ImageIcon imai = javaLoad.getSomeHowImageIcon (getVar("iconApp"));
       if (imai == null)
       {
+         Eva graFormat = getEva("iconAppGraffitiFormat");
          Eva egraff = getEva("iconAppGraffiti");
          Eva egraffSize = getEva("iconAppGraffitiSize");
 
@@ -74,8 +75,9 @@ public class javajEBS extends javajEBSbase
             int dy = (egraffSize != null) ? stdlib.atoi (egraffSize.getValue (0, 1)): 20;
             dx = dx <= 0 ? 20: dx; // default 20
             dy = dy <= 0 ? dx: dy; // default square (like x)
-            
-            imai = new ImageIcon (uniUtilImage.graffitiToBufferedImage (egraff, dx, dy, null));
+
+            String gFor = graFormat == null ? "paths": graFormat.getValue ();
+            imai = new ImageIcon (uniUtilImage.graffitiToBufferedImage (egraff, gFor, dx, dy, null));
          }
       }
 

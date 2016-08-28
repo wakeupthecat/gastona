@@ -9,52 +9,132 @@
    <layout of main>
       EVA,
 
-         ,  X
-         , bIntroduction
-         , bMicro Tutorial
-         , bFile Ciervo
-         , bProgramMe
-       X , iFilesGast
+         ,  X, X
+         , bMicro Tutorial, -
+         , bFile Ciervo, -
+         , bProgramMe, -
+         , bGastRoot    , bGastPrev
+         , lGastCurrPath, -
+       X , iGastFiles   , -
 
 #data#
 
-   <bIntroduction image>  file.png
    <bMicro Tutorial image> tutorial.png
-   <bDirMes demo image>   folder_explorer.png
 
-   <appInfo>
-       //#javaj#
-       //
-       //   <frames> main, Welcome to gastona
-       //
-       //   <layout of main>
-       //      EVA, 7, 7, 6, 6
-       //
-       //         ,  X
-       //       X , wIntro
-       //
-       //#data#
-       //   <wIntro fileName> demo/gastona_intro.html
-       //
+   <bGastRoot> gastDir
+   <bGastPrev> Prev
+   <bGastRoot image> folder_root.png
+   <bGastPrev image> folder_back.png
 
+   <iGastFiles visibleColumns> fileName
 
+   <GAST_ROOT>   /mnt/sdcard/gastona
+
+   <bFile Ciervo graffiti format> trazos
+   <bFile Ciervo graffiti>
+      defstyle, tinta3, "fc:+255127039;sw:6"
+      defstyle, tinta1, "fc:+234234234;sw:6"
+      defstyle, onas, "fc:+255255175;sw:6"
+
+      z,322,399,tinta3,"jauz,16,-53,27,-77,57,-15,49,5,53,7,45,12,15,22,-6,35,-16,64,-28,53,-46,4,-45,-3,-78,-15,-45,-22"
+      z,391,369,tinta1,"jau,0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30"
+      z,317,420,tinta3,"jauz,-20,-63,-13,-75,56,-5,107,15,30,6,23,32,28,70,7,51,-35,10,-47,-2,-58,-12,-48,-12"
+      z,440,209,tinta1,"jau,26,-9,26,2,19,8"
+      z,470,217,tinta1,"jau,12,0,19,8,15,-1"
+      z,418,240,tinta1,"jau,27,-3,25,5"
+      z,440,269,tinta1,"jau,51,3,20,-3"
+
+      z,625,321,onas,"jau,19,-5,12,19,4,19,1,26,-7,17,-19,15,-6,0,-11,-10,12,-19,5,-19,-9,-39"
+      z,664,269,onas,"jau,26,-14,6,5,31,44,16,45,-4,52,-24,42,-17,16,-34,12,-17,-17,19,-13,20,-20,15,-26,6,-27,-3,-33,-12,-30,-25,-35"
+
+   <bProgramMe graffiti format> trazos
+   <bProgramMe graffiti>
+      defstyle, carcasa  , "fc:+175170221;sw:6"
+      defstyle, boton    , "fc:+234234234;sw:6"
+      defstyle, pantalla , "fc:+048131146;sw:6"
+      defstyle, letras1  , "sc:white;sw:6"
+      defstyle, onas     , "fc:+255255175;sw:6"
+      defstyle, letras   , sc:+152218250;sw:6
+
+      z,358,240,carcasa,"jauz,6,-26,44,-15,144,1,65,14,14,13,0,25,4,190,-3,174,-8,35,-29,10,-55,2,-58,-1,-52,-4,-50,-2,-31,-7,-2,-52,1,-60,2,-56,1,-53,3,-44,4,-138"
+      z,379,604,pantalla,"jauz,44,1,100,5,40,3,22,-2,17,-10,3,-53,-1,-71,1,-180,-10,-67,-61,-8,-133,0,-19,7,-4,6,-4,12,1,69,-1,58,-7,117,-5,100"
+      z,491,638,"fc:gray","jau,6,-2,1,-6,-6,-5,-6,0,-3,6,4,6"
+      z,524,315,letras,"jau,-68,-3,-9,8,-3,34,7,5,65,-4"
+      z,478,345,letras,"jau,82,-1,3,42,-6,5,-79,-5,-48,0,-30,5"
+      z,422,476,letras,"jau,0,38"
+      z,457,477,letras,"jau,-18,9,-3,18,31,10,6,-3,2,-18,-15,-16"
+      z,493,471,letras,"jau,2,38"
+      z,527,472,letras,"jau,-20,4,-2,6,5,25,11,7,6,0,5,-12,-8,-26"
+      z,565,475,letras,"jau,-6,2,-6,14,-1,19,15,13,12,-7,2,-12,-6,-19,-10,-11"
+      z,453,538,letras,"jau,-15,32,-6,6,-6,-6,-5,-18,15,-8,13,2,16,17"
+      z,497,538,letras,"jau,-6,48,3,-32,12,-18,11,17,-14,4,13,-1,6,4,0,6,-13,4,-21,-8"
+
+      z,691,273,onas,"jau,19,-5,12,19,4,19,1,26,-7,17,-19,15,-6,0,-11,-10,12,-19,5,-19,-9,-39"
+      z,740,218,onas,"jau,26,-14,6,5,31,44,16,45,-4,52,-24,42,-17,16,-34,12,-17,-17,19,-13,20,-20,15,-26,6,-27,-3,-33,-12,-30,-25,-35"
+
+      z,732,467,fc:yellow;sw:7,"jau,-20,40,-15,40,-6,47,13,45,42,4,47,5,-10,-31,5,-46,14,-38,27,-43,-46,-17,-51,-8"
+
+      z,744,490,notinta,"jau,-12,2,1,14"
+      z,780,501,notinta,"jau,7,8,-3,6,-12,5"
+      z,721,527,notinta,"jau,18,4"
+      z,750,535,notinta,"jau,27,7"
+      z,744,556,notinta,"jau,21,4"
+      z,735,598,notinta,"jau,19,0"
+      z,659,539,onas,"jau,-1,46,-29,0,-4,32,-29,-21,-30,-26,7,-19,50,-43,3,27,7,2,25,-1"
 
 #listix#
 
    <main>
-      GEN, :mem Intro, appInfo
-
-   <-- bIntroduction>
-      GAST, :mem Intro
+      LSX, SET CURRENTGAST(dir), @<GAST_ROOT>
 
    <-- bMicro Tutorial>
       GAST, demo/microTutorial.gast
-
-   <-- bDirMes demo>
-      GAST, demo/dirMes.gast
 
    <-- bFile Ciervo>
       GAST, fileCiervo.gast
 
    <-- bProgramMe>
       GAST, programMe.gast
+
+   <!------- dirMe
+
+   <SET CURRENTGAST(dir)>
+      -->, lGastCurrPath data!,, @<p1>
+      LSX, load dir in gast list
+
+   <-- bGastRoot>
+      LSX, SET CURRENTGAST(dir), @<GAST_ROOT>
+
+   <-- iGastFiles>
+      CHECK, VAR, iGastFiles selected.fileName
+      IN CASE, @<iGastFiles selected.isFile>
+             , 0, LSX, press gast directory
+             , 1, LSX, press gast file
+
+   <press gast directory>
+      LSX, SET CURRENTGAST(dir), @<added gast dir>
+
+   <press gast file>
+      IN CASE, @<iGastFiles selected.extension>
+             , gast, GAST, @<iGastFiles selected.fullPath>
+             , ELSE, BOX, I, "File @<iGastFiles selected.fullPath>"
+
+   <-- bGastPrev>
+      CHECK, !=, @<lGastCurrPath>, @<GAST_ROOT>
+      LSX, SET CURRENTGAST(dir), @<parent gast path>
+
+   <added gast dir>
+      STRCONV, PATH-CONCAT, @<lGastCurrPath>, @<iGastFiles selected.fileName>
+
+   <parent gast path>
+      STRCONV, PATH-SOLVE, @<lGastCurrPath>/..
+
+   <load dir in gast list>
+      VAR=, iGastFiles, fileName, isFile, icon, fullPath, extension
+      LOOP, DIRS, @<lGastCurrPath>
+          , RECURSE, 0
+          ,,  VAR+, iGastFiles, @<fileName>, "0", "folder.png", @<fullPath>, @<extension>
+      LOOP, FILES, @<lGastCurrPath>, gast
+          , RECURSE, 0
+          ,,  VAR+, iGastFiles, @<fileName>, "1", "file.png", @<fullPath>, @<extension>
+      MSG, iGastFiles data!

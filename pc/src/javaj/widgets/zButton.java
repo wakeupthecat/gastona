@@ -100,18 +100,11 @@ import javax.imageio.ImageIO;
    <examples>
       gastSample
 
-      <!data4Tester
       hello zButton
       <!hello zButton2
       single file chooser
       file choosers
       button graffiti
-
-   <data4Tester>
-      //#data#
-      //
-      //    <bName> Caption for the button
-      //
 
    <hello zButton>
       //#javaj#
@@ -372,10 +365,18 @@ public class zButton extends JButton implements ActionListener, MensakaTarget
 
             if (helper.ebs().getGraffiti () != null)
             {
-               ImageIcon icon = new ImageIcon (uniUtilImage.graffitiToBufferedImage (helper.ebs().getGraffiti ()));
+               ImageIcon icon = new ImageIcon (
+                                     uniUtilImage.graffitiToBufferedImage (
+                                             helper.ebs().getGraffiti (),
+                                             helper.ebs().getGraffitiFormat ())
+                                    );
                setIcon (icon);
                if (helper.ebs().getGraffitiPress () != null)
-                  setPressedIcon (new ImageIcon (uniUtilImage.graffitiToBufferedImage (helper.ebs().getGraffitiPress ())));
+                  setPressedIcon (new ImageIcon (
+                                      uniUtilImage.graffitiToBufferedImage (
+                                             helper.ebs().getGraffitiPress (),
+                                             helper.ebs().getGraffitiFormat ())
+                                 ));
                else setPressedIcon (null);
             }
 

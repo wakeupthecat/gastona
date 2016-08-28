@@ -90,6 +90,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       gastSample
 
       udpClientServer
+      simple Gastona UDP debug client
 
    <udpClientServer>
       //#javaj#
@@ -122,6 +123,85 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       UDP, CLOSE, vicens
       //
 
+   <simple Gastona UDP debug client>
+      //#javaj#
+      //
+      //   <frames> F, Simple gastona UDP debug client
+      //
+      //   <layout of F>
+      //      Eva, 10, 10, 4, 4
+      //
+      //         ,            , 120       , X       ,          , X
+      //         , lIP Gastona, eIPGastona, bConnect, layLevels, bClear
+      //         , lPort      , eUdpPort  , +       , +        , +
+      //       X , oCansa     , -, -, -, -
+      //
+      //   <layout of layLevels>
+      //      PANEL, X, Debug level
+      //      rgLevels
+      //
+      //#data#
+      //
+      //   <eIPGastona> 127.0.0.1
+      //   <eUdpPort> 11882
+      //
+      //   <rgLevels orientation> X
+      //   <rgLevels>
+      //        label, selected
+      //        2
+      //        4
+      //        6
+      //        8
+      //        10
+      //        12   , 1
+      //        14
+      //        16
+      //        18
+      //        19
+      //
+      //#listix#
+      //
+      //   <main>
+      //      //
+      //      // Very simple debug udp client for gastona applications
+      //      // including android gastona scripts.
+      //      //
+      //      // Your application has to open a UDP port for debug messages.
+      //      // This can be done by including this at the top of the script
+      //      //
+      //      //       #gastona#
+      //      //
+      //      //           <UDP_DEBUG_PORT>
+      //      //
+      //      // Then start your gastona application.
+      //      //
+      //      // Enter the right values for IP and UDP port if for example
+      //      // your aplication run in another computer or device or it has
+      //      // chosen another UDP port (gastona uses 11882 by default).
+      //      //
+      //      // Press Connect and choose the debug level.
+      //      //
+      //      // When interacting with your application you should see debug messages
+      //      // on the client.
+      //
+      //   <-- bConnect>
+      //      UDP, SET CLIENT, pincho, @<eIPGastona>, @<eUdpPort>
+      //      UDP, AGENT SEND, pincho, //SETLEVEL @<rgLevels selected.label>
+      //      SLEEP, 300
+      //      UDP, AGENT SEND, pincho, //ON
+      //
+      //   <-- pincho udp>
+      //       @<:raw p1>
+      //       //
+      //       //
+      //
+      //   <-- rgLevels>
+      //      UDP, AGENT SEND, pincho, //SETLEVEL @<rgLevels selected.label>
+      //
+      //   <-- bClear>
+      //      MSG, oCansa clear
+
+
 #**FIN_EVA#
 */
 
@@ -146,7 +226,7 @@ public class cmdUDP implements commandable
    */
    public String [] getNames ()
    {
-      return new String [] 
+      return new String []
       {
           "UDP",
           "SOCKETUDP",
@@ -156,9 +236,9 @@ public class cmdUDP implements commandable
 
    // global socket for SEND ONCE, just use one socket for all calls to "send once"
    //
-   private DatagramSocket anonimusUDPsocket = null; 
-   
-   
+   private DatagramSocket anonimusUDPsocket = null;
+
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -178,7 +258,7 @@ public class cmdUDP implements commandable
       boolean optSetServer  = cmd.meantConstantString (oper, new String [] { "SETSERVER", "SERVER", "CREATESERVER" });
       boolean optAgentSend  = cmd.meantConstantString (oper, new String [] { "AGENTSEND", "SENDAGENT", "AGENTTX", "SEND" });
       boolean optClose      = cmd.meantConstantString (oper, new String [] { "CLOSE", "FIN", "BASTA", "STOP" });
-      
+
       if (optSendOnce)
       {
          // UDP, SEND, IP, Port, datagram

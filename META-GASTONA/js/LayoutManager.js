@@ -10,7 +10,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 /**
    @author Alejandro Xalabarder
    @date   2015.05.21
-   
+
    @file   LayoutManager.js
 
    @desc   Load a set of eva layouts (Eva File format with one unit called "layouts")
@@ -19,20 +19,20 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
    @requires EvaLayout.js
              Eva.js only necessary if want to parse eva format (method evaFile)
-   
+
    ---------- Example of tipical use:
-   
+
    // load a complete set of layouts to be composed or switched
    //
    var managr = layoutManager (evaFile ("#layouts#\n <layout1> Evalayout...."));
-   
+
    // select a specific layout, if the function is not called the name "main" is assumed
-   managr.setLayout ("layout3"); 
-   
+   managr.setLayout ("layout3");
+
    // place the components according to the current layout and using the sizes
    // tipically this can be called when the window size changes
-   managr.doLayout (dx, dy);     
-   
+   managr.doLayout (dx, dy);
+
    // an example of masking, it replaces the widget button1 with the one called combo4
    //
    managr.maskLayoutId ("button1", "combo4");
@@ -126,13 +126,13 @@ function layoutManager (evaObj, callbackAddWidget)
          // specific for widget (html widget)
          //
          isWidget  : true,
-         doMove : function (x, y, dx, dy) 
+         doMove : function (x, y, dx, dy)
          {
             var ele = document.getElementById(wname);
             if (ele)
             {
             ele.style.position = "absolute";
-            ele.style.left   = Math.round(x) + "px";            
+            ele.style.left   = Math.round(x) + "px";
             ele.style.top    = Math.round(y) + "px";
             ele.style.width  = Math.round(dx) + "px";
             ele.style.height = Math.round(dy) + "px";
@@ -195,14 +195,14 @@ function layoutManager (evaObj, callbackAddWidget)
    //
    function doYouMean (namewanted)
    {
-      var masker, 
+      var masker,
           indx,
           antiRecList = [];
 
       do
       {
          masker = maskMap [namewanted];
-         if (! masker || masker === "" || masker === namewanted) 
+         if (! masker || masker === "" || masker === namewanted)
 			return namewanted; // as it not masked
 
          for (indx in antiRecList)

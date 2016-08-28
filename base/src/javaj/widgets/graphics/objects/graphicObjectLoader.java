@@ -36,7 +36,7 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
 
    // svg/xml parsers
    //
-   private svgLikePathParser2uniPath  pathParser = new svgLikePathParser2uniPath ();
+   private static svgLikePathParser2uniPath  mPathParser = new svgLikePathParser2uniPath ();
 
    public void loadObjectFromSvg (String fileName)
    {
@@ -94,6 +94,7 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
 
 
    //(o) javaj_widgets_2Dscene allowed geometries
+   //
    public void loadObjectFromEva (String objectName, Eva evaShapes, Eva pressShapes, String basicMov, offsetAndScale posScala)
    {
       if (evaShapes == null) return;
@@ -101,7 +102,18 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       super.name = objectName;
       super.movil.setBasicMovement (basicMov);
       super.setCurrentPosAndScale (posScala);
-      super.clickCtrl.setClickObj (pressShapes);
+
+      // press graphic object if any
+      graphicObjectLoader pressOb = (pressShapes != null) ? new graphicObjectLoader (): null;
+      if (pressOb != null)
+      {
+         pressOb.loadObjectFromEva ("", // name not important
+                                    pressShapes,     // shapes for the press object
+                                    null,       // IMPORTANT: IT MUST BE NULL !!! if not we have recursive calls
+                                    "",         // basic move not important, it has to follow the one from the master object
+                                    null);      // posScala not important, it has to follow the one from the master object
+      }
+      super.clickCtrl.setClickObj (pressOb);
 
       log.dbg (2, "loadObjectFromEva", "have graphic data of rows " + evaShapes.rows ());
       for (int ii = 0; ii < evaShapes.rows (); ii ++)
@@ -131,12 +143,13 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       }
    }
 
-   /// Note: this parser is using the compatible svg like parser!! svgLikePathParser2uniPath::parsePathStringOnUnipath
-   ///       now uniPath also has
-   ///
-   public void loadUniPathFromEvaTrazos (uniPath uPath, Eva evaTrazos)
+   // Static method to load in a uniPath a graphic given in trazos format
+   //
+   public static void loadUniPathFromEvaTrazos (uniPath uPath, Eva evaTrazos)
    {
       if (evaTrazos == null) return;
+
+      svgLikePathParser2uniPath pParser = new svgLikePathParser2uniPath ();
 
       log.dbg (2, "loadUniPathFromEvaTrazos", "have graphic data of rows " + evaTrazos.rows ());
       for (int ii = 0; ii < evaTrazos.rows (); ii ++)
@@ -151,7 +164,7 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
          if (orden.equals ("z")) // "z" de trazo
          {
             int indxTrazo = uPath.getEdiPaths ().startTrazoAt ((float) stdlib.atof (xval), (float) stdlib.atof (yval));
-            pathParser.parsePathStringOnUnipath (uPath, data);
+            pParser.parsePathStringOnUnipath (uPath, data);
             uPath.getEdiPaths ().setStyleToTrazo (indxTrazo, style);
          }
          else if (orden.equals ("defstyle"))
@@ -165,13 +178,29 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       }
    }
 
-
    public void loadObjectFromEvaTrazos (String objectName, Eva evaTrazos)
    {
+      loadObjectFromEvaTrazos (objectName, evaTrazos, null, "111", null);
+   }
+
+   public void loadObjectFromEvaTrazos (String objectName, Eva evaTrazos, Eva pressTrazos, String basicMov, offsetAndScale posScala)
+   {
+      if (evaTrazos == null) return;
+
       super.name = objectName;
-      // super.movil.setBasicMovement (basicMov);
-      // super.setCurrentPosAndScale (posScala);
-      // super.clickCtrl.setClickObj (pressShapes);
+      super.movil.setBasicMovement (basicMov);
+      super.setCurrentPosAndScale (posScala);
+
+      graphicObjectLoader pressOb = (pressTrazos != null) ? new graphicObjectLoader (): null;
+      if (pressOb != null)
+      {
+         pressOb.loadObjectFromEva ("", // name not important
+                                    pressTrazos,     // shapes for the press object
+                                    null,       // IMPORTANT: IT MUST BE NULL !!! if not we have recursive calls
+                                    "",         // basic move not important, it has to follow the one from the master object
+                                    null);      // posScala not important, it has to follow the one from the master object
+      }
+      super.clickCtrl.setClickObj (pressOb);
 
       uniPath miUPath = new uniPath ();
       loadUniPathFromEvaTrazos (miUPath, evaTrazos);
@@ -193,7 +222,7 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       if (log.isDebugging (4))
          log.dbg (4, "processSvgPath", "path  [" + pathData + "]  style [" + pathStyle + "]");
 
-      uniPath apath = pathParser.parsePath (pathData, polygonOrPolyline ? 'M': 'm');
+      uniPath apath = mPathParser.parsePath (pathData, polygonOrPolyline ? 'M': 'm');
       if (closePath)
          apath.getEdiPaths ().close ();
 

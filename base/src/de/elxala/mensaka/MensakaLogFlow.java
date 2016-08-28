@@ -206,7 +206,8 @@ public class MensakaLogFlow
       // log or not according to the loggLevelMsgLost of the message sender which is usually LOG_ERROR
       // but it can be relaxed in some cases
       //
-      if (log_flow_lostMsgs.isLogging (hand.loggLevelMsgLost))
+      //(o) TODO/mensaka/logging activity: Is here "isMsgLevelActive" wanted or should "isDebugging" be used instead ?
+      if (log_flow_lostMsgs.isMsgLevelActive (hand.loggLevelMsgLost))
       {
          int agentID = getAgentIndx (hand.sourceObject);
 

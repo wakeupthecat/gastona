@@ -355,7 +355,7 @@ public class sqlSolverBatch
          // create the process
          //
          //(o) JAVA EXEC !!!!
-         if (log.isLogging (6))
+         if (log.isDebugging (6))
             log.dbg (6, "sqLiteCall", "sqlite binary: " + sqliteCLIENT);
 
          proc = Runtime.getRuntime().exec (new String [] { sqliteCLIENT, database });

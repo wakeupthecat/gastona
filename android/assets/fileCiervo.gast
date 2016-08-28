@@ -9,14 +9,13 @@
           , X
           , lCiervo file server
           , lListeningOn
-          , bGET IP AND NAME
+          , bSHOW CONNECTION URL
         X , oCanso
           , bDISCONNECT
 
    <sysDefaultFonts>
       Consolas, 16, 0, TextArea.font
       Verdana,  16, 0, Button, ToggleButton, Label
-
 
 #data#
 
@@ -29,16 +28,14 @@
 #listix#
 
    <-- javaj exit>
-      RARAR, RARAR COMPENDIO!
       micohttp, stop, monoMico
-
 
    <main>
        VAR=, eCurrentDir, @<:sys user.dir>
        -->, lListeningOn data!,, listening on @<PORTOS>
        LSX, START_CIERVO
 
-   <-- bGET IP AND NAME>
+   <-- bSHOW CONNECTION URL>
       -->, oCanso clear
       //try one of these urls in your browser
       http://@<:lsx host name>:@<PORTOS>
@@ -64,6 +61,7 @@
      //<html>
      //@<css stuff>
      //<body>
+     //   <h2> File Ciervo : serving file system of the device</h2><br><br>
      //   Current Path : <a href="/setdir?dir=@<eCurrentDir>">@<eCurrentDir></a><br><br>
      //
      // <table border="0">

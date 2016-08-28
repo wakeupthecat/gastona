@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-(c) Copyright 2005 to 2012 Alejandro Xalabarder Aulet
+(c) Copyright 2011 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

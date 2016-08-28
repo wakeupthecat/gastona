@@ -147,6 +147,8 @@ public class zList extends ListView implements MensakaTarget, OnItemClickListene
       }
    }
 
+
+   @Override
    public void onItemClick(AdapterView<?> parent, View view, int position, long id)
    {
       if (helper == null) return;

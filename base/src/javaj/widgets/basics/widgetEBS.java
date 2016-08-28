@@ -97,6 +97,7 @@ public class widgetEBS extends baseEBS
    public static final String sATTR_VISIBLE    = "visible";
    public static final String sATTR_ENABLED    = "enabled";
    public static final String sATTR_IMAGE      = "image";
+   public static final String sATTR_GRAFFITI_FORMAT = "graffiti format";
    public static final String sATTR_GRAFFITI   = "graffiti";
    public static final String sATTR_GRAFFITI_PRESS = "graffiti press";
    public static final String sATTR_GRAFFITI_ANIM = "graffiti animation";
@@ -201,6 +202,16 @@ public class widgetEBS extends baseEBS
       return getAttribute (DATA, sATTR_GRAFFITI);
    }
 
+   public String getGraffitiFormat ()
+   {
+      return getSimpleAttribute (DATA, sATTR_GRAFFITI_FORMAT);
+   }
+
+   public boolean isGraffitiFormatTrazos ()
+   {
+      return "trazos".equalsIgnoreCase (getGraffitiFormat ());
+   }
+
    public Eva getGraffitiPress ()
    {
       return getAttribute (DATA, sATTR_GRAFFITI_PRESS);
@@ -236,17 +247,17 @@ public class widgetEBS extends baseEBS
    {
       return getSimpleAttribute (DATA, sATTR_BACKCOLOR, null);
    }
-   
+
    public String getForeColorAttribute ()
    {
       return getSimpleAttribute (DATA, sATTR_FORECOLOR, null);
    }
-   
+
    public void setVisible (boolean valor)
    {
       setSimpleAttribute (CONTROL, sATTR_VISIBLE, (valor ? "1" : "0"));
    }
-   
+
    public void setDataControlAttributes (EvaUnit pData, EvaUnit pControl, String [] pairAttValues)
    {
       setNameDataAndControl (null, pData, pControl);
@@ -254,13 +265,13 @@ public class widgetEBS extends baseEBS
    }
 
 
-   // thought for message 
+   // thought for message
    //   MSG, widgetName data!, att1, val1, att2, val2 ...
    //
    public void setArrayOfSimpleAttributes (String [] params)
    {
       if (params == null || params.length == 0) return;
-      
+
       for (int pp = 0; pp+1 < params.length; pp += 2)
       {
          setSimpleAttribute (DATA, params[pp], params[pp+1]);

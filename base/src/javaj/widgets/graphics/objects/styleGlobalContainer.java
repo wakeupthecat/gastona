@@ -17,14 +17,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 package javaj.widgets.graphics.objects;
 
-//import org.xml.sax.Attributes;
-
 import de.elxala.zServices.*;
 import de.elxala.langutil.*;
 import javaj.widgets.graphics.*;
 
 /**
-   Global container for styles, map of styleObjects 
+   Global container for styles, map of styleObjects
    ...//(o) TODO_doc
 
  */
@@ -43,18 +41,17 @@ public class styleGlobalContainer
 
    public static styleObject addOrChangeStyle (String logicName, String styleStr)
    {
-      if (logicName == null) return new styleObject(""); // Error!
-      
-      styleObject obj = (styleObject) utilSys.objectSacGet (mapName (logicName));
-      if (obj == null)
-      {
-         log.dbg (2, "addOrChangeStyle", "logic name \"" + logicName + "\" style string [" + styleStr + "]");
-         obj = new styleObject (styleStr);
-         utilSys.objectSacPut (mapName (logicName), obj);
-      }
+      if (logicName == null || styleStr == null) return new styleObject(""); // Error!
+
+      log.dbg (2, "addOrChangeStyle", "add new style \"" + logicName + "\", string [" + styleStr + "]");
+
+      // avoid "memory effects" setting always the new style
+      styleObject obj = new styleObject (styleStr);
+      utilSys.objectSacPut (mapName (logicName), new styleObject (styleStr));
+
       return obj;
    }
-   
+
    /**
       Always return an object
          the name has to be either a logic style name like "fledySkin" or a style string like "fc:black"
@@ -62,7 +59,7 @@ public class styleGlobalContainer
    public static styleObject getStyleObjectByName (String logicName)
    {
       if (logicName == null) return new styleObject (""); // Error!
-      
+
       styleObject obj = (styleObject) utilSys.objectSacGet (mapName (logicName));
       if (obj == null)
       {
@@ -81,7 +78,7 @@ public class styleGlobalContainer
    public static String getStyleStringByName (String logicName)
    {
       if (logicName == null) return "";
-      
+
       styleObject obj = (styleObject) utilSys.objectSacGet (mapName (logicName));
       return (obj != null) ? obj.getStyleString (): logicName;
    }

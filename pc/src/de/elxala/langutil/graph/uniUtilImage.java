@@ -161,16 +161,18 @@ public class uniUtilImage
 		return ok;
 	}
 
-   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti)
+   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String grafFormat)
    {
-      return graffitiToBufferedImage (evaGraffiti, 20, 20, null);
+      return graffitiToBufferedImage (evaGraffiti, grafFormat, 20, 20, null);
    }
 
-   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, int IMG_SX, int IMG_SY, Color backColor)
+   public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String grafFormat, int IMG_SX, int IMG_SY, Color backColor)
    {
       graphicObjectLoader oblo = new graphicObjectLoader ();
 
-      oblo.loadObjectFromEva ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
+      if (grafFormat != null && grafFormat.equalsIgnoreCase ("trazos"))
+           oblo.loadObjectFromEvaTrazos ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
+      else oblo.loadObjectFromEva       ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
 
       String imSize = System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE, null);
       if (imSize != null)

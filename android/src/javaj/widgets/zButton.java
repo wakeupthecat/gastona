@@ -46,6 +46,7 @@ public class zButton extends Button implements MensakaTarget, izWidget
    private Drawable dra = null;
    private graphicObjectLoader elGrafitti = null;
    private graphicObjectLoader elGrafittiPress = null;
+   private boolean graffitiFormat = false;
    private float calcScaleX = 1.f;
    private float calcScaleY = 1.f;
    private float calcOffsetX = 0.f;
@@ -180,7 +181,8 @@ public class zButton extends Button implements MensakaTarget, izWidget
       {
          doGrafitti (new uniCanvas (ca, getLeft (), getTop (), getWidth (), getHeight ()),
                      helper.ebs().getGraffiti (),
-                     helper.ebs().getGraffitiPress ()
+                     helper.ebs().getGraffitiPress (),
+                     helper.ebs().isGraffitiFormatTrazos ()
                      );
       }
    }
@@ -219,18 +221,23 @@ public class zButton extends Button implements MensakaTarget, izWidget
    }
 
 
-   public void doGrafitti (uniCanvas uCan, Eva evaPainting, Eva evaPaintingPress)
+   public void doGrafitti (uniCanvas uCan, Eva evaPainting, Eva evaPaintingPress, boolean isTrazosFormat)
    {
       if (elGrafitti == null)
       {
          elGrafitti = new graphicObjectLoader ();
-         elGrafitti.loadObjectFromEva ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
+
+         if (isTrazosFormat)
+              elGrafitti.loadObjectFromEvaTrazos ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
+         else elGrafitti.loadObjectFromEva       ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
          // ** Note: we actually do not press the graphical object but the button, so we cannot use the press semantic of the object
 
          if (evaPaintingPress != null)
          {
             elGrafittiPress = new graphicObjectLoader ();
-            elGrafittiPress.loadObjectFromEva ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
+            if (isTrazosFormat)
+                 elGrafittiPress.loadObjectFromEvaTrazos ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
+            else elGrafittiPress.loadObjectFromEva       ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
          }
 
          calcScaleX = 1.f;

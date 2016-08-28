@@ -123,8 +123,9 @@ public class objectGraph
 
    public boolean affectByPointer (float posx, float posy)
    {
-      //!!!if suspect it is not right calculated then uncomment this. but note that redundant calculations should be avoided!
-      //worldBounds = null;
+      //(o) TOREVIEW/android/javaj/touching Old comment, does it still applies ?
+      //   //!!!if suspect it is not right calculated then uncomment this. but note that redundant calculations should be avoided!
+      //   //worldBounds = null;
       uniRect wbo = getWorldBounds ();
 
       log.dbg (4, "affectByPointer", "point " + posx + ", " + posy + " the object " + name + " bounds " + wbo );
@@ -135,11 +136,12 @@ public class objectGraph
          return false;
       }
 
-      //(o) TODO trabajar el aspectal ... scale para optima detección (segunda vez etc)
-//      if (originalBounds.contains (posx - currentPosAndScale.offsetX , posy - currentPosAndScale.offsetY))
+      //(o) TOREVIEW/android/javaj/touching Old comment, does it still applies ?
+      //   //TODO trabajar el aspectal ... scale para optima detección (segunda vez etc)
+      //   //      if (originalBounds.contains (posx - currentPosAndScale.offsetX , posy - currentPosAndScale.offsetY))
       if (wbo.contains (posx, posy))
       {
-         log.dbg (4, "affectByPointer", "affected!");
+         log.dbg (4, "affectByPointer", name + " affected!");
          changingPosAndScale.set (0f, 0f, 1f, 1f);
 
          if (clickCtrl.canBeClicked ())
@@ -147,7 +149,7 @@ public class objectGraph
 
          return true;
       }
-      else System.out.println  (name + " me resbaslas ..");
+      else log.dbg (4, "affectByPointer", name + " not affected ...");
       return false;
    }
 
@@ -155,8 +157,9 @@ public class objectGraph
    {
       log.dbg (4, "movingRelative", "object " + name + " affected moving incx, incy " + despX + ", " + despY);
 
-      //!!!if suspect it is not right calculated then uncomment this. but note that redundant calculations should be avoided!
-      //worldBounds = null;
+      //(o) TOREVIEW/android/javaj/touching Old comment, does it still applies ?
+      //   //!!!if suspect it is not right calculated then uncomment this. but note that redundant calculations should be avoided!
+      //   //worldBounds = null;
       uniRect wbo = getWorldBounds ();
 
       float relX = despX / wbo.width ();
@@ -235,8 +238,11 @@ public class objectGraph
          grao.paintYou (canvas);
       }
 
-      //(o) object graphic frame for debug proposes
-      //canvas.drawRect (originalBounds, new uniPaint());
+      if (log.isDebugging (9))
+      {
+         //(o) object graphic frame for debug proposes
+         canvas.drawRect (originalBounds, new uniPaint());
+      }
 
       canvas.scale (1f/scaX, 1f/scaY);
       canvas.translate (-desX, -desY);

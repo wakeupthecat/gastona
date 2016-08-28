@@ -11,7 +11,6 @@
          , lCurrPath, -    , - , -
        X , iFiles   , -    , - , -
 
-
 #data#
 
    <bRoot image> folder_root.png
@@ -53,10 +52,8 @@
 
    <press file>
       IN CASE, @<iFiles selected.extension>
-             , svg, BOX, T, "Loading @<iFiles selected.fullPath> ..."
-             , svg, GAST, demo/svgVeo.gast, @<iFiles selected.fullPath>
              , gast, GAST, @<iFiles selected.fullPath>
-             , ELSE, BOX, I, "File @<iFiles selected.fullPath>"
+             , ELSE, BOX, T, "File @<iFiles selected.fullPath>"
 
    <-- bPrev>
       CHECK, !=, @<lCurrPath>, @<ROOT>

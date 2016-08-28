@@ -55,7 +55,6 @@
 
 
    <DIR android>       //\pavoTools\android-sdk
-   <DIR harmonySDK>    //\pavoTools\harmony-5.0-jdk
    <DIR javac high1.5> //\pavoTools\jdk1.7.0_04
    <DIR projPath>      //C:\tmp\apkproduct
 
@@ -160,13 +159,12 @@
    <void>
    <check environ>
       CHECK, VAR, DIR android, @<malamente>
-      CHECK, VAR, DIR harmonySDK, @<malamente>
       VAR=, adb.exe, //@<DIR android>\platform-tools\adb.exe
       GEN, "@<DIR projPath>\.lastUsed", void
 
 
    <malamente>
-      BOX, E, //Expected variables <DIR android> and/or <DIR harmonySDK> not found!
+      BOX, E, //Expected variable <DIR android> not found!
       MSG, javaj doExit
 
 

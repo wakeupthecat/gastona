@@ -26,7 +26,7 @@ import javaj.widgets.graphics.*;
 import de.elxala.zServices.*;
 import de.elxala.langutil.*;
 import de.elxala.math.space.*;   // vect3f
-import de.elxala.math.space.curve.*;   // 
+import de.elxala.math.space.curve.*;   //
 
 
 /**
@@ -99,12 +99,12 @@ public class svgLikePathParser2uniPath
    private float lastCtrlPt_y = 0.f;
    private char lastOperation = 'l';
    private char currOperation = 'l';
-   
+
    private static final char ASSIGNED_OP_RECT = '5';
    private static final char ASSIGNED_OP_CIRC = '6';
    private static final char ASSIGNED_OP_OVAL = '7';
    private static final char ASSIGNED_OP_ARC = '8';
-   
+
 
    private void tryOperation ()
    {
@@ -340,8 +340,8 @@ public class svgLikePathParser2uniPath
          //
          //===== NOT SVG OPERATIONS BUT EXTENSIONS
          //
-            
-         case 'x':   // 
+
+         case 'x':   //
          case 'j':   //  Casteljau-Bezier curve with automatic control points (~ powerpoint free curves)
             if (numStackSize >= 2)
             {
@@ -354,12 +354,12 @@ public class svgLikePathParser2uniPath
                if (relative)
                     currPath.getEdiPaths ().rAutoCasteljauPoint (x, y);
                else currPath.getEdiPaths ().autoCasteljauPoint (x, y);
-               
+
                lastX = x;
                lastY = y;
             }
             break;
-            
+
           case ASSIGNED_OP_RECT:
             if (numStackSize >= 4)
             {
@@ -528,7 +528,7 @@ public class svgLikePathParser2uniPath
       pushNumber (strNum);
       tryOperation ();
    }
-   
+
    // trick to admit trazo paths as well
    //  e.g.
    //       "jauz 10 2 -1 20 5 5"
@@ -545,7 +545,7 @@ public class svgLikePathParser2uniPath
       {
          currOperation = lastOperation = ASSIGNED_OP_CIRC;
       }
-      else  
+      else
       if (strpath.startsWith ("ova"))
       {
          currOperation = lastOperation = ASSIGNED_OP_OVAL;

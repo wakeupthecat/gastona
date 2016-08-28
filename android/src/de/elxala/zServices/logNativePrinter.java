@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2011 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -25,7 +25,10 @@ public class logNativePrinter
 {
    public static void message (String context, String msg2print)
    {
+      // for the user
       System.out.println (msg2print);
+
+      // for the debugger
       Log.d (context, msg2print);
    }
 
@@ -47,10 +50,5 @@ public class logNativePrinter
 
       CmdMsgBox.alerta (CmdMsgBox.ERROR_MESSAGE, title, msg2print, null, null);
       System.exit (1);
-//      javax.swing.JOptionPane.showMessageDialog (
-//            null,
-//            msg2print,
-//            title,
-//            javax.swing.JOptionPane.ERROR_MESSAGE);
    }
 }

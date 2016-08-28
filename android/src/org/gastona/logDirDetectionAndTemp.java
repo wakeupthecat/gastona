@@ -31,7 +31,6 @@ import de.elxala.zServices.*;
 public class logDirDetectionAndTemp
 {
    public static String PROP_SESSION_LOG_DIR = "gastona.sessionLog.dir";
-   public static String STORE_ERRORS_DIRECTORY = "/mnt/sdcard/gastona/errorLog";
 
    public static String sessionLogDirSlash = null;
 
@@ -75,19 +74,6 @@ public class logDirDetectionAndTemp
       }
 
       setSessionLogDir (strSessDir);
-   }
-
-   public static void detectErrorLogDir ()
-   {
-      //(o) gastona_traces enable or not the several traces
-      //
-      File fil = new File (STORE_ERRORS_DIRECTORY + "/ON");
-      if (fil.exists ())
-      {
-         String fileName = STORE_ERRORS_DIRECTORY +  "/" + DateFormat.getStr (new Date (), "yyyyMMdd_HHmmss");
-         android.util.Log.d ("gastona", "errors (if any) will be logged on [" + fileName + "]");
-         logServer.configureErrorLog (fileName);
-      }
    }
 
    protected static void setSessionLogDir (String dirName)

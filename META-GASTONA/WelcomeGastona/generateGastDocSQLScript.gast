@@ -70,7 +70,7 @@
 
    <-- bGenerate>
       LSX, doGeneration
-   
+
    <doGeneration>
       //@<:lsx CLOCK>
       //

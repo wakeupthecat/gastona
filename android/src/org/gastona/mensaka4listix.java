@@ -89,8 +89,6 @@ public class mensaka4listix implements MensakaTarget
       if (euJavaj != null && euJavaj.size () > 0)
       {
          log.dbg (2, "constructor", "preparing javaj");
-         // 11.08.2009 23:13 remove old mechanism default db
-         // facilitateSameDefaultDatabaseName (euListix, euData);
          //-!- theJavaj = new javaj36 (euJavaj, euData);
       }
 
@@ -145,58 +143,6 @@ public class mensaka4listix implements MensakaTarget
       if (theListix != null)
          theListix.destroy ();
    }
-
-   // 11.08.2009 23:13 remove old mechanism default db
-//   private void facilitateSameDefaultDatabaseName (EvaUnit listixFormats, EvaUnit data)
-//   {
-//      // Note that javaj alone does not have a default database implicitly like listix
-//      // in a pure javaj application this has to be explicity specified via "global_defaultDatabaseName" attribute.
-//      // Therefore to achieve that javaj widgets are using the same default database as listix
-//      // there are to possibilities:
-//      //      a) in all gastona scripts using default database set in the data unit the variable
-//      //             <global_defaultDatabaseName> "fullpath of default datbase"
-//      //             (is not possible to use @<:listix defaultDBName> in data for javaj!!)
-//      //      b) gastona set this variable automatically
-//      //
-//      //  Here we implement the option b) but unfortunatly gastona has no idea if any of the
-//      //  javaj widgets will use or not the default database. This variable and the default database
-//      //  whill be created always and not "on demand" as make listix usually
-//      //
-//
-//      String GLOB_DB_ATTR = de.elxala.db.sqlite.tableROSelect.sGLOB_ATTR_DB_DEFAULT_DATABASE_NAME;
-//
-//      Eva evaFormatsDefDB = listixFormats.getEva (GLOB_DB_ATTR);
-//      Eva evaDataDefDB    = data.getEva (GLOB_DB_ATTR);
-//
-//      if (evaFormatsDefDB != null)
-//      {
-//         // for listix is ok but java need it in data!
-//         // then copy it to data
-//         //
-//         if (evaDataDefDB != null && evaDataDefDB.getValue ().length() > 0)
-//         {
-//            log.err ("facilitateSameDefaultDatabaseName",
-//                     "ambigous " + GLOB_DB_ATTR + " specified!" +
-//                     " in listix unit [" + evaFormatsDefDB.getValue () + "]" +
-//                     " and in data unit [" + evaDataDefDB.getValue () + " ]");
-//            return;
-//         }
-//
-//         // copy from formats to data
-//         evaDataDefDB.setValue (evaFormatsDefDB.getValue ());
-//         return;
-//      }
-//
-//      if (evaDataDefDB != null && evaDataDefDB.getValue ().length() > 0)
-//      {
-//         // specified, do not touch it
-//         return;
-//      }
-//
-//      // not specified in data set the listix default database
-//      //
-//      data.getSomeHowEva (GLOB_DB_ATTR).setValue (theListix.getDefaultDBName());
-//   }
 
    private void startListixMain (EvaUnit pData, String script)
    {
@@ -312,7 +258,6 @@ public class mensaka4listix implements MensakaTarget
          return false;
       }
 
-
       // collect parameters if given
       //
       String [] params = pars;
@@ -324,6 +269,15 @@ public class mensaka4listix implements MensakaTarget
       // get the action by index
       String action = EActions.getValue (actionIndx, 0);
       theListix.printLsxFormat (action, params);
+      
+      // *** required for programMe demo since it closes the mico http on exit
+      if (action.equals ("-- javaj exit"))
+      {
+         // Script finishing listening to this message gets automatically unsubscribed
+         
+         log.dbg (2, "takePacket", "This is the end my friend!");
+         Mensaka.unsubscribe (this);
+      }
 
       return true;
    }

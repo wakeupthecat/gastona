@@ -91,15 +91,7 @@ import javaj.widgets.text.*;
    <examples>
       gastSample
 
-      <!data4Tester
       hello zTextArea
-
-   <data4Tester>
-      //
-      //    <xName>
-      //       This is a text
-      //       for testing pruposes
-      //
 
    <hello zTextArea>
       //#javaj#

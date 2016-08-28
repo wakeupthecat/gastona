@@ -90,7 +90,7 @@ public class micoHttpServer extends Thread
    protected static TextFile verboseFile = null;
    protected static String verboseFileName = "";
 
-   public micoHttpServer (String name, int listenPort, listix logicFormats)
+   public micoHttpServer (String name, int listenPort, listix logicFormats, boolean ignoreBinExcep)
    {
       monoInstanceNr = monoInstanceCounter ++;
       myName = name;
@@ -101,6 +101,14 @@ public class micoHttpServer extends Thread
          theServer = new ServerSocket ();
          theServer.bind(new java.net.InetSocketAddress(listenPort < 0 ? 0: listenPort));
          state = STATE_AWAKE;
+      }
+      catch (java.net.BindException e)
+      {
+         if (!ignoreBinExcep)
+              log.err ("micoHttpServer", "exception creating server socket " + e);
+         else log.dbg (4, "micoHttpServer", "java.net.BindException ignored");
+         state = STATE_ZOMBIE;
+         theServer = null;
       }
       catch (Exception e)
       {
@@ -558,12 +566,5 @@ public class micoHttpServer extends Thread
 
       //(o) NOTE 2015.11.22 consider
       //   this.interrupt ();
-   }
-
-   public static void main (String [] args)
-   {
-      micoHttpServer ser = new micoHttpServer("romualdo", 8080, null);
-      ser.start ();
-      //set.yield ();
    }
 }

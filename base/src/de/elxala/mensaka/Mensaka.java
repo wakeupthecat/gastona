@@ -36,13 +36,8 @@ public class Mensaka
    // Note: all methods in Mensaka are static! we cannot provide a this pointer to logger
    protected static logger log = new logger (new Mensaka(), "mensaka", null);
    protected static MensakaLogFlow flowLogger = new MensakaLogFlow();
-
-   // class globalSafeParameters
-   // {
-      // public String [] parametersPtr = null;
-
-      // void assign (String [] par) { parametersPtr = par; }
-   // };
+   
+   protected static boolean UNSUBSCRIBE_USED = false; // for a temporary work around
 
    // struct ...
    private static class list_Targets
@@ -64,24 +59,6 @@ public class Mensaka
       vec_msgText = new Vector ();
       vec_targets = new Vector ();
    }
-
-   //27.05.2007 09:47
-//   // handle separately a list of losts messages
-//   static protected List /* <String>       */ l_LostMsgIDs = new Vector ();
-
-   /**
-      for protocol pruposes, since Mensaka protocol
-      the message by index
-   */
-   //27.05.2007 09:47
-//   public static String getMessageByIndex (int indx)
-//   {
-//      if (indx >= 0 && indx < vec_msgText.size ())
-//         return (String) vec_msgText.get (indx);
-//
-//      return null;
-//   }
-
 
    /**
       registers a new message and returns its index. It asumes that the message
@@ -110,31 +87,6 @@ public class Mensaka
       MessageHandle hndMSG = new MessageHandle (jsys.getCallerButNotMe (), msgId);
       return sendPacket (hndMSG, null);
    }
-
-   //(o) mensaka_IDEA Admitir llamadas sin packet y pasando array de enteros o array de Strings
-   //
-   //       la manera de hacerlo posible es mantener una stack de punteros a estos arrays
-   //       que funcione paralela a la stack de mensajes enviados por mensaka, luego
-   //       pueden ser recogidos por el receptor via me'todos esta'ticos "int [] getIntArray()"
-   //       "String [] getStringArray()" etc.
-   //
-   //       Dari'a rapidez en algunas llamadas (p.e. trabajando con gra'ficos) pero se pierde
-   //       la consistencia de mensajes por EvaUnit (importante para gastona+listix)
-   //
-   //       otra manera seri'a siguiendo utilizando la EvaUnit y el receptor solo tiene que
-   //       recoger los valores en las variables especiales "MensakaParam xxx". Esto debe hacerlo
-   //       al principio para evitar su pe'rdida con posteriores llamadas de este tipo. Seri'a ma's lento!
-   //
-   //   static public int sendPacket (String msgId, int iParam, String param)
-   //   {
-   //      EvaUnit pData = new EvaUnit ("temp");
-   //
-   //      pData.addEva (new Eva ("MensakaParam int", "" +iParam));
-   //      pData.addEva (new Eva ("MensakaParam string", param));
-   //
-   //      return sendPacket (msgId, pData);
-   //   }
-
 
    /**
       Sends the message 'msgId' with data 'pk' to all the subscribers of this message.
@@ -262,14 +214,19 @@ public class Mensaka
       for (int ii = 0; ii < nsubscribed; ii ++)
       {
          obj = (MensakaTarget) targs.l_objSubscritos.get (ii);
+         if (obj == null) continue; // allow subscriptors null, due to unsubscribe behaviour
 
          int [] matmap = (int []) targs.l_mappedID.get(ii);
-         if (matmap == null)
+         if (matmap == null || matmap.length == 0)
          {
-            log.fatal ("sendPacket", "Fail mapping of subscribers (mensaka intern!)");
+            final String failText = "Fail mapping of subscribers (mensaka intern!) for message [" + hand.mskMessageText + "]";
+            if (UNSUBSCRIBE_USED)
+                 log.warn ("sendPacket", failText);
+            else log.fatal ("sendPacket", failText);
+            continue;
          }
-         else
-            mappo = matmap[0];
+
+         mappo = matmap[0];
 
          flowLogger.logMessageEntry (hand, obj, pk);
 
@@ -283,7 +240,6 @@ public class Mensaka
 
          //(o) TODO_listix implement stack message ?
          // POP stackMessages ()
-
 
          flowLogger.logMessageExit (hand, obj, pk);
       }
@@ -316,7 +272,7 @@ public class Mensaka
 
    /**
       Declares that the object 'theSource' will send (during its life) Mensaka messages of type 'msgToDeclare'.
-      This function has to proposes : the first one is, by using it more information about sources of messages is obtained
+      This function has two proposes : the first one is, by using it more information about sources of messages is obtained
       "on the fly" or while then program is running (see Protokol), and second it takes a handle for the message
       which is a better way to send messages (using Mensaka.sendPacket (Mensaka Handle...) instead of Mensaka.sendPacket (String ...))
 
@@ -483,7 +439,9 @@ public class Mensaka
       if (indx2 != -1)
       {
          // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next subscribers)
+         targets.l_objSubscritos.set(indx2, null);
          targets.l_mappedID.set(indx2, null);
+         UNSUBSCRIBE_USED = true;
 //         // remove target and map associated
 //         targets.l_objSubscritos.remove (indx2);
 //         targets.l_mappedID.remove (indx2);
@@ -511,7 +469,9 @@ public class Mensaka
          if (indx2 != -1)
          {
             // DO NOT REMOVE IT NOW !! (if the list is in use by nested calls can cause problems to next subscribers)
+            targets.l_objSubscritos.set(indx2, null);
             targets.l_mappedID.set(indx2, null);
+            UNSUBSCRIBE_USED = true;
    //         // remove target and map associated
    //         targets.l_objSubscritos.remove (indx2);
    //         targets.l_mappedID.remove (indx2);

@@ -29,23 +29,16 @@ public class clickable
    private static logger log = new logger (null, "javaj.widgets.graphics.objects.clickable", null);
 
    public graphicObjectLoader thePressObj = null;
-   
+
    public float Xpress = -1;
    public float Ypress = -1;
    public boolean isPressed = false;
-   
-   public void setClickObj (Eva shapes)
+
+   public void setClickObj (graphicObjectLoader clickObj)
    {
-      thePressObj = null;
-      if (shapes == null) return;
-      thePressObj = new graphicObjectLoader ();
-      thePressObj.loadObjectFromEva ("", // name not important
-                             shapes,     // shapes for the press object
-                             null,       // IMPORTANT: IT MUST BE NULL !!! if not we have recursive calls
-                             "",         // basic move not important, it has to follow the one from the master object
-                             null);      // posScala not important, it has to follow the one from the master object
+      thePressObj = clickObj;
    }
-   
+
    public boolean canBeClicked ()
    {
       return thePressObj != null;

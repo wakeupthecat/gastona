@@ -36,12 +36,16 @@ import listix.table.*;
 import listix.cmds.*;
 import listix.*;
 
+import org.gastona.cmds.CmdMsgBox;
+
 import java.io.File;
 
 /**
 */
 public class gastona
 {
+   public static final String GASTONA_VERSION = "ERipley v0.99 20160827 sueka";
+
    public static final String NAME_LINKED_GAST = "generated_linked.gast";
    public static final String MAINGAST_MEMORYFILE = ":mem _mainGast_";
 
@@ -344,12 +348,7 @@ public class gastona
 
    public static void showAboutGastona (String [] aa)
    {
-//(o) Android_TODO message box
-////      javax.swing.JOptionPane.showMessageDialog (
-////            null,
-////            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007,2008,2009,2010\nAlejandro Xalabarder Aulet\nwww.gastona.org",
-////            "About",
-////            javax.swing.JOptionPane.INFORMATION_MESSAGE);
+      CmdMsgBox.alerta (CmdMsgBox.INFORMATION_MESSAGE, "Gastona version", GASTONA_VERSION, new String [] { "Ok" }, new String [0]);
    }
 
    private void loadMetadata ()

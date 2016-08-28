@@ -34,6 +34,16 @@ import de.elxala.zServices.*;
 
 import org.gastona.cmds.*;
 
+//
+//    Two (wanted) ways of starting gastona
+//
+//    From launcher
+//
+//
+//
+//
+//
+//
 
 public class gastonaMainActor extends Activity implements MensakaTarget
 {
@@ -45,18 +55,22 @@ public class gastonaMainActor extends Activity implements MensakaTarget
 
    private static final int DOEXIT = 10;
 
+   private static int MAINID_COUNT = 0;
+   private int MAINID = MAINID_COUNT ++;
+
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
 
+      final String DONDE = "mainActor@onCreate";
+
       androidSysUtil.setCurrentActivity (this);
       androidSysUtil.setWindowManager (getWindowManager ());
       androidSysUtil.setMainActivity (this);
 
       logDirDetectionAndTemp.detectLogDir ();
-      logDirDetectionAndTemp.detectErrorLogDir ();
 
 // NO FUNCIONA EN tablet ASUS !!! ???
 //      {
@@ -105,11 +119,39 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       // Add stuff to allow lauching the mainActor with parameters (e.g. gast file)
       //
       String [] params = getIntent().getStringArrayExtra(CmdLaunchGastona.EXTRA_VALUE_NAME);
+
+      boolean b_pa = params != null;
+      boolean b_pa0 = b_pa && params.length > 0;
+
+      log.dbg (2, DONDE, "params extra " + (b_pa ? (b_pa0 ? ("[0] = \"" + params[0] + "\""): "but size 0!"): " is null!") );
+
+      boolean b_in = getIntent() != null;
+      boolean b_da = b_in && getIntent().getData () != null;
+      boolean b_pat = b_da && getIntent().getData ().getPath () != null;
+
+      log.dbg (2, DONDE, "getIntent " +
+                  (b_in ?
+                        (b_da ?
+                              ("data : " + getIntent().getData ().toString ())
+                               : " but no data!"
+                        )
+                        : "is null!"
+                  )
+              );
+
       View la1 = null;
-      if (params != null)
+      if (b_pa0)
       {
-         log.dbg (2, "onCreate", "gast file [" + fileUtil.resolveCurrentDirFileName (params[0]) + "]");
+         log.dbg (2, DONDE, "gast file [" + fileUtil.resolveCurrentDirFileName (params[0]) + "]");
          la1 = gastonaFlexActor.loadFrame (this, params);
+         //log.dbg (2, "onCreate", "gast file [" + fileUtil.resolveCurrentDirFileName (name) + "]");
+         //la1 = gastonaFlexActor.loadFrame (this, new String [] { name });
+      }
+      else if (b_pat)
+      {
+         String pathName  = getIntent().getData ().getPath ().toString ();
+         log.dbg (2, DONDE, "gast file [" + fileUtil.resolveCurrentDirFileName (pathName) + "]");
+         la1 = gastonaFlexActor.loadFrame (this, new String [] { pathName });
       }
       else
       {
@@ -155,7 +197,7 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       switch (mappedID)
       {
          case DOEXIT:
-            log.dbg (2, "takePacket", "javaj doExit received");
+            log.dbg (2, "mainActor@takePacket", "javaj doExit received finishing current activity");
             androidSysUtil.getCurrentActivity().finish ();
             break;
 
@@ -167,52 +209,69 @@ public class gastonaMainActor extends Activity implements MensakaTarget
    }
 
 
-   private static String msg = "GASTONAL";
+   // private static String msg = "GASTONAL";
+
+   protected void debugStamp (String posi)
+   {
+      log.dbg (2, "mainActor@" + posi, logServer.elapsedMillis () + " id = " + MAINID);
+   }
 
    protected void onStart()
    {
       super.onStart ();
 
       androidSysUtil.setCurrentActivity (this);
-      log.dbg (2, "onStart", "gastonaMainActor started");
+      debugStamp ("onStart");
    }
 
    protected void onRestart()
    {
       super.onRestart ();
-      log.dbg (2, "onRestart", "gastonaMainActor restarted");
+      debugStamp ("onRestart");
    }
 
    protected void onResume()
    {
       super.onResume ();
-      log.dbg (2, "onResume", "gastonaMainActor resumed");
+      debugStamp ("onResume");
    }
 
    protected void onPause()
    {
       super.onPause ();
-      log.dbg (2, "onPause", "gastonaMainActor paused");
+      debugStamp ("onStart");
    }
 
    protected void onStop()
    {
       super.onStop ();
-      // finish ();
-      log.dbg (2, "onStop", "gastonaMainActor stopped");
+      debugStamp ("onStop");
+
+      // it would exit/hide every time we press back  
+      //finish ();
    }
 
    protected void onDestroy()
    {
       super.onDestroy ();
+
+      //(o) ISSUE_Launching Gastona separately
+      //
+      //    all these destruction stuff can be removed when we get gastona
+      //    being launched as separate instance as it is done when opening a gast from
+      //    a file explorer.
+      //    right now it does not work
+      //        Intent, VIEW, file://myfilepath
+      //    WHY ??
+
       //javaj36.finalizeJavaj ();
       Mensaka.sendPacket ("javaj exit", null);
-      log.dbg (2, "onDestroy", "This is the end my friend.");
       Mensaka.destroyCommunications ();
       utilSys.destroySac ();
       javaj.globalJavaj.destroyStatic ();
       androidFileUtil.destroy ();
       logServer.resetStatic ();
       listix.cmds.cmdMicoHTTPServer.shutDownAllMicoServers ();
+      debugStamp ("onDestroy");
    }
 }
