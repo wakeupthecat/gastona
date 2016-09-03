@@ -3,7 +3,7 @@
    font-family: monospace;
 }
 
-* 
+*
 {
    font-family: Ubuntu, Tahoma, sans-serif;
    margin-left: 0px;
@@ -18,12 +18,12 @@ p, h1, h2, h3, h4, code
 
 header {
     background: linear-gradient(to right, rgb(242, 110, 41), rgb(188, 56, 6));
-    
+
     color:white;
     font-size: 20px;
     height: 36px;
     font-weight: normal;
-    padding:16px; 
+    padding:16px;
     margin-left: 0px;
     margin-right: 0px;
 }
@@ -88,6 +88,11 @@ h4
    text-rendering: optimizeLegibility;
 }
 
+table td {
+    border: 1px solid #ddd;
+    padding: 6px 13px;
+}
+
 code {
    background-color: rgb(241, 241, 241);
    border-color: rgb(221, 221, 221);
@@ -108,27 +113,54 @@ code {
    </head><body><h2> What is Gastona</h2>
 
    <p>
-      Gastona is an open source scripting language for quick development of applications.
-      It is available in Windows, Linux, Raspberry Pi for desktop applications
-      and as Android App. This means that it is possible to write a gastona script and run
-      it in all this platforms without any modification.
+      Gastona is a scripting language to make applications easily. Among other
+      features it has "out of the box" things like 
+   </p>
+   
+   <ul>
+      <li> rapid GUI building
+      </li><li> SQL integrated
+      </li><li> procedures like scaning files and parsing text
+      </li><li> communications using UDP and an amazing HTTP server integrated!
+   </li></ul>
+   
+   <p>
+      All are usually considered advanced and complex subjects but using them
+      with Gastona is really straighforward. This is an important point since they are very
+      powerful tools to build applications and hopefuly Gastona will help to demistify them.
+   </p>
+
+   <p>
+      Gastona is an open source project implemented in java and it has two variants
+   </p>   
+   
+   <ul>
+      <li>Desktop/PC (gastona.jar) that runs in Windows, Linux, Raspberry Pi and Mac OSX
+      </li><li>Android App (gastona.apk) for android smart phones and tablets
+   </li></ul>
+      
+   <p>
+      Both use exactly the same script language so it is possible to develop an
+      application that will run in any of these systems.
    </p>
 
    <h2> Is Gastona different ?</h2>
 
    <p>
-      A main design goal of Gastona is to minimize as much as possible the programming effort when
-      creating applications. For example the simplistic idea "a button is a button" applies
-      when building the a Graphic User Interface (GUI). Also the commands try to be as much "high level"
-      as possible to do more with less.
+      Yes, it is. It has no similarity to any programming language. The main goal
+      is precisely to save programming effort as much as possible. 
+   </p>
+   
+   <p>
+      This can be achieved with a very pragmatic approach, simplification if you want, 
+      like to say "a button is a button". And also very important, using an unsophisticated
+      but flexible enough data structure for all purposes of the language.
    </p>
 
    <p>
-      This pragmatic approach makes that gastona scripts does not look like any known programming language.
-      Actually it is something more between a smart configurator and a programming language.
-      The best way to learn it is to run gastona for desktop (gastona.jar) which comes with
-      a complete documentation of the language, widgets and commands. Almost every documented element
-      has one or several sample related scripts that can be modified and run immediately.
+      The best way to learn it is to run the desktop application (gastona.jar) which comes with
+      a complete documentation of the language, widgets and commands. Almost every element in the
+      documentation has one or several related sample scripts that can be modified and run immediately.
    </p>
 
    <h2>Getting Gastona</h2>
@@ -136,54 +168,60 @@ code {
    <p>
       The App for Android is available at the Google market for aproximately 1 Euro which represents
       a support for the project. It is also possible to download it for free and install it manually
-      but then be sure to get gastona.apk from a official site!
+      but then, please, be sure to get gastona.apk from the official site or some source you trust!
    </p>
 
    <p>
       Binaries for both desktop and android can be found at <a href="http://sourceforge.net/projects/gastona/">sourceforge.net/projects/gastona/</a>.
-      If you want to contribute to its development, improvement etc or build a binary from the code
-      you can fork the project from <a href="https://github.com/wakeupthecat/gastona">github.com/wakeupthecat/gastona</a>
+      If you want to contribute to its development or improvement or just build a binary from the code
+      feel free to fork the project from <a href="https://github.com/wakeupthecat/gastona">github.com/wakeupthecat/gastona</a>
    </p>
+
    <p>
       Finally the startup that wants to provide the best experience to all gastona users as well as
       create great related products is Wakeupthecat UG. Right now it is in a funding phase, so every one
-      can be a part of it if! ... not for you ? sure ? ;)
+      can be a part of it! ... not for you ? sure ? ;)
       Check out our site! <a href="http://www.wakeupthecat.com/">http://www.wakeupthecat.com</a>
    </p>
 
    <h2>Gastona on Android</h2>
 
    <p>
-      For desktop the way of running a gastona script is passing it as parameter to gastona.jar.
-      But this is not a practical approach for an android App.
+      The gastona app is prepared to open files with the termination ".gast" so if you copy
+      your script in the sdcard of your device. A proper file explorer should ask you to open it
+      with Gastona and give you the possibility to open it always with it. This is a standard functionality
+      in Android.
    </p>
-
-   <h3>Directory /mnt/sdcard/gastona</h3>
+   
    <p>
-      This directory is where all gastona scripts (files with extension .gast) should be placed. It is possible
-      to create sub directories inside of it if desired. Note that the directory and its files will remain after
-      each Gastona update and also even if Gastona is uninstalled.
+      Beside this, if the App is launched from the Apps panel, that is without providing a particular script
+      then a default script called autoStart.gast wich uses other pure gastona scripts will be oppened. The 
+      default script has following
    </p>
-
-   <p>
-      So the first step to start running your scripts in Gastona is to create this directory. If you do it by
-      pressing the button "Create gastona dir" some useful scripts will be copied to the directory as well.
-   </p>
-
-   <p>
-      Some of the scripts belong to a mini tutorial and in particular three of them are actually
-      powerful tools that makes the process of programming your android device easy.
-   </p>
-
-   <h3>/mnt/sdcard/gastona/autoStart.gast</h3>
+   
+   <ul>
+      <li><b>microTutorial</b>  A list of some minimalistic samples to be run
+      </li><li><b>File Ciervo</b> This script is a file server, so you can examine and download files of your device from a browser in your PC
+      </li><li><b>programMe</b> you can see, modify, execute and save scripts on your device from a browser in another device (i.e. PC)
+      </li><li><b>Gast explorer</b> Explore and launch gast files located at /mnt/sdcard/gastona folder
+   </li></ul>
 
    <p>
-      Always Gastona App will execute this script if found. In its default version this script
-      is a explorer and launcher of the rest of scripts in /mnt/sdcard/gastona. Since it is the
-      start of all scripts it is recomended not to change it at the beginning unless you know how
-      to restore it in case things don't work as expected.
+      Both programMe and Gast explorer are limited to /mnt/sdcard/gastona and subfolders for convenience. Note that 
+      this folder, if created, does not belong to the App so for example, it will be not removed if the App is uninstalled.
    </p>
-
+   
+   <p>
+     If you want to examine these initial scripts they are all available (depending on the version) at 
+     <a href="https://github.com/wakeupthecat/gastona/tree/master/android/assets">master/android/assets</a>
+   </p>
+      
+   <p>
+      Both scripts File Ciervo and programMe use the mini HTTP server included in gastona (command MICOHTTP).
+      They are very good examples of the power of this feature to communicate devices.
+   </p>
+   
+     
    <h3>File Ciervo</h3>
 
    <p>
@@ -206,6 +244,12 @@ code {
       Now the interesting part actually occurs in your browser where you can navigate through your android
       file structure. On your device you will see lost of messages. That just indicates the activity of
       the http command involved and it might be useful to check if the connection is doing well.
+   </p>
+
+   <p>
+      Do you need the contrary direction ? That is, serving files from yout PC to your device ?
+      Guess it: run <a href="https://github.com/wakeupthecat/gastona/blob/master/android/assets/fileCiervo.gast">FileCiervo.gast</a> 
+      in your PC using gastona.jar, done! ;)
    </p>
 
    <h3>ProgramMe</h3>
@@ -233,6 +277,6 @@ code {
       the host name of the device in the network is more convenient than the IP since it will not change
       so you can store the final url in your browser favorites and connect the next time just with a click.
    </p>
-
+   
 </body>
 </html>

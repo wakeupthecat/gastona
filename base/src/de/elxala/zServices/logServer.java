@@ -797,30 +797,8 @@ public class logServer
          }
       }
 
-//(o) TODO_elxala_logServer Reserve panic only for basic library classes (de.elxala / gastona / listix / javaj)
-//      if (msgLevel == LOG_PANIC) &&
-//         (! cli instance of de.elxala.mensaka) ||
-//          ! cli instance of gastona.gastona) ||
-//          ! cli instance of listix.listix) ||
-//          ! cli instance of javaj.javaj)
-//      {
-//         msgLevel = LOG_FATAL;
-//      }
-
-
       if (msgLevel == LOG_PANIC || msgLevel == LOG_FATAL)
       {
-   //         Class caller = sun.reflect.Reflection.getCallerClass (1);
-   //      do
-   //      {
-   //         Class cla = sun.reflect.Reflection.getCallerClass (stackLev);
-   //         if (cla == null) return callerNo;
-   //         if (callerNo != cla) return cla;
-   //         // System.out.println ("\nJSYS: i throw " + cla.getName ());
-   //         stackLev ++;
-   //      } while (true);
-   //         String stackMsg = caller.toString ();
-
          StringBuffer stackMsg = new StringBuffer ();
          StackTraceElement [] arrStkElem = (stackElements != null) ? stackElements: jsys.getNowStackTrace();
          for (int ii = 0; ii < arrStkElem.length; ii ++)

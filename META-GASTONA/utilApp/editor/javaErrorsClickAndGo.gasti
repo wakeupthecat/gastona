@@ -1,4 +1,4 @@
-TODO : 
+TODO :
 
    parsear errores de link (ver ejemplos al final)
    los errores de link NO apuntan a ninguna línea de código => otra lista
@@ -14,12 +14,12 @@ TODO :
     X , o2Console, -
       , lErrors, lWarnings
     X , iErrors, iWarnings
-         
+
 #listix#
 
 
-   <main0>
-      SETVAR, o2Console fileName, @<:lsx tmp>
+  <main0>
+      VAR=, o2Console fileName, @<:lsx tmp>
 
   <javaErrorsClickAndGo::clear>
       MSG, o2Console clear
@@ -28,10 +28,10 @@ TODO :
 
   <FILENAME_LINE_PATT> //([^:]*):([^:]*):
   <FILENAME_LINE_PATT_mingw> //([^:]*):([^:]*):[^:]*:
-      
+
   <javaErrorsClickAndGo::parseErrors>
       MSG, o2Console save
-      
+
       PARSONS, FILE2DB, @<o2Console fileName>
              , CLEAN, 1
              , TABLE, msgErr
@@ -41,7 +41,7 @@ TODO :
 
              , TABLE, msgErr
              ,      , fileName, line, //@<FILENAME_LINE_PATT> cannot resolve symbol
-             
+
              , TABLE, msgErr
              ,      , fileName, line, //@<FILENAME_LINE_PATT> error:
              , TABLE, msgErr
@@ -63,8 +63,7 @@ TODO :
    <gotoline(file line)>
       CHECK, VAR, launch edit(file line), LISTIX, run StdEE.edit(file line), @<p1>, @<p2>
       LSX, launch edit(file line), @<p1>, @<p2>
-   
-      
+
    <-- iErrors>
       CHECK, VAR, iErrors selected.fileName
       MSG, o2Console gotoLine, @<iErrors selected.lineAbs>

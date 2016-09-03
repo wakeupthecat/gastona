@@ -104,20 +104,19 @@ public class Eva implements java.io.Serializable
 
 
    /**
-      Constructs an Eva object with the name 'name', and sets
-      the first row (0) with 'firstEvaLine'.
+      Constructs an Eva object with the name 'name', and sets the data from values
 
       <pre>
       Example:
 
-      Eva obj = new Eva ("myEva", new EvaLine ("one,two,three"));
+      Eva obj = new Eva ("myEva", new String [][] { { "first row" }, { "one" , "two", "three"} });
 
       </pre>
       will create an Eva with one row and three columns in row 0 ([one] [two] and [three])
    */
-   public Eva (String name, EvaLine firstEvaLine)
+   public Eva (String name, String [][] values)
    {
-      create (name, firstEvaLine);
+      create (name, values);
    }
 
 
@@ -181,6 +180,24 @@ public class Eva implements java.io.Serializable
       Nombre = name;
       init ();
       addLine (firstEvaLine);
+   }
+
+   /**
+      Creates (clearing the old content) an Eva object with the name 'name', and sets
+      all rows according to the given String [][]
+
+      <pre>
+      Example:
+
+      Eva obj = new Eva ();
+      obj.create ("myEva", new String [][] { { "one", "two", "three" }, {"second", "and last" } };
+      </pre>
+      will create a Eva with one two rows, the first one of three columsn and the second one two
+    */
+   public void create (String name, String [][] values)
+   {
+      Nombre = name;
+      setValues (values);
    }
 
    /**
@@ -514,6 +531,25 @@ public class Eva implements java.io.Serializable
          return true;
       }
       return false;
+   }
+
+   /**
+      Creates (clearing the old content) an Eva object with the name 'name', and sets
+      all rows according to the given String [][]
+
+      <pre>
+      Example:
+
+      Eva obj = new Eva ();
+      obj.create ("myEva", new String [][] { { "one", "two", "three" }, {"second", "and last" } };
+      </pre>
+      will create a Eva with one two rows, the first one of three columsn and the second one two
+    */
+   public void setValues (String [][] values)
+   {
+      init ();
+      for (int ii = 0; ii < values.length; ii ++)
+         lis_EvaLin.add (new EvaLine (values [ii]));
    }
 
    /**

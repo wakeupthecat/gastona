@@ -31,42 +31,6 @@ package de.elxala.langutil;
 
 public class jsys extends Throwable
 {
-   public static Class getCallerButNotMe ()
-   {
-      return getCallerButNotMe ("");
-   }
-
-
-   // returns the caller of the caller to this method ...
-   // NOTE: in case of building more methods in jsys class do not call this method inside jsys
-   //
-   // example:
-   //
-   //       System.out.println ("the class who called this method was " + (jsys.getCallerButNotMe ()).getName ());
-   //
-   public static Class getCallerButNotMe (Object me)
-   {
-      return getCallerButNotMe (me, 0);
-   }
-
-   /**
-      explores the stack of callers starting on "the caller of the method that calls this function"
-      and returns the class find at position plusDeep
-
-      Example:
-         public class X
-         {
-            public void myFunction ()
-            {
-               System.out.println ("the class who called this method was " + (jsys.getCallerButNotMe (0)).getName ());
-            }
-         }
-   */
-   public static Class getCallerButNotMe (Object me, int plusDeep)
-   {
-      return me.getClass ();
-   }
-
    // returns the stack trace array (including this method in position 0)
    //
    public static StackTraceElement [] getNowStackTrace ()

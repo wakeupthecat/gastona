@@ -36,8 +36,9 @@ public class Mensaka
    // Note: all methods in Mensaka are static! we cannot provide a this pointer to logger
    protected static logger log = new logger (new Mensaka(), "mensaka", null);
    protected static MensakaLogFlow flowLogger = new MensakaLogFlow();
-   
+
    protected static boolean UNSUBSCRIBE_USED = false; // for a temporary work around
+   protected static final String BOTTLE_ANONYMUS = "(bottle)"; // message in a bottle = anonymus
 
    // struct ...
    private static class list_Targets
@@ -84,7 +85,7 @@ public class Mensaka
    //
    static public int sendPacket (String msgId)
    {
-      MessageHandle hndMSG = new MessageHandle (jsys.getCallerButNotMe (), msgId);
+      MessageHandle hndMSG = new MessageHandle (BOTTLE_ANONYMUS, msgId);
       return sendPacket (hndMSG, null);
    }
 
@@ -106,8 +107,7 @@ public class Mensaka
 
    public static int sendPacket (String msgId, EvaUnit pk, String [] arg)
    {
-      MessageHandle hndMSG = new MessageHandle (jsys.getCallerButNotMe (), msgId);
-
+      MessageHandle hndMSG = new MessageHandle (BOTTLE_ANONYMUS, msgId);
       return sendPacket (hndMSG, pk, arg);
    }
 
@@ -520,10 +520,8 @@ public class Mensaka
          // Formato: target, mensaje
          //
          // no hay manera de conocer la source del mensaje puesto que sendPacket
-         // no sabe que objeto le ha llamado (sun.reflect.Reflection.getCaller () retorna la class del
-         // objeto que ha llamado pero esto no es siempre suficiente (p.e. en zWidgets puede haber
-         // muchos zJButton's)
-         // habra' que interpretar pues la primera parte del mensaje como la fuente del mismo
+         // no sabe que objeto le ha llamado habra' que interpretar pues la primera
+         // parte del mensaje como la fuente del mismo
          // aunque esta convencio'n no tiene porque seguirse siempre.
          //
          List targ = ((list_Targets) vec_targets.get (mm)).l_objSubscritos;

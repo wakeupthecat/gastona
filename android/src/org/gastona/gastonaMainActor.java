@@ -35,18 +35,34 @@ import de.elxala.zServices.*;
 import org.gastona.cmds.*;
 
 //
-//    Two (wanted) ways of starting gastona
+//    Ways of starting a gastona script
 //
-//    From launcher
+//    1) From app launcher, no parameter no file
 //
+//       In this case there are no parameter or file path to open
+//       the script autoStart.gast will be started either from
+//       /mnt/sdcard/gastona if found or from app assets otherwise.
 //
+//    2) From another file explorer or from inside a gast script as Intent
 //
+//       This works only partially. The script is oppened but not always within a
+//       new instance of the app. If there is an instance of Gastona openned the
+//       intent is passed to it. The result is that the launched script works properly
+//       but on ending it the original instance does not work anymore (freezes!).
 //
+//    3) From inside a gast script as sub-script
 //
+//       Currently the way we are using since 2) does not work.
+//       It is probably faster than 2) and may have some aditional adventages but
+//         - it may interfere with other scripts or the main script
+//         - stack and cleanup has to be revised
+//         - scripts might need own cleanup through "javaj exit" message
 //
 
 public class gastonaMainActor extends Activity implements MensakaTarget
 {
+   public static final boolean EXTRADEBUG = false;
+
    private static logger log = new logger (null, "gastonaMainActor", null);
 
    private MessageHandle TX_FRAMES_ARE_MOUNTED = new MessageHandle ();
@@ -65,6 +81,21 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       super.onCreate(savedInstanceState);
 
       final String DONDE = "mainActor@onCreate";
+
+      if (EXTRADEBUG)
+      {
+         Eva eva = new Eva (logServer.EVACONF_LOG_LEVELS_BY_CLIENT,
+                            new String [][] {
+                               { "clientName"      , "maxLogLevel" },
+                               { "listix_flow"     , "12" },
+                               { "gastonaMainActor", "19" },
+                               { "gastonaFlexActor", "19" },
+                            }
+                           );
+
+         logServer.setUDPDebugPort (0); // will set the default one
+         logServer.configure (10, eva);
+      }
 
       androidSysUtil.setCurrentActivity (this);
       androidSysUtil.setWindowManager (getWindowManager ());
@@ -247,7 +278,7 @@ public class gastonaMainActor extends Activity implements MensakaTarget
       super.onStop ();
       debugStamp ("onStop");
 
-      // it would exit/hide every time we press back  
+      // it would exit/hide every time we press back
       //finish ();
    }
 

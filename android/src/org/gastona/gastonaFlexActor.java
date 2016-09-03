@@ -100,14 +100,14 @@ public class gastonaFlexActor extends Activity
 
       // POLICY : pass the dutchie View !
       //
-      log.dbg (0, DONDE, "GASTRECYCLER checking in map of " +  utilSys.getSacSize () + " a recycling of : " + fileName);
+      log.dbg (2, DONDE, "GASTRECYCLER checking in map of " +  utilSys.getSacSize () + " a recycling of : " + fileName);
       view2return = (View) utilSys.objectSacGet (NAME4UIFRAME + "." + fileName);
       if (view2return != null)
       {
          android.view.ViewGroup vigru = (android.view.ViewGroup) view2return.getParent ();
          if (vigru != null)
          {
-            log.dbg (0, DONDE, "GASTRECYCLER recycle view form : " + fileName);
+            log.dbg (2, DONDE, "GASTRECYCLER recycle view form : " + fileName);
             vigru.removeView (view2return);
          }
          else
@@ -245,7 +245,7 @@ public class gastonaFlexActor extends Activity
       utilSys.objectSacPut (NAME4UIFRAME + "." + fileName, view2return);
       utilSys.objectSacPut (NAME4UIFRAMETITLE + "." + fileName, frameTitle);
       utilSys.objectSacPut (NAME4UIGASTONA + "." + fileName, gastona.lastGastona);
-      log.dbg (0, DONDE, "GASTRECYCLER store view and gastona logic for : " + fileName);
+      log.dbg (2, DONDE, "GASTRECYCLER store view and gastona logic for : " + fileName);
 
       return view2return;
    }
@@ -255,28 +255,6 @@ public class gastonaFlexActor extends Activity
    public void onCreate(Bundle savedInstanceState)
    {
       super.onCreate(savedInstanceState);
-      /*
-      // &&&&
-      {
-         Eva eva = new Eva (logServer.EVACONF_LOG_LEVELS_BY_CLIENT);
-
-         eva.setValue ("clientName", 0, 0);
-         eva.setValue ("maxLogLevel", 0, 1);
-
-         eva.setValue ("listix_flow", 1, 0);
-         eva.setValue ("12", 1, 1);
-
-         eva.setValue ("gastonaMainActor", 2, 0);
-         eva.setValue ("19", 2, 1);
-
-         eva.setValue ("gastonaFlexActor", 3, 0);
-         eva.setValue ("19", 3, 1);
-
-         logServer.setUDPDebugPort (0); // will set the default one
-         logServer.configure (10, eva);
-      }
-      // &&&&
-	  */
 
       final String DONDE = "flexActor@onCreate";
 
@@ -340,15 +318,26 @@ public class gastonaFlexActor extends Activity
    protected void onStop()
    {
       super.onStop ();
-      Mensaka.sendPacket ("javaj exit", null);
 
-
-      // finish ();
+      // "finish" here is a measure for robustness of inital gastona autostart !
+      // remove it only when the cause of the problem is found and fixed.
+      //
+      //(o) ISSUE/android/assets/programMe programMe is freezed after executing a "test on device"
+      //     this "finish" in onStop work arounds the problem
+      //     Without this finish here:
+      //          microTutorial returns to its list after executing a sample (OK)
+      //          programMe freezes after a "test on device", in theory is the same
+      //          dynamic as in microTutorial, it executes another gast but for some reason
+      //          the activity of programMe is stoped, then restarted and resumed but next stopped again! why ?
+      //
+      finish ();
       debugStamp ("onStop");
    }
 
    protected void onDestroy()
    {
+      Mensaka.sendPacket ("javaj exit", null);
+
       //13.11.2010 13:26
       //    needed to avoid the exception
       //    "The specified child already has a parent. You must call removeView() on the child's parent first."

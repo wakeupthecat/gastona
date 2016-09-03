@@ -34,9 +34,7 @@
 
 #listix#
 
-   <! cannot be closed to allow tests from browser
    <-- javaj exit>
-      BOX, T, //Me quiero salir y stop APPLAPIZ!
       micohttp, stop, APPLAPIZ
 
    <main>

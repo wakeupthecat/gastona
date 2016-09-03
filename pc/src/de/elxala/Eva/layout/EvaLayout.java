@@ -361,7 +361,6 @@ public class EvaLayout implements LayoutManager2
    private static int MAX_SIZE_DX = 10000;
    private static int MAX_SIZE_DY = 10000;
 
-   private static EvaLayoutTest mentionEvaLayoutTest = null;   // variable not used, just present to automatically compile EvaLayoutTest.java
    protected static final int HEADER_EXPAND   = 10;
    protected static final int HEADER_ORIGINAL = 11;
    protected static final int HEADER_NUMERIC  = 12;

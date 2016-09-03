@@ -1,6 +1,6 @@
 == HOW TO COMPILE GASTONA FOR ANDROID (building gastona.apk)
 
-2015.12.20
+updated 2016.09.03
 
    The relevant information to compile gastona for android
    at least as java application is (choose the path separator you wish)
@@ -36,11 +36,22 @@
    
    Time ago, when I started compiling gastona for Android, I did manage to write
    a gastona script for the apk generation and I am using it since then. 
-   This procedure is tricky and for that I do no update the android development tools 
-   since I am afraid that my "batch" cease working if I do so. 
+   This procedure is quite tricky, I have to do updates of the sdk with care
+   since some tools that I need change its path or are simple removed!
+   
+   here a list of all commands used
+   
+      ...sdk\tools\android create project ...
+      javac ...
+      dx --dex ...
+      aapt p -f -M ...
+      call apkbuilder ...
+      jarsigner
+      zipalign
+      adb install/uninstall
 
-   If you want to try this way or just want to look which processes and parameters am I using
-   take a look at 
+   If you want to try this way or just want to look at this build process all can be found
+   in the scripts (to run in Windows! for linux adaptions are needed)
    
          BUILD/android-apk/APK_GENERATOR_v10.gast   
          BUILD/android-apk/GASTONA_ANDROID_CONFIG.gasti
@@ -53,7 +64,6 @@
    in variables in these two files
    
       <DIR android>       //\pavoTools\android-sdk
-      <DIR harmonySDK>    //\pavoTools\harmony-5.0-jdk
       <DIR javac high1.5> //\pavoTools\jdk1.7.0_04
       
   and very important, you have to add your signature or the default debug signature in
@@ -62,6 +72,6 @@
      
   Please note at this point that gastona is licensed under GPL v3. That means that if you plan to deliver a product 
   comming from this source and don't want to open its source you would require a special license or agreement 
-  from me and/or Wakeupthecat UG.
+  from our side www.wakeupthecat.com.
   
----- Thank you for giving a try to gastona!
+---- Thank you for checking out gastona!
