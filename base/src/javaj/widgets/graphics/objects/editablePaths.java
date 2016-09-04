@@ -152,11 +152,11 @@ public class editablePaths
       // if (evaTrazos == null) return;
    // }
 
-   public static String trazosToJavaScript (Eva evaTrazos, boolean optim, int telaX, int telaY, boolean center)
+   public static String trazosToJavaScript (Eva evaTrazos, EvaUnit euTrazosLib, boolean optim, int telaX, int telaY, boolean center)
    {
       editablePaths este = new editablePaths ();
 
-      este.parseTrazosFromEva (evaTrazos);
+      este.parseTrazosFromEva (evaTrazos, euTrazosLib);
       float scale = 0.9f * este.getScaleToFit (telaX, telaY);
 
       String scaleAndOffset = "";
@@ -183,6 +183,11 @@ public class editablePaths
    //
    public void parseTrazosFromEva (Eva evaTrazos)
    {
+      parseTrazosFromEva (evaTrazos, null);
+   }
+
+   public void parseTrazosFromEva (Eva evaTrazos, EvaUnit euTrazosLib)
+   {
       if (evaTrazos == null) return;
 
       //log.dbg (2, "parseTrazosFromEva", "have trazos data of rows " + evaTrazos.rows ());
@@ -204,12 +209,34 @@ public class editablePaths
          {
             styleGlobalContainer.addOrChangeStyle (evaTrazos.getValue (ii, 1), evaTrazos.getValue (ii, 2));
          }
+         else if (orden.equals ("ref"))
+         {
+            //     ref, varname, [*planned?* posx, posy, scalex, scaley, rotation ]
+            //
+
+            // simple composition for "trazos" by passing a EvaUnit as "trazos library" together with the main Eva
+            // no relative variation: offset, resize or rotation supported yet
+            //
+
+            if (euTrazosLib != null && simpleRecursiveCtrl < 20)
+            {
+               simpleRecursiveCtrl ++;
+               parseTrazosFromEva (euTrazosLib.getEva (evaTrazos.getValue (ii, 1)), euTrazosLib);
+               simpleRecursiveCtrl --;
+            }
+            else
+            {
+               //log.err ("parseTrazosFromEva", "reference " + evaTrazos.getValue (ii, 1) + " too deep!");
+            }
+         }
          else
          {
             //log.err ("parseTrazosFromEva", "orden \"" + orden + "\" no reconocida todavia!");
          }
       }
    }
+
+   private static int simpleRecursiveCtrl = 0;
 
    //
    //   por ejemplo:

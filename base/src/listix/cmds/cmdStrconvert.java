@@ -820,7 +820,7 @@ public class cmdStrconvert implements commandable
       }
       else if (oper.equals ("2DTRAZOS-JS") || oper.equals ("TRAZOS-JS"))
       {
-         //    STRCONV, TRAZOS-JS, evaname, uselib
+         //    STRCONV, TRAZOS-JS, evaname, uselib, width, height, offset
 
          Eva source = that.getReadVarEva (p1);
          boolean optimize = ! p2.equals ("0"); // default is 1
@@ -829,7 +829,11 @@ public class cmdStrconvert implements commandable
          int telaY = stdlib.atoi (cmd.getArg(4));
          boolean offset0 = 1 == stdlib.atoi (cmd.getArg(5));
 
-         strResult = javaj.widgets.graphics.objects.editablePaths.trazosToJavaScript (source, optimize, telaX, telaY, offset0);
+         // simple composition for "trazos" by passing that.getGlobalData ()
+         //    all trazos (with the only exception of the main one) has to be contained in data unit
+         //    no relative variation: offset, resize or rotation possible
+         //
+         strResult = javaj.widgets.graphics.objects.editablePaths.trazosToJavaScript (source, that.getGlobalData (), optimize, telaX, telaY, offset0);
       }
       else if (oper.equals ("2DPATHS-FILE"))
       {
