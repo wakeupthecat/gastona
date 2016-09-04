@@ -12,7 +12,7 @@ features it has "out of the box" things like
 
    
 All these are quite powerful tools for building application and using
-them with Gastona its really straighforward.
+them with Gastona it is really straighforward.
 
 It is a GPLv3 open source project implemented in java in two variants
    
@@ -124,7 +124,7 @@ I start saying there are two variants of gastona, well a third variant is growin
 and it is a javascript library.
 
 If the scripting language turns out to be useful and convenient, could we use it also 
-for rendering our application in a browser ?
+for rendering our application in a browser?
 
 The answser is jGastona.js and the family Eva.js, EvaLayout.js and LayoutManager.js. These are
 pure javascript libraries that implement Gastona for a browser. Not thought to be one to one 
