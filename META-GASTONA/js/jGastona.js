@@ -441,8 +441,8 @@ function jGastona (evaConfig, existingPlaceId)
          updatezWidget (zwid);
 
          // experimental! all widgets need data!
-         if (!dataUnit[name]) 
-            dataUnit[name] = [ [ "" ] ];         
+         if (!dataUnit[name])
+            dataUnit[name] = [ [ "" ] ];
       }
    }
 
@@ -529,6 +529,36 @@ function jGastona (evaConfig, existingPlaceId)
       return fabricaSelect (name, arrOp, arrLab, true);
    }
 
+   //== selectAllColumnsFromTable
+   // <mytable>
+   //        id, name
+   //        01, my first name
+   //        02, second
+   //
+   // selectAllColumnsFromTable (unit, "mytable", "01");
+   // produces setting the variables
+   //
+   //    <mytable selected.id> 01
+   //    <mytable selected.name> my first name
+   //
+   function selectAllColumnsFromTable (unit, name, strvalue)
+   {
+      if (!unit || !unit[name] || !unit[name][0]) return;
+      var colnames = unit[name][0];
+
+      //search the row with the value (unique id) at position 0
+      for (var rosel = 1; rosel < unit[name].length; rosel ++)
+      {
+         if (unit[name][rosel][0] == strvalue)
+         {
+            for (var col in colnames)
+            {
+               unit[name + " selected." + colnames[col]] = [[ unit[name][rosel][col]||"?" ]];
+            }
+         }
+      }
+   }
+
    function fabricaSelect (name, arrOp, arrLab, ismultiple)
    {
       var ele = document.createElement ("select");
@@ -537,12 +567,23 @@ function jGastona (evaConfig, existingPlaceId)
 
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele["onchange"] = function () { mensaka(name) };
+      ele["onchange"] = function () {
+                     selectAllColumnsFromTable (dataUnit, name, this.value||"?");
+                     dataUnit[name + "_value"] = [[ this.value||"?" ]]; // to have a single variable
+                     mensaka(name)
+                  };
       for (var ite in arrOp)
       {
          var subele = document.createElement ("option");
          subele["value"] = arrOp[ite];
          subele["data!"] = function () { }; //(o) TOREVIEW_jGastona_update message in subelements, is it really needed ?
+
+         // this does not occurs!
+         //
+         //subele["onchange"] = function () {
+         //          alert ("ONSOLETO !!! [" + this.value||"?" + "]");
+         //          };
+
          subele.appendChild (document.createTextNode(arrLab[ite]));
          ele.appendChild (subele);
       }
