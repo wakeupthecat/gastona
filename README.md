@@ -36,10 +36,7 @@ documentation has one or several related sample scripts that can be modified and
 ## Getting Gastona
 
 This Github repository contains the source code for both Desktop (or PC) and Android. Actually many
-sources are shared by the two varians, specifically all inside the folder "base".
-
-Building gastona.jar and in particular gastona.apk requires several steps. Both procedures are described
-in readme files.
+sources are shared by the two variants, specifically all what is inside the folder "base".
 
 The App for Android is available at the Google market for aproximately 1 Euro which represents
 a support for the project. It is also available as apk to be installed manually.
