@@ -161,11 +161,9 @@ This is a possible compact script to do that
          //                , lPeople
          //             X  , iPeople
          //                , bAction
-         //             X  , oSalida
          // 
          // #data#
          // 
-         //    <iPeople visibleColumns> name
          //    <iPeople>
          //       name    , address    , phone
          //       Marvin  , Bonasera   , 888
@@ -179,12 +177,11 @@ This is a possible compact script to do that
          //    <-- bAction>
          //       //alert ("Calling " + jgas.getData ('iPeople selected.label'));
 
-the given script will work without any aditional file 
+the given script will work without any aditional file, though it is possible also to have the browser client side, the variable MAIN_GAST, into a separate file.
 
 ![demojgastona](https://cloud.githubusercontent.com/assets/12417703/18233827/8d05749c-72f2-11e6-9f18-baa451e913a4.PNG)
 
-Since both, the script for gastona as http server and the script for the client side of jGastona use the same
-language, it might result a little bit messy to read. We could write the contents of the variable MAIN_JGAST into a separate 
-file for clarity.
+The server is sending the jGastona libraries, which are included in gastona.jar, and loading the 
+particular script the rest happens in the browser handled by jGastona.
 
-As you can see, like spain, "Gastona is different"!
+As you can see, "Gastona is different"!
