@@ -5,7 +5,7 @@ features it has out of the box things like
 
 - rapid GUI building
 - SQL integrated
-- scaning directories and parsing files
+- scanning directories and parsing files
 - powerful text generator
 - communications using UDP and an amazing HTTP server integrated
 
@@ -125,66 +125,48 @@ pure javascript libraries that implement Gastona for a browser. Not thought to b
 compatible with the java variants, which is not possible and also not needed, but just as
 an alternative for developing browser applications.
 
-As any other javascript library jGastona can be used either in a static html 
-or served via http with some Http server. But since gastona has also an http server, let's finish 
-the demo showing jGastona launched by the Gastona http server called MICO.
+It is possible to use ajax methods with jGastona to do dynamic web applications using an http server, for example the Gastona
+mini http server MICOHTTP. But now for this demo let's use following static html
 
-This is a possible compact script to do that
+      <html><body>
+      <script src="jGastonaEva-min.js"> </script>
+      <script>
+         var scriptStr = function () {
+         /*
+            #javaj#
+               
+               <layout of main>
+                  EVALAYOUT, 4, 4, 3, 3
+                     
+                           , X
+                           , lPeople
+                        X  , iPeople
+                           , bAction
 
-     #javaj#
-   
-      <frames> oConsola
-    
-     #listix#
-    
-      <main>
-         micohttp, start, myMico
-   
-     <GET />
-       //<html><body>
-       //
-       //<script>
-       //
-       @<:infile META-GASTONA/js/jGastonaEva-min.js>
-       //
-       //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
-       //
-       //</script></body></html>
+            #data#
+            
+               <iPeople>
+                  name    , address    , phone
+                  Marvin  , Bonasera   , 888
+                  Salma   , Hauptstr   , 555
+            
+            #listix#
+            
+               <-- iPeople>   
+                  //alert ("You have selected " + jgas.getData ('iPeople selected.name'));
+            
+               <-- bAction>
+                  //alert ("Calling " + jgas.getData ('iPeople selected.phone'));
+            #**#
+         */
+         }.toString ();
 
-     <MAIN_JGAST>
-         // #javaj#
-         //    
-         //    <layout of main>
-         //       EVALAYOUT, 4, 4, 3, 3
-         //          
-         //                , X
-         //                , lPeople
-         //             X  , iPeople
-         //                , bAction
-         //             X  , oSalida
-         // 
-         // #data#
-         // 
-         //    <iPeople visibleColumns> name
-         //    <iPeople>
-         //       name    , address    , phone
-         //       Marvin  , Bonasera   , 888
-         //       Salma   , Hauptstr   , 555
-         // 
-         // #listix#
-         // 
-         //    <-- iPeople>   
-         //       //alert ("You have selected " + jgas.getData ('iPeople selected.value'));
-         // 
-         //    <-- bAction>
-         //       //alert ("Calling " + jgas.getData ('iPeople selected.label'));
+         var jgas = jGastona (evaFileStr2obj (scriptStr));
 
-the given script will work without any aditional file 
+      </script></body></html>
+
+having <a href="https://github.com/wakeupthecat/gastona/blob/master/META-GASTONA/js/jGastonaEva-min.js">jGastonaEva-min.js</a> in the same directory the result in the browser is
 
 ![demojgastona](https://cloud.githubusercontent.com/assets/12417703/18233827/8d05749c-72f2-11e6-9f18-baa451e913a4.PNG)
 
-Since both, the script for gastona as http server and the script for the client side of jGastona use the same
-language, it might result a little bit messy to read. We could write the contents of the variable MAIN_JGAST into a separate 
-file for clarity.
-
-As you can see, like spain, "Gastona is different"!
+Note that we haven't specify any html element for the body, jGastona will create all them on the fly according to the given script.
