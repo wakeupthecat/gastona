@@ -49,7 +49,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    @<:lsx ROWS> : number of rows in the loop
       //    @<:lsx ROW>  : number of current row
-      //    @<COLUMNAME> : value of the column named COLUMNNAME in the current row
+      //    @<COLUMNNAME> : value of the column named COLUMNNAME in the current row
       //
       // If a column has the same name as other already existent variable, then the column hides temporally
       // the variable. As soon as the loop is finished, the variable will become again "visible".
@@ -182,8 +182,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           x  , WHILE SAME  , fieldName                   ,       , //Continue the loop while the value of fieldName and its predecessors remains the same (or until any of them change)
           x  , ON DIFFERENT, fieldName                   ,       , //Perform the loop only on different values of fieldName or any of its predecessors (skip records with same value)
           x  , FILTER      , "fieldName, operator, value",       , //Skip records that do not meet the given condition for the field. If more filters are given, skip those records that do not meet any of the filters (OR join)
-<!      //(o) TODO/preparing Loop option UNIFORM or STEP
-<!          x  , STEPS BY    , "var,incr"                  ,       , //The output will be given in regular increments 'incr' of the column named 'var' the rest of columns will be liearly interpolated
+          x  , START ROW   , numerical expression        ,  0    , //Start the loop at this row. Negative value or no value reults in row 0 which is the first one
+          x  , END ROW     , numerical expression        ,  -1   , //End the loop at this row. The value -1 or no value means end of table
+          x  , LIMIT ROWS  , numerical expression        ,  -1   , //Maximum number of rows to be iterated. The value -1 or no value means no limit
           3  , EXTENSIONS  , "extension, extension"      ,       , //Add extensions as is done in the arguments extension
 
    <examples>

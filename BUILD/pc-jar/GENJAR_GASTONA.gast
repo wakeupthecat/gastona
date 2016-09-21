@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.1.160905 \"ERipley salma&marvin\"
+   <gastonaVersion>  //1.1.160921 \"ERipley go Rhino\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -82,7 +82,7 @@
       //
 
    <4WINDOWS>
-      VAR=, eJavacPath,     //\pavoTools\j2sdk1.4.2_12\bin\javac.exe
+      VAR=, eJavacPath,     //javac.exe
       VAR=, eBinaryArchive, //\pavoTools\gastonaBinaries
       VAR=, """", //"
       VAR=, SEP, //;

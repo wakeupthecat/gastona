@@ -19,6 +19,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package listix.table;
 
 import listix.*;
+import listix.cmds.calcFormulas;
 import de.elxala.Eva.*;
 
 import de.elxala.langutil.*;
@@ -33,9 +34,9 @@ public class tableRunner
    protected String bodyFormatName = null;
    protected Eva tailFormat = null;
    protected Eva if0RowLsxFormat = null;
-   //(o) TODO/preparing Loop option UNIFORM or STEP
-   // protected String stepVar = null;
-   // protected float stepIncr = 1.f;
+   protected int loopOffsetRow = 0;
+   protected int loopLastRow = -1;
+   protected int loopLimitRows = -1;
 
    public tableRunner (listixCmdStruct cmd)
    {
@@ -45,15 +46,14 @@ public class tableRunner
       tailFormat      = cmdLsx.takeOptionAsEva (new String [] { "TAIL" });
       if0RowLsxFormat = cmdLsx.takeOptionAsEva (new String [] { "IFNORECORD", "IFEMPTY", "EMPTY", "IF0ROWS" });
 
-      //(o) TODO/preparing Loop option UNIFORM or STEP
-      // Option Step or Uniform
-      //    will do the iterations at constant steps of the given variable and interval
-      //    the rest of the columns will be linearly interpolated
-      //    useful for example to compare measures taken at specific and irregular timestamps
-      //
-      // String [] stepOption = takeOptionParameters (new String [] { "STEP BY", "STEP", "UNIFORM" });
-      // stepVar = stepOption != null && stepOption.length > 0 ? stepOption[0]: null;
-      // stepIncr = stepVar != null && stepOption != null && stepOption.length > 1 ? stdlib.atof (stepOption[1]): 1.f;
+      String exp = cmdLsx.takeOptionString (new String [] { "OFFSET", "STARTROW", "FIRSTROW", "BEGINROW" }, null);
+      loopOffsetRow  = exp == null ? 0: (int) calcFormulas.calcFormula (cmdLsx.getListix (), exp);
+
+      exp = cmdLsx.takeOptionString (new String [] { "LASTROW", "ENDROW" }, null);
+      loopLastRow    = exp == null ? -1: (int) calcFormulas.calcFormula (cmdLsx.getListix (), exp);
+
+      exp = cmdLsx.takeOptionString (new String [] { "LIMITROWS", "LIMIT" }, null);
+      loopLimitRows  = exp == null ? -1: (int) calcFormulas.calcFormula (cmdLsx.getListix (), exp);
    }
 
    // only for "deprecatable" RUN LOOP
@@ -75,6 +75,13 @@ public class tableRunner
              if0RowLsxFormat != null;
    }
 
+   protected boolean exceedRows (int nRow)
+   {
+      return
+         (loopLastRow != -1 && loopLastRow < nRow) ||
+         (loopLimitRows != -1 && loopLimitRows <= (nRow - loopOffsetRow));
+   }
+
    /**
       This is a method used by cmdSetLoopTable and cmdRunLoopTable.
    */
@@ -88,6 +95,8 @@ public class tableRunner
 
       tableCursorStack cur = cmdLsx.getListix ().getTableCursorStack ();
 
+      int currRow = 0;
+
       // loop with the table !
       //
       cmdLsx.getListix ().loopStarts ();
@@ -98,25 +107,29 @@ public class tableRunner
       }
       while (! cur.isCurrentTableEOT ())
       {
-         if (firstIteration)
-            cmdLsx.getListix ().doFormat (headerFormat);
-         else
-            cmdLsx.getListix ().printTextLsx (cur.getLinkString ());
-         firstIteration = false;
-
-         //**todo adding following debug message should not affect performance in any way
-         cmdLsx.getListix ().log().dbg (4, "tableRunner", "loopIteration");
-
-         if (bodyFormatName != null)
-              cmdLsx.getListix ().printLsxFormat (bodyFormatName);
-         else cmdLsx.getListix ().doFormat (bodyFormat);
-
-         if (cmdLsx.getListix ().loopBroken ())
+         if (currRow >= loopOffsetRow)
          {
-            cmdLsx.getListix ().log().dbg (2, "tableRunner", "quiting loop due to a break");
-            break;
+            if (firstIteration)
+               cmdLsx.getListix ().doFormat (headerFormat);
+            else
+               cmdLsx.getListix ().printTextLsx (cur.getLinkString ());
+            firstIteration = false;
+
+            //**todo adding following debug message should not affect performance in any way
+            cmdLsx.getListix ().log().dbg (4, "tableRunner", "loopIteration");
+
+            if (bodyFormatName != null)
+                 cmdLsx.getListix ().printLsxFormat (bodyFormatName);
+            else cmdLsx.getListix ().doFormat (bodyFormat);
+
+            if (cmdLsx.getListix ().loopBroken ())
+            {
+               cmdLsx.getListix ().log().dbg (2, "tableRunner", "quiting loop due to a break");
+               break;
+            }
          }
-         if (! cur.increment_RUNTABLE ())
+         currRow ++;
+         if (! cur.increment_RUNTABLE () || exceedRows (currRow))
          {
             cmdLsx.getListix ().log().dbg (2, "tableRunner", "loop finished");
             cmdLsx.getListix ().doFormat (tailFormat);

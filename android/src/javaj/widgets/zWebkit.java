@@ -260,6 +260,7 @@ import android.os.Message;
       //#listix#
       //
       //   <main>
+      //      CHECK, ANDROID, BOX, I, zWebKit widget is only available in Android
       //
       //   <-- wEby jsAction>
       //      //

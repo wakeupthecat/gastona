@@ -755,8 +755,7 @@ function jGastona (evaConfig, existingPlaceId)
          // prepare the body
          //
          var evaObj = evaFileObj (
-                       "#unitAjaxRequest#"    + "\n" +
-                       "   <_jGastonaVersion> 1.0" + "\n"
+                       "#unitAjaxRequest#"    + "\n"
                        );
          var bodyUnit = evaObj.obj["unitAjaxRequest"];
 

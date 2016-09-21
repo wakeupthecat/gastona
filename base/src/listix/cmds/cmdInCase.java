@@ -170,7 +170,7 @@ import listix.*;
 import listix.table.*;
 import de.elxala.Eva.*;
 
-public class cmdInCase implements commandable
+public class cmdInCase extends inCaseCommon implements commandable
 {
    /**
       get all the different names that the command can have
@@ -184,6 +184,27 @@ public class cmdInCase implements commandable
          };
    }
 
+   public String commandStr ()
+   {
+      return "IN CASE";
+   }
+
+   protected tableSimpleFilter comparator = null;
+
+   public String processMainValue (listixCmdStruct cmd, String oper, String mainValue)
+   {
+      comparator = new tableSimpleFilter (oper, mainValue);
+      return mainValue;
+   }
+
+   public String doCase (listixCmdStruct cmd, String oper, String par2)
+   {
+      String value2 = par2;
+      if (comparator.passOperand2 (value2))
+         return "" + value2;
+      return null;
+   }
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -195,110 +216,6 @@ public class cmdInCase implements commandable
    */
    public int execute (listix that, Eva commandEva, int indxComm)
    {
-      listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
-
-      String mainValue = cmd.getArg (0);
-      String oper      = cmd.getArg (1);
-
-      if (oper.equals(""))
-         oper = "=";
-
-      tableSimpleFilter comparator = new tableSimpleFilter (oper, mainValue);
-
-      that.log().dbg (2, "IN CASE", mainValue + " " + oper);
-
-      boolean executeOtherwise = true;
-      // NOTE: the eva subcommand is independent of the current EvaUnit data!
-      Eva subcommand = new Eva ("subcommand");
-      String value2 = "";
-
-      if (cmd.getArgSize() > 2)
-      {
-         // we have a initial value-command pair
-         //       0       1       2       3       4      5    6   << index for commandEva
-         //               0       1       2       3      4    5   << index for cmd.getArg
-         //    IN CASE, valueRef, oper, value, command, par, etc
-         //
-         value2 = cmd.getArg (2);
-         if (comparator.passOperand2 (value2))
-         {
-            that.log().dbg (2, "case value [", value2 + "] (line 0) will be executed");
-            executeOtherwise = false;
-
-            // collect the command or simply the text
-            for (int ii = 4; ii < commandEva.cols (indxComm); ii ++)
-               subcommand.addCol (commandEva.getValue (indxComm, ii));
-
-            if (subcommand.cols (0) > 1)
-                 that.executeSingleCommand (subcommand);
-            else that.printTextLsx (subcommand.getValue (0, 0));
-         }
-      }
-
-      // look for the end of the switch
-      int endSwitch = 0;
-      String firstCol = "";
-      while (indxComm + endSwitch + 1 < commandEva.rows ())
-      {
-         if (commandEva.cols (indxComm + endSwitch + 1) < 2)
-            break;   // if no more than one column then end of IN CASE command
-
-         firstCol = commandEva.getValue (indxComm + endSwitch + 1, 0);
-
-         if (!firstCol.equals (""))
-            break;   // if the first column is not "" then end of IN CASE command
-
-         endSwitch ++;
-      }
-
-      // Now we have cases [1 .. endSwitch-1] and a default value endSwitch
-      //
-      int theCase = indxComm + 1;
-      while (theCase <= indxComm + endSwitch)
-      {
-         boolean executeThat = false;
-         boolean elseCase = false;
-
-         // check if it is the ELSE case
-         if (theCase == indxComm + endSwitch)
-         {
-            value2 = commandEva.getValue (theCase, 1); // Note: do not use solveStrAsString since we are looking for a constant value
-            if (value2.equalsIgnoreCase ("ELSE") || value2.equalsIgnoreCase ("OTHERWISE") || value2.equalsIgnoreCase ("NOCASE"))
-            {
-               elseCase = true;
-               executeThat = executeOtherwise;
-            }
-            if (executeThat)
-               that.log().dbg (2, "ELSE (option " + (theCase - indxComm) + ") will be executed");
-         }
-
-         // check it as a normal case
-         if (!elseCase)
-         {
-            value2 = that.solveStrAsString (commandEva.getValue (theCase, 1));
-            executeThat = comparator.passOperand2 (value2);
-            if (executeThat)
-               that.log().dbg (2, "caseValue [" + value2 + "] (option " + (theCase - indxComm) + ") will be executed");
-         }
-
-         if (executeThat)
-         {
-            executeOtherwise = false;
-
-            // collect the command (or simply a text)
-            subcommand.clear ();
-            for (int ii = 2; ii < commandEva.cols (theCase); ii ++)
-               subcommand.addCol (commandEva.getValue (theCase, ii));
-
-            if (subcommand.cols (0) > 1)
-                 that.executeSingleCommand (subcommand);
-            else that.printTextLsx (subcommand.getValue (0, 0));
-         }
-
-         theCase ++;
-      }
-
-//      return (endSwitch + 1); // ojo! es el nu'mero de li'neas que ha requerido el switch!
-      return 1; // does not matter, they are void command for listix
+      return super.execute (that, commandEva, indxComm);
    }
 }

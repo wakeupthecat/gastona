@@ -126,6 +126,8 @@ public class commanderBase
       loadCommandable (new cmdBrowser ());
       loadCommandable (new cmdFileutil ());
 
+      loadCommandable (new cmdGoRhino ());
+
       load_specific_commands ();
 
       // NPrimitiveCommands = mapCommands.size ();
