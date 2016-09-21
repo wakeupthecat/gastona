@@ -141,9 +141,8 @@ public class aljbr2polaca
 
       // Workaround due to a parser problem "int (x)" was not right parsed
       // because of the space. Now we replace " (" with "("
-      int le = 0;
       do {
-         le = sAljbr.length();
+         int le = sAljbr.length();
          sAljbr = sAljbr.replaceAll("\\s\\(", "\\("); //  \s  A whitespace character: [ \t\n\x0B\f\r]
          if (le == sAljbr.length()) break;
       } while (true);
