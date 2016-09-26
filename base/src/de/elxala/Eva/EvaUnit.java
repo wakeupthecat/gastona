@@ -81,6 +81,12 @@ public class EvaUnit implements java.io.Serializable
       clear ("");
    }
 
+   public void setEvaUnit (EvaUnit cop)
+   {
+      Nombre = cop.getName ();
+      lis_Evas = cop.lis_Evas;
+   }
+
    /**
       returns the name of the EvaUnit
    */

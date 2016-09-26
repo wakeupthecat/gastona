@@ -90,6 +90,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , PARAMS        ,  "p1, [p2, ...]"            ,                 , //Set parameters for listix generation (accesibles through @<p1> @<p2> etc)
       1      , LOAD FORMATS  ,  "file, evaUnit"            , "    , listix"  , //Specifies file and unit for the listix formats to be used in the generation
       1      , LOAD DATA     ,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the data to be used in the generation
+      1      , PUSH VARIABLES,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the variables (only one string) will be "pushed", that is, added on top of the existing data variables.
       1      , SET VAR DATA  ,  "EvaName, value"           ,                 , //Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable 'EvaName' with the value 'value'
       1      , PASS VAR DATA ,  "EvaName"                  ,                 , //If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)
       1      , TARGET EVA    ,  "EvaName"                  ,                 , //Specifies the variable name where the listix generation will place the result
@@ -352,24 +353,7 @@ public class cmdGenerate implements commandable
       if (!PAOP.evalOptions (cmd))
          return 1;
 
-      //    30.06.2008 22:09
-      //(o) listix_arquitectura Revisar si realmente es conveniente crear otra instancia de listix aqui
-      //                      en lugar de usar directamente la instancia "that" (salvando previamente NewLineString ...)
-      //
-      listix novoLsx = new listix (PAOP.genFormatsEvaUnit,
-                                   PAOP.genDataEvaUnit,
-                                   cmd.getListix().getTableCursorStack (),
-                                   PAOP.genParameters);
-
-      novoLsx.setNewLineString (PAOP.genNewLineString);
-
-      lsxWriter.makeFile (novoLsx,
-                          PAOP.genMainFormat,
-                          PAOP.genFileToGenerate,
-                          cmd.getListix().getGlobalFile (),
-                          cmd.getListix().getTargetEva (),
-                          PAOP.genAppendToFile);
-      novoLsx.destroy ();
+      PAOP.executeListix (cmd);
       return 1;
    }
 }

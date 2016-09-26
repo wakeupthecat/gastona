@@ -153,17 +153,13 @@ public class listix
 
       tablon = (tableTable == null) ? new tableCursorStack (): tableTable;
 
-      // fetch the stack depth (for @<:listix paramCounter>)
+      // fetch the stack depth (for @<:listix paramcount>)
       stackAtBeginning = stackDepthZero = tablon.getDepth();
       if (params != null && params.length > 0)
       {
          log.dbg (2, "init", "params length " + params.length);
          tablon.pushTableCursor(new tableCursor(new tableAccessParams (params)));
       }
-
-      // removed on 28.02.2009 11:31
-      ////(o) sql cache!!
-      //roSqlPool.setAllowCache (true);
    }
 
 
@@ -185,11 +181,6 @@ public class listix
    {
       while (tablon.getDepth() > stackAtBeginning)
          tablon.popTableCursor ();
-   }
-
-   public static String getVersion ()
-   {
-      return "0.36.090612";
    }
 
    public synchronized int getStackDepthZero4Parameters ()
@@ -595,7 +586,7 @@ public class listix
 
          if (lowName.equals ("paramcount") || lowName.equals ("argcount"))
          {
-            // @<:listix paramCounter>
+            // @<:listix paramcount>
             //    returns the number of parameters of the last called listix format using
             //    the command GENERATE or LISTIX (if given..)
             //    Note that this is always right but due to previous LOOP's it is not guaranteed at all

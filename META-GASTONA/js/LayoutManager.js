@@ -49,11 +49,7 @@ function layoutManager (evaObj, callbackAddWidget)
        layoutStack = [],
        layoutElemBag = {},
        layoutList = [],
-       currentLayoutName,
-       HEADER_ADAPT      = "A",
-       HEADER_EXPAND     = "X",
-       EXPAND_HORIZONTAL = "-",
-       EXPAND_VERTICAL   = "+"
+       currentLayoutName
        ;
 
    reloadAllLayouts (evaObj);
@@ -154,9 +150,9 @@ function layoutManager (evaObj, callbackAddWidget)
 
    function getLayableByName (oname)
    {
-      if (oname === "") return; // undefined
-      var layable = layoutElemBag [doYouMean (oname)];
+      if (oname === "" || !cellElementIsAnId (oname)) return; // undefined
 
+      var layable = layoutElemBag [doYouMean (oname)];
       if (! layable)
       {
          console.log ("ERROR: don't know how to find " + oname + " or " + doYouMean (oname));
@@ -199,11 +195,14 @@ function layoutManager (evaObj, callbackAddWidget)
           indx,
           antiRecList = [];
 
+      if (!cellElementIsAnId (namewanted))
+         return namewanted;
+
       do
       {
          masker = maskMap [namewanted];
          if (! masker || masker === "" || masker === namewanted)
-			return namewanted; // as it not masked
+         return namewanted; // as it not masked
 
          for (indx in antiRecList)
             if (antiRecList[indx] === masker)
@@ -221,18 +220,16 @@ function layoutManager (evaObj, callbackAddWidget)
 
    function cellElementIsAnId (ele)
    {
-      return ele && ele.length > 0 && ele.indexOf(EXPAND_VERTICAL) != 0 && ele.indexOf(EXPAND_HORIZONTAL) != 0;
+      if (! ele  || ele.length == 0) return false;
+      return ele.match (/^[^+-]/);
    }
 
    function exportThisManager ()
    {
       return {
-         EXPAND_HORIZONTAL: EXPAND_HORIZONTAL,
-         EXPAND_VERTICAL: EXPAND_VERTICAL,
          guiLayouts: guiLayouts,
          guiConfig: guiConfig,
          getLayableByName: getLayableByName,
-         cellElementIsAnId: cellElementIsAnId
       };
    }
 
@@ -291,7 +288,7 @@ function layoutManager (evaObj, callbackAddWidget)
          {
             // +++ collect "layeables" layouts ids
             layoutElemBag[lay] = ela;
-         console.log ("adding layout id [" + lay + "]");
+            console.log ("adding layout id [" + lay + "]");
             //... layoutList.push (lay);
          }
       }
@@ -329,13 +326,15 @@ function layoutManager (evaObj, callbackAddWidget)
       oname = oname || "main";
       setCurrentLayoutName (oname);
       var layo = getLayableByName (oname);
+      if (layo)
+      {
+         // push name
+         layoutStack.push (layo.wName);
 
-      // push name
-      layoutStack.push (layo.wName);
+         layo.doMove (x0, y0, dx, dy);
 
-      layo.doMove (x0, y0, dx, dy);
-
-      // pop name
-      layoutStack.pop ();
+         // pop name
+         layoutStack.pop ();
+      }
    }
 }

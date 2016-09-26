@@ -53,12 +53,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    7      , //Execute the javascript code
+         1   ,    4      , //Execute the javascript code
+         2   ,    4      , //Execute the javascript code
 
    <syntaxParams>
       synIndx, name         , defVal, desc
-         1   , RHINO        , //
          1   , [ script ]   , //Script to be executed
+
+         2   , ONFLY        , //
+         2   , script       , //Script to be executed
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -67,6 +70,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       gastSample
 
       gorhino1
+      consecuencioDiagram
+      files for goRhino
 
    <gorhino1>
       //#javaj#
@@ -77,6 +82,91 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    <main>
       //       gorhino, //var ii = 10; ii+2;
+
+   <consecuencioDiagram>
+      //#javaj#
+      //
+      //   <frames> Fmain, Sample conSecuencio.js using Rhino
+      //
+      //   <layout of Fmain>
+      //    EVA, 10, 10, 7, 7
+      //
+      //       , X
+      //       , lJavascript code
+      //     X , xCodis
+      //       , bgoRhino
+      //     X , xSalida
+      //   100 , oConsola
+      //
+      //    <sysDefaultFonts>
+      //       Consolas, 11, 0, TextArea
+      //
+      //#data#
+      //
+      //   <xCodis>
+      //      //var diagData = {
+      //      //     sequenceTable : [
+      //      //                ["time", "source", "target", "message" ],
+      //      //                [ 0.122, "USER"  , "INTERFACE", "doThisAction" ],
+      //      //                [ 2.234, "INTERFACE", "SERVER", "theAction" ],
+      //      //                [ 3.543, "SERVER", "INTERFACE", "What action?" ],
+      //      //                [ 8.558, "INTERFACE", "USER", "done!" ],
+      //      //            ],
+      //      //      // distanceAgents   : 40,
+      //      //      distanceTimeUnit : 1,
+      //      //      // maxGapTime       : 2,
+      //      //      // autoElapsed      : false,
+      //      //  };
+      //      //
+      //      //@<:infile META-GASTONA/js/conSecuencioPlain.js>
+      //      //
+      //      //conSecuencioPlain (diagData);
+      //      //
+      //
+      //#listix#
+      //
+      //   <-- bgoRhino>
+      //      -->, oConsola clear
+      //      -->, xSalida data!,, @<rino>
+      //
+      //   <rino>
+      //      goRhino, @<xCodis>
+      //
+
+   <files for goRhino>
+      //#javaj#
+      //
+      //   <frames> oSal
+      //
+      //#listix#
+      //
+      //   <content>
+      //      'First line
+      //      'second ....
+      //      'and last one.
+      //
+      //   <rewrite>
+      //     'var fix = new gFile ();
+      //     'var leos, nn = 0;
+      //     'if (fix.fopen (":mem in", "r")) {
+      //     '   var fo = new gFile ();
+      //     '   if (fo.fopen (":mem out", "w")) {
+      //     '       while ((leos = fix.readLine ()) !== null)
+      //     '          fo.writeLine ("te comento: " + (++nn) + ") " + leos);
+      //     '   }
+      //     '   fo.fclose ();
+      //     '   fix.fclose ();
+      //     '}
+      //     '"fin"
+      //
+      //   <main>
+      //      GEN, :mem in, content
+      //      '
+      //      goRhino, @<rewrite>
+      //      '
+      //      '
+      //      LOOP, TEXT FILE, :mem out
+      //          ,, @<value>
 
 
 #**FIN_EVA#
@@ -93,11 +183,14 @@ import de.elxala.zServices.*;
 
 public class cmdGoRhino implements commandable
 {
-   //NOTE!: For the correct build for jar and apk we need to force the compilation of these classes
-   //      it is not enough to compile 
+   //NOTE!: It is not enough to compile
    //         org.mozilla.javascriptContext
    //         org.mozilla.javascript.Scriptable
    //         and all classes used by them
+   //       which is done automatically by javac when compiling cmdGoRhino.java
+   //       but we have to force the compilation of following classes (at least!) as well
+   //       if we do not do it, Context.evaluateString returns always "undefined"
+   //
    private static org.mozilla.javascript.jdk13.VMBridge_jdk13 o1 = null;
    private static org.mozilla.javascript.jdk15.VMBridge_jdk15 o2 = null;
 
@@ -110,8 +203,9 @@ public class cmdGoRhino implements commandable
          "GORHINO",
          "RHINO",
          "RINO",
-         "GORRINO",
+         "GORINO",
          "JS",
+         "JS=",
          "JAVASCRIPT",
        };
    }
@@ -133,40 +227,137 @@ public class cmdGoRhino implements commandable
 
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      String strScript = cmd.getArg(0);
-      if (cmd.getArgSize () != 1)
+      int nn = cmd.getArgSize ();
+      String opt  = cmd.getArg(0);
+      String par1 = cmd.getArg(1);
+      String strScript = null;
+
+      // admit two syntaxes (onfly is default)
+      //       gorhion, onfly, //script ...
+      //       gorhion,      , //script ...
+      //       gorhion, //script ...
+
+      if (nn == 1)
       {
-         cmd.getLog().warn ("GORHINO", "GoRhino expect only one parameter!");
+         strScript = opt;
+         opt = "";
+      }
+      else if (nn == 2)
+      {
+         strScript = par1;
+      }
+      else
+      {
+         cmd.getLog().err ("GORHINO", "wrong number of parameters \"" + nn + "\"");
          return 1;
       }
+      if (opt.length () > 0 && ! opt.equalsIgnoreCase ("onfly"))
+      {
+         cmd.getLog().err ("GORHINO", "unsupported option \"" + opt + "\"");
+         return 1;
+      }
+      String result = "";
 
-      cmd.getLog().dbg (2, "GORHINO", "calling goRhino");
-      String result = callSingle (strScript, cmd.getLog());
-      cmd.getLog().dbg (2, "GORHINO", "return from calling goRhino, result length = " + result.length ());
+      if (strScript != null)
+      {
+         cmd.getLog().dbg (2, "GORHINO", "calling goRhino");
+         result = callSingle (strScript, cmd.getLog());
+         cmd.getLog().dbg (2, "GORHINO", "return from calling goRhino, result length = " + result.length ());
+      }
+      else cmd.getLog().dbg (2, "GORHINO", "no script given, nothing to do");
 
       // give the result
       //
       cmd.getListix ().printTextLsx (result);
-
       cmd.checkRemainingOptions ();
       return 1;
+   }
+
+   // this method is thought to be called directly using JAVA STATIC listix command
+   // for instance:
+   //
+   //       JAVA STATIC, listix.cmds.cmdGoRhino, callSingle, //"amigo".match (/go/) ? "1": "0"
+   //
+   // this call is much faster (e.g. 0.32 ms) than calling listix command GORHINO (e.g. 1.11 ms)
+   // however Android cannot use JAVA STATIC !
+   //
+   public static String callSingle (String [] jsSource)
+   {
+      // the parameter is a String array in order to be callable from JAVA STATIC but
+      // actually it only make sense to send one element
+      // anyway if there are more we will call all as separate scripts
+      //
+      StringBuffer sal = new StringBuffer ();
+
+      for (int ii = 0; ii < jsSource.length; ii ++)
+         sal.append (callSingle (jsSource[ii], org.gastona.commonGastona.log ));
+
+      return sal.toString ();
    }
 
    public static String callSingle (String jsSource, logger log)
    {
       Context cx = Context.enter ();
       String sal = "";
-      try {
+
+      String introScript = (jsSource == null || log == null) ? null:
+                            jsSource.length () < 201 ?
+                            jsSource:
+                            jsSource.substring (0, 200) + " *** source truncate.";
+
+      try
+      {
          Scriptable scope = cx.initStandardObjects ();
+
+         // access to TextFile through ScriptableObject gFile
+         //
+         ScriptableObject.defineClass(scope, de.elxala.langutil.filedir.gFile.class);
+
          Object result = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
          sal = Context.toString(result);
+      }
+      catch (org.mozilla.javascript.EcmaError e)
+      {
+         if (log != null)
+          log.err ("GoRhino", "Ecma ERROR [" + e + "] in script : " + introScript);
       }
       catch (Exception e)
       {
          if (log != null)
-            log.err ("GoRhino", "exception running script " + e + " script starting with : " + jsSource.substring (0, 200) + " *** source truncate.");
+            log.err ("GoRhino", "exception running script [" + e + "] in script : " + introScript);
       }
       finally { Context.exit(); }
       return sal;
    }
 }
+
+
+/*
+
+   possible options to implement in future
+
+         , onfly, script...
+         , load , filename
+         , compile, name            will compile the script with listix variables solved and store it with the name "name" for future recall
+         , execute, name            execute the previous compiled script with name "name"
+         , discard, name            will discard the compiled script or object with name "name"
+         , outvar , varname         set the result as if were an eva variable (array of arrays) in the variable name
+         , outintern, name          store the result in an js object with the name "name"
+
+
+   poderle decir algo sobre el output
+
+         ...
+         , out, var, pepa
+
+      - que lo meta en una eva
+
+         ...
+         , out, name, pepa
+
+      - que lo guarde en una variable interna (?) como objeto js
+        a modo de resultado intermedio
+
+
+
+*/

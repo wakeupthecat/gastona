@@ -553,7 +553,7 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('FILEUTIL', '2', '4', 'filePath', '', 'F
 /* START PROCESSING ..\..\base\src\listix\cmds\cmdFormula.java */
 
 INSERT INTO tGastItemDoc VALUES ('=', 'listix_command', 'lang_variables', 'listix.cmds.cmdFormula', '2',
-                 'Calculation of math expressions', '~~6 Calculates a math expresion and prints out the result. Note that this command is also used~6 by one of the syntaxes of the command SET VAR. Variables whose names comply some minimal~6 conditions (e.g. do not having blanks like in ~3my var~3) can be expressed directly in the~6 formula. For example~6~6    <productCount>  892~6    <productSum>    59982~6~6    <mean_value> =, ~3productSum / productCount~3~6~6  this also includes formula variables, so it could be possible as well to express something~6  like~6~6    <sum_100>  =, mean_value * 100~6~6 Scientific calculations might be achieved as well.~6~6    Incorporated constants : pi, hpi (=pi/2), tpi (=2*pi), c, h, e, k, q~6    Operators              : + - * / \ ^ > < <= >= mod and or xor not~6    Functions              : exp, log, ln, sq, sqr, sin, cos, tan, atan, acos, asin, inv, abs~6                             int, chs, deg_rad, rad_deg, min, max, atan2, r_p, p_r, rnd~6');
+                 'Calculation of math expressions', '~~6 Calculates a mathematical expresion and prints out the result. Variables whose names comply some minimal~6 conditions, for example not having blanks like in ~3my var~3 can be expressed directly in the formula.~6 For example~6~6    <productCount>  892~6    <productSum>    59982~6~6    <mean_value> =, ~3productSum / productCount~3~6~6  this also includes formula variables, so it could be possible as well to express something like~6~6    <sum_100>  =, mean_value * 100~6~6 Scientific functions can be used as well~6~6    Incorporated constants : pi, hpi (=pi/2), tpi (=2*pi), c, h, e, k, q~6    Operators              : + - * / \ ^ > < <= >= mod and or xor not~6    Functions              : exp, log, ln, sq, sqr, sin, cos, tan, atan, acos, asin, inv, abs~6                             int, chs, deg_rad, rad_deg, min, max, atan2, r_p, p_r, rnd~6~6 Alternatively the command goRhino (or alias JS) can be used for the same purpose.~6 In this case the the expression has to be convertible (solved) in a 100~8 javascript expression.~6~6 Examples:~6~6       <four>     JS, //2+2~6       <sin(x)>   JS, //Math.sin(@<p1>)~6       <sum_100>  JS, //@<mean_value> * 100');
 INSERT INTO tLsxCmdAliases VALUES ('=', 'FORMULA');
 INSERT INTO tLsxCmdAliases VALUES ('=', 'EQUATION');INSERT INTO tlsxCmdSyntaxHead VALUES ('=', '1', '2', '~Solves the given ~4formula~4 where the variables are referenced using directly its names and NOT using @<>');INSERT INTO tlsxCmdSyntaxParams VALUES ('=', '1', '0', 'formula', '', 'Any formula usign the operands + - / * \ sin cos tan etc');
 
@@ -573,6 +573,7 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('GENERATE', '1', '4', 'unitData', 'data'
 INSERT INTO tlsxCmdSyntaxParams VALUES ('GENERATE', '1', '5', 'fileData', '', '~File name where the EvaUnit ~4unitData~4 is to be found');INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'PARAMS', 'p1, [p2, ...]', '', 'Set parameters for listix generation (accesibles through @<p1> @<p2> etc)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'LOAD FORMATS', 'file, evaUnit', '    , listix', 'Specifies file and unit for the listix formats to be used in the generation');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'LOAD DATA', 'file, evaUnit', '    , data', 'Specifies file and unit for the data to be used in the generation');
+INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'PUSH VARIABLES', 'file, evaUnit', '    , data', '~Specifies file and unit for the variables (only one string) will be ~3pushed~3, that is, added on top of the existing data variables.');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'SET VAR DATA', 'EvaName, value', '', '~Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable ~4EvaName~4 with the value ~4value~4');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'PASS VAR DATA', 'EvaName', '', 'If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'TARGET EVA', 'EvaName', '', 'Specifies the variable name where the listix generation will place the result');
@@ -583,12 +584,16 @@ INSERT INTO tlsxCmdSyntaxOpts VALUES ('GENERATE', '1', 'APPEND', '0 / 1', '0', '
 
 INSERT INTO tGastItemDoc VALUES ('GORHINO', 'listix_command', 'system_run', 'listix.cmds.cmdGoRhino', '3',
                  'Rhino caller', '~~6 Calls Rhino with a javascript code~6~6    gorhino, //var ii = 10; ii+2;~6');
-INSERT INTO tGastExamples VALUES ('GORHINO', 'gorhino1', '~#javaj#~6~6   <frames> oFmain, Sample calling Rhino to execute javascript code~6~6#listix#~6~6    <main>~6       gorhino, //var ii = 10; ii+2;');INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'RHINO');
+INSERT INTO tGastExamples VALUES ('GORHINO', 'gorhino1', '~#javaj#~6~6   <frames> oFmain, Sample calling Rhino to execute javascript code~6~6#listix#~6~6    <main>~6       gorhino, //var ii = 10; ii+2;');
+INSERT INTO tGastExamples VALUES ('GORHINO', 'consecuencioDiagram', '~#javaj#~6~6   <frames> Fmain, Sample conSecuencio.js using Rhino~6~6   <layout of Fmain>~6    EVA, 10, 10, 7, 7~6~6       , X~6       , lJavascript code~6     X , xCodis~6       , bgoRhino~6     X , xSalida~6   100 , oConsola~6~6    <sysDefaultFonts>~6       Consolas, 11, 0, TextArea~6~6#data#~6~6   <xCodis>~6      //var diagData = {~6      //     sequenceTable : [~6      //                [~3time~3, ~3source~3, ~3target~3, ~3message~3 ],~6      //                [ 0.122, ~3USER~3  , ~3INTERFACE~3, ~3doThisAction~3 ],~6      //                [ 2.234, ~3INTERFACE~3, ~3SERVER~3, ~3theAction~3 ],~6      //                [ 3.543, ~3SERVER~3, ~3INTERFACE~3, ~3What action?~3 ],~6      //                [ 8.558, ~3INTERFACE~3, ~3USER~3, ~3done!~3 ],~6      //            ],~6      //      // distanceAgents   : 40,~6      //      distanceTimeUnit : 1,~6      //      // maxGapTime       : 2,~6      //      // autoElapsed      : false,~6      //  };~6      //~6      //@<:infile META-GASTONA/js/conSecuencioPlain.js>~6      //~6      //conSecuencioPlain (diagData);~6      //~6~6#listix#~6~6   <-- bgoRhino>~6      -->, oConsola clear~6      -->, xSalida data!,, @<rino>~6~6   <rino>~6      goRhino, @<xCodis>~6');
+INSERT INTO tGastExamples VALUES ('GORHINO', 'files for goRhino', '~#javaj#~6~6   <frames> oSal~6~6#listix#~6~6   <content>~6      ~4First line~6      ~4second ....~6      ~4and last one.~6~6   <rewrite>~6~7    ~4var fix = new gFile ();~6     ~4var leos, nn = 0;~6     ~4if (fix.fopen (~3:mem in~3, ~3r~3)) {~6     ~4   var fo = new gFile ();~6     ~4   if (fo.fopen (~3:mem out~3, ~3w~3)) {~6     ~4       while ((leos = fix.readLine ()) !== null)~6     ~4          fo.writeLine (~3te comento: ~3 + (++nn) + ~3) ~3 + leos);~6     ~4   }~6     ~4   fo.fclose ();~6     ~4   fix.fclose ();~6     ~4}~6     ~4~3fin~3~6~6   <main>~6      GEN, :mem in, content~6      ~4~6      goRhino, @<rewrite>~6      ~4~6      ~4~6      LOOP, TEXT FILE, :mem out~6          ,, @<value>');INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'RHINO');
 INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'RINO');
 INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'GORRINO');
 INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'JS');
-INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'JAVASCRIPT');INSERT INTO tlsxCmdSyntaxHead VALUES ('GORHINO', '1', '7', 'Execute the javascript code');INSERT INTO tlsxCmdSyntaxParams VALUES ('GORHINO', '1', '0', 'RHINO', '', '');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('GORHINO', '1', '1', '[ script ]', 'Script to be executed', '');
+INSERT INTO tLsxCmdAliases VALUES ('GORHINO', 'JAVASCRIPT');INSERT INTO tlsxCmdSyntaxHead VALUES ('GORHINO', '1', '4', 'Execute the javascript code');
+INSERT INTO tlsxCmdSyntaxHead VALUES ('GORHINO', '2', '4', 'Execute the javascript code');INSERT INTO tlsxCmdSyntaxParams VALUES ('GORHINO', '1', '0', '[ script ]', 'Script to be executed', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('GORHINO', '2', '1', 'ONFLY', '', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('GORHINO', '2', '2', 'script', 'Script to be executed', '');
 
 /* START PROCESSING ..\..\base\src\listix\cmds\cmdHTTPDistill.java */
 
@@ -721,6 +726,7 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('LISTIX', '1', '1', 'param1', '', 'param
 INSERT INTO tlsxCmdSyntaxParams VALUES ('LISTIX', '1', '2', '...', '', '');INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'PARAMS', 'p1, [p2, ...]', '', 'Set parameters for listix generation (accesibles through @<p1> @<p2> etc)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'LOAD FORMATS', 'file, evaUnit', '    , listix', 'Specifies file and unit for the listix formats to be used in the generation');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'LOAD DATA', 'file, evaUnit', '    , data', 'Specifies file and unit for the data to be used in the generation');
+INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'PUSH VARIABLES', 'file, evaUnit', '    , data', '~Specifies file and unit for the variables (only one string) will be ~3pushed~3, that is, added on top of the existing data variables.');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'SET VAR DATA', 'EvaName, value', '', '~Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable ~4EvaName~4 with the value ~4value~4');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'PASS VAR DATA', 'EvaName', '', 'If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('LISTIX', '1', 'TARGET EVA', 'EvaName', '', 'Specifies the variable name where the listix generation will place the result');
@@ -1249,7 +1255,6 @@ INSERT INTO tlsxCmdSyntaxOpts VALUES ('ZIP', '5', 'SET DATE', 'gz, now or yyyy-M
 
 /* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\commandable.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\commanderBase.java */
-/* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\goRhino.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\inCaseCommon.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\parameters4LsxGenerate.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\listix\cmds\parsonsAgent.java */
@@ -1723,6 +1728,7 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('RUBY', '1', '1', 'ruby expresion', '', 
 /* no #gastonaDoc# unit found in ..\..\pc\src\org\json\JSONStringer.java */
 /* no #gastonaDoc# unit found in ..\..\pc\src\org\json\JSONTokener.java */
 /* no #gastonaDoc# unit found in ..\..\pc\src\org\json\JSONWriter.java */
+/* no #gastonaDoc# unit found in ..\..\pcJav14\src\listix\cmds\cmdGoRhino.java */
 /* no #gastonaDoc# unit found in ..\..\android\src\de\elxala\db\utilEscapeConfig.java */
 /* no #gastonaDoc# unit found in ..\..\android\src\de\elxala\langutil\androidSysUtil.java */
 /* no #gastonaDoc# unit found in ..\..\android\src\de\elxala\langutil\javaLoad.java */
@@ -2069,6 +2075,7 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('MSGBOX', '1', '2', 'title', '', 'Title 
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\Eva\util\EvaFileToHtml.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\fileMultiFilter.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\fileUtil.java */
+/* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\gFile.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\mappedFile.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\memoryLines.java */
 /* no #gastonaDoc# unit found in ..\..\base\src\de\elxala\langutil\filedir\naming.java */

@@ -11,7 +11,7 @@ function conSecuencioCanvas (c2d, diagData)
    var dia = diagData["distanceAgents"];
    var dit = diagData["distanceTimeUnit"];
    var maxGapTime = diagData["maxGapTime"];
-   var autoElapsed = diagData["autoElapsed"];
+   var autoElapsed = diagData["autoElapsed"] !== false; // to not interpret undefined as false!
    if (typeof dia === "string") dia = parseInt (dia);
    if (typeof dit === "string") dit = parseInt (dit);
    if (typeof maxGapTime === "string") maxGapTime = parseInt (maxGapTime);
@@ -77,7 +77,6 @@ function conSecuencioCanvas (c2d, diagData)
    dia = dia || 360;  // horizontal distance between agents
    dit = dit ||  50;  // vertical distance between time units (i.e. seconds)
    maxGapTime = maxGapTime || 6;
-   autoElapsed = autoElapsed || true;
 
    function textWidth (txt) { return c2d.measureText (txt).width ; }
 

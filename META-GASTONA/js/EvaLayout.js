@@ -26,7 +26,13 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 */
 function EvaLayout (mangr, layName)
 {
-   "use strict";
+   // "use strict";
+
+   var HEADER_ADAPT      = "A";
+   var HEADER_EXPAND     = "X";
+   var EXPAND_HORIZONTAL = "-";
+   var EXPAND_VERTICAL   = "+";
+
    var headColumns, headRows, isPrecalculated = false;
    var layInfo = mangr.guiLayouts[layName];
    var iniRect = { left : 0, right : 200, top : 0, bottom : 20};
@@ -96,11 +102,11 @@ function EvaLayout (mangr, layName)
 
          headT = headT + ""; // to accept numbers as well as strings
 
-         if (headT.length == 0 || headT.indexOf ("A") == 0)
+         if (headT.length == 0 || headT.indexOf (HEADER_ADAPT) == 0)
          {
             type = MAXMIN;
          }
-         else if (headT.indexOf ("X") == 0)
+         else if (headT.indexOf (HEADER_EXPAND) == 0)
          {
             type = EXPAND;
             // percentage will calculated afterwards
@@ -212,7 +218,7 @@ function EvaLayout (mangr, layName)
             }
 
             var wname = getGridCell(rr, cc);
-            if (! wname || ! mangr.cellElementIsAnId (wname)) continue;
+            if (! wname ) continue;
             //... console.log ("precalc " + wname);
             var laya = mangr.getLayableByName (wname);
             if (! laya) continue;
@@ -225,8 +231,8 @@ function EvaLayout (mangr, layName)
             // set position x2 checking cells with horizontal expansion
             //
             var ava = cc;
-            while (ava+1 < nCols && getGridCell(rr, ava+1) === mangr.EXPAND_HORIZONTAL) ava ++;
-            if (ava+1 < nCols && getGridCell(rr, ava+1) === mangr.EXPAND_HORIZONTAL + mangr.EXPAND_HORIZONTAL) ava = -1;
+            while (ava+1 < nCols && getGridCell(rr, ava+1) === EXPAND_HORIZONTAL) ava ++;
+            if (ava+1 < nCols && getGridCell(rr, ava+1) === EXPAND_HORIZONTAL + EXPAND_HORIZONTAL) ava = -1;
             laya.indxPos.iright = ava;
             if (ava == cc)
             {
@@ -239,8 +245,8 @@ function EvaLayout (mangr, layName)
             // set position y2 checking cells with vertical expansion
             //
             ava = rr;
-            while (ava+1 < nRows && getGridCell(ava+1, cc) === mangr.EXPAND_VERTICAL) ava ++;
-            if (ava+1 < nRows && getGridCell(ava+1, cc) === mangr.EXPAND_VERTICAL + mangr.EXPAND_VERTICAL) ava = -1;
+            while (ava+1 < nRows && getGridCell(ava+1, cc) === EXPAND_VERTICAL) ava ++;
+            if (ava+1 < nRows && getGridCell(ava+1, cc) === EXPAND_VERTICAL + EXPAND_VERTICAL) ava = -1;
             laya.indxPos.ibottom = ava;
             if (ava == rr)
             {

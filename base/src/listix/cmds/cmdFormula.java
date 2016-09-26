@@ -38,28 +38,34 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Calculates a math expresion and prints out the result. Note that this command is also used
-      // by one of the syntaxes of the command SET VAR. Variables whose names comply some minimal
-      // conditions (e.g. do not having blanks like in "my var") can be expressed directly in the
-      // formula. For example
+      // Calculates a mathematical expresion and prints out the result. Variables whose names comply some minimal
+      // conditions, for example not having blanks like in "my var" can be expressed directly in the formula. 
+      // For example
       //
       //    <productCount>  892
       //    <productSum>    59982
       //
       //    <mean_value> =, "productSum / productCount"
       //
-      //  this also includes formula variables, so it could be possible as well to express something
-      //  like
+      //  this also includes formula variables, so it could be possible as well to express something like
       //
       //    <sum_100>  =, mean_value * 100
       //
-      // Scientific calculations might be achieved as well.
+      // Scientific functions can be used as well
       //
       //    Incorporated constants : pi, hpi (=pi/2), tpi (=2*pi), c, h, e, k, q
       //    Operators              : + - * / \ ^ > < <= >= mod and or xor not
       //    Functions              : exp, log, ln, sq, sqr, sin, cos, tan, atan, acos, asin, inv, abs
       //                             int, chs, deg_rad, rad_deg, min, max, atan2, r_p, p_r, rnd
       //
+      // Alternatively the command goRhino (or alias JS) can be used for the same purpose.
+      // In this case the the expression has to be convertible (solved) in a 100% javascript expression.
+      //
+      // Examples:
+      //
+      //       <four>     JS, //2+2
+      //       <sin(x)>   JS, //Math.sin(@<p1>)
+      //       <sum_100>  JS, //@<mean_value> * 100
 
    <aliases>
       alias

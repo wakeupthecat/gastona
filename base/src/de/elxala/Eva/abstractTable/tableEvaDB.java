@@ -86,7 +86,9 @@ public class tableEvaDB extends tableEvaDataEBS
       eu.clear ();
       for (int ii = 0; ii < tableNames.length; ii ++)
       {
-         eu.add (new Eva (tableNames[ii], new EvaLine (fieldSpec[ii])));
+          Eva eva = new Eva (tableNames[ii]);
+          eva.addLine (new EvaLine (fieldSpec[ii]));
+          eu.add (eva);
       }
    }
 

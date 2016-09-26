@@ -46,7 +46,6 @@ function jGastona (evaConfig, existingPlaceId)
    var minWidth = -1;
    var minHeight = -1;
 
-
    // default action
    loadJast (evaConfig);
    document.body.onresize = function () { adaptaLayout () };
@@ -64,7 +63,8 @@ function jGastona (evaConfig, existingPlaceId)
       adapta             : adaptaLayout,
       mask               : function (a, b) { if (layMan) { layMan.maskLayoutId (a, b); adaptaLayout (); } },
       unmask             : function (a)    { if (layMan) { layMan.unmaskLayoutId (a); adaptaLayout (); } },
-
+      htmlElem           : htmlElem,
+      canUploadFile      : canUploadFile,
 
       // part ajax ...
       getAjaxResponse  : function () { return responseAjaxUnit; },
@@ -83,6 +83,13 @@ function jGastona (evaConfig, existingPlaceId)
    function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
    function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
    if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
+
+   function htmlElem (elmeOrId)
+   {
+      if (typeof elmeOrId === "string")
+         return document.getElementById (elmeOrId);
+      return elmeOrId;
+   }
 
    function adaptaLayout ()
    {
@@ -319,23 +326,28 @@ function jGastona (evaConfig, existingPlaceId)
             zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, "data!": updateSimpleValue } );
             break;
 
+         // --- Note about widget class for submit button
+         //    this could be handled with an extra widget class, implementing it as
+         //    zwid = fabricaStandard ("input", name, { type: "submit", ...
+         //    but this is not necessary since we can use a button ('b') and set its property "type" to submit
+         //    for example
+         //          <bSendIt type> //'submit
 
-         // NOTE: actually we don't need a special character for submit
-         //       we can use a button and set its property "type" to submit (<bSendIt type> //'submit)
-         // case 'u':
-         //    zwid = fabricaStandard ("input", name, { type: "submit", onchange: assignValue, "data!": updateSimpleLabel } );
-         //    break;
 
-         case 'f': // file to upload
-                   // Note set data to this component make no sense but to empty string for reseting it
-                   // for instance, if we try anything else in Chrome we get :
-                   // "Failed to set the 'value' property on 'HTMLInputElement': This input element accepts a filename, which may only be programmatically set to the empty string."
+         // --- Note about upload (choose file) widget class
+         // As stated by the Chrome error message if we try to set a value different than empty string to this element
+         // "Failed to set the 'value' property on 'HTMLInputElement': This input element accepts a filename, which may only be programmatically set to the empty string."
+         //
+         case 'u':
             zwid = fabricaStandard ("input", name, { type: "file", onchange: signalName, "data!": updateResetValue } );
             break;
 
          case 'm': // image
             // zwid = fabricaStandard ("img", name, { "data!": updateImage } );
             zwid = fabricaStandard ("div", name, { "data!": updateImage } );
+            zwid.style["background-position"] = "center center";
+            zwid.style["background-repeat"] = "no-repeat";
+            zwid.style["background-size"] = "contain";
             break;
 
          case 'p': // password
@@ -632,7 +644,37 @@ function jGastona (evaConfig, existingPlaceId)
       }
 
       return ele;
-  }
+   }
+
+   // helper function to check is a file can be uploaded, for example
+   //
+   //   <-- bUploadFoto>
+   //      //if (canUploadFile ("uPhoto", 5)) {
+   //      //   if (luix.AJAXUploadFile ("uPhoto", "uploadFoto")) {
+   //      //      feedback ("uploading file ...");
+   //      //   }
+   //      //}
+   //      //
+
+   function canUploadFile (widname, maxSizeMB, alertEmpty, alertTooBig)
+   {
+      var ele = htmlElem (widname);
+      var fileEle = ele.files[0]; // we only upload 1 file!
+
+      var sizeLimitMB = maxSizeMB;
+
+      if (! fileEle || fileEle === "") {
+         if (alertEmpty !== "")
+            alert (alertEmpty ? alertEmpty: "Please choose first a file!");
+         return false;
+      }
+      if (sizeLimitMB && sizeLimitMB > 0 && fileEle.size > sizeLimitMB*1024*1024) {
+         if (alertTooBig !== "")
+            alert (alertTooBig ? alertTooBig: ("File is too big to be uploaded, limit is " + maxSizeMB + " MB"));
+         return false;
+      }
+      return true;
+   }
 
    // --------- START PART AJAX
    //
@@ -676,7 +718,6 @@ function jGastona (evaConfig, existingPlaceId)
       else if (window.ActiveXObject)
          return new ActiveXObject("Microsoft.XMLHTTP");
 
-      // hardly probable ...
       alert("Your browser does not support AJAX!");
    }
 
@@ -814,13 +855,16 @@ function jGastona (evaConfig, existingPlaceId)
 
    function AJAXUploadFile (fileElement, postMsg, postHeaders)
    {
-      var filename = fileElement.files[0];
-      if (! filename || filename === "") return false;
+      if (!fileElement) return false;
+      var fileEle = htmlElem (fileElement);
+
+      var file1 = fileEle.files[0];
+      if (! file1 || file1 === "") return false;
 
       var formo = new FormData ();
-      formo.append ("filename", filename); // we add it but actually the mico server don't read it!
+      formo.append ("filename", file1); // we add it but actually the mico server don't read it!
 
-      AJAXgenericPost (postMsg, formo, postHeaders );
+      AJAXgenericPost (postMsg, formo, postHeaders);
    }
 
    function AJAXLoadRootJast (jastName)

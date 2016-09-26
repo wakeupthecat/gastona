@@ -104,6 +104,10 @@ import de.elxala.langutil.*;
 
 public class cmdCGate implements commandable
 {
+    
+    public cmdCGate ()
+    {
+    }
    /**
       get all the different names that the command can have
    */

@@ -84,6 +84,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , PARAMS        ,  "p1, [p2, ...]"            ,                 , //Set parameters for listix generation (accesibles through @<p1> @<p2> etc)
       1      , LOAD FORMATS  ,  "file, evaUnit"            , "    , listix"  , //Specifies file and unit for the listix formats to be used in the generation
       1      , LOAD DATA     ,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the data to be used in the generation
+      1      , PUSH VARIABLES,  "file, evaUnit"            , "    , data"    , //Specifies file and unit for the variables (only one string) will be "pushed", that is, added on top of the existing data variables.
       1      , SET VAR DATA  ,  "EvaName, value"           ,                 , //Affects the data to be used, either the current one or an external unit (option LOAD DATA), setting the variable 'EvaName' with the value 'value'
       1      , PASS VAR DATA ,  "EvaName"                  ,                 , //If using external data (option LOAD DATA), this option might be used to share a variable of the current data with the extern one whithout need to copy it (e.g. SET VAR DATA)
       1      , TARGET EVA    ,  "EvaName"                  ,                 , //Specifies the variable name where the listix generation will place the result
@@ -141,6 +142,51 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      // m^2
       //      //
 
+   <pushVars example>
+      //#javaj#
+      //
+      //   <frames> oSal
+      //   
+      //#data#
+      //
+      //   <sampleFile>
+      //      //#data#
+      //      //
+      //      // <year>     1829
+      //      // <name>     Abel's irreducibility theorem
+      //      // <refid>    888-8888-8888
+      //
+      //#listix#
+      //
+      //    <main>
+      //      GEN, :mem dataFile, sampleFile
+      //      LSX, processData
+      //         , PUSH, :mem dataFile
+      //
+      //   <processData>
+      //      //name is @<name>
+      //      //
+      //      //all are:
+      //      //
+      //      //
+      //      LOOP, COLUMNS,
+      //          ,, //@<columnName> : "@<columnValue>"
+      //      //
+      //      //possible insert:
+      //      //
+      //      //INSERT INTO myTable (@<fields>) VALUES (@<values>) ;
+      //
+      //   <fields>
+      //      LOOP, COLUMNS,
+      //          , LINK, ","
+      //          ,, //@<columnName>
+      //
+      //   <values>
+      //      LOOP, COLUMNS,
+      //          , LINK, ","
+      //          ,, //'@<:encode-utf8 columnValue>'
+      //
+
 #**FIN_EVA#
 */
 
@@ -196,90 +242,11 @@ public class cmdListix implements commandable
 
       if (!PAOP.evalOptions (cmd))
       {
-         cmd.getLog ().severe ("LISTIX", "RARRAR");
+         cmd.getLog ().severe ("LISTIX", "Cannot eval options!");
          return 1;
       }
 
-
-      // ----------------------------------------------------------------------
-      // CALLING LISTIX WITH PARAMETER STACK PREPARATION AND RESTORE AT THE END
-      //
-/*
-   10.01.2012 00:17
-   FIX NOTA:
-   Si no quitamos la parte de stack el siguiente script da error
-
-ERROR(4) in listix_command : tableCursor::increment_RUNTABLE : tableCursor uninitialized (no set_RUNTABLE called)!
-LISTIX STACK:
-MENSAKA STACK:
-   0) [msg: [javaj show_frames] target: [class javaj.widgets.panels.zFrame oS]]
-
-
-
-#javaj#
-
-   <frames> oS
-
-#listix#
-
-   <varColumnatas>
-      name    , desc
-      nameA   , desc1
-      nameB   , desc2
-
-   <main>
-      LOOP, EVA, varColumnatas
-          ,, // , name = [@<name>] AS @<formed column name>
-
-
-   <formed column name>
-      LSX, toLegalName(n), pt_@<name>_@<desc>
-
-   <toLegalName(n)>
-      JAVA, de.elxala.langutil.filedir.naming, toVariableName, @<p1>
-
-*/
-
-
-////      // store the key stack level
-////      //
-////      int oldStackLevel = cmd.getListix ().getStackDepthZero4Parameters();
-////      cmd.getListix ().setStackDepthZero4Parameters (cmd.getListix ().getTableCursorStack ().getDepth());
-////
-////      // push the parameters in the stack
-////      //
-////      boolean beenPushed = false;
-////      if (PAOP.genParameters.length > 0)
-////      {
-////         cmd.getLog ().dbg (2, "LISTIX", "params length " + PAOP.genParameters.length);
-////         cmd.getListix ().getTableCursorStack ().pushTableCursor(new tableCursor(new tableAccessParams (PAOP.genParameters)));
-////         beenPushed = true;
-////      }
-
-      // call the listix format
-      //
-      //cmd.getListix ().printLsxFormat (PAOP.genMainFormat);
-      listix novoLsx = new listix (PAOP.genFormatsEvaUnit,
-                                   PAOP.genDataEvaUnit,
-                                   cmd.getListix().getTableCursorStack (),
-                                   PAOP.genParameters);
-
-      novoLsx.setNewLineString (PAOP.genNewLineString);
-
-      lsxWriter.makeFile (novoLsx,
-                          PAOP.genMainFormat,
-                          PAOP.genFileToGenerate,
-                          cmd.getListix().getGlobalFile (),
-                          cmd.getListix().getTargetEva (),
-                          PAOP.genAppendToFile);
-      novoLsx.destroy ();
-
-////      // restore the key stack level and pop the param table if needed
-////      //
-////      cmd.getListix ().setStackDepthZero4Parameters (oldStackLevel);
-////
-////      if (beenPushed)
-////         cmd.getListix ().getTableCursorStack ().end_RUNTABLE ();
+      PAOP.executeListix (cmd);
       return 1;
    }
 }

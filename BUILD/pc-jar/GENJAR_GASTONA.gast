@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.1.160921 \"ERipley go Rhino\"
+   <gastonaVersion>  //1.1.160927 \"ERipley gfile\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

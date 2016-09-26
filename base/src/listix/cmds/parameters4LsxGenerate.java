@@ -77,6 +77,9 @@ public class parameters4LsxGenerate
    public String genDataUnitName  = "";
    public String genDataFileName  = "";
 
+   public String genPushDataUnitName  = "";
+   public String genPushDataFileName  = "";
+
    public String genNewLineString = null;
 
    public String [] genParameters = null;
@@ -85,11 +88,51 @@ public class parameters4LsxGenerate
 
    public EvaUnit genFormatsEvaUnit = null;
    public EvaUnit genDataEvaUnit = null;
+   public EvaUnit genPushDataEvaUnit = null;
 
    public boolean genAppendToFile = false;
 
    //protected listixCmdStruct genCmd;
    public boolean StrictOptionsErrors = false;
+   
+   //(o) NOTES/cmdListix/Complicated code
+   // actually here we need a method that returns both if error occurs (boolean) and evaUnit if loaded and if not null
+   // we do some trick to get the information anyway
+   //
+   //      EvaUnit novaEU = new EvaUnit("novaEU");
+   //      novaEU.lis_Evas = null; // trick to detect if it has been assigned or not
+   //      ...
+   //
+   // see uses of errorLoadingEvaUnit
+   // change it if find a better way...
+   //
+   private boolean errorLoadingEvaUnit (listixCmdStruct cmd, EvaUnit eu, String fileName, String defaultFileName, String unitName, String defaultUnitName)
+   {
+      if (unitName.length () == 0 && fileName.length () == 0)
+         return false; // NO ERROR
+      if (unitName.length () == 0) unitName = defaultUnitName;
+      if (fileName.length () == 0) fileName = defaultFileName;
+      if (fileName.length () == 0)
+      {
+         // we have - by the moment - no default listix file
+         cmd.getLog().err (cmd.cmdName, "parameter fileData or fileFormats has to be specified!");
+         if (StrictOptionsErrors) return true; // ERROR
+      }
+
+      EvaUnit euLoad = EvaFile.loadEvaUnit (fileName, unitName);
+
+      if (euLoad == null)
+      {
+         cmd.getLog().err (cmd.cmdName, "failed loading unit #" + unitName + "# from \"" + fileName + "\"");
+         if (StrictOptionsErrors) return true; // ERROR
+      }
+      else
+      {
+         eu.setEvaUnit (euLoad);
+         cmd.getLog().dbg (2, cmd.cmdName, "loaded unit #" + unitName + "# from \"" + fileName + "\"");
+      }
+      return false;  // NO ERROR!
+   }
 
    /**
    */
@@ -116,10 +159,6 @@ public class parameters4LsxGenerate
             cmd.getLog ().dbg (2, cmd.cmdName, "option NEWLINE [" + optNL + "] set");
       }
 
-      // default formats unit = the current one
-      //
-      genFormatsEvaUnit = cmd.getListix().getGlobalFormats ();
-
       // Option LOAD FORMATS
       //
       String [] loadFormats = cmd.takeOptionParameters("LOADFORMATS");
@@ -138,43 +177,60 @@ public class parameters4LsxGenerate
          cmd.getLog().dbg (2, cmd.cmdName, "option LOAD FORMATS file:\"" + genFormatsFileName + "\"  unit:\"" + genFormatsUnitName + "\"");
       }
 
-      if (genFormatsUnitName.length () != 0 || genFormatsFileName.length () != 0)
-      {
-         // default formats name
-         //(o) listix_TODO Clear if default format is "formats" or "listix"
-         //                Nota: si lo cambio por listix se ha de buscar todos los GEN que asuman que es formats!
-         //
-         if (genFormatsUnitName.length () == 0) genFormatsUnitName = "listix";
-         if (genFormatsFileName.length () == 0)
-         {
-            // we have - by the moment - no default listix file
-            cmd.getLog().err (cmd.cmdName, "the parameter fileFormats should be specified!");
-            if (StrictOptionsErrors) return false;
-         }
-         genFormatsEvaUnit = EvaFile.loadEvaUnit (genFormatsFileName, genFormatsUnitName);
-         cmd.getLog().dbg (2, cmd.cmdName, "loaded unit formats #" + genFormatsUnitName + "# from \"" + genFormatsFileName + "\"");
-      }
-
-      // default data unit = the current one
+      // load evaUnit for LOAD DATA
       //
-      genDataEvaUnit = cmd.getListix().getGlobalData ();
+      // default formats unit = the current one
+      //
+      EvaUnit novaEU = new EvaUnit("novaEU");
+      novaEU.lis_Evas = null; // trick to detect if it has been assigned or not
+      if (errorLoadingEvaUnit (cmd,
+                               novaEU,
+                               genFormatsFileName, "",
+                               genFormatsUnitName, "listix"))
+      {
+         return false;
+      }
+      genFormatsEvaUnit = (novaEU.lis_Evas != null) ? novaEU: cmd.getListix().getGlobalFormats ();
+      
 
       // Option LOAD DATA
       //
-      String [] loadData = cmd.takeOptionParameters("LOADDATA");
-      if (loadData != null)
       {
-         if (loadData.length < 1)
+         String [] loadData = cmd.takeOptionParameters("LOADDATA");
+         if (loadData != null)
          {
-            cmd.getLog().err (cmd.cmdName, "option LOAD DATA requires at least one parameter!");
-            if (StrictOptionsErrors) return false;
+            if (loadData.length < 1)
+            {
+               cmd.getLog().err (cmd.cmdName, "option LOAD DATA requires at least one parameter!");
+               if (StrictOptionsErrors) return false;
+            }
+            else
+            {
+               genDataFileName = loadData[0];
+               genDataUnitName = loadData.length > 1 ? loadData[1]: "";
+            }
+            cmd.getLog().dbg (2, cmd.cmdName, "option LOAD DATA file:\"" + genDataFileName + "\"  unit:\"" + genDataUnitName + "\"");
          }
-         else
+      }
+
+      // Option PUSH VARIABLES
+      //
+      {
+         String [] pushData = cmd.takeOptionParameters(new String [] { "PUSH", "PUSHVARS", "PUSHVARIABLES" });
+         if (pushData != null)
          {
-            genDataFileName = loadData[0];
-            genDataUnitName = loadData.length > 1 ? loadData[1]: "";
+            if (pushData.length < 1)
+            {
+               cmd.getLog().err (cmd.cmdName, "option PUSH VARIABLES requires at least one parameter!");
+               if (StrictOptionsErrors) return false;
+            }
+            else
+            {
+               genPushDataFileName = pushData[0];
+               genPushDataUnitName = pushData.length > 1 ? pushData[1]: "";
+            }
+            cmd.getLog().dbg (2, cmd.cmdName, "option PUSH VARIABLES file:\"" + genPushDataFileName + "\"  unit:\"" + genPushDataUnitName + "\"");
          }
-         cmd.getLog().dbg (2, cmd.cmdName, "option LOAD DATA file:\"" + genDataFileName + "\"  unit:\"" + genDataUnitName + "\"");
       }
 
       // Option PARAMS
@@ -189,7 +245,7 @@ public class parameters4LsxGenerate
             if (StrictOptionsErrors) return false;
          }
          for (int ii = 0; ii < pars.length; ii ++)
-            lisParams.add (pars[ii]);            
+            lisParams.add (pars[ii]);
 
          cmd.getLog().dbg (2, cmd.cmdName, "option PARAMS, " + pars.length + " parameters given");
       }
@@ -201,34 +257,34 @@ public class parameters4LsxGenerate
             genParameters[ii] = (String) lisParams.get(ii);
       }
 
-      if (genDataUnitName.length () != 0 || genDataFileName.length () != 0)
+      // load evaUnit for LOAD DATA
+      //
+      // default data unit = the current one
+      //
+      novaEU = new EvaUnit ();
+      novaEU.lis_Evas = null; // trick to detect if it has been assigned or not
+      if (errorLoadingEvaUnit (cmd,
+                               novaEU,
+                               genDataFileName, genFormatsFileName,
+                               genDataUnitName, "data"))
       {
-         if (genDataUnitName.length () == 0) genDataUnitName = "data";
-
-         // if data file not specified try with the same as formats
-         if (genDataFileName.length () == 0)
-            genDataFileName = genFormatsFileName;
-
-         if (genDataFileName.length () == 0)
-         {
-            // we have - by the moment - no default listix file
-            cmd.getLog().err (cmd.cmdName, "the parameter fileData should be specified!");
-            if (StrictOptionsErrors) return false;
-         }
-         genDataEvaUnit = EvaFile.loadEvaUnit (genDataFileName, genDataUnitName);
-
-         if (genDataEvaUnit == null)
-         {
-            cmd.getLog().err (cmd.cmdName, "failed loading unit data #" + genDataUnitName + "# from \"" + genDataFileName + "\"");
-            if (StrictOptionsErrors) return false;
-            //(o) TOSEE_listix_cmds GENERATE, Loading data fails, continue or not continue ?
-            // failed but continue ... ?
-         }
-         else
-         {
-            cmd.getLog().dbg (2, cmd.cmdName, "loaded unit data #" + genDataUnitName + "# from \"" + genDataFileName + "\"");
-         }
+         return false;
       }
+      genDataEvaUnit = (novaEU.lis_Evas != null) ? novaEU: cmd.getListix().getGlobalData ();
+      
+
+      // load evaUnit for PUSH VARIABLES
+      //
+      novaEU = new EvaUnit ();
+      novaEU.lis_Evas = null; // trick to detect if it has been assigned or not
+      if (errorLoadingEvaUnit (cmd,
+                               novaEU,
+                               genPushDataFileName, genFormatsFileName,
+                               genPushDataUnitName, "data"))
+      {
+         return false;
+      }
+      genPushDataEvaUnit = (novaEU.lis_Evas != null) ? novaEU: null;
 
       // SET VAR DATA options
       //    chance to set variables to current data
@@ -311,5 +367,51 @@ public class parameters4LsxGenerate
 
       int remainOpt = cmd.checkRemainingOptions ();
       return (StrictOptionsErrors && remainOpt != 0) ? false: true;
+   }
+
+   public void executeListix (listixCmdStruct cmd)
+   {
+      tableCursorStack tabstack = cmd.getListix().getTableCursorStack ();
+      
+      boolean withPushData = genPushDataEvaUnit != null && genPushDataEvaUnit.size () > 0;
+
+      if (withPushData)
+      {
+         int col = 0;
+         Eva eparams = new Eva ("push-data-eva"); // name is not relevant
+
+         for (int ii = 0; ii < genPushDataEvaUnit.size (); ii ++)
+         {
+            Eva eva = genPushDataEvaUnit.getEva (ii);
+            eparams.setValue (eva.getName (), 0, col);
+            eparams.setValue (eva.getValue (), 1, col++);
+         }
+         tableAccessEva tablePars = new tableAccessEva (); // it is a tableAccessBase class
+         tablePars.evaData = eparams;
+         tabstack.pushTableCursor (new tableCursor (tablePars));
+      }
+
+
+      // call the listix format
+      //
+      listix novoLsx = new listix (genFormatsEvaUnit,
+                                   genDataEvaUnit,
+                                   tabstack,
+                                   genParameters);
+
+      novoLsx.setNewLineString (genNewLineString);
+
+      lsxWriter.makeFile (novoLsx,
+                          genMainFormat,
+                          genFileToGenerate,
+                          cmd.getListix().getGlobalFile (),
+                          cmd.getListix().getTargetEva (),
+                          genAppendToFile);
+      novoLsx.destroy ();
+
+      if (withPushData)
+      {
+         tabstack.popTableCursor ();
+      }
    }
 }
