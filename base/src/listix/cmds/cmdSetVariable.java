@@ -59,7 +59,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName, parameters, defVal, desc
-          1  , SOLVE LSX , 1 / 0    ,    1  , If false (0) the values parameters will be set without any listix resolve (variables @<..>) at all
+          1  , SOLVE LSX , 1 / 0       ,    1  , //If false (0) the values parameters will be set without any listix resolve (variables @<..>) at all
+          1  , COPY CONTENT FROM , evaVarToCopy,       , //Copy all the content of the given variable
+          1  , REFERENCE CONTENT OF, evaVarToReference,, //Reference the content of the given variable. NOTE! It is not strictly a reference changes in the variable may or may not be propagated, use it as a way of doing a fast copy of some variable of constant content
 
    <examples>
       gastSample
@@ -159,7 +161,6 @@ public class cmdSetVariable implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      //(o) TODO_remove old compatibility
       boolean solveLsx = true;
       if ("0".equals (cmd.takeOptionString(new String [] { "RAWDATA", "NOSOLVE", "NOTSOLVE", "NOLSXSOLVE", "NOLISTIXSOLVE" }, "0" )))
          solveLsx = false;
@@ -168,36 +169,16 @@ public class cmdSetVariable implements commandable
 
       /*
          <setado>
-            SET VAR, Reina De los Mares, @<campo>...etc...blabla
+            SET VAR, myVar, @<campo>...etc...blabla
 
       */
       String variableName = cmd.getArg (0);  // parameter 1
       String value        = cmd.getArg (1, solveLsx);  // parameter 2
 
-      // Note: if solved value (parameter 2) is "=" MAYBE IT IS NOT A FORMULA BUT A VALUE!
-      //       for a formula is mandatory to write "=" in the parameter 1 and have only three parameters
-      boolean isFormula = commandEva.getValue (indxComm, 2).equals ("=");
-
-      if (isFormula)
-      {
-         cmd.getLog().err ("SET VAR", "\"SET VAR, varname, = ...\" is DEPRECATED! use \"SET NUM, varname, formula\" instead!");
-         if (cmd.getArgSize() == 3)
-         {
-            cmd.getLog().dbg (2, "SET VAR", "value is a formula [" + cmd.getArg (2) + "]");
-            value = calcFormulas.calculaFormula (that, cmd.getArg (2));
-         }
-         else
-         {
-            calcFormulas.badFormulaError (cmd.getLog(), "SET VAR", cmd.getArg (2));
-         }
-      }
-
       // Set the first column value
       //
       Eva theVar = that.getSomeHowVarEva (variableName);
       theVar.setValueVar (value);
-
-      if (isFormula) return 1;   // if formula, all is done!
 
       // Continue with the rest of columns
       //
@@ -205,6 +186,18 @@ public class cmdSetVariable implements commandable
       {
          value = cmd.getArg (cc, solveLsx);
          theVar.setValue (value, 0, cc-1);
+      }
+
+      String copyFrom = cmd.takeOptionString(new String [] { "COPYCONTENTFROM", "COPYCONTENT", "COPYFROM", "COPY" }, null);
+      if (copyFrom != null)
+      {
+         theVar.copyContentFrom (that.getSomeHowVarEva (copyFrom));
+      }
+
+      String refTo = cmd.takeOptionString(new String [] { "REFERENCECONTENTOF", "REFCONTENT", "REF", "REFOF", "REFERENCE", "REFERENCEOF" }, null);
+      if (refTo != null)
+      {
+         theVar.referenceContentTo (that.getSomeHowVarEva (refTo));
       }
 
       cmd.checkRemainingOptions ();

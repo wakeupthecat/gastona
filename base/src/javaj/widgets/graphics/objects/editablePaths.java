@@ -585,7 +585,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazoShape (c2d, \"pol\", " +
+               sb.append ("trazos2D().trazoShape (c2d, \"pol\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -618,7 +618,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazoShape (c2d, \"cub\", " +
+               sb.append ("trazos2D().trazoShape (c2d, \"cub\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -655,7 +655,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazoShape (c2d, \"qua\", " +
+               sb.append ("trazos2D().trazoShape (c2d, \"qua\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -696,7 +696,7 @@ public class editablePaths
             {
                if (optimized)
                {
-                  sb.append ("trazoShape (c2d, \"pol\", " +
+                  sb.append ("trazos2D().trazoShape (c2d, \"pol\", " +
                              et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                              ", " + strFill + ", " + strStroke + ", false" +
                              ", [" + (lx + et.getPointX(1)) + ", " + (ly + et.getPointY(1)) + "]);");
@@ -731,7 +731,7 @@ public class editablePaths
 
                if (optimized)
                {
-                  sb.append ("trazoShape (c2d, \"cub\", " +
+                  sb.append ("trazos2D().trazoShape (c2d, \"cub\", " +
                              et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                              ", " + strFill + ", " + strStroke + ", false" +  // closing this curve is more complicated ...
                              ", [");

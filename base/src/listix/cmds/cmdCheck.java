@@ -94,7 +94,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters , defVal, desc
-          x  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. If can ocuppy more than one line but option ELSE is mandatory in all lines!.
+          x  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. It may ocuppy more than one line but option ELSE is mandatory in all lines.
           x  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
 
    <examples>

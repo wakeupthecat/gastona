@@ -230,7 +230,7 @@ public class cmdZip implements commandable
       }
       else if (cmd.meantConstantString (oper, new String [] { "UNZIP" } ))
       {
-         // check if extrac all or just a part of them
+         // check if extract all or just a part of them
          List onlyThese = new Vector ();
          for (int ii = 2; ii < cmd.getArgSize (); ii ++)
             onlyThese.add (cmd.getArg(ii));
@@ -474,6 +474,7 @@ public class cmdZip implements commandable
          File fil = new File (entryFull);
          long filesTime = fil.lastModified ();
          entry.setTime (filesTime);
+         entry.setSize (fil.length ());
 
          //(o) TOSEE_listix_cmds ZIP, onlyStote not used here
          //                         keep the parameter for future use (e.g STORE EXTENSIONS, jpeg, jpg, rar, zip, ... etc)
@@ -529,24 +530,22 @@ public class cmdZip implements commandable
       theLog.dbg (2, "ZIP", "zip entries [" + ziFile + "]");
 
       listOfFiles.clear ();
-      listOfFiles.addLine (new EvaLine ("fileName"));
+      // we haven't set compressedSize ...
+      listOfFiles.addLine (new EvaLine ("fileName, size, time, compressedSize"));
 
       try
       {
-         // open zip file
-         ZipInputStream in = new ZipInputStream(new FileInputStream(ziFile));
-
-         // red all entries
-         ZipEntry entry;
-         while ((entry = in.getNextEntry()) != null)
+         ZipFile zipfile = new ZipFile(ziFile);
+         java.util.Enumeration zipEnum = zipfile.entries();
+         while (zipEnum.hasMoreElements ())
          {
+            ZipEntry entry = (ZipEntry) zipEnum.nextElement();
             if (! entry.isDirectory ())
             {
                theLog.dbg (2, "ZIP", "add entry [" + entry.getName() + "]");
-               listOfFiles.addLine (new EvaLine (entry.getName()));
+               listOfFiles.addLine (new String [] { entry.getName(), ("" + entry.getSize ()), ("" + entry.getTime ()), ("" + entry.getCompressedSize ()) });
             }
          }
-         in.close();
       }
       catch(Exception e)
       {

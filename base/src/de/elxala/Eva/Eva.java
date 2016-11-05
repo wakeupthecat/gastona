@@ -217,6 +217,11 @@ public class Eva implements java.io.Serializable
       lis_EvaLin.add (newRow);
    }
 
+   public void addLine (String [] newRow)
+   {
+      lis_EvaLin.add (new EvaLine (newRow));
+   }
+
    /**
       Inserts a new row at the position 'indx' with the value 'newRow'. If the position 'indx' is not
       in the ranges of current rows (0 .. rows () -1), then 'newRow' is simply added at the end
@@ -550,6 +555,19 @@ public class Eva implements java.io.Serializable
       init ();
       for (int ii = 0; ii < values.length; ii ++)
          lis_EvaLin.add (new EvaLine (values [ii]));
+   }
+
+   public void copyContentFrom (Eva srcEva)
+   {
+      init ();
+      for (int rr = 0; rr < srcEva.rows (); rr ++)
+         for (int cc = 0; cc < srcEva.cols (rr); cc ++)
+            setValue (srcEva.getValue (rr, cc), rr, cc);
+   }
+
+   public void referenceContentTo (Eva srcEva)
+   {
+      lis_EvaLin = srcEva.lis_EvaLin;
    }
 
    /**

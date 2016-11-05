@@ -55,18 +55,30 @@ public class styleGlobalContainer
    /**
       Always return an object
          the name has to be either a logic style name like "fledySkin" or a style string like "fc:black"
+
+      some use cases
+
+         getStyleObjectByName ("myColor");
+         getStyleObjectByName ("myColor", "sc:black;fc:+100200300");
+         getStyleObjectByName ("sc:black;fc:+100200300");
    */
    public static styleObject getStyleObjectByName (String logicName)
+   {
+      return getStyleObjectByName (logicName, null);
+   }
+
+   public static styleObject getStyleObjectByName (String logicName, String fallback)
    {
       if (logicName == null) return new styleObject (""); // Error!
 
       styleObject obj = (styleObject) utilSys.objectSacGet (mapName (logicName));
+
       if (obj == null)
       {
          log.dbg (2, "getStyleObjectByName", "add anonymus style [" + logicName + "]");
          // ok, then we assume that it is a style string to be parsed, just do it once
          // its logic name will be the style string as well
-         obj = addOrChangeStyle (logicName, logicName);
+         obj = addOrChangeStyle (logicName, (fallback != null) ? fallback: logicName);
       }
       return obj;
    }

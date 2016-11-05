@@ -105,6 +105,15 @@ public class listix
 
    private boolean loopIsBroken = false;
 
+   private List onceInfileList = new Vector ();
+   private boolean onceInfileMode = false;
+
+   public void setOnceInfileMode (boolean toOn, boolean clearList)
+   {
+      onceInfileMode = toOn;
+      if (clearList)
+         onceInfileList = new Vector ();
+   }
 
    // this variable is exclusively thought to find parameters in calls like LISTIX or GENERATE
    // or the parameters of the main application which are passed to listix main procedures (formats)
@@ -660,9 +669,9 @@ public class listix
       //         xorencrypt      (they and indices are given in the property gastona.xorencrypt.key)
 
       //
-      //    note : we cannot have something like @<:encode-utf8 :raw myvar>
-      //           since ":raw myvar" would return a string containing variables @ that in the next
-      //           step would be tried to be solved
+      //    note that variable include also primitive variables so it is possible
+      //    to have a chain of these primitives, for example:
+      //         @<:encode-utf8 :raw myvar>
 
       int lenPrimi = lowName.indexOf (" ");
       if (lenPrimi == -1)
@@ -800,6 +809,17 @@ public class listix
 
    public boolean printFileLsx (String fileName, boolean solve, boolean silentIfFail)
    {
+      if (onceInfileMode)
+      {
+         if (onceInfileList.contains (fileName))
+         {
+            log.dbg (2, "printFileLsx", "skip file [" + fileName + "], already printed out");
+            return true;
+         }
+         log.dbg (2, "printFileLsx", "add file [" + fileName + "] to once infile list");
+         onceInfileList.add (fileName);
+      }
+
       TextFile fix = new TextFile ();
 
       if (!fix.fopen (fileName, "r"))
@@ -808,6 +828,7 @@ public class listix
             log.err ("printFileLsx", "the file [" + fileName + "] could not be read!");
          return false;
       }
+      log.dbg (2, "printFileLsx", "file [" + fileName + "] to be printed out");
 
       int nlines = 0;
       while (fix.readLine ())

@@ -174,6 +174,15 @@ public class uniUtilImage
            oblo.loadObjectFromEvaTrazos ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
       else oblo.loadObjectFromEva       ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
 
+      //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??
+      if (IMG_SX == 0)
+         IMG_SX = (int) oblo.originalBounds.width ();
+         
+      if (IMG_SY == 0)
+         IMG_SY = (int) oblo.originalBounds.height ();
+         
+      // PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE to be deprecated !
+      //      
       String imSize = System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE, null);
       if (imSize != null)
          IMG_SX = IMG_SY = de.elxala.langutil.stdlib.atoi (imSize);

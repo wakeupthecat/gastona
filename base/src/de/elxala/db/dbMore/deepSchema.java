@@ -146,11 +146,11 @@ public class deepSchema
          // NOTE: if the connection uses more than one key it occupies more entries, these has to be skipped!
          for (int ii = CONNTAB_INDX0; ii < evaConnTab.rows (); ii ++)
          {
-            String src  = evaConnTab.getValue (ii, dbMore.CONN_INDX_SOURCETABLE);
+            String src  = evaConnTab.getValue (ii, deepSqlUtil.CONN_INDX_SOURCETABLE);
             if (!src.equals (tableName)) continue; // is not a connection from this table
 
-            String conn = evaConnTab.getValue (ii, dbMore.CONN_INDX_NAME);
-            String tgt  = evaConnTab.getValue (ii, dbMore.CONN_INDX_TARGETTABLE);
+            String conn = evaConnTab.getValue (ii, deepSqlUtil.CONN_INDX_NAME);
+            String tgt  = evaConnTab.getValue (ii, deepSqlUtil.CONN_INDX_TARGETTABLE);
 
             // SALTARSE TODOS LOS connName+sourceTable iguales!
             if (lastConnTab.equals (conn + src)) continue; // it is just another key field of the last connection

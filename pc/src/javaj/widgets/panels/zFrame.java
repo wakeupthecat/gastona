@@ -25,6 +25,7 @@ import java.io.*;
 import javax.swing.*;
 
 import de.elxala.langutil.*;
+import de.elxala.langutil.graph.*;
 import de.elxala.mensaka.*;
 import de.elxala.Eva.*;
 import java.awt.event.ComponentEvent;
@@ -379,14 +380,14 @@ public class zFrame extends JFrame implements MensakaTarget, ComponentListener
 
    private void tryAttackWidget ()
    {
-      if (helper.ebs().hasAll ())
+      if (helper.ebsFrame().hasAll ())
       {
          // We have to distinguish if visibility is really set in control or not!
-         String isVisi = helper.ebs().getSimpleAttribute (widgetEBS.CONTROL, widgetEBS.sATTR_VISIBLE);
+         String isVisi = helper.ebsFrame().getSimpleAttribute (widgetEBS.CONTROL, widgetEBS.sATTR_VISIBLE);
          if (isVisi != null)
          {
             //System.out.println (getName () + " set visible to control value " + isVisi.equals("1"));
-            setVisible (helper.ebs ().getVisible ()); // or (isVisi.equals("1"))
+            setVisible (helper.ebsFrame ().getVisible ()); // or (isVisi.equals("1"))
          }
          else
          {
@@ -396,12 +397,35 @@ public class zFrame extends JFrame implements MensakaTarget, ComponentListener
 
          //set title ?
          //
-         String dataTitle = helper.ebs ().getSimpleDataAttribute (frameEBS.sATTR_TITLE);
+         String dataTitle = helper.ebsFrame ().getSimpleAttribute (widgetEBS.DATA, frameEBS.sATTR_TITLE);
          if (dataTitle != null)
          {
             setTitle (dataTitle);
          }
+         
+         Image ima = getImageApp ();
+         if (ima != null)
+            setIconImage (ima);
       }
+   }
+   
+   public Image getImageApp ()
+   {
+      ImageIcon imai = javaLoad.getSomeHowImageIcon (helper.ebs ().getSimpleDataAttribute ("iconApp"));
+      if (imai == null)
+      {
+         Eva graFormat = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti format");
+         Eva egraff = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti");
+         if (egraff != null)
+         {
+            //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??
+
+            String gFor = graFormat == null ? "paths": graFormat.getValue ();
+            imai = new ImageIcon (uniUtilImage.graffitiToBufferedImage (egraff, gFor, 32, 32, null));
+         }
+      }
+
+      return (imai == null) ? null: imai.getImage ();
    }
 
    public void updatePosition ()

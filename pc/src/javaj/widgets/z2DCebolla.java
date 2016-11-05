@@ -79,6 +79,7 @@ import de.elxala.zServices.*;
 
      cebollasample
      trazaCaballo
+     trazaToBrowserDemo
 
    <cebollasample>
       //#javaj#
@@ -195,6 +196,55 @@ import de.elxala.zServices.*;
       //       z ,128, 83, "pel", //jau,-22,-23,3,31
       //       z ,123, 83, "pelo", //jau,44,-3,65,19,28,27,30,25,-20,19,6,13,-15,-3,-7,-26,-13,7,-17,-24,-28,-28,-21,4,-23,-20,-31,-9
 
+   <trazaToBrowserDemo>
+      //#data#
+      //
+      //   <laData>
+      //      // var vdata = {
+      //      //      "Caballo graffiti": [
+      //      //    [ "defstyle", "piel", "#ff7f27" ],
+      //      //    [ "defstyle", "pelo", "#eaeaea"],
+      //      //    [ "z" ,238, 121, "piel",  "jau",84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81 ],
+      //      //    [ "z" ,196, 223, "piel",  "jau",-43,-81,-10,-36,9,-19,39,8,64,37 ],
+      //      //    [ "z" ,155, 84,  "piel",  "jau",-47,7,-34,48,-16,29,20,19,36,-29,40,-15 ],
+      //      //    [ "z" ,468, 148, "piel",  "jau",26,22,14,27,1,46,-5,49,12,56,-12,73,-7,33,-25,0,13,-32,-10,-93,-45,-57,-16,-49 ],
+      //      //    [ "z" ,196, 213, "piel",  "jau",4,52,29,42,18,65,0,54,-12,28,10,4,18,-1,-2,-18,11,-18,-4,-85,5,-86 ],
+      //      //    [ "z" ,473, 152, "pelo",  "jau",51,14,23,59,8,86,-10,0,-3,27,-12,-28,5,38,-11,-2,-6,-37,5,-80,-11,-45,-19,-14 ],
+      //      //    [ "z" ,128, 83,  "piel",  "jau",-22,-23,3,31 ],
+      //      //    [ "z" ,123, 83,  "pelo",  "jau",44,-3,65,19,28,27,30,25,-20,19,6,13,-15,-3,-7,-26,-13,7,-17,-24,-28,-28,-21,4,-23,-20,-31,-9 ],
+      //      //    ],
+      //      // };
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      VAR=, fi, @<:lsx tmp html>
+      //      GEN, @<fi>, caballos
+      //      BROWSER, @<fi>
+      //      <! Note: on exit the temporary html will be deleted!
+      //      SLEEP, 1000
+      //
+      //   <caballos>
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="400" height="400" id="Caballo"></canvas>
+      //      //      <svg width="400" height="400" id="Caballo" shape-rendering="geometricPrecision"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trazos2D-min.js>
+      //      //
+      //      // @<laData>
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      trazos2D ().renderAllGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+     
 
 #**FIN EVA#
 

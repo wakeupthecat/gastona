@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2016 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 package de.elxala.zServices;
+
+import de.elxala.mensaka.*;
 
 /**
    @date 10.04.2008 21:54
@@ -86,8 +88,7 @@ public class logger
       return logServer.getLogDirectory ();
    }
 
-   //(o) TODO_elxala_logServer rename this method to storeClienzMessage or something like this
-   public void msg (int msgAbsolutLevel, String context, String message, String [] extraInfo)
+   public void serverMessage (int msgAbsolutLevel, String context, String message, String [] extraInfo)
    {
       logServer.storeMessage (cli, msgAbsolutLevel, context, message, extraInfo, null);
    }
@@ -171,5 +172,21 @@ public class logger
    public void warn (String message)
    {
       logServer.storeMessage (cli, logServer.LOG_WARNING, "", message, null, null);
+   }
+
+   // Utility to send mensaka messages for a module that
+   // has a logClient but does not include or know about  Mensaka directly
+   //
+   // logServer is not called directly but mensaka
+   // log all its messages so it will be recorded anyway
+   //
+   public void msk (String messageId, String [] params)
+   {
+      mensaka (messageId, params);
+   }
+
+   public void mensaka (String messageId, String [] params)
+   {
+      Mensaka.sendPacket (messageId, null, params);
    }
 }

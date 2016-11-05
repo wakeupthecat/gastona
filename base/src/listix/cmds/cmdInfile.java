@@ -63,11 +63,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Processes a listix format wich is contained into a file. Each line of the file is treated as text.
+         1   ,    4      , //Processes a listix format wich is contained into a file. Each line of the file is treated as text.
+         2   ,    2      , //Set the once mode which makes the files to be loaded only once.
 
    <syntaxParams>
       synIndx, name             , defVal    , desc
          1   , fileWithFormat   ,           , //File name containing the listix text format.
+         2   , ONCE MODE        ,           , //
+         2   , mode             , off       , //Possible values are off (default), on, start, end. Start (set to on) and end (set to off) also clear the list of loaded files. 
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -120,11 +123,31 @@ public class cmdInfile implements commandable
 
       */
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
-
-      boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
-                            ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
-
-      that.printFileLsx (cmd.getArg(0), OptSolveVar, false);
+      
+      if (cmd.getArgSize () == 1)
+      {
+         boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
+                               ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
+         
+         that.printFileLsx (cmd.getArg(0), OptSolveVar, false);
+      }
+      else if (cmd.getArgSize () == 2)
+      {
+         boolean optOnceMode = cmd.meantConstantString (cmd.getArg(0), new String [] { "ONCE", "ONCEMODE" });
+         if (optOnceMode)
+         {
+            if (cmd.meantConstantString (cmd.getArg(1), new String [] { "on", "1" }))
+               that.setOnceInfileMode (true, false);
+            if (cmd.meantConstantString (cmd.getArg(1), new String [] { "off", "0" }))
+               that.setOnceInfileMode (false, false);
+            if (cmd.meantConstantString (cmd.getArg(1), new String [] { "start", "2" }))
+               that.setOnceInfileMode (true, true);
+            if (cmd.meantConstantString (cmd.getArg(1), new String [] { "end", "3" }))
+               that.setOnceInfileMode (false, true);
+         }
+         else cmd.getLog().err ("IN FILE", "Unknown syntax [" + cmd.getArg(0) + "]");         
+      }
+      else cmd.getLog().err ("IN FILE", "Wrong number of parameters " + cmd.getArgSize ());         
       cmd.checkRemainingOptions ();
       return 1;
    }

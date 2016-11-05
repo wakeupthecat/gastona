@@ -70,6 +70,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       gastSample
 
       gorhino1
+      javascriptExecutorGoRhino
       consecuencioDiagram
       files for goRhino
 
@@ -82,6 +83,59 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    <main>
       //       gorhino, //var ii = 10; ii+2;
+      
+      
+   <javascriptExecutorGoRhino>
+      //#javaj#
+      //
+      //   <frames> main, Javascript Executor using goRhino
+      //
+      //   <layout of main>
+      //      EVA, 3, 3, 2, 2
+      //
+      //         , X
+      //         , lEnter your javascript code
+      //       X , xCodeArea
+      //         , bEjecute
+      //         , lSalida
+      //       X , oSal
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //   <OUTER_JS>
+      //      //var __out__ = [];
+      //      //function out (eso) { __out__.push (eso); }
+      //      //
+      //      //@<xCodeArea>
+      //      //
+      //      //__out__.join ("\n");
+      //      //
+      //
+      //   <xCodeArea>
+      //      //
+      //      //function encript (t1, t2)
+      //      //{
+      //      //   return t2 + t1;
+      //      //}
+      //      //
+      //      //out ("output of this function is ... " + encript ("TheCat", "WakeUp"));
+      //      //
+      //
+      //#listix#
+      //
+      //   <-- bEjecute>
+      //      MSG, oSal clear
+      //      VAR=, startStamp, @<:lsx CLOCK>
+      //      MSG, lSalida data!,, //Calling goRhino ...
+      //      goRhino, @<OUTER_JS>
+      //      MSG, lSalida data!,, //done in @<elapsed> s
+      //
+      //   <elapsed>
+      //      =, (@<:lsx CLOCK> - startStamp) / 1000
+      //   
 
    <consecuencioDiagram>
       //#javaj#

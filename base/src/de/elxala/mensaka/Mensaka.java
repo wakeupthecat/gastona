@@ -107,6 +107,7 @@ public class Mensaka
 
    public static int sendPacket (String msgId, EvaUnit pk, String [] arg)
    {
+      // Note: a new handle has to be created since messageId might change
       MessageHandle hndMSG = new MessageHandle (BOTTLE_ANONYMUS, msgId);
       return sendPacket (hndMSG, pk, arg);
    }

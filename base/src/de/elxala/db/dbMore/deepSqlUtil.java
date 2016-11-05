@@ -19,6 +19,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package de.elxala.db.dbMore;
 
 import java.util.*;
+import de.elxala.db.*;
 import de.elxala.Eva.*;
 import de.elxala.zServices.*;
 
@@ -47,7 +48,6 @@ public class deepSqlUtil
    public static final int CONN_INDX_SOURCEKEY = 2;
    public static final int CONN_INDX_TARGETTABLE = 3;
    public static final int CONN_INDX_TARGETKEY = 4;
-
 
    public static String getSQL_CreateTableConnections ()
    {
@@ -88,20 +88,16 @@ public class deepSqlUtil
 
    // Example of use :
    //
-   //    myDB.writeScript (getSQL_InsertConnection ("'root', 'scan_files', 'rootID', 'scan_roots', 'rootID'));
-   //
-   public static String getSQL_InsertConnection (String valuesString)
-   {
-      return "INSERT OR IGNORE INTO " + CONNECTION_TABLE_NAME + " VALUES (" + valuesString + ");";
-   }
-
-   // Example of use :
-   //
    //    myDB.writeScript (getSQL_InsertConnection ("root", "scan_files", "rootID", "scan_roots", "rootID"));
    //
    public static String getSQL_InsertConnection (String connName, String srcTable, String srcKey, String trgTable, String trgKey)
    {
-      return "INSERT OR IGNORE INTO " + CONNECTION_TABLE_NAME + " VALUES ('" + connName + "', '" + srcTable + "', '" + srcKey + "', '" + trgTable + "', '" + trgKey + "');";
+      return "INSERT OR IGNORE INTO " + CONNECTION_TABLE_NAME + " VALUES ('" +
+               utilEscapeStr.escapeStr (connName) + "', '" +
+               utilEscapeStr.escapeStr (srcTable) + "', '" +
+               utilEscapeStr.escapeStr (srcKey) + "', '" +
+               utilEscapeStr.escapeStr (trgTable) + "', '" +
+               utilEscapeStr.escapeStr (trgKey) + "');";
    }
 
    // Example of use :
@@ -110,8 +106,11 @@ public class deepSqlUtil
    //
    public static String getSQL_InsertConnection (String [] conn)
    {
-      if (conn.length == 5)
-         return "INSERT OR IGNORE INTO " + CONNECTION_TABLE_NAME + " VALUES ('" + conn[0] + "', '" + conn[1] + "', '" + conn[2] + "', '" + conn[3] + "', '" + conn[4] + "');";
-      return "";
+      return "INSERT OR IGNORE INTO " + CONNECTION_TABLE_NAME + " VALUES ('" +
+            ((conn.length > 0) ? conn[0]: "") + "', '" +
+            ((conn.length > 1) ? conn[1]: "") + "', '" +
+            ((conn.length > 2) ? conn[2]: "") + "', '" +
+            ((conn.length > 3) ? conn[3]: "") + "', '" +
+            ((conn.length > 4) ? conn[4]: "") + "');";
    }
-}   
+}

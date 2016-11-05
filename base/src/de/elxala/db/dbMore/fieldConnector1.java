@@ -149,8 +149,8 @@ public class fieldConnector1
    {
       for (int ii = linkTableIndx0; ii < tableConnections.rows (); ii ++)
       {
-         if (table.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_SOURCETABLE)) &&
-             connection.equalsIgnoreCase (tableConnections.getValue(ii, dbMore.CONN_INDX_NAME)))
+         if (table.equalsIgnoreCase (tableConnections.getValue(ii, deepSqlUtil.CONN_INDX_SOURCETABLE)) &&
+             connection.equalsIgnoreCase (tableConnections.getValue(ii, deepSqlUtil.CONN_INDX_NAME)))
              return ii;
       }
       //debug error connection not found
@@ -308,7 +308,7 @@ public class fieldConnector1
                // found the connection at indx
                // table, linkName, targetTable , srcField, targetField
 
-               String targetTable = tableConnections.getValue (indx, dbMore.CONN_INDX_TARGETTABLE); // targetTable
+               String targetTable = tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_TARGETTABLE); // targetTable
                log.dbg (4, "resolveConnections", "connection found, targetTable [" + targetTable + "]");
 
                String elemeFrom = targetTable + " AS " + shortAlias (firstTable, currResiduo);
@@ -320,13 +320,13 @@ public class fieldConnector1
                   do
                   {
                      if (condition.length () > 0) condition = condition + " AND ";
-                     condition += shortAlias(firstTable, previaTable) + "." + tableConnections.getValue (indx, dbMore.CONN_INDX_SOURCEKEY) + // srcField
+                     condition += shortAlias(firstTable, previaTable) + "." + tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_SOURCEKEY) + // srcField
                                  " == " +
-                                 shortAlias(firstTable, currResiduo) + "." + tableConnections.getValue (indx, dbMore.CONN_INDX_TARGETKEY); // targetField
+                                 shortAlias(firstTable, currResiduo) + "." + tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_TARGETKEY); // targetField
                      indx ++;
                   } while (tableConnections.rows () > indx &&
-                           tableConnections.getValue (indx, dbMore.CONN_INDX_SOURCETABLE).equals (tableConnections.getValue (indx-1, dbMore.CONN_INDX_SOURCETABLE)) &&
-                           tableConnections.getValue (indx, dbMore.CONN_INDX_NAME).equals (tableConnections.getValue (indx-1, dbMore.CONN_INDX_NAME))
+                           tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_SOURCETABLE).equals (tableConnections.getValue (indx-1, deepSqlUtil.CONN_INDX_SOURCETABLE)) &&
+                           tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_NAME).equals (tableConnections.getValue (indx-1, deepSqlUtil.CONN_INDX_NAME))
                            );
 
                   // add table to FROM and link condition to WHERE
