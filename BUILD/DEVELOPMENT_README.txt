@@ -24,29 +24,29 @@
    from your sources.
 
    1) Generate - if needed - the gastona documentation database
-   
+
       This database is used by WelcomeGastona.gast (default script) to get the documentation and samples.
       It has to be found by gastona in the file
-      
+
          META-GASTONA\WelcomeGastona\gastonaDocScript.sql
 
       If it is not there or simply want to generate it again due to some change
       in the documentation texts following commands will do it
 
-         cd META-GASTONA\WelcomeGastona 
+         cd META-GASTONA\WelcomeGastona
          java -jar gastona.jar generateGastDocSQLScript.gast
-         
+
 
     2) Compile and generate gastona.jar
-    
+
        The script GENJAR_GASTONA.gast will generate gastona.jar properly
 
-         cd BUILD\pc-jar 
+         cd BUILD\pc-jar
          java -jar gastona.jar GENJAR_GASTONA.gast
-         
+
        eventually, you might want to give the full path of the javac.exe you want to use
-       
-       If the generation succeed the final product can be found at 
+
+       If the generation succeed the final product can be found at
 
           BUILD\gastona.jar
 
@@ -112,3 +112,5 @@
    listix                  all related with Logic engine listix (main class listix/listix.java) and its commands (listix/cmds/cmdXXXX.java)
 
    org/gastona/net         features related with network communication UDP and the HTTP miniserver micoHTTP server
+
+   org/mozilla             complete Rhino source code (https://github.com/mozilla/rhino)

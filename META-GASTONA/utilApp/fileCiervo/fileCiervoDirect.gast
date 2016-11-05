@@ -1,58 +1,17 @@
 #javaj#
 
-    <frames>
-      main, File ciervo
-
-    <layout of main>
-      EVA, 7,7, 4, 4
-
-          , X
-          , lCiervo file server
-          , lListeningOn
-          , bSHOW CONNECTION URL
-        X , oCanso
-          , bDISCONNECT
-
-   <sysDefaultFonts>
-      Consolas, 16, 0, TextArea.font
-      Verdana,  16, 0, Button, ToggleButton, Label
-
-#data#
-
-   <PORTOS> 7878
-
-   <eCurrentDir>
-
-   <FS> //:SFILE:
+    <frames> oConso
 
 #listix#
 
-   <-- javaj exit>
-      MICOHTTP, stop, ciervo
+   <FS> //:SFILE:
 
    <main>
        VAR=, eCurrentDir, @<:sys user.dir>
-       -->, lListeningOn data!,, listening on @<PORTOS>
-       LSX, START_CIERVO
 
-   <-- bSHOW CONNECTION URL>
-      -->, oCanso clear
-      //try one of these urls in your browser
-      http://@<:lsx host name>:@<PORTOS>
-      http://@<:lsx host ip>:@<PORTOS>
-
-    <START_CIERVO>
-       -->, oCanso clear
-       MICOHTTP, start, ciervo, @<PORTOS>
+       MICOHTTP, start, ciervo
                , FILE SERVER STR, @<FS>
                , VERBOSE LEVEL, 2
-
-   <-- bDISCONNECT>
-      IN CASE, @<bDISCONNECT>
-           , DISCONNECT, MICOHTTP, STOP, ciervo
-           , DISCONNECT, -->, bDISCONNECT data!,, CONNECT
-           , CONNECT, LSX, START_CIERVO
-           , CONNECT, -->, bDISCONNECT data!,, DISCONNECT
 
    <ICO_CARP> //<svg width="40" height="40" id="folder"></svg>
    <ICO_FILE> //<svg width="40" height="40" id="fulla"></svg>
@@ -124,7 +83,7 @@
       STRCONV, PATH-SOLVE, @<eCurrentDir>/..
 
    <TAMA> JS, @<calcSize>
-
+   
    <calcSize>
       //var ndig = Math.log10(@<size>);
       //

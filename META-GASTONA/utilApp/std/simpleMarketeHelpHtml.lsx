@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html> <head>
+      <title>HELP</title>
+   <style type="text/css">
+
+@<:infile META-GASTONA/js/marketes.css>
+
+   </style></head>
+<body>
+
+   <div id="sitio">  </div>
+
+   <script>
+
+@<:infile META-GASTONA/js/marketes.js>
+
+   var miDoc = "@<:solve-encode-utf8 HELP_VAR>".replace (/\+/g, "%20");
+   document.getElementById('sitio').innerHTML = marketes (decodeURIComponent (miDoc));
+
+</script>
+
+</body>
+</html>
+

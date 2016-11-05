@@ -55,13 +55,13 @@
       //CREATE TABLE tlsxCmdSyntaxParams (cmdName, synIndx, paramIndx, paramName, defVal, desc, UNIQUE (cmdName, synIndx, paramIndx));
       //CREATE TABLE tlsxCmdSyntaxOpts   (cmdName, synIndx, optionName, parameters, defVal, desc, UNIQUE (cmdName, synIndx, optionName));
       //
-      JAVA STATIC, de.elxala.db.dbMore.dbMore, getSQL_CreateTableConnections
+      JAVA STATIC, de.elxala.db.dbMore.deepSqlUtil, getSQL_CreateTableConnections
                  , ARG TYPE, void
 
       LOOP, VAR, tab_Connections
           ,,
           ,,
-          ,, JAVA STATIC, de.elxala.db.dbMore.dbMore, getSQL_InsertConnection, @<conn>, @<tabsrc>, @<colscr>, @<tabtarg>, @<coltarg>
+          ,, JAVA STATIC, de.elxala.db.dbMore.deepSqlUtil, getSQL_InsertConnection, @<conn>, @<tabsrc>, @<colscr>, @<tabtarg>, @<coltarg>
 
 #listix#
 

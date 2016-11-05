@@ -24,12 +24,9 @@
    <LABEL DISCONNECT> //DISCONNECT
    <LABEL CONNECT>    //CONNECT
 
-   <DX> 30
-   <DY> 30
-
    <cDX> 34
    <cDY> 34
-   
+
    <SPECIAL_HELLO> //(hello template)
 
 #listix#
@@ -87,7 +84,7 @@
       LSX, getIdContent @<ajaxREQ-id>, @<ajaxREQ-param>
 
    <!   NOTE! Feature (button) disabled until a solution is found
-   <!         
+   <!
    <! ----- ((( ----------- test current script in target
    <POST /testgast>
       GAST, @<_bodyMemFileName>
@@ -147,9 +144,11 @@
       IN FILE, @<p1>
              , SOLVE, 0
 
-   <ELEM_FILE_DOWNLOAD> //<a href="/@<FULLNORM>"> <canvas width="@<cDX>px" height="@<cDY>px" class="iconFile"/></a>
+
+   <DIMSVG> 40
+   <ELEM_FILE_DOWNLOAD> //<a href="/@<FULLNORM>"> <svg width="@<DIMSVG>" height="@<DIMSVG>" id="gText"/></a>
    <ELEM_FILE_EDIT>     //<button onclick="loadAndOverwriteFileContent ('@<FULLNORM>')">load</button>
-   
+
 
    <viewDir>
      VAR=, DIRLABEL, @<p1>
@@ -162,7 +161,7 @@
      //
      LOOP, DIRS, @<DIRLABEL>
          , RECURSIVE, 0
-         ,, //<tr> <td> <canvas width="@<cDX>px" height="@<cDY>px" class="iconFolder" onclick="luix.AJAXgetIdContent ('dDir', '@<FULLNORM>', true)"/> <td>  @<fileName> </tr>
+         ,, //<tr> <td> <svg width="@<DIMSVG>" height="@<DIMSVG>" id="gFolder" onclick="luix.AJAXgetIdContent ('dDir', '@<FULLNORM>', true)"/> <td>  @<fileName> </tr>
 
      //
      LOOP, FILES, @<DIRLABEL>, gast
@@ -190,9 +189,11 @@
       //<script>
       //
       //
-      @<:infile META-GASTONA/js/trazos2D.js>
+      //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //
-      @<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //@<:infile META-GASTONA/js/trazos2D-min.js>
+      //
+      //@<graffiti data>
       //
       //   var luix = jGastona ();
       //   var isFileContentDirty = false;
@@ -201,18 +202,21 @@
       //      luix.AJAXLoadRootJast ("programMe");
       //   }
       //
+      //   function drawGraffitis () {
+      //      trazos2D ().renderAllGraffitis (data);
+      //   }
+      //
       //   function setToDirty (dirty) {
       //       isFileContentDirty = dirty;
       //   }
       //
       //   function loadAndOverwriteFileContent (pathToLoad) {
-      //      if (isFileContentDirty && false == confirm("Load " + pathToLoad + " and overwrite edition ?")) 
+      //      if (isFileContentDirty && false == confirm("Load " + pathToLoad + " and overwrite edition ?"))
       //         return; // do nothing!
       //
       //      luix.AJAXgetIdContent('xFileContent', pathToLoad, true);
       //      setToDirty (false);
       //   }
-      //
       //
       //   function updateFileNameCheck () {
       //      var allow = luix.getData ("fileName allowed");
@@ -222,32 +226,6 @@
       //      ele.style["background-color"] = (allow==="0" ? "red": (exists === "1" ? "#FAA0B7": "#A6FC7C"));
       //   }
       //
-      //  function drawFolder (canv) {
-      //     if (!(canv instanceof HTMLCanvasElement)) return ;
-      //     var c2d = canv.getContext('2d');
-      //     c2d.lineWidth = 12;
-      //     c2d.translate (2, 2);
-      //
-      STRCONV, TRAZOS-JS, icon folder, 1, @<DX>, @<DY>, 1
-      //
-      //  }
-      //
-      //  function drawText (canv) {
-      //     if (!(canv instanceof HTMLCanvasElement)) return ;
-      //     var c2d = canv.getContext('2d');
-      //     c2d.lineWidth = 12;
-      //     c2d.translate (2, 2);
-      //
-      STRCONV, TRAZOS-JS, icon text, 1, @<DX>, @<DY>, 1
-      //
-      //  }
-      //
-      //  function drawAll () {
-      //      var arr = document.getElementsByClassName ("iconFolder");
-      //      for (var indx in arr) drawFolder (arr[indx]);
-      //      arr = document.getElementsByClassName ("iconFile");
-      //      for (var indx in arr) drawText (arr[indx]);
-      //  }
       // </script>
       //
       //</body>
@@ -291,7 +269,7 @@
       //      //luix.AJAXgetIdContent ("dDir", ".", true);
       //
       //   <-- ajaxResponse getIdContent>
-      //      //updateFileNameCheck (); drawAll ();
+      //      //updateFileNameCheck (); drawGraffitis ();
       //
       //   <-- bSave>
       //      //luix.AJAXPost ("savegast", luix.getIdValue ("xFileContent"), { "ajaxREQ-gastName": luix.getIdValue("eFileName") });
@@ -299,7 +277,7 @@
       //   <-- bTest>
       //      //luix.AJAXPost ("testgast", luix.getIdValue ("xFileContent"));
       //
-      //   <-- bEmpty> 
+      //   <-- bEmpty>
       //      //loadAndOverwriteFileContent ('@<SPECIAL_HELLO>');
 
    <intro>
@@ -322,31 +300,31 @@
       //    overwrite some script unintentionally!)
       //
 
-   <icon folder>
-      defstyle,naranja,fc:#ff8b1a;sw:6
-      z, 01, 75,naranja,"jau,19,-37,44,-119,27,-49,72,-5,194,1,60,-4,-10,28,-29,56,-35,83,-22,61,-13,36,-39,9,-66,0,-72,-10,-93,0,-44,-5,6,-41"
-      z,-12,125,naranja,"jau,-52,-143,-1,-75,82,-9,160,7,79,9,14,44,16,66,20,76,2,31,-50,6,-109,-2,-69,-1,-44,-2,-42,-1"
-
-   <icon text>
-      defstyle,tinta1,fc:yellow;sw:6
-      defstyle,notinta,fc:none;sw:6
-      z,293,422,tinta1,"jau,2,-63,5,-24,12,-33,32,-52,48,-30,98,-1,-38,70,-16,38,-10,51,-1,56,-48,5,-80,-4"
-      z,280,417,tinta1,"jau,-11,-80,7,-62,27,-35,80,-11,37,0,17,22,-18,67,-4,48,0,62,-28,9,-32,-2,-44,-1,-30,-5"
-      z,264,432,tinta1,"jau,-4,-22,-10,-24,-15,-43,-12,-37,-3,-33,21,-17,24,-4,51,1,36,19,28,90,27,70,-30,11,-32,3,-49,-1,-31,-15"
-      z,245,292,notinta,"jau,36,-6,20,5"
-      z,268,315,notinta,"jau,20,-9,19,5,18,-4,14,3"
-      z,255,345,notinta,"jau,12,-4,18,4,6,-5"
-      z,291,370,notinta,"jau,13,-5,30,4,12,-5"
-      z,317,402,notinta,"jau,21,0,29,-8"
+   <graffiti data>
+      //
+      // var data = {
+      //      "gFolder graffiti": [
+      //           [ "defstyle", "naranja", "#ff8b1a" ],
+      //           [ "z",322,399,"naranja","jauz",16,-53,27,-77,57,-15,49,5,53,7,45,12,15,22,-6,35,-16,64,-28,53,-46,4,-45,-3,-78,-15,-45,-22 ],
+      //           [ "z",317,420,"naranja","jauz",-20,-63,-13,-75,56,-5,107,15,30,6,23,32,28,70,7,51,-35,10,-47,-2,-58,-12,-48,-12 ],
+      //           ],
+      //
+      //      "gText graffiti": [
+      //           [ "z",391,369,"yellow","jau",0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30 ],
+      //           [ "z",440,209,"yellow","jau",26,-9,26,2,19,8 ],
+      //           [ "z",470,217,"yellow","jau",12,0,19,8,15,-1 ],
+      //           [ "z",418,240,"yellow","jau",27,-3,25,5 ],
+      //           [ "z",440,269,"yellow","jau",51,3,20,-3 ],
+      //         ],
+      //      };
+      //
 
    <programMe_CSS>
       //* {-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;
       //  font: 14px/bold  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'source-code-pro', monospace;
       //}
       //
-      //
       //#dirlabel { font: 18px/normal  'Tahoma', 'Verdana', 'Arial' }
-      //
       //
       //textarea {
       //   font: 11px/normal  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'source-code-pro', monospace;
@@ -356,30 +334,32 @@
       //}
       //
       //button {
-      //	-moz-box-shadow:inset 0px 1px 0px 0px #caefab;
-      //	-webkit-box-shadow:inset 0px 1px 0px 0px #caefab;
-      //	box-shadow:inset 0px 1px 0px 0px #caefab;
-      //	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a', endColorstr='#5cb811',GradientType=0);
-      //	background-color:#77d42a;
-      //	-moz-border-radius:6px;
-      //	-webkit-border-radius:6px;
-      //	border-radius:6px;
-      //	border:1px solid #268a16;
-      //	display:inline-block;
-      //	cursor:pointer;
-      //	color:#306108;
-      //	font-family:Arial;
-      //	font-size:17px;
-      //	font-weight:bold;
-      ////	padding:7px 24px;
-      //	text-decoration:none;
-      //	text-shadow:0px 1px 0px #aade7c;
+      //   -moz-box-shadow:inset 0px 1px 0px 0px #caefab;
+      //   -webkit-box-shadow:inset 0px 1px 0px 0px #caefab;
+      //   box-shadow:inset 0px 1px 0px 0px #caefab;
+      //   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a', endColorstr='#5cb811',GradientType=0);
+      //   background-color:#77d42a;
+      //   -moz-border-radius:6px;
+      //   -webkit-border-radius:6px;
+      //   border-radius:6px;
+      //   border:1px solid #268a16;
+      //   display:inline-block;
+      //   cursor:pointer;
+      //   color:#306108;
+      //   font-family:Arial;
+      //   font-size:17px;
+      //   font-weight:bold;
+      //   text-decoration:none;
+      //   text-shadow:0px 1px 0px #aade7c;
       //}
+      //
       //button:hover {
-      //	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811', endColorstr='#77d42a',GradientType=0);
-      //	background-color:#5cb811;
+      //   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811', endColorstr='#77d42a',GradientType=0);
+      //   background-color:#5cb811;
       //}
+      //
       //button:active {
-      //	position:relative;
-      //	top:1px;
+      //   position:relative;
+      //   top:1px;
       //}
+      //

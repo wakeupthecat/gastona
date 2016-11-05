@@ -1,0 +1,77 @@
+#javaj#
+
+    <frames> oConso
+
+#listix#
+
+    <main>
+       VAR=, eCurrentDir, @<:sys user.dir>
+
+       MICOHTTP, START, fileCiervo
+               , FILE SERVER STR, @<FS>
+               , VERBOSE LEVEL, 2
+
+   <FS> //:SFILE:
+
+   <GET />
+      LSX, MAIN_PAGE
+
+   <GET /setdir>
+      VAR=, eCurrentDir, @<dir>
+      LSX, MAIN_PAGE
+
+   <GET /parent>
+      VAR=, eCurrentDir, @<prevDir>
+      LSX, MAIN_PAGE
+
+   <GET /thisIsTheEndMyFriend>
+      MICOHTTP, STOP, fileCiervo
+      MSG, javaj doExit
+
+   <MAIN_PAGE>
+     //<html>
+     // <style>
+     //    * {
+     //       font-family: Consolas, Tahoma, sans-serif;
+     //       margin-left: 0px;
+     //       margin-right: 0px;
+     //    }
+     // </style>
+     //<body>
+     //   Current Path : <a href="/setdir?dir=@<eCurrentDir>">@<eCurrentDir></a><br>
+     //
+     // <table>
+     //    <tr><th> Subdir name</tr>
+     //    <tr> <td> &lt;DIR&gt; <td> <a href="/parent"> .. (parent folder)</a></tr>
+     //
+     LOOP, DIRS, @<eCurrentDir>
+         , RECURSIVE, 0
+         , BODY     , //<tr> <td> &lt;DIR&gt; <td>subdir <a href="/setdir?dir=@<fullPath>"> @<fileName></a></tr>
+
+     //
+     // </table>
+     // <table>
+     //    <tr><th> Size <th><th> Date time <th> File name</tr>
+     //
+     LOOP, FILES, @<eCurrentDir>
+         , RECURSIVE, 0
+         , BODY     , //<tr> <td align="right"> @<TAMA> <td> @<date> <td> <a href="@<FS>/@<:linux-path fullPath>"> @<fileName></a></tr>
+     // </table>
+     //
+     //   <br><br><a href="/thisIsTheEndMyFriend">FINISH FILE SERVER</a><br>
+     //</body>
+     //</html>
+
+   <prevDir>
+      STRCONV, PATH-SOLVE, @<eCurrentDir>/..
+
+   <TAMA> JS, @<sizeJS>
+
+   <sizeJS>
+      //var ndig = Math.log10(@<size>);
+      //
+      //       if (ndig >= 9.) Math.round (@<size> * 10e-9) + "<td> GB";
+      //  else if (ndig >= 6.) Math.round (@<size> * 10e-6) + "<td> MB";
+      //  else if (ndig >= 3.) Math.round (@<size> * 10e-3) + "<td> Kb";
+      //  else                            @<size>           + "<td> bytes";
+

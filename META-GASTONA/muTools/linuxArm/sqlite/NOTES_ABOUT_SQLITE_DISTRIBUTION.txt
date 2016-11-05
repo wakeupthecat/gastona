@@ -1,4 +1,4 @@
-2015.12.06 
+2016.10.29
 
 ====== ABOUT THE SQLITE BINARY DISTRIBUTED
 
@@ -10,7 +10,6 @@ The version of sqlite binary distributed here is
 SQLite has no license since is PUBLIC DOMAIN (actually the most generous license!)
    
    https://www.sqlite.org/copyright.html
-   
    
 ====== GASTONA IMPLEMENTATION NEEDS SQLITE!
 
@@ -24,6 +23,23 @@ It is important to provide a binary for all platforms
 ====== GASTONA ANDROID AND SQLITE
 
 Unfortunatelly the approach of microTool cannot be used in Android due to
-its execution permission policy. So, although a binary could be provided, it
+execution permission policies. So, although a binary could be provided, it
 actually cannot be launched. For that reason in gastona Android sqlite is 
-accessed internally via the android sqlite provided API (unfortunately!).
+accessed internally via the android sqlite provided API which unfortunately has 
+some drawbacks (e.g. DB EXECUTE can not contain multiple statements even if they are 
+separated by semicolons!).
+
+====== CHECKED ALTERNATIVES TO SQLITE
+
+Actually any executable behaving like sqlite command line can be used to replace sqlite.
+Specifically it has been tested with PostgreSQL (pgsql) and with a mix of sqlite3 and Berkeley DB
+
+   from Oracle Berkeley DB documentation:
+
+   Berkeley DB and SQLite link together via a new adapter layer that hides all the Berkeley DB APIs 
+   underneath the SQLite interface. Thus, applications written to the SQLite version 3 API can switch 
+   to using Oracle Berkeley DB with no code changes, by re-linking against the Berkeley DB SQLite library. 
+   The application-level behavior of the two products is identical, but the advanced features of Berkeley 
+   DB provide SQLite applications improved performance, concurrency, scalability, and reliability.
+
+Looking forward to do something simlar with sqlite + Kyoto Cabinet!

@@ -1,22 +1,13 @@
-2015.12.06 
+2016.10.29 
 
-====== ABOUT THE PERL BINARY DISTRIBUTED
+====== ABOUT THE RUBY BINARY DISTRIBUTED
 
-The version of perl binary distributed here is 
+The version of ruby binary distributed here is 
+ruby 1.9.2p136 (2010-12-25 revision 30365) [i386-mswin32]
 
-perl --version
+You can find sources of newest versions under
 
-      This is perl, v5.10.1 (*) built for MSWin32-x86-multi-thread
-
-      Copyright 1987-2009, Larry Wall
-
-      Perl may be copied only under the terms of either the Artistic License or the
-      GNU General Public License, which may be found in the Perl 5 source kit.
-
-      Complete documentation for Perl, including FAQ lists, should be found on
-      this system using "man perl" or "perldoc perl".  If you have access to the
-      Internet, point your browser at http://www.perl.org/, the Perl Home Page.
-
+https://www.ruby-lang.org/en/downloads/
 
 ====== EXPERIMENTAL USE
 

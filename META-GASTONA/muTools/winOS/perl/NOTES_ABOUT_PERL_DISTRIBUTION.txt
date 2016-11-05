@@ -1,18 +1,27 @@
-2015.12.06 
+2016.10.29
 
-====== ABOUT THE RUBY BINARY DISTRIBUTED
+====== ABOUT THE PERL BINARY DISTRIBUTED
 
-The version of ruby binary distributed here is 
-ruby 1.9.2p136 (2010-12-25 revision 30365) [i386-mswin32]
+The version of perl binary distributed here is
 
-You can find sources of newest versions under
+perl --version
 
-https://www.ruby-lang.org/en/downloads/
+      This is perl, v5.10.1 (*) built for MSWin32-x86-multi-thread
+
+      Copyright 1987-2009, Larry Wall
+
+      Perl may be copied only under the terms of either the Artistic License or the
+      GNU General Public License, which may be found in the Perl 5 source kit.
+
+      Complete documentation for Perl, including FAQ lists, should be found on
+      this system using "man perl" or "perldoc perl".  If you have access to the
+      Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
 
 ====== EXPERIMENTAL USE
 
 The use in Gastona of Ruby, Perl and Lua binaries (Python was also planned)
-is just experimental. 
+is just experimental.
 
 It would be just very nice to have these excelent languages
 embedded and available in all platforms for Gastona applications.

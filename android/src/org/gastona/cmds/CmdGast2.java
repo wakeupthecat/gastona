@@ -66,20 +66,20 @@ public class CmdGast2 implements commandable
 
       //String message = "GAST2 IS JUST FOR EXPERIMENTAL USE! Actually it freezes the caller when back from launched gast";
       //Toast.makeText(androidSysUtil.getMainActivity (), message, Toast.LENGTH_SHORT).show();
-      
+
       // copy parameters
       String [] aa = new String [cmd.getArgSize ()];
       for (int ii = 0; ii < cmd.getArgSize (); ii ++)
          aa[ii] = cmd.getArg (ii);
 
-      if (aa.length == 0) 
+      if (aa.length == 0)
       {
          cmd.getLog().dbg (2, "GAST2", "called with no parameters, nothing to do");
          return 1;
       }
 
       cmd.getLog().dbg (2, "GAST2", "passed parameters " + aa.length);
-      
+
       //!//   Intent sekunda = new Intent(androidSysUtil.getMainActivity (), org.gastona.gastonaMainActor.class);
       //!//   sekunda.setClassName("org.gastona", "org.gastona.gastonaMainActor");
       //!//   sekunda.putExtra (EXTRA_VALUE_NAME, aa);
