@@ -50,6 +50,14 @@ function jGastona (evaConfig, existingPlaceId)
    loadJast (evaConfig);
    document.body.onresize = function () { adaptaLayout () };
 
+   // due to IE compatib.
+   function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
+   function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
+
+   // It does not work for IE8, 9
+   //
+   //if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
+
    return {
       // public functions to export
 
@@ -79,10 +87,13 @@ function jGastona (evaConfig, existingPlaceId)
       // getDataUnit    : function () { return dataUnit; }
    };
 
-   // due to IE compatib.
-   function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
-   function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
-   if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
+   function strStartsWith (s1, s2, pos)
+   {
+      pos = pos || 0;
+      return s1.indexOf(s2, pos) === pos;
+      //return s1.slice(0, s2.length) === s2;
+      //if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
+   }
 
    function htmlElem (elmeOrId)
    {
@@ -516,7 +527,7 @@ function jGastona (evaConfig, existingPlaceId)
       for (var dd in dataUnit)
       {
          // i.e. <eText onchange> //alarm("me change!");
-         if (dd.startsWith (name + " "))
+         if (strStartsWith (dd, name + " "))
          {
             var attrib = dd.substr(name.length + 1);
             var jscode = dataUnit[dd];
@@ -721,16 +732,11 @@ function jGastona (evaConfig, existingPlaceId)
       alert("Your browser does not support AJAX!");
    }
 
-   function startsWith (s1, s2)
-   {
-      return s1.slice(0, s2.length) === s2;
-   }
-
    function jaxDefaultResponseFunc (bodytxt, httresp)
    {
       var RESPUNITNAME = "unitAjaxResponse";
 
-      if (startsWith (bodytxt, "#" + RESPUNITNAME + "#"))
+      if (strStartsWith (bodytxt, "#" + RESPUNITNAME + "#"))
            responseAjaxUnit = evaFileStr2obj (bodytxt)[RESPUNITNAME] || { };
       else responseAjaxUnit = { "ajaxRESP-rawBody": [[ bodytxt ]] };
       var hparval, np = 1;
@@ -843,7 +849,7 @@ function jGastona (evaConfig, existingPlaceId)
             httpero.setRequestHeader(indx, objPOSTHeader[indx]);
       }
 
-      httpero.send (bodyStr);
+      httpero.send (bodyStr||"");
    }
 
    function AJAXSendData (postString, bodyContent, format, raw)

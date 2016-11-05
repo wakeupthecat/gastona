@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <script type="text/javascript">
-   var outStr = "";
+   var outArr = [] ;
    // impostor console
    var console = { log: function (s) { out (s); } };
    // impostor alert
@@ -24,7 +24,7 @@
 
    function out (str)
    {
-      outStr = outStr + str + "\n";
+      outArr.push (str);
    }
 
    // convert strings, arrays, objects, functions into a readable string
@@ -96,7 +96,7 @@
 @<USER CODE>
 
           xmlhttp.open ("POST","JSresponse",true);
-          xmlhttp.send (outStr);
+          xmlhttp.send (outArr.join ("\n"));
       }
 </script>
 

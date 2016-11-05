@@ -108,14 +108,14 @@ function conSecuencioPlain (diagData)
       return cha.repeat (times);
    }
 
-   var plotResult = "";
+   var plotResult = [];
    var TIME_LEN = 13;
    var sPre  = ' '.repeat (dia * 0.06);
    var lastTim = 0.;
 
    function out (str)
    {
-      plotResult += str + "\n";
+      plotResult.push (str);
    }
 
    function barras (n, cha)
@@ -256,5 +256,5 @@ function conSecuencioPlain (diagData)
    out (sAgeNom);
    out (sAgeRay);
 
-   return plotResult;
+   return plotResult.join ("\n");
 }
