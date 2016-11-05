@@ -22,6 +22,7 @@ import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.*;
 
 import listix.*;
 import listix.table.*;
@@ -62,7 +63,7 @@ public class micoHttpServer extends Thread
    private static final String ACABA_KEY = "acabamico";
    private static final String LINK_ACABA = "<a href=\"/?" + ACABA_KEY + "\">StopServer</a>";
    private static final String PAGE_ACABADO = "<html><body>Finitto!</body></html>";
-   private static final String PAGE_MONOCLIENT = "<html><body>The server is busy</body></html>";
+   private static final String PAGE_MONOCLIENT = "<html><body>Check if the server has been started in MONO mode</body></html>";
 
    public static final int STATE_AWAKE = 10;
    public static final int STATE_SLEEP = 20;
@@ -485,9 +486,8 @@ public class micoHttpServer extends Thread
             // decide if serve a file or from lsx, current criteria:
             //
             //   1. try to find an existing file (see wantServeFile)
-            //   2. (in preparation) try to find a resource
-            //        namely a file in jar file or class path since usually a browser will not request an extern url to the server!
-            //        do this only if the option (e.g. LOOKINTOJAR) is activated
+            //   2. if the option ZIP FILES (or JAR FILES) is given in the MICO, START command
+            //      then it will be checked if the file is found in the specified zip or jar file and folder inside it
             //   3. serve it from a listix format with the name (e.g. "GET /blahblah")
             //
             // 2015.08.12
@@ -499,15 +499,14 @@ public class micoHttpServer extends Thread
             //
 
             File file2serve = wantServeFile (reke.theUri);
-
-            // if browser request a css file we have to send content-type text/css (use the function getContentTypeFromFileName)
-            // if not the css styles defined in the file will not be applied !!
-            // but if we want to just download it as a file is better to send Content-Type "application/octet-stream"
-            //
-            boolean servingAsFile = fileServerString != null && reke.theUri.startsWith ("/" + fileServerString);
-
             if (file2serve != null)
             {
+               // if browser request a css file we have to send content-type text/css (use the function getContentTypeFromFileName)
+               // if not the css styles defined in the file will not be applied !!
+               // but if we want to just download it as a file is better to send Content-Type "application/octet-stream"
+               //
+               boolean servingAsFile = fileServerString != null && reke.theUri.startsWith ("/" + fileServerString);
+
                out ("want to serve the file [" + file2serve + "]");
                // serving a file
                respa = new httpResponseData (outputStream,
@@ -517,19 +516,28 @@ public class micoHttpServer extends Thread
             }
             else
             {
-               //!!  // either serve from listix or try a resource file (e.g. packed in jar)
-               //!!  //
-               //!!  String lsxFormat = getLsxFormat4Response (req);
-               //!!  if (theListixLogic.getVarEva (lsxFormat) == null)
-               //!!  {
-               //!!     // try here
-               //!!     respa = defaultHTML ("with no response for [" + lsxFormat + "]!");
-               //!!  }
+               // still try if file contained in declared zip
 
-               out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
-               // build response using listix
-               //
-               respa = new httpResponseData (outputStream, buildResponse (reke), getContentType (reke), responseHeaders);
+               ZipEntry zie = null;
+               if (myZipped2Serve != null && reke.theUri.length () > 1)
+               {
+                  // remove "/" from reke.theUri if no inital path given in zipLimited2Folder
+                  String tryInZip = zipLimited2Folder.length () == 0 ? reke.theUri.substring (1): (zipLimited2Folder + reke.theUri);
+                  out ("search in zip [" + tryInZip + "]");
+                  zie = myZipped2Serve.getEntry (tryInZip);
+               }
+               if (zie != null && !zie.isDirectory ())
+               {
+                  out ("want to serve from zip [" + reke.theUri + "]");
+                  respa = new httpResponseData (outputStream, myZipped2Serve.getInputStream (zie), zie.getSize (), getContentType (reke), responseHeaders);
+               }
+               else
+               {
+                  out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
+                  // build response using listix
+                  //
+                  respa = new httpResponseData (outputStream, buildResponse (reke), getContentType (reke), responseHeaders);
+               }
             }
 
             out ("sending response");
@@ -566,5 +574,23 @@ public class micoHttpServer extends Thread
 
       //(o) NOTE 2015.11.22 consider
       //   this.interrupt ();
+   }
+
+   // SERVING FILES FROM ZIP FEATURE
+   //
+   private ZipFile myZipped2Serve = null;
+   private String zipLimited2Folder = "";
+
+   public void setZipFilesToServe (String zipfile, String folder)
+   {
+      try {
+         myZipped2Serve = new ZipFile(zipfile);
+         zipLimited2Folder = folder;
+      }
+      catch (Exception se)
+      {
+         log.err ("setZipFilesToServe", "cannot open Zip file " + myZipped2Serve + " " + se);
+         myZipped2Serve = null;
+      };
    }
 }

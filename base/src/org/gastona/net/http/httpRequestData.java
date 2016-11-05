@@ -218,7 +218,7 @@ public class httpRequestData
          /// Content-Disposition: attachment; filename=Na%C3%AFve%20file.txt
 
          // IE envia todo el path !!!
-         //  Content-Disposition: form-data; name="fileselect[]"; filename="F:\HARMAN_LOSPAPELES\extractFolder\10397\suoÜ2.txt"
+         //  Content-Disposition: form-data; name="fileselect[]"; filename="C:\myfolder\subfolder\myfile.txt"
 
          boolean boundaryFound = false;
          //int lenToConsume = 0;

@@ -28,6 +28,9 @@ public class httpResponseData
    private byte [] respBody = null;
    private File respFile = null;
    private OutputStream outStream = null;
+   private InputStream inpStream = null;
+   private long inpSize = -1;
+
    private String mContentTypeStr = "";
    private List myHeaderLines = null;
    private static final String CRLF = "\r\n";
@@ -44,38 +47,41 @@ public class httpResponseData
    */
    public httpResponseData (OutputStream outputStream, String respTxt, String contentTypeStr, List headerLines)
    {
+      outStream = outputStream;
       try
       {
-         outStream = outputStream;
          respBody = respTxt.getBytes("UTF-8");
-         mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "text/html; charset=utf-8";
-         myHeaderLines = headerLines;
       }
       catch (Exception e)
       {
+         respBody = null;
       }
+      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "text/html; charset=utf-8";
+      myHeaderLines = headerLines;
    }
 
    public httpResponseData (OutputStream outputStream, File file2serve, String contentTypeStr, List headerLines)
    {
-      try
-      {
-         outStream = outputStream;
-         respFile = file2serve;
-         mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "application/octet-stream";
-         myHeaderLines = headerLines;
-      }
-      catch (Exception e)
-      {
-      }
+      outStream = outputStream;
+      respFile = file2serve;
+      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "application/octet-stream";
+      myHeaderLines = headerLines;
    }
 
+   public httpResponseData (OutputStream outputStream, InputStream inputStream, long size, String contentTypeStr, List headerLines)
+   {
+      outStream = outputStream;
+      inpStream = inputStream;
+      inpSize   = size;
+      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "application/octet-stream";
+      myHeaderLines = headerLines;
+   }
 
    private byte [] crlfAndBytes (String content)
    {
       return (content + CRLF).getBytes ();
    }
-   
+
    private void writeResponseHeaders ()
    {
       if (myHeaderLines == null) return;
@@ -87,7 +93,7 @@ public class httpResponseData
       catch (Exception e)
       {
       }
-   }   
+   }
 
    public void send ()
    {
@@ -107,7 +113,7 @@ public class httpResponseData
          {
             outStream.write (crlfAndBytes ("Content-Type: " +  mContentTypeStr));
          }
-         
+
          if (respBody != null)
          {
             outStream.write (crlfAndBytes ("Content-Length: " + respBody.length));
@@ -132,7 +138,7 @@ public class httpResponseData
             {
                byte [] arr = new byte[1024];
                int leo = 0;
-               
+
                do
                {
                   leo = fi.readBytes (arr);
@@ -141,19 +147,36 @@ public class httpResponseData
                } while (!fi.feof ());
             }
          }
-         
+
+         if (inpStream != null)
+         {
+            outStream.write (crlfAndBytes ("Content-Length: " + inpSize));
+            writeResponseHeaders ();
+            outStream.write (crlfAndBytes ("")); // BODY separation !!!
+
+            byte [] arr = new byte[1024];
+            int leo = 0;
+
+            do
+            {
+               leo = inpStream.read (arr);
+               if (leo == -1) break;
+               outStream.write (arr, 0, leo);
+            } while (leo >= 0);
+         }
+
          outStream.close ();
       }
       catch (Exception e)
       {
       }
    }
-   
+
    public boolean isDebugging ()
    {
       return micoHttpServer.isDebugging ();
    }
-   
+
    public boolean isDebugging (int verboseLev)
    {
       return micoHttpServer.isDebugging (verboseLev);
@@ -177,9 +200,9 @@ de http://www.opencalais.com/HTTPexamples
 
 REST via HTTP POST
 
-The following is a sample REST API call via HTTP POST request and response. The placeholders 
-shown need to be replaced with actual values. Please note that the content sent using this method 
-needs to be escaped. Please also note that all of the arguments sent using this method must be URL-encoded. 
+The following is a sample REST API call via HTTP POST request and response. The placeholders
+shown need to be replaced with actual values. Please note that the content sent using this method
+needs to be escaped. Please also note that all of the arguments sent using this method must be URL-encoded.
 
 -----http request
 
