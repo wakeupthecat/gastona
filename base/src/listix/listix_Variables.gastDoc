@@ -126,7 +126,7 @@
       //
       //   --- Convert or process content of a variable or literal (e.g. file name)
       //
-      //      This syntax permit making complex processes to the contents of a variable or 
+      //      This syntax permit making complex processes to the contents of a variable or
       //      file. For example
       //
       //          @<:encode-utf8 myText>
@@ -152,13 +152,17 @@
       //
       //          PRIMITIVE         OPTIONS            PARAMETERS
       //          ---------------   --------------     ------------------
-      //          hex               
+      //          hex
       //          infile            check, solve/raw
       //          path                                 win, linux, os
-      //          encode            check, solve/raw   html, latex or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
-      //          decode            check, solve/raw   html, latex or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
+      //          encode            check, solve/raw   strjs, regex, html, latex(*) or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
+      //          decode            check, solve/raw   strjs, regex, html, latex(*) or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
       //          xorencrypt        check, solve/raw
       //          --nothing--       check, solve/raw
+      //
+      //          (*) strjs escape the special characters ' " and \ using the C,C++,java and js style, for example '"\ will be encoded as \'\"\\
+      //              regex escape some special regex characters like \()[]"./  for example hello("you") will be encoded as hello\(\"you\"\)
+      //              html and latex may be incomplete, use it with care or some javascript function instead (command goRhino)
       //
       //       option check (or silent):
       //              If given and the target (variable or file) does not exists then it returns an empty string and
@@ -197,7 +201,7 @@
       //         Example:
       //
       //             @<:infile META-GASTONA/js/jGastona.js>
-      //               
+      //
       //             which would be the same as
       //
       //             IN FILE, META-GASTONA/js/jGastona.js

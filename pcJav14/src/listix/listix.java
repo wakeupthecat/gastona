@@ -747,12 +747,9 @@ public class listix
                return strEncoder.getHtmlEncoder ().encode (strBufvar.toString ());
             if (primitiveExtract (primiVar, new String [] {"latex"}))
                return strEncoder.getLatexEncoder ().encode (strBufvar.toString ());
-            if (primitiveExtract (primiVar, new String [] {"strjs"}))
-               return strBufvar.toString ().replace ("\\", "\\\\").replace("\"", "\\\"").replace("\'", "\\\'");
-            if (primitiveExtract (primiVar, new String [] {"regex"}))
-               return strBufvar.toString ().replace ("\\", "\\\\").replace ("(", "\\(").replace (")", "\\)")
-                                           .replace ("[", "\\[").replace ("]", "\\]").replace (".", "\\.")
-                                           .replace ("\"", "\\\"").replace ("/", "\\/");
+            // replace (String, String) not supported in java 1.4 !!
+            //if (primitiveExtract (primiVar, new String [] {"strjs"}))
+            //   return strBufvar.toString ().replace ("\\", "\\\\").replace("\"", "\\\"").replace("\'", "\\\'");
 
             return utilEscapeStr.escapeStr (strBufvar.toString (), primiVar[0]);
          }
@@ -762,12 +759,9 @@ public class listix
                return strEncoder.getHtmlEncoder ().decode (strBufvar.toString ());
             if (primitiveExtract (primiVar, new String [] {"latex"}))
                return strEncoder.getLatexEncoder ().decode (strBufvar.toString ());
-            if (primitiveExtract (primiVar, new String [] {"strjs"}))
-               return strBufvar.toString ().replace("\\\'", "\'").replace("\\\"", "\"").replace ("\\\\", "\\");
-            if (primitiveExtract (primiVar, new String [] {"regex"}))
-               return strBufvar.toString ().replace ("\\/", "/").replace ("\\\"", "\"").replace ("\\.", ".")
-                                           .replace ("\\]", "]").replace ("\\[", "[").replace ("\\)", ")")
-                                           .replace ("\\(", "(").replace ("\\\\", "\\");
+            // replace (String, String) not supported in java 1.4 !!
+            //if (primitiveExtract (primiVar, new String [] {"strjs"}))
+            //   return strBufvar.toString ().replace("\\\'", "\'").replace("\\\"", "\"").replace ("\\\\", "\\");
 
             return utilEscapeStr.desEscapeStr (strBufvar.toString (), primiVar[0]);
          }
