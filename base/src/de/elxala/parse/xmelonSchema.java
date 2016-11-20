@@ -210,7 +210,7 @@ public class xmelonSchema
       TextFile tf = new TextFile ();
       if (! tf.fopen (fileName, "rb"))  // mode "rb" to be able to get the InputStream!
       {
-         log.err ("processOneFile", "file to parse [" + fileName + "] cannot be openned!");
+         log.err ("processOneFile", "file to parse [" + fileName + "] cannot be opened!");
          return null;
       }
       return tf;

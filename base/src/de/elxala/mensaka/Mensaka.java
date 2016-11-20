@@ -491,7 +491,7 @@ public class Mensaka
    private static MensakaTarget lastMsgTarget = null;
 
    /**
-      Function for log pruposes
+      Function for log purposes
 
       //(o) TODO_mensaka debug message stack: implement (if possible at low cost)
 

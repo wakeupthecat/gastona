@@ -173,7 +173,7 @@ public class listix
 
 
    /**
-      Function for log pruposes
+      Function for log purposes
       Note that it does not return the stack of this instance but the last used stack!
    */
    public static String [] getLastFormatStack ()
@@ -1037,7 +1037,7 @@ public class listix
       }
       else if (writeOnTargetIfPrimitive (lsxFormat))
       {
-         log_flow.dbg (FLOWLEVEL_1, "flow", "prim", new String [] { lsxFormat, "" + ciclon.depth () });
+         log_flow.dbg (FLOWLEVEL_3, "flow", "prim", new String [] { lsxFormat, "" + ciclon.depth () });
       }
       // else if .. a record field or a previous record field from a table
       else if (formatIsValue (lsxFormat, retFormat))

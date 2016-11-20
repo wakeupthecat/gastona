@@ -46,7 +46,7 @@ import org.gastona.cmds.*;
 //    2) From another file explorer or from inside a gast script as Intent
 //
 //       This works only partially. The script is oppened but not always within a
-//       new instance of the app. If there is an instance of Gastona openned the
+//       new instance of the app. If there is an instance of Gastona opened the
 //       intent is passed to it. The result is that the launched script works properly
 //       but on ending it the original instance does not work anymore (freezes!).
 //

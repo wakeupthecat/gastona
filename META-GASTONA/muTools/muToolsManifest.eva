@@ -1,5 +1,7 @@
 #data#
 
+   <muToolRemovableDir> muToolsTMP1611
+
    <tableTools>
       logicName , modul  , winOS        , linuxOS    , linuxOS64, linuxArm, allOS
       sqlite    , sqlite , sqlite3.exe  , sqlite3    , sqlite3  , sqlite3

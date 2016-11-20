@@ -539,7 +539,7 @@ public class gastona
 
       if (nGastonaInstances > 1)
       {
-         log.warn ("init", "Gastona instance #" + nGastonaInstances + ". Note that multiple instances of Gastona is not supported at the moment (just for experimental pruposes).");
+         log.warn ("init", "Gastona instance #" + nGastonaInstances + ". Note that multiple instances of Gastona is not supported at the moment (just for experimental purposes).");
          // allow it anyway
       }
 

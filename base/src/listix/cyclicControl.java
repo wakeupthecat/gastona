@@ -68,7 +68,7 @@ public class cyclicControl
    }
 
    /**
-      Function for log pruposes
+      Function for log purposes
       Note that it does not return the stack of this instance but the last used stack!
 
       //(o) TODO_listix debug listix format stack: evaluate effects of this approach

@@ -64,7 +64,7 @@ import de.elxala.mensaka.*;
    java application wraps in its own jar file to be deployed/installed and used if it is
    called during the run of the application (see at the end of the file pros and cons of this approach).
 
-   For that prupose microToolInstaller offers following static methods for the applications
+   For that purpose microToolInstaller offers following static methods for the applications
 
       - existsInternTool (String toolLogicName)
 
@@ -147,6 +147,7 @@ import de.elxala.mensaka.*;
 public class microToolInstaller
 {
    private static String MUTOOLS_MANIFEST = "META-GASTONA/muTools/muToolsManifest.eva";
+   private static String MUTOOLS_DIR = "muToolRemovableDir";
 
    private static Eva     installedTools   = new Eva ("* installedTools");
    private static Eva     installedModules = new Eva ("* installedModules");
@@ -154,17 +155,8 @@ public class microToolInstaller
 
    private static logger log = new logger(null, "de.elxala.zServices.microToolInstaller", null);
 
-   private static boolean temporalPolicy = true;
+   private static boolean temporalPolicy = false; // CHANGED on 2016.11.20 due to antivirus checks on each extraction (e.g. about 6 seconds to check sqlite each time!)
    private static String baseDir = null;
-
-   /**
-      NOTE! by setting this directory the tools will be installed but not automatically removed by microToolInstaller
-   */
-   public static void setBaseDirectory (String baseDirectory)
-   {
-      temporalPolicy = false;
-      baseDir = baseDirectory + File.separatorChar;
-   }
 
    private static boolean checkHavingInfo ()
    {
@@ -193,11 +185,28 @@ public class microToolInstaller
       return indx > 0;  // indx 0 would be column header "logicName" which is not allowed!
    }
 
-   private static String finalFullPath (String osString, String moduleName, String binaryName)
+   //2016.11.20 New finalFullPath
+   //   Motivation1: the target directory name does not have to be OS dependent, e.g. for windows always "win" etc no danger of conflict!
+   //   Motivation2: antiviruses now wants to check first execution of a binary extracted from a jar (i.e. in a temporary file)
+   //                this breaks seamly the philosophy of microtool so the only solution is to
+   //                create a removable directory in a temporary directory (i.e. tmpdir/gastonaTMP/muTools656) but don't remove it 
+   //                actively on exit so the next execution the binaries will be find and the antivirus already know them.
+   //                NOTE: this approach is only for microTools and the number of these directories would only increase with 
+   //                      new micro-tooling versions (rare)
+   //   
+   private static String finalFullPath (String moduleName, String binaryName)
    {
-      String full = baseDir + osString + "/" + moduleName + "/" + binaryName;
+      String full = baseDir + "/" + moduleName + "/" + binaryName;
       return full.replace ('/', File.separatorChar);
    }
+   
+   //2016.11.20 Old finalFullPath
+   //
+   //private static String finalFullPath (String osString, String moduleName, String binaryName)
+   //{
+   //   String full = baseDir + osString + "/" + moduleName + "/" + binaryName;
+   //   return full.replace ('/', File.separatorChar);
+   //}
 
    //
    // this method does not look up the intern tool configuration but
@@ -232,7 +241,7 @@ public class microToolInstaller
       {
          return "/usr/bin/sqlite3";
       }
-
+      
       // already installed ? then return the full path
       //
       int indxCache = installedTools.rowOf (toolLogicName);
@@ -241,6 +250,19 @@ public class microToolInstaller
          String fullpath = installedTools.getValue (indxCache, 1);
          log.dbg (5, "getExeToolPath", "micro tool \"" + toolLogicName + "\" already installed, path \"" + fullpath + "\"");
          return fullpath;
+      }
+
+      // workaround for antivirus checking each time a new temporary binary is extracted and used for the first time
+      // Only for sqlite & windows: if the executable sqlite3.exe is found in the directory then use it!
+      //
+      if (utilSys.isOSNameWindows () && toolLogicName.equalsIgnoreCase("sqlite"))
+      {
+         if ((new File ("sqlite3.exe")).exists ())
+         {
+            log.dbg (2, "getExeToolPath", "sqlite is local!");
+            return "sqlite3.exe";
+         }
+         else log.dbg (2, "getExeToolPath", "sqlite is NOT local!");
       }
 
       if (! checkHavingInfo ())
@@ -286,7 +308,7 @@ public class microToolInstaller
          // ok, then it should be easy to find ...
          String dirBase = installedModules.getValue (indxModule, 1);
 
-         String fullPath = finalFullPath (OSstring, nameModul, nameBinary);
+         String fullPath = finalFullPath (nameModul, nameBinary);
          File este = new File (fullPath);
 
          if (este.exists ())
@@ -299,19 +321,30 @@ public class microToolInstaller
       // decide which directory is base for muTools
       if (baseDir == null)
       {
-         temporalPolicy = true;
-         baseDir = fileUtil.createTempDir ("muTools", null, true) + File.separatorChar;
+         if (temporalPolicy)
+         {
+            baseDir = fileUtil.createTempDir ("muTools", null, temporalPolicy) + File.separatorChar;
+         }
+         else
+         {
+            // this directory will be created in the temporal directory (e.g. c:/tmp/gastonaTMP) but it will not 
+            // be automatically deleted! It is supposed that MUTOOLS_DIR changes if some tool change
+            //
+            String dirname = "muToolsTMPsolo";
+            Eva edir = IInfoMain.getEva (MUTOOLS_DIR);
+            if (edir != null) dirname = edir.getValue ();
+            baseDir = uniFileUtil.getTemporalDirApp () + File.separatorChar + dirname;
+         }
       }
 
       log.dbg (5, "getExeToolPath", "procede to install module <" + evaModul.getName () + "> on [" + baseDir + "]");
-
 
       // full path is formed, since it was not found before in installedTools
       // we register it now, even before knowing if it can be properly installed
       // (do it below), the reason is that if it cannot be installed once why should be
       // tried more times ?
       //
-      String fullPath = finalFullPath (OSstring, nameModul, nameBinary);
+      String fullPath = finalFullPath (nameModul, nameBinary);
       installedTools.addLine (new EvaLine (new String [] { toolLogicName , fullPath } ));
 
       // register the installation of the module
@@ -321,7 +354,7 @@ public class microToolInstaller
       for (int ii = 1; ii < evaModul.rows (); ii ++)
       {
          String source = "META-GASTONA/muTools/" + OSstring + "/" + nameModul + "/" + evaModul.getValue (ii, 0);
-         String target = finalFullPath (OSstring, nameModul, evaModul.getValue (ii, 0));
+         String target = finalFullPath (nameModul, evaModul.getValue (ii, 0));
          log.dbg (4, "getExeToolPath", "copying \"" + source + "\" to \"" + target + "\"");
 
          if (installFileFromJar (source, target, temporalPolicy))
@@ -346,12 +379,14 @@ public class microToolInstaller
       }
 
 
-      //   NUEVO CONFIGURADOR
+      //   NUEVO CONFIGURADOR 2016.11.20
       //
       //   META-GASTONA/muTools/muToolsManifest.eva
       //
       //
       //      #data#
+      //
+      //         <muToolRemovableDir> muToolsTMP1611
       //
       //         <tableTools>
       //            logicName , modul  , winOS        , linuxOS    , allOS
@@ -382,43 +417,6 @@ public class microToolInstaller
       return fullPath;
    }
 
-//   /**
-//      solve the base path as well as the temporary nature of the tools
-//   */
-//   private static boolean solvePath (String modulName, String targetHomeSubDir, String explicitTargetSubDir)
-//   {
-//      int indx = installedModules.rowOf (modulName);
-//      if (indx != -1)
-//      {
-//         dirBase = installedModules.getValue (indx, 1);
-//         temporalPolicy = stdlib.atoi (installedModules.getValue (indx, 2)) == 1;
-//         return true;
-//      }
-//
-//      // form the base path
-//      dirBase = "";
-//
-//      if (explicitTargetSubDir.length () != 0)
-//      {
-//         temporalPolicy = false;
-//         dirBase = explicitTargetSubDir + File.separatorChar;
-//      }
-//      else if (targetHomeSubDir.length () != 0)
-//      {
-//         temporalPolicy = false;
-//         dirBase = System.getProperty("user.home", ".") + File.separatorChar + targetHomeSubDir + File.separatorChar;
-//      }
-//      else
-//      {
-//         temporalPolicy = true;
-//         dirBase = fileUtil.createTempDir ("tmpTools", null, true) + File.separatorChar;
-//
-//         File fio = new File (dirBase);
-//         fio.deleteOnExit ();
-//      }
-//
-//      return true;
-//   }
 
    private static boolean fileExists (String path)
    {
