@@ -138,7 +138,7 @@ function conSecuencioCanvas (c2d, diagData)
    }
 
    c2d.beginPath();
-   c2d.setLineDash([3,6]);
+   c2d.setLineDash([3,6]); //---      ---
 
    // draw all agents and their columns
    //
@@ -152,7 +152,7 @@ function conSecuencioCanvas (c2d, diagData)
       c2d.fillText (agents[ag], x0 - textWidth (agents[ag]) * 0.5, y0 - PIX_CHAR);
    }
    c2d.stroke();
-   c2d.setLineDash([1,0]);
+   c2d.setLineDash([1,0]); //------
 
    y1 += dit;
 

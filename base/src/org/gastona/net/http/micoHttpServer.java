@@ -36,7 +36,6 @@ import de.elxala.db.utilEscapeStr;
 /**
    @author  Alejandro Xalabarder
    @date    2014.11.27 23:51
-   @company Wakeupthecat UG
 
    @brief small http server using listix language
 
@@ -90,6 +89,7 @@ public class micoHttpServer extends Thread
    protected static int verboseLevel = 12;
    protected static TextFile verboseFile = null;
    protected static String verboseFileName = "";
+   protected static int millisToClose = -1;
 
    public micoHttpServer (String name, int listenPort, listix logicFormats, boolean ignoreBinExcep)
    {
@@ -140,6 +140,11 @@ public class micoHttpServer extends Thread
       verboseLevel = level;
    }
 
+   public static void setCloseAfterMs (int surviveMs)
+   {
+      millisToClose = surviveMs;
+   }
+   
    public static boolean isDebugging (int verboseLev)
    {
       return verboseLevel >= verboseLev;
@@ -318,7 +323,6 @@ public class micoHttpServer extends Thread
          eparams.setValue (value, 1, col++);
       }
 
-
       tableAccessEva tablePars = new tableAccessEva (); // it is a tableAccessBase class
       tablePars.evaData = eparams;
 
@@ -407,7 +411,26 @@ public class micoHttpServer extends Thread
       return (tryF != null && tryF.exists () && !tryF.isDirectory ()) ? tryF: null;
    }
 
+   private Timer closeTimer = null;
 
+   private void scheduleEnd ()
+   {
+      if (millisToClose == -1) return;
+
+      if (closeTimer != null) closeTimer.cancel();
+      TimerTask tasca = new TimerTask ()
+      {
+         public void run ()
+         {
+            out ("closing server ");
+            close ();
+         }
+      };
+
+      closeTimer = new Timer ();
+      closeTimer.schedule (tasca, millisToClose);
+   }
+   
    public void run ()
    {
       if (getLocalPort () < 0)
@@ -427,6 +450,8 @@ public class micoHttpServer extends Thread
             OutputStream outputStream = null;
 
             Socket client = theServer.accept ();
+            // if any previous close timer was set, cancel it since now we start serving again
+            if (closeTimer != null) closeTimer.cancel();
 
             //(o) TODO_Remove this workaround !!!! needed or IE and Chrome !! Safari and Firefox seems not to need it!
             // possible explanation pointed in
@@ -545,6 +570,8 @@ public class micoHttpServer extends Thread
             out ("response sent");
             client.close ();
             out ("client closed");
+
+            scheduleEnd ();
          }
          catch (java.net.SocketException se)
          {

@@ -29,6 +29,35 @@ import de.elxala.Eva.*;
 */
 public class fileDialog
 {
+   // params: iniDir, extension
+   public static String openFileDialog (String [] params)
+   {
+      return generalFileDialog (JFileChooser.OPEN_DIALOG, params);
+   }
+
+   public static String saveFileDialog (String [] params)
+   {
+      return generalFileDialog (JFileChooser.SAVE_DIALOG, params);
+   }
+
+   public static String openDirDialog (String [] params)
+   {
+      return generalFileDialog (JFileChooser.DIRECTORIES_ONLY, params);
+   }
+
+   public static String generalFileDialog (int modus, String [] params)
+   {
+      Eva sal = new Eva ();
+      boolean reto = selectFileOrDir (
+                         params.length > 1 ? params[1]: null, //extension
+                         params.length > 0 ? params[0]: ".",  //ini dir
+                         sal,
+                         modus,
+                         false);
+      if (! reto) return "";
+      return sal.rows () > 0 ? sal.getValue (0, 0): "";
+   }
+
    public static boolean selectFile (String Extension, String iniDir, Eva fileEvaTable, boolean multiselection)
    {
       return selectFileOrDir (Extension, iniDir, fileEvaTable, JFileChooser.FILES_ONLY, multiselection);
@@ -82,7 +111,7 @@ public class fileDialog
       chooser.setFileSelectionMode(modus);
       chooser.setMultiSelectionEnabled (multiEnabled);
 
-      int option = chooser.showOpenDialog (null);
+      int option = modus == JFileChooser.SAVE_DIALOG ? chooser.showSaveDialog (null): chooser.showOpenDialog (null);
       if (option == JFileChooser.APPROVE_OPTION)
       {
          filesSelected.clear ();

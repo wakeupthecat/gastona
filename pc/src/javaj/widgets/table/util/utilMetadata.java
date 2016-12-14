@@ -173,7 +173,7 @@ public class utilMetadata
       // We are not interested in the real 20 first records but in any 20 records
 
       // introspeccion en los 20 primeros datos
-      int minimo = MIN_COLUMN_WIDTH;
+      int minimo = Math.max (MIN_COLUMN_WIDTH, nameColumn.length ());
       boolean isNumeric = ebsTable.rows () > 1; // set to true per default
       for (int ii = 1; ii < ebsTable.rows () && ii <= ESTIMATE_N_RECORDS; ii ++)
       {
@@ -242,13 +242,13 @@ public class utilMetadata
          if (minusColumn == 1 && ii == 0)
          {
             String srec = (String) colMod.getColumn (0).getHeaderValue ();
-            width = Math.max ((int) (FACTOR_CHAR * srec.length()), MIN_WIDTH_COLUMN_0);
+            width = Math.max ((int) (FACTOR_CHAR * (1+srec.length())), MIN_WIDTH_COLUMN_0); // 1+ since usually the counter need more width
          }
          else
             width = helper.getShortLenCampo (ii - minusColumn);
 
          colMod.getColumn (ii).setPreferredWidth (pixels4Char * width);
-         //col.setWidth (pixels4Char * width);
+         colMod.getColumn (ii).setWidth (pixels4Char * width);
       }
    }
 }

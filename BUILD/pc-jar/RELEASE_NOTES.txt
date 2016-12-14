@@ -1,0 +1,136 @@
+   GASTONA SOURCE CODE
+   -------------------------------------------------
+
+   all source code available since December 2015 at
+   https://github.com/wakeupthecat/gastona
+
+   
+   GASTONA RELEASE NOTES (from most recent to oldest)
+   -------------------------------------------------
+
+   date   : 14.12.2016
+   version: v1.10.161214
+
+  - Compilation with java 1.7
+  - include Rhino javascript engine
+  - new command goRhino
+  - new option PUSH VARIABLES in commands GENERATE and LSX
+  - new option ONCE MODE in command IN FILE
+  - new option ZIP FILES in command MICOHTTP
+  - new options OFFSET, ENDROW and LIMIT ROWS in command LOOP
+  - new primitive ":encode-strjs"
+  - microTool cache installation to avoid antivirus delays on each extraction
+  - fixes and improvements in jGastona.js
+  - support graffiti objects in javascript trazos2D.js for both canvas and svg
+  - File and Dir dialogs as static java functions
+   
+   ----------------------
+   date   : 05.09.2016
+   version: v1.10.160905
+
+   - many fixes (+ 100 changes from 20.12.2015)
+   - new debug via UDP (wireless for android!)
+   - Automatic sequence diagram when running with sessionLog
+   - Android new zWidget wWebKit using WebView
+   - Android new autoStart, FileCiervo and ProgramMe
+   - Android launching gast files
+
+   ----------------------
+   date   : 20.12.2015
+   version: v1.00.151220
+
+   - new command micoHttp server
+   - gastona for android
+   - lot of changes and fixes since last release in sourceforge
+
+   ----------------------
+   date   : 12.09.2011
+   version: v0.60.110912
+
+   80 changes from 16.10.2010, among others :
+
+   - New command AUDIO2BUFFER with some signal processing capabilities
+   - initial vector graphic capabilities, pseudo SVG viewer etc
+   - allow paramaters in Mensaka messages
+   - new zRadioButtonGroup widget (facilitates a lot working with radio buttons)
+   - New options PATTERN, APPEND and modifiers :keep and :opt in command PARSONS
+   - Fix : loose some SQL results in some race conditions!
+   - Fix button with no text
+   - new command option "LOOP DIRS"
+   - Fix unselect node in zTree
+   - add shortkey and filter for dialogs in zButton
+   - Optimize SQL select windowing response
+
+   ----------------------
+   date   : 16.10.2010
+   version: v0.48.101016
+
+   - FIX Error "...was not open for reading in binary mode ..."
+      This error causes the malfunction of gastona.jar if located on
+      the sources directory
+   - New option BODY in command LOOP TABLE
+   - Fix loop table, avoid a unjustified new line.
+   - Fix send signal on unselecting node in tree
+   - Fix in layout on re-layouting sometimes
+   - Fix in listix target as Eva (library)
+   - Fix gotoLine in zTextArea (in zMiniEditor was ok)
+   - Fix drag&drop malfunction with directories (droppedDirs)
+   - Fix several problems due to bizarre temporal directory names (e.g. accents in Spanish)
+
+   ----------------------
+   date   : 31.08.2010
+   version: v0.48.100831
+
+   - Several fixes
+   - Asume tmp directory as the temporary directory if present (root or subdir)
+   - Detect accents and other unusual characters in temporary directory path and
+     show a warning if found (e.g. sqlite cannot open a database with such path names!)
+
+   ----------------------
+   date   : 28.04.2010
+   version: v0.40.100428
+
+   - New commands DBMORE, XMELON and PARSER EVA
+   - Many fixes and inprovements (143 change lists!)
+
+   ----------------------
+   date   : 22.11.2009
+   version: v0.36.0911122
+
+   - Gastona Welcome: filter in tree and sample browser, error detection and label indicator
+   - Implement STRCONV NUM-ENG and FIX
+   - Document hided commands INFILE and LOOP TEXT
+   - Fix error in PARSONS with patter after last group, add to-line info in parsed records
+   - Fix error in JAVAJ MASK. Relayouting containers with radio button panel was wrong
+   - New syntax of DATABASE command : SCHEMA
+   - Diverse improvements in error messages and other fixes
+
+   ----------------------
+   date   : 19.10.2009
+   version: v0.36.091019
+
+   - Fix very critical problem introduced in last fix :(
+     The problem only affected Windows and when using not temporary databases, therefore the
+     samples still worked well.
+     Databases were created in the path indicated plus in the temporary directory, causing a
+     very strange behaviour and logs.
+
+
+   ----------------------
+   date   : 18.10.2009
+   version: v0.36.091018
+
+   - Add new suported operative system Mac OS X
+   - Fix "too long path" problem in temporary files, it caused problems in Mac OSX
+     and in some XP configurations
+   - Fix an unjustified error message on command "SCAN, REMOVE"
+   - Elminate autoscroll in main tree for Linux and Mac OS X
+   - Changes in documentation texts
+   - Place a root node in the main tree to facilitate opening nodes
+   - other minor changes
+
+
+   ----------------------
+   date   : 03.10.2009
+   version: v0.36.091004
+   Fist release

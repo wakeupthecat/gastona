@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.1.161120 \"ERipley jav1.4 mukeep\"
+   <gastonaVersion>  //1.1.161214 \"ERipley jav1.4 micouni\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -31,7 +31,7 @@
    <manifestFile>
       'Manifest-Version: 1.0
       'Main-Class: @<manifestClass>
-      'Created-By: Ale-jarando by Wakeupthecat (host @<:lsx host name> / user @<:sys user.name>)
+      'Created-By: Ale-jarando (host @<:lsx host name> / user @<:sys user.name>)
 
    <traspasosTo>
       fromSubDir            , toSubDir

@@ -83,8 +83,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    <main>
       //       gorhino, //var ii = 10; ii+2;
-      
-      
+
+
    <javascriptExecutorGoRhino>
       //#javaj#
       //
@@ -135,7 +135,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <elapsed>
       //      =, (@<:lsx CLOCK> - startStamp) / 1000
-      //   
+      //
 
    <consecuencioDiagram>
       //#javaj#
@@ -287,9 +287,9 @@ public class cmdGoRhino implements commandable
       String strScript = null;
 
       // admit two syntaxes (onfly is default)
-      //       gorhion, onfly, //script ...
-      //       gorhion,      , //script ...
-      //       gorhion, //script ...
+      //       gorhino, onfly, //script ...
+      //       gorhino,      , //script ...
+      //       gorhino, //script ...
 
       if (nn == 1)
       {
@@ -349,15 +349,19 @@ public class cmdGoRhino implements commandable
       return sal.toString ();
    }
 
+   protected static String introScript (String jsSource, logger log)
+   {
+      return (jsSource == null || log == null) ? null:
+             jsSource.length () < 201 ?
+             jsSource:
+             jsSource.substring (0, 200) + " *** source truncate.";
+
+   }
+
    public static String callSingle (String jsSource, logger log)
    {
       Context cx = Context.enter ();
       String sal = "";
-
-      String introScript = (jsSource == null || log == null) ? null:
-                            jsSource.length () < 201 ?
-                            jsSource:
-                            jsSource.substring (0, 200) + " *** source truncate.";
 
       try
       {
@@ -373,12 +377,12 @@ public class cmdGoRhino implements commandable
       catch (org.mozilla.javascript.EcmaError e)
       {
          if (log != null)
-          log.err ("GoRhino", "Ecma ERROR [" + e + "] in script : " + introScript);
+          log.err ("GoRhino", "Ecma ERROR [" + e + "] in script : " + introScript (jsSource, log));
       }
       catch (Exception e)
       {
          if (log != null)
-            log.err ("GoRhino", "exception running script [" + e + "] in script : " + introScript);
+            log.err ("GoRhino", "exception running script [" + e + "] in script : " + introScript (jsSource, log));
       }
       finally { Context.exit(); }
       return sal;
