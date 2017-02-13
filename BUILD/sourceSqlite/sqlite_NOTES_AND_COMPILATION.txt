@@ -1,0 +1,30 @@
+
+
+===== ORIGINAL sqlite3 3.17
+
+shell.c, sqlite3.h and sqlite3.c taken from sqlite.org
+
+sqlite-snapshot-201702081601
+
+===== MODIFICATION shell.c
+
+in shell.c add the function samefilecontent
+see newBlobFunction_samefilecontent.c
+
+===== COMPILATION
+
+gcc -O2 shell.c sqlite3.c -o sqlite3.17.exe
+
+
+===== COPY BINARIES BEFORE BUILDING gastona.jar
+
+   the binaries (e.g. sqlite3.17.exe) has to be placed in 
+   the directory 
+   
+      META-GASTONA\muTools
+      
+   in the right platform, for instance for windows
+   
+      META-GASTONA\muTools\winOS\sqlite
+
+      
