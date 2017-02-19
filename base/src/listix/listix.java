@@ -286,31 +286,7 @@ public class listix
 
    public synchronized String getDefaultDBName ()
    {
-      String defDB = sqlUtil.getGlobalDefaultDB ();
-      if (defDB == null || defDB.equals(""))
-      {
-         // CREATE ONCE THE TEMPORARY DEFAULT DATABASE
-         //
-
-         // FILE INSIDE UNIQUE DIRECTORY WITHOUT CREATING THE FILE !! (for Berkeley DB)
-         //
-         defDB = fileUtil.createTempDir ("defdb", true); // destruction on exit!!
-         log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
-
-         defDB = defDB + "/defaultDB.db";
-         sqlUtil.setGlobalDefaultDB (defDB);
-
-         // safe delete if exists etc
-         uniFileUtil.deleteTmpFileOnExit (new java.io.File (defDB));
-
-         // (old) AS FILE (ok for sqlite)
-         //
-         // defDB = fileUtil.createTemporal ("lsx", ".db");
-         // log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
-         // sqlUtil.setGlobalDefaultDB (defDB);
-      }
-
-      return defDB;
+      return sqlUtil.getGlobalDefaultDB ();
    }
 
    public synchronized String createTempFile (String extension)
@@ -530,7 +506,7 @@ public class listix
             return createTempFile (ext);
          }
 
-         //return date
+         //return clock
          //
          if (lowName.startsWith ("clock"))
          {
@@ -581,17 +557,17 @@ public class listix
 
          // UUID only from 1.5 !!!!
          //
-         //if (lowName.startsWith ("uuid"))
-         //{
-         //   UUID eso = UUID.randomUUID ();
-         //   if (lowName.length () == 4) // "@<:lsx uuid>"
-         //      return eso.toString ();
-         //
-         //   //@<:lsx uuid ,>
-         //   return eso.getLeastSignificantBits () +
-         //          lowName.getChar (lowName.length ()-1) +
-         //          eso.getMostSignificantBits ();
-         //}
+         if (lowName.startsWith ("uuid"))
+         {
+            UUID eso = UUID.randomUUID ();
+            if (lowName.length () == 4) // "@<:lsx uuid>"
+               return eso.toString ();
+
+            //@<:lsx uuid ,>
+            return ("" + eso.getLeastSignificantBits ()) +
+                   lowName.charAt (lowName.length ()-1) +
+                   ("" + eso.getMostSignificantBits ());
+         }
 
          if (lowName.equals ("paramcount") || lowName.equals ("argcount"))
          {
@@ -726,13 +702,18 @@ public class listix
 
       if (primitiveExtract (primiVar, new String [] {"path"}))
       {
+         // NOTE: here we cannot use "solve" as option since "solve" is used for all with another meaning.
+         String str = (primitiveExtract (primiVar, new String [] {"points"})) ? 
+                         fileUtil.resolveRelativePointsInPath (strBufvar.toString ())
+                         :
+                         strBufvar.toString ();
          if (primitiveExtract (primiVar, new String [] {"win"}))
-            return fileUtil.getPathWinSeparator (strBufvar.toString ());
+            return fileUtil.getPathWinSeparator (str);
          if (primitiveExtract (primiVar, new String [] {"linux"}))
-            return fileUtil.getPathLinuxSeparator (strBufvar.toString ());
+            return fileUtil.getPathLinuxSeparator (str);
 
          // nothing or "os"
-         return fileUtil.getPathOsSeparator (strBufvar.toString ());
+         return fileUtil.getPathOsSeparator (str);
       }
 
       boolean encode = primitiveExtract (primiVar, new String [] {"encode", "escape"});

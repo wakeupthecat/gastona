@@ -269,8 +269,18 @@ public class sqlSolverBatch
       writeScript (sqlUtil.getGlobalDefaultDBaliasDetachQuery ());
    }
 
+   public void runScript (String database)
+   {
+      runSQL (database);
+   }
+
    private boolean sqLiteCall (String database, String strCall)
    {
+      if (strCall == null || strCall.length() == 0) 
+         // no new script is desired!
+         return sqLiteCall (database);
+      
+      
       if (! checkClient ())
       {
          return false;

@@ -29,10 +29,15 @@ public class commander extends commanderBase
 
    public void load_specific_commands ()
    {
-      loadCommandable (new cmdRuby ());  // experimental only for Windows via microtool
-      loadCommandable (new cmdLua ());  // experimental only for Windows via microtool
-      loadCommandable (new cmdPerl ());  // experimental only for Windows via microtool
-      loadCommandable (new cmdPython ());  // experimental only for Windows via microtool
+      //(o) DOC/listix/commands specific commands only for PC
+
+      // experimental feature!
+      // currently binaries are only included via microtool mechanism for windows platform
+      loadCommandable (new cmdRuby ());
+      loadCommandable (new cmdLua ()); 
+      loadCommandable (new cmdPerl ());
+      loadCommandable (new cmdPython ());
+
       loadCommandable (new cmdReplaceBmp ());  // only for Windows
    }
 }

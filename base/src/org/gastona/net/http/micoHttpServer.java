@@ -248,6 +248,7 @@ public class micoHttpServer extends Thread
       if (ext.equalsIgnoreCase ("json")) return "application/json; charset=utf-8";
       if (ext.equalsIgnoreCase ("html")) return "text/html; charset=utf-8";
       if (ext.equalsIgnoreCase ("htm")) return "text/html; charset=utf-8";
+      if (ext.equalsIgnoreCase ("xml")) return "text/xml; charset=utf-8";      
       //(o) TOREVIEW_micoHttp Content-Type serving a file, review : any other extension to consider ?
 
       // by sending application/octet-stream the browser will procede to download the file
@@ -276,6 +277,23 @@ public class micoHttpServer extends Thread
          return defaultHTML ("with no logic associated!");
       }
       out ("response start");
+
+      // do exists format for the response ? (e.g. <GET /myreq>)
+      //
+      String lsxFormat = getLsxFormat4Response (req);
+
+      // translate speculative requests i.e. from Chrome and/or IE
+      //
+      if ((lsxFormat.trim ()).length () == 0)
+      {
+         out ("speculative request solved!");
+         lsxFormat = "GET /";
+      }
+
+      if (theListixLogic.getVarEva (lsxFormat) == null)
+      {
+         return req.isMethodGET () ? defaultHTML ("with no response for [" + lsxFormat + "]!"): "";
+      }
 
       // basically we make a listix LOOP where the table is a table of 1 row
       // containing all the parameters and its values and the listix format is given
@@ -328,21 +346,6 @@ public class micoHttpServer extends Thread
 
       tableCursorStack tabstack = new tableCursorStack ();
       tabstack.pushTableCursor (new tableCursor (tablePars));
-
-      String lsxFormat = getLsxFormat4Response (req);
-
-      // translate speculative requests i.e. from Chrome and/or IE
-      //
-      if ((lsxFormat.trim ()).length () == 0)
-      {
-         out ("speculative request solved!");
-         lsxFormat = "GET /";
-      }
-
-      if (theListixLogic.getVarEva (lsxFormat) == null)
-      {
-         return defaultHTML ("with no response for [" + lsxFormat + "]!");
-      }
 
       String MEM_RESP_FILE = ":mem httResponse mono" + monoInstanceNr; // this memory file is used only internally ...
 
@@ -508,12 +511,15 @@ public class micoHttpServer extends Thread
             httpResponseData respa = null;
             responseHeaders = null;
 
+            if (reke.isMethodGET ())
+            {
+               // CHECK IF SERVING A FILE
+
             // decide if serve a file or from lsx, current criteria:
             //
             //   1. try to find an existing file (see wantServeFile)
-            //   2. if the option ZIP FILES (or JAR FILES) is given in the MICO, START command
+               //   2. if the option ZIP FILES (or JAR FILES) is given in the MICO START command
             //      then it will be checked if the file is found in the specified zip or jar file and folder inside it
-            //   3. serve it from a listix format with the name (e.g. "GET /blahblah")
             //
             // 2015.08.12
             // TODO: it would be possible to give the listix format preference, so if both exists, listix format and file, then listix format wins!
@@ -523,14 +529,18 @@ public class micoHttpServer extends Thread
             //       with another (binary file) we should have the mechanism to tell doing it with conten-type "application/octet-stream" (for example)
             //
 
-            File file2serve = wantServeFile (reke.theUri);
+               // file names containing spaces are send in UTF-8!
+               //
+               String fileNameDecode = utilEscapeStr.desEscapeStr (reke.theUri, "utf8");
+
+               File file2serve = wantServeFile (fileNameDecode);
             if (file2serve != null)
             {
                // if browser request a css file we have to send content-type text/css (use the function getContentTypeFromFileName)
                // if not the css styles defined in the file will not be applied !!
                // but if we want to just download it as a file is better to send Content-Type "application/octet-stream"
                //
-               boolean servingAsFile = fileServerString != null && reke.theUri.startsWith ("/" + fileServerString);
+                  boolean servingAsFile = fileServerString != null && fileNameDecode.startsWith ("/" + fileServerString);
 
                out ("want to serve the file [" + file2serve + "]");
                // serving a file
@@ -544,25 +554,41 @@ public class micoHttpServer extends Thread
                // still try if file contained in declared zip
 
                ZipEntry zie = null;
-               if (myZipped2Serve != null && reke.theUri.length () > 1)
+               String nameInZip = "";
+                  if (myZipped2Serve != null && fileNameDecode.length () > 1)
                {
-                  // remove "/" from reke.theUri if no inital path given in zipLimited2Folder
-                  String tryInZip = zipLimited2Folder.length () == 0 ? reke.theUri.substring (1): (zipLimited2Folder + reke.theUri);
-                  out ("search in zip [" + tryInZip + "]");
-                  zie = myZipped2Serve.getEntry (tryInZip);
+                     // remove "/" from fileNameDecode if no inital path given in zipLimited2Folder
+                     nameInZip = zipLimited2Folder.length () == 0 ? fileNameDecode.substring (1): (zipLimited2Folder + fileNameDecode);
+                  out ("search in zip [" + nameInZip + "]");
+                  zie = myZipped2Serve.getEntry (nameInZip);
                }
                if (zie != null && !zie.isDirectory ())
                {
-                  out ("want to serve from zip [" + reke.theUri + "]");
-                  respa = new httpResponseData (outputStream, myZipped2Serve.getInputStream (zie), zie.getSize (), getContentType (reke), responseHeaders);
+                     out ("want to serve from zip [" + fileNameDecode + "]");
+                  // respa = new httpResponseData (outputStream, myZipped2Serve.getInputStream (zie), zie.getSize (), getContentType (reke), responseHeaders);
+                  respa = new httpResponseData (outputStream, 
+                                                myZipped2Serve.getInputStream (zie), 
+                                                zie.getSize (), 
+                                                getContentTypeFromFileName (nameInZip), 
+                                                responseHeaders);
                }
-               else
+               }
+            }
+
+            if (respa == null)
                {
+               //Either a "GET /" method but with no file to serve
+               //or any other method like POST, PUT etc
+               //So it will be served from the listix format called as the request, for example the request
+               //      "GET /myreq?name='aaa'"
+               //will be served from the listix format "GET myreq", like
+               //      <GET /myreq>
+               //         // hello @<name>!
+               //
                   out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
                   // build response using listix
                   //
                   respa = new httpResponseData (outputStream, buildResponse (reke), getContentType (reke), responseHeaders);
-               }
             }
 
             out ("sending response");

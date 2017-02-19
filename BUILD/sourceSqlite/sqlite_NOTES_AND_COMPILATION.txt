@@ -13,7 +13,11 @@ see newBlobFunction_samefilecontent.c
 
 ===== COMPILATION
 
+on windows
 gcc -O2 shell.c sqlite3.c -o sqlite3.17.exe
+
+on linux and linux arm
+gcc -O2 shell.c sqlite3.c -o sqlite3.17 -lpthread -ldl
 
 
 ===== COPY BINARIES BEFORE BUILDING gastona.jar

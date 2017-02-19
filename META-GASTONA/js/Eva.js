@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015 Alejandro Xalabarder Aulet
+Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -227,7 +227,7 @@ function evaFileStr2obj (fileStr)
       function setCurrent (finishUnit)
       {
          if (nameEva)
-            currUnit[nameEva] = currEva;
+            currUnit[nameEva] = currEva .length > 0 ? currEva: [[""]]; // all evas has at least one element!
          nameEva = undefined;
          currEva = [];
 

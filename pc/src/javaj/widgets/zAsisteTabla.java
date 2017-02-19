@@ -424,7 +424,7 @@ public class zAsisteTabla extends JPanel
             //(o) TODO_REVIEW visibility issue
             // avoid setVisible (false) when the component is not visible (for the first time ?)
             boolean visible = helper.ebsTable ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
 
             // set enable / disable
@@ -494,8 +494,11 @@ public class zAsisteTabla extends JPanel
       setCamposAsiste (helper.ebsTable ().getAsisteColumns ());
       fillPane();
       positioning ();
-
-      updateUI ();   // JTable::updateUI
+      
+      if (isShowing ())
+      {
+         updateUI ();   // JTable::updateUI
+      }
    }
 
 
@@ -659,8 +662,12 @@ public class zAsisteTabla extends JPanel
       //System.out.println ("VERLAY " + lay);
 
       gaston.invalidatePreCalc ();
-      repaint ();
-      updateUI ();
+      
+      if (isShowing ()) 
+      {
+         repaint ();
+         updateUI ();
+      }
    }
 
    Runnable puesPositioning = new Runnable()

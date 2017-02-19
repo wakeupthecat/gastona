@@ -39,7 +39,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Calls ruby EXPERIMENTAL for Windows platform
       //
-      //    RUBY, ONFLY, ruby expresion
+      //    RUBY, ruby expresion
       //
       //    RUBY, FILES, fileIn, fileOut, fileErrors
       //
@@ -51,15 +51,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Makes a call to a java public static method having String [] as parameter (e.g. main method)
+         1   ,    2      , //Makes a call to ruby binary with the given script, the output will be written in the current listix target
 
    <syntaxParams>
-      synIndx, name          , defVal, desc
-         1   , ONFLY         ,       ,
-         1   , ruby expresion,       , //Ruby expresion
+      synIndx, name            , defVal, desc
+         1   , [ruby expresion],       , //Ruby expresion
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
+         1   , BODY        , rubyCode       ,           , Ruby code
+         1   , FILE INPUT  , filename       ,           , File to be used for input
+         1   , FILE OUTPUT , filename       ,           , File to be used for output
+         1   , FILE ERROR  , filename       ,           , File to be used for error output
 
    <examples>
       gastSample
@@ -75,7 +78,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      RUBY, ONFLY, //puts "Hola Rubyales!"
+      //      RUBY, //puts "Hola Rubyales!"
 
    <calling ruby2>
       //#javaj#
@@ -119,7 +122,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <-- bRun>
       //      MSG, oConso clear
-      //      RUBY,, @<xRubio>
+      //      RUBY, @<xRubio>
 
 #**FIN_EVA#
 */
@@ -164,22 +167,25 @@ public class cmdRuby implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      // pass parameters (solved)
-      //
-      String opt         = cmd.getArg(0);
-      String firstInline = cmd.getArg(1);
-      if (opt.equals (""))
-         opt = "onfly";
+      String script = cmd.getArg(0);
 
-      if (opt.equalsIgnoreCase ("onfly"))
+      // be compatible with old "ON FLY"
+      if (cmd.getArgSize () > 1)
       {
-         that.log().dbg (4, "RUBY", "inline script");
-         String rubyProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("ruby"): "ruby";
-
-         callCaptureInpOut.callCapture ("RUBY", rubyProcess, firstInline, that, commandEva, indxComm);
-         // por que no chuta esto ???
-         //listix.cmds.callCaptureInpOut.callCapture ("RUBY", rubyProcess, firstInline, that, commandEva, indxComm);
+         if (script.equals ("") || script.equalsIgnoreCase ("onfly") || script.equalsIgnoreCase ("on fly"))
+            script = cmd.getArg(1);
+         else {
+            cmd.getLog().err ("RUBY", "unsupported option \"" + script + "\"");
+            return 1;
+         }
       }
+
+      that.log().dbg (4, "RUBY", "inline script");
+      String rubyProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("ruby"): "ruby";
+
+      callCaptureInpOut.callCapture ("RUBY", rubyProcess, script, that, commandEva, indxComm);
+      // por que no chuta esto ???
+      //listix.cmds.callCaptureInpOut.callCapture ("RUBY", rubyProcess, script, that, commandEva, indxComm);
 
       // callCapture already process the options but it is not updated in this variable "cmd"!
       // so we cannot check the remaining options now

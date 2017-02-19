@@ -40,6 +40,8 @@ public class commander extends commanderBase
 
    public void load_specific_commands ()
    {
+      //(o) DOC/listix/commands specific commands only for android
+      
       loadCommandable (new cmdIntent ());
 
       //(o) TODO/android/review command GPS

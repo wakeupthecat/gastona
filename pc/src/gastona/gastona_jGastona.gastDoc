@@ -59,7 +59,7 @@
       //     //
       //     IN FILE, META-GASTONA/js/jGastona.js
       //     //
-      //     //   var jgas = new jGastona ();
+      //     //   var jgas = jGastona ();
       //     //
       //     //   jgas.AJAXPost ("questionToU",
       //     //                  "this is the body of the question",
@@ -83,7 +83,6 @@
       //     //
       //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>
       
-      
    <using jGatonaAJAXPost II>
       //#javaj#
       //
@@ -103,7 +102,7 @@
       //     //
       //     @<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+      //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
       //     //   jgas.AJAXPost ("questionToU",
       //     //                  "this is the body of the question",
@@ -144,27 +143,17 @@
       //#listix#
       //
       //    <main>
-      //       LSX, ensureDB
-      //       micohttp, start, monoMico
-      //
-      //   <ensureDB>
-      //      <!  uncomment next line to make the database persistent
-      //      <!  DB CONFIG, DEFAULT, boletin.db
       //      DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+      //       micohttp, start, mymico
       //
       //   <css>
       //       // textarea {
-      //       //     width: 100%;
-      //       //     height: 150px;
-      //       //     padding: 10px 10px;
-      //       //     resize: none;
+      //       //         width: 100%; height: 150px; padding: 10px 10px; resize: none;
       //       // }
-      //
       //
       //   <GET />
       //     //<html>
-      //     //<head>
-      //     //</head> <style> @<css> </style>
+      //     //<head></head> <style> @<css> </style>
       //     //<body>
       //     //   <!-- nothing! -->
       //     //<script>
@@ -194,12 +183,7 @@
       //      //#data#
       //      //
       //      //    <eEventDate type>   //'date
-      //      //    <eEventTitle placeholder>   //'Event Name
-      //      //    <xEventDesc placeholder>  //'Event Description
-      //      //    <eEventDate placeholder>  //'Event Date
       //      //    <dBoletin>
-      //      //       //<p> Loading contents ... </p>
-      //      //
       //      //
       //      //#listix#
       //      //
@@ -208,25 +192,19 @@
       //      //
       //      //  <-- ajaxResponse insertEvent>
       //      //     //jgas.AJAXgetIdContent ("dBoletin", "all");
-      //      //
       //
       //   <POST /insertEvent>
-      //      VAR=, tmpProceso, @<process_insert>
+      //      LSX, StoreRecord,
+      //         , LOAD DATA, @<_bodyMemFileName>, unitAjaxRequest
       //      //ok
       //
-      //   <process_insert>
-      //      VAR&, eEventTitle,
-      //          , FILE, @<_bodyMemFileName>
-      //          , UNIT, unitAjaxRequest
-      //          , , xEventDesc
-      //          , , eEventDate
-      //
+      //   <StoreRecord>
       //      DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<:encode eEventTitle>', '@<:encode xEventDesc>');
       //
-      //   <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-operation': 'del', 'REQ-id': '@<id>'}, false);
+      //   <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-REMOVE-ID': '@<id>'}, false);
       //
       //   <POST /getIdContent>
-      //      LSX, checkOperations
+      //      LSX, checkRemoveId
       //      //<table>
       //      //
       //      LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
@@ -238,13 +216,9 @@
       //      //
       //      //</table>
       //
-      //   <checkOperations>
-      //      CHECK, VAR, REQ-operation
-      //      CHECK, VAR, REQ-id
-      //      IN CASE, @<REQ-operation>
-      //             , del, DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-id> ;
-      //             , ELSE, //
-      //
+      //   <checkRemoveId>
+      //      CHECK, VAR, REQ-REMOVE-ID
+      //      DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-REMOVE-ID> ;
 
 #**FIN_EVA#
 

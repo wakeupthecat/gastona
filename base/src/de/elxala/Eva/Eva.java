@@ -136,6 +136,23 @@ public class Eva implements java.io.Serializable
       Nombre = name;
    }
 
+   // This set the Eva object as a reference of the passed Eva "master"
+   // all changes to the reference will be reflected in the original
+   // except the name that will be simply copied
+   //
+   public void setAsReferenceOf (Eva master)
+   {
+      Nombre = master.getName ();
+      lis_EvaLin = master.lis_EvaLin;
+   }
+
+   // Copies "source" eva contents to this one
+   //
+   public void copyEva (Eva source)
+   {
+      create (source.getName (), source.getAsArrayRowCol ());
+   }
+
    /**
       Clears the contents of the Eva object (just the rows but the name is not cleared)
    */
@@ -495,6 +512,23 @@ public class Eva implements java.io.Serializable
             ss += getValue (rr, cc);
 
             array[rr] = ss;
+      }
+      return array;
+   }
+
+   /**
+      returns the whole contents as a String [][], concatenating all the columns in a row and
+      every row in a index of the array
+   */
+   public String [][] getAsArrayRowCol ()
+   {
+      String [][] array = new String [rows ()][0];
+
+      for (int rr = 0; rr < rows (); rr ++)
+      {
+         array[rr] = new String [cols (rr)];
+         for (int cc = 0; cc < cols (rr); cc ++)
+            array[rr][cc] = getValue (rr, cc);
       }
       return array;
    }

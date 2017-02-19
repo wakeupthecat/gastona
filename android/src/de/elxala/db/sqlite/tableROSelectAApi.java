@@ -20,157 +20,8 @@ package de.elxala.db.sqlite;
 
 
 /*
-   history
-   =====================================================
-
-   04.02.2007 18:36  version using de.elxala.Eva.abstractTable.absTableWindowEBS;
-   28.02.2006 22:00  version ro (read only)
-   05.06.2004 16:33  Crear EvaTableModel (basada en de.elxala.app.IProject.StrArrayTableModel)
-   28.10.2002 20:53
-                     a partir de un String [] inducimos un String [][]
-                     teniendo en cuenta que los strings (de String[]) son elementos separados por
-                     tabulador (\t) y que todos tienen las mismas columnas
-
-
-   sqlite read only VIEW implementing AbstractTableModel
-   =====================================================
-
-   roViewTableModel accepts a sqlite database name and a sql SELECT query
-   (also sqlite PRAGMAS are allowed) as input, and implements the interface
-   AbstractTableModel, to be used by a JTable or whatever, with the result view
-   (not meaning here sql view). Internally the class doesn't queries all the data
-   from the select to the database but it queries the DB on demand of the TableModel.
-
-   To do that roViewTableModel has a buffer of MAX_CACHE (240) records that works
-   like a window of the whole view. Nevertheless there is a information needed
-   from the beginning and it is the total number of records of the view, that is
-   the most time costing operation and is performed by a SELECT COUNT(*) ...
-
-   Thus, in a scenario where roViewTableModel is used by a JTable component, accesing
-   a read only database and querying without limit a huge table, we would have only
-   the cost of counting the records and getting the first 240 records. Of course if
-   the table is scrolled up and down the needed queries will be performed but since
-   the cache is relative small the delays are lightly apreciated.
-
-   Implementation Problem:
-
-      According to the above scenario, it would be desirable to procede as follows:
-
-      suposing the query is "SELECT XYZ"
-      and we are allowed to create a view called myView
-
-      DROP VIEW myView;
-      CREATE VIEW myView AS SELECT XYZ;
-
-      --> now roViewTableModel query and stores the total number of records of the select
-      SELECT COUNT(*) FROM myView;
-
-      --> now roViewTableModel query and stores the first cache
-      SELECT * FROM myView LIMIT 0, 240;
-
-
-      to use a view is good for two reasons:
-
-         p1) sqlite caappTEMPdbn optimize next acceses to the view in the case SELECT XYZ is a complex
-             query
-         p2) we dont have to modify the original query (SELECT XYZ) because we have assigned
-             to it a name. Note that without view is not possible to simply add a
-             LIMIT to the original query
-                  "SELECT XYZ " + " LIMIT 0,240"
-             because XYZ could contain also a LIMIT
-             so we would have to parse the original query and handle all cases.
-
-
-      so to use a view we can:
-
-      1) use appTEMPdb which is the temporary database created automatically with each instance
-         of clientCaller and attached to the main database automatically.
-         THIS UNFORTUNATLY DOESN'T WORK BECAUSE SQL VIEWS CANNOT REFERENCE ATTACHED DATABASES
-
-      2) use CREATE TEMP VIEW in the same database
-         this is possible but only solves the problem p2.
-         since clientCall starts ON EACH QUERY a sqlite client the temporary view
-         would remain exactly one call! (too temporal to be used in next calls!)
-         Due to this problem clientCaller offers the alternative solution of appTEMPdb.
-         Nevertheless this technique is what we will use here for two reasons:
-
-            - the code needed to solve p2 would be very tricky, ugly and not very robust
-            - if in future versions of sqlite java interface we could use properly TEMP views and tables
-              then the code wouldn't have to be changed very much
-
-
-      3) use CREATE VIEW in the same database
-
-         it would work but have serious disadvantages
-
-            p3) The technique is intrusive with the target database (it writes on it when it shouldn't)
-            p4) Not possible (or very difficult) to guarantee a unique view name in a concurrent scenario
-            p5) Cannot be done with read only databases (CD-ROM etc)
-
-
-   Castellano
-   ----------------------------------------------------------------------------
-   problematica views
-
-      - PARA viewTableModel NOS INTERESARi'A USAR SQL VIEW POR DOS RAZONES
-            p1- nos ahorramos el tener que controlar si en el SQL hay LIMIT o no
-                y gestionarlo en consecuencia (parsearlo en todas sus posibilidades OFFSET etc)
-            p2- seguramente sqlite puede optimizar el acceso en el caso de un sql complejo
-
-      - NO PODEMOS CREAR LA VIEW EN NUESTRA appTEMPDB
-          sqlite : una base de datos atachada no puede referenciar otras tablas con view
-
-      - USAR VIEW EN LA MISMA BASE DE DATOS
-
-          es la solucio'n actual pero con los problemas:
-               p3- Tocamos la base de datos del colega
-               p3- NO garantizamos nombre u'nico de la VIEW si la bd esta' mas concurrida
-               p3- si la bd es read-only pech!
-
-      - USAR CREATE TEMP VIEW
-
-           soluciona los puntos anteriores pero notar que lo tenemos que hacer
-           siempre puesto que con cada acceso de los nuestros el cliente se cierra y
-           con e'l las tablas temporales!!!
-           con lo cual so'lo solucionari'amos el problema p1
-
-
-
-
-   EBS class diagram
-   ----------------------------------------------------------------------------------
-
-
-
-                   baseEBS(*e)
-           -----------------------------------
-            ^                             ^
-            |                             |
-            |                             |
-      widgetEBS(*w)                      tableEvaDataEBS(*e)
-   ----------------------          ------------------------------
-            ^                          ^                 ^
-            |                          |                 |
-   used by almost all            tableEvaDB(*e)   absTableWindowingEBS(*e)
-   zWidgets except those                           -----------------------------
-   which data is table based                             ^                 ^
-                                                         |                 |
-                                                         |                 |
-                                                   tableROSelect(*s)   tableWidgetBaseEBS(*t)
-                                                                       ---------------------
-                                                                           ^
-                                                                           |
-                                                                       tableEBS(*t)
-
-
-
-            from package ...
-      (*e) de.elxala.Eva.abstractTable
-      (*w) javaj.widgets.basics
-      (*t) javaj.widgets.table
-      (*s) de.elxala.db.sqlite
-
-
+   same functionality as tableROSelectBatch
+   see documentation in base/src/de/elxala/db/sqlite/tableROSelectBatch.java
 
 */
 
@@ -288,17 +139,7 @@ public class tableROSelectAApi extends absTableWindowingEBS
       // try to find  dbName in attribute <.... dbName>
       //
       String dbName = getSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME);
-      if (dbName == null || dbName.length () == 0)
-      {
-         dbName = sqlUtil.getGlobalDefaultDB ();
-         if (dbName == null || dbName.length () == 0)
-         {
-            log.err ("tableROSelect.getSomeHowDatabase", "NO valid database name found!");
-            return null;
-         }
-      }
-
-      return dbName;
+      return (dbName == null || dbName.length () == 0) ? sqlUtil.getGlobalDefaultDB (): dbName;
    }
 
    private void executeIfDataContainsSQL ()
@@ -312,7 +153,7 @@ public class tableROSelectAApi extends absTableWindowingEBS
 
    /*
    */
-   public void executeQuery ()
+   protected void executeQuery ()
    {
       String dbName = getSomeHowDatabase ();
 

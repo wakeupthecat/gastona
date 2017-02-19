@@ -144,6 +144,8 @@ public class onFlyWidgetSolver implements widgetSolver_able
       char firstLetter  = (baseName.length () > 0) ? baseName.charAt (0): '\n'; // something impossible
       char secondLetter = (baseName.length () > 1) ? baseName.charAt (1): '\n'; // something impossible
 
+      //(o) DOC/javaj/zwidgets specific zWidgets for PC
+
       // z widgets
       //
       switch (firstLetter)

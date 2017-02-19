@@ -1,7 +1,7 @@
 #javaj#
 
     <frames>
-      main, File ciervo
+      main, File ciervo v0.88
 
     <layout of main>
       EVA, 7,7, 4, 4
@@ -12,6 +12,7 @@
           , bSHOW CONNECTION URL
         X , oCanso
           , bDISCONNECT
+          , kAllowUploadFile
 
    <sysDefaultFonts>
       Consolas, 16, 0, TextArea.font
@@ -19,11 +20,17 @@
 
 #data#
 
+   <kAllowUploadFile selected> 0
+
+   <kAllowUploadFile> Allow upload file
+
    <PORTOS> 7878
 
    <eCurrentDir>
 
    <FS> //:SFILE:
+
+   <void>
 
 #listix#
 
@@ -35,6 +42,9 @@
        -->, lListeningOn data!,, listening on @<PORTOS>
        LSX, START_CIERVO
 
+   <-- kAllowUploadFile>
+       CHECK, DIR, filesUpload, GEN, filesUpload/.createdir, void
+       
    <-- bSHOW CONNECTION URL>
       -->, oCanso clear
       //try one of these urls in your browser
@@ -45,7 +55,7 @@
        -->, oCanso clear
        MICOHTTP, start, ciervo, @<PORTOS>
                , FILE SERVER STR, @<FS>
-               , VERBOSE LEVEL, 2
+<!               , VERBOSE LEVEL, 2
 
    <-- bDISCONNECT>
       IN CASE, @<bDISCONNECT>
@@ -92,8 +102,13 @@
      // </table>
      //
      //   <br><br><a href="/thisIsTheEndMyFriend"> FINISH FILE SERVER </a><br>
+     IN CASE, @<kAllowUploadFile selected>
+            , 1, LSX, HTML_uploadStuff
      //
      //  <script>
+     //
+     IN CASE, @<kAllowUploadFile selected>
+            , 1, LSX, JS_uploadStuff
      //
      //@<:infile META-GASTONA/js/trazos2D-min.js>
      //@<graffiti data>
@@ -101,7 +116,8 @@
      //     window.onload = function(e)
      //     {
      //        trazos2D ().renderAllGraffitis (data);
-     //     };
+     //     }
+     //
      //
      //</script>
      //
@@ -116,6 +132,11 @@
      VAR=, eCurrentDir, @<prevDir>
      LSX, GET /
 
+   <POST /uploadFile>
+     CHECK, VAR, _uploadedFile0, nok
+     CHECK, FILE, @<_uploadedFile0>, nok
+     ok
+
    <GET /thisIsTheEndMyFriend>
       MICOHTTP, STOP, ciervo
       MSG, javaj doExit
@@ -126,12 +147,45 @@
    <TAMA> JS, @<calcSize>
 
    <calcSize>
-      //var ndig = Math.log10(@<size>);
+      //function bytes2Str(num)
+      //{
+      //   var units = ["bytes", "Kb", "MB", "GB", "TB"];
+      //   if (num == 0) return "0 " + units[0];
+      //   var ndig = Math.min (units.length-1, Math.floor (1 + Math.log10((num < 0 ? -num: num)/1024)/3));
+      //   return Math.round (num * Math.pow(1024, - ndig)) + " " + units [ndig];
+      //} 
       //
-      //       if (ndig >= 9.) Math.round (@<size> * 10e-9) + "<td> GB";
-      //  else if (ndig >= 6.) Math.round (@<size> * 10e-6) + "<td> MB";
-      //  else if (ndig >= 3.) Math.round (@<size> * 10e-3) + "<td> Kb";
-      //  else                            @<size>           + "<td> bytes";
+      //bytes2Str (@<size>);
+      
+   <HTML_uploadStuff>
+      //   <br><br><input id="upInput" type="file"></input>
+      //   <br><br><button id="upButton" onclick="uploadIt ()" >Upload choosen file</button>
+
+   <JS_uploadStuff>
+     //@<:infile META-GASTONA/js/jGastona.js>
+     // 
+     //     var luix = jGastona (); // for using AJAXUploadFile
+     // 
+     //     function setUploadingFeedback (isUploading)
+     //     {
+     //        var boton = document.getElementById ("upButton");
+     //        boton.disabled = isUploading;
+     //        boton.innerHTML = isUploading ? "... uploading ...": "Upload choosen file";
+     //     }
+     //
+     //     function uploadIt ()
+     //     {
+     //        var fileEle = document.getElementById ("upInput").files[0]; // we only upload 1 file!
+     //        var upBtn = document.getElementById ("upButton");
+     //        
+     //        if (! fileEle || fileEle === "") {
+     //            alert ("Please first choose a file!");
+     //            return;
+     //        }
+     //        setUploadingFeedback (true);
+     //        luix.AJAXUploadFile ("upInput", "uploadFile", null, function (bodyTxt) { setUploadingFeedback (false); } );
+     //    }
+   
 
    <graffiti data>
       //

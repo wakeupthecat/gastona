@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005, 2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -19,31 +19,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 package de.elxala.db.sqlite;
 
 /*
-   history
-   =====================================================
-
-   04.02.2007 18:36  version using de.elxala.Eva.abstractTable.absTableWindowEBS;
-   28.02.2006 22:00  version ro (read only)
-   05.06.2004 16:33  Crear EvaTableModel (basada en de.elxala.app.IProject.StrArrayTableModel)
-   28.10.2002 20:53
-                     a partir de un String [] inducimos un String [][]
-                     teniendo en cuenta que los strings (de String[]) son elementos separados por
-                     tabulador (\t) y que todos tienen las mismas columnas
-
-
    sqlite read only VIEW implementing AbstractTableModel
    =====================================================
 
    roViewTableModel accepts a sqlite database name and a sql SELECT query
    (also sqlite PRAGMAS are allowed) as input, and implements the interface
-   AbstractTableModel, to be used by a JTable or whatever, with the result view
-   (not meaning here sql view). Internally the class doesn't queries all the data
-   from the select to the database but it queries the DB on demand of the TableModel.
+   AbstractTableModel, to be used by a JTable or whatever other component.
+
+   Internally the class doesn't request all the data from the select to the database
+   but it queries the DB on demand of the TableModel.
 
    To do that roViewTableModel has a buffer of MAX_CACHE (240) records that works
-   like a window of the whole view. Nevertheless there is a information needed
-   from the beginning and it is the total number of records of the view, that is
-   the most time costing operation and is performed by a SELECT COUNT(*) ...
+   like a window of the whole view. However the total number of records of the select
+   is calculated performing a SELECT COUNT(*) ...
 
    Thus, in a scenario where roViewTableModel is used by a JTable component, accesing
    a read only database and querying without limit a huge table, we would have only
@@ -51,94 +39,94 @@ package de.elxala.db.sqlite;
    the table is scrolled up and down the needed queries will be performed but since
    the cache is relative small the delays are lightly apreciated.
 
-   Implementation Problem:
 
-      According to the above scenario, it would be desirable to procede as follows:
-
-      suposing the query is "SELECT XYZ"
-      and we are allowed to create a view called myView
-
-      DROP VIEW myView;
-      CREATE VIEW myView AS SELECT XYZ;
-
-      --> now roViewTableModel query and stores the total number of records of the select
-      SELECT COUNT(*) FROM myView;
-
-      --> now roViewTableModel query and stores the first cache
-      SELECT * FROM myView LIMIT 0, 240;
+   Main methods
 
 
-      to use a view is good for two reasons:
+      public void setSelectQuery (String databaseFile, String sqlSelect, String extraFilter)
+      public void setSelectQuery (String databaseFile, String sqlSelect)
+      public void setSelectQuery (String sqlSelect)
+      public void setExtraFilter (String extraFilter)
+      public void copyDataToEva (Eva eva, boolean withColumnNames, int limitRecords)
 
-         p1) sqlite caappTEMPdbn optimize next acceses to the view in the case SELECT XYZ is a complex
-             query
-         p2) we dont have to modify the original query (SELECT XYZ) because we have assigned
-             to it a name. Note that without view is not possible to simply add a
-             LIMIT to the original query
-                  "SELECT XYZ " + " LIMIT 0,240"
-             because XYZ could contain also a LIMIT
-             so we would have to parse the original query and handle all cases.
+      public int getColumnCount ()
+      public int getColumnIndex (colName)
+      public String getColumnName (int col)
 
+      public String getValue (int row, int col)
+      public String getValue (String columnName, int row)
 
-      so to use a view we can:
-
-      1) use appTEMPdb which is the temporary database created automatically with each instance
-         of clientCaller and attached to the main database automatically.
-         THIS UNFORTUNATLY DOESN'T WORK BECAUSE SQL VIEWS CANNOT REFERENCE ATTACHED DATABASES
-
-      2) use CREATE TEMP VIEW in the same database
-         this is possible but only solves the problem p2.
-         since clientCall starts ON EACH QUERY a sqlite client the temporary view
-         would remain exactly one call! (too temporal to be used in next calls!)
-         Due to this problem clientCaller offers the alternative solution of appTEMPdb.
-         Nevertheless this technique is what we will use here for two reasons:
-
-            - the code needed to solve p2 would be very tricky, ugly and not very robust
-            - if in future versions of sqlite java interface we could use properly TEMP views and tables
-              then the code wouldn't have to be changed very much
+      public String escapeString (String str)
+      public String unEscapeString (String str)
 
 
-      3) use CREATE VIEW in the same database
+   Example1:
 
-         it would work but have serious disadvantages
+         tableROSelect tabRO = new tableROSelect ("mydb.db", "SELECT * FROM myTable WHERE id < 10000");
 
-            p3) The technique is intrusive with the target database (it writes on it when it shouldn't)
-            p4) Not possible (or very difficult) to guarantee a unique view name in a concurrent scenario
-            p5) Cannot be done with read only databases (CD-ROM etc)
+         for (int rr = 0; rr < tabRO.getRecordCount (); rr ++)
+         {
+            // accessing one specific column by name
+            //
+            out (tabRO.getValue ("name", rr));
 
+            // looping all columns
+            //
+            for (int cc = 0; cc < tabRO.getColumnCount (); cc ++)
+               out (tabRO.getColumnName (cc) + " = " + tabRO.getValue (rr, cc));
+         }
 
-   Castellano
-   ----------------------------------------------------------------------------
-   problematica views
+   Example2:
 
-      - PARA viewTableModel NOS INTERESARi'A USAR SQL VIEW POR DOS RAZONES
-            p1- nos ahorramos el tener que controlar si en el SQL hay LIMIT o no
-                y gestionarlo en consecuencia (parsearlo en todas sus posibilidades OFFSET etc)
-            p2- seguramente sqlite puede optimizar el acceso en el caso de un sql complejo
+      tableROSelect tabRO = new tableROSelect ();
 
-      - NO PODEMOS CREAR LA VIEW EN NUESTRA appTEMPDB
-          sqlite : una base de datos atachada no puede referenciar otras tablas con view
+      // first set extra filter because setSelectQuery performs the query!
+      //
+      tabRO.setExtraFilter ("WHERE price > 100 and price < 1000");
+      tabRO.setSelectQuery ("mydb.db", "SELECT * FROM myTable WHERE id < 10000");
 
-      - USAR VIEW EN LA MISMA BASE DE DATOS
-
-          es la solucio'n actual pero con los problemas:
-               p3- Tocamos la base de datos del colega
-               p3- NO garantizamos nombre u'nico de la VIEW si la bd esta' mas concurrida
-               p3- si la bd es read-only pech!
-
-      - USAR CREATE TEMP VIEW
-
-           soluciona los puntos anteriores pero notar que lo tenemos que hacer
-           siempre puesto que con cada acceso de los nuestros el cliente se cierra y
-           con e'l las tablas temporales!!!
-           con lo cual so'lo solucionari'amos el problema p1
+      ... access the data
 
 
+
+      FROM C:\Users\wakeupthecat\Dropbox\GASTONASRC\base\src\de\elxala\Eva\abstractTable\absTableWindowingEBS.java
+              C:\Users\wakeupthecat\Dropbox\GASTONASRC\base\src\de\elxala\Eva\abstractTable\tableEvaDataEBS.java
+
+            // return value or "" or "?1" or "?2"
+            public String getValue (int row, int col)
+
+            // return value or "" or "?1" or "?2"
+            public String getValue (String columnName, int row)
+
+            getColumnCount
+            getColumnIndex (colName);
+
+
+
+   Implementation details:
+
+      given a sql Select originalSelect and a extra filter expression as input
+
+      for example
+
+            originalSelect  = "SELECT name, product FROM products WHERE year+0 > 2000"
+            extraFilter     = "WHERE name >= 'A' AND name < 'B'"
+
+      the final select is formed as
+
+         FINAL_SELECT = "SELECT * FROM (" + originalSelect + ") " + extraFilter;
+
+      then the total number of rows is calculated with
+
+         "SELECT count(*) as n FROM (" + FINAL_SELECT + ")"
+
+      a specific window from offsetRowStart and length MAX_CACHE can be retrieved using
+
+         "SELECT * FROM (" + FINAL_SELECT + ") LIMIT " + offsetRowStart + "," + MAX_CACHE + ";";
 
 
    EBS class diagram
    ----------------------------------------------------------------------------------
-
 
 
                    baseEBS(*e)
@@ -197,6 +185,15 @@ public class tableROSelectBatch extends absTableWindowingEBS
 
    private String CURRENT_SELECT = "";
 
+   public tableROSelectBatch ()
+   {
+      super (new baseEBS ("default_tableROSelect", null, null));
+
+      // data & control all in one
+      EvaUnit myDataAndCtrl = new EvaUnit ();
+      setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
+   }
+
    public tableROSelectBatch (baseEBS ebs)
    {
       super (ebs);
@@ -212,6 +209,9 @@ public class tableROSelectBatch extends absTableWindowingEBS
       // data & control all in one
       EvaUnit myDataAndCtrl = new EvaUnit ();
       setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
+
+      if (databaseFile != null)
+         setSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME, databaseFile);
 
       if (SQLSelect != null && SQLSelect.length() > 0)
          setSelectQuery (databaseFile, SQLSelect);
@@ -259,23 +259,32 @@ public class tableROSelectBatch extends absTableWindowingEBS
       return myDB.unEscapeString (str);
    }
 
+   public void setSelectQuery (String databaseFile, String sqlSelect, String extraFilter)
+   {
+      // first extraFilter !
+      setExtraFilter (extraFilter);
+      setSelectQuery (databaseFile, sqlSelect);
+   }
+
    public void setSelectQuery (String databaseFile, String sqlSelect)
    {
       setSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME, databaseFile);
-      //(o) TODO_db Tables: if sqlQuery has more one line !!!
-      //
-      setSimpleAttribute(DATA, sATTR_DB_SQL_SELECT_QUERY, sqlSelect);
-
-      executeQuery ();
+      setSelectQuery (sqlSelect);
    }
 
    public void setSelectQuery (String sqlSelect)
    {
-      //(o) TODO_db Tables: if sqlQuery has more one line !!!
-      //
-      setSimpleAttribute(DATA, sATTR_DB_SQL_SELECT_QUERY, sqlSelect);
+      if (sqlSelect != null)
+      {
+         setSimpleAttribute(DATA, sATTR_DB_SQL_SELECT_QUERY, sqlSelect);
+         executeQuery ();
+      }
+   }
 
-      executeQuery ();
+   public void setExtraFilter (String extraFilter)
+   {
+      if (extraFilter != null)
+         setSimpleAttribute(DATA, sATTR_DB_EXTRA_FILTER, extraFilter);
    }
 
    private String getSomeHowDatabase ()
@@ -283,17 +292,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       // try to find  dbName in attribute <.... dbName>
       //
       String dbName = getSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME);
-      if (dbName == null || dbName.length () == 0)
-      {
-         dbName = sqlUtil.getGlobalDefaultDB ();
-         if (dbName == null || dbName.length () == 0)
-         {
-            log.err ("tableROSelect.getSomeHowDatabase", "NO valid database name found!");
-            return null;
-         }
-      }
-
-      return dbName;
+      return (dbName == null || dbName.length () == 0) ? sqlUtil.getGlobalDefaultDB (): dbName;
    }
 
    private void executeIfDataContainsSQL ()
@@ -305,9 +304,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       executeQuery ();
    }
 
-   /*
-   */
-   public void executeQuery ()
+   protected void executeQuery ()
    {
       String dbName = getSomeHowDatabase ();
 
@@ -401,9 +398,9 @@ public class tableROSelectBatch extends absTableWindowingEBS
          setTotalRecords (0);
          return;
       }
-      
+
       // === OPTIMIZACION LEER PRIMERO HASTA MAX_CACHE
-      
+
       setTotalRecords (MAX_CACHE + 1); // asuming
       initCache (0);
       obtainRow (0); // << this will perform the query for the first rows
@@ -449,11 +446,11 @@ public class tableROSelectBatch extends absTableWindowingEBS
       }
       String realQuery = eRealQuery.getAsText ();
       log.dbg (2, "tableROSelect.QueryViewResult", "real Query [" + realQuery + "]");
-      
+
       // remove last ';' !!
       while (realQuery.length () > 0 && realQuery.endsWith (";") || realQuery.endsWith (" ") || realQuery.endsWith ("\t"))
          realQuery = realQuery.substring (0, realQuery.length ()-1);
-         
+
 
       //from variable <... sqlExtraFilter>
       //get extra filter if any
@@ -466,10 +463,15 @@ public class tableROSelectBatch extends absTableWindowingEBS
          log.dbg (2, "tableROSelect.QueryViewResult", "extra filter [" + extraFilter + "]");
       }
 
+      //Note 2017.02.11
+      //   probably " AS _nonameX" is not needed (TODO: check it with postgresSQL etc)
+      //
+      //    CURRENT_SELECT = "(SELECT * FROM (" + realQuery + ") " + extraFilter + ")";
+
       CURRENT_SELECT = "(" + realQuery + ") AS _noname1";
       if (extraFilter.length () > 0)
          CURRENT_SELECT = "(SELECT * FROM " + CURRENT_SELECT + " " + extraFilter + ") AS _noname2";
-      
+
       log.dbg (2, "tableROSelect.QueryViewResult", "current select [" + CURRENT_SELECT + "]");
       return true;
    }
@@ -493,11 +495,6 @@ public class tableROSelectBatch extends absTableWindowingEBS
       return myDB.getSQL (getSomeHowDatabase ());
    }
 
-
-   public void setExtraFilter (String extraFilter)
-   {
-      setSimpleAttribute(DATA, sATTR_DB_EXTRA_FILTER, extraFilter);
-   }
 
    public void loadRowsFromOffset (int offsetRowStart)
    {

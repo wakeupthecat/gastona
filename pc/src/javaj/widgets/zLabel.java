@@ -144,7 +144,7 @@ public class zLabel extends JLabel implements MensakaTarget
             //(o) TODO_REVIEW visibility issue
             // avoid setVisible (false) when the component is not visible (for the first time ?)
             boolean visible = helper.ebs ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
             break;
 

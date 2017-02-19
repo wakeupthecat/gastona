@@ -1,0 +1,64 @@
+#data#
+
+   <muToolRemovableDir> muToolsTMP1611
+
+   <tableTools>
+      logicName , modul  , winOS        , linuxOS    , linuxOS64, linuxArm, allOS
+      sqlite    , sqlite , sqlite3.exe  , sqlite3    , sqlite3  , sqlite3
+      ruby      , ruby   , ruby.exe     ,
+      lua       , lua    , lua52.exe    , lua52
+      perl      , perl   , perl.exe     ,
+<!      python    , python , python.exe   ,
+
+   <module sqlite winOS>
+      fileName
+      
+      sqlite3.exe
+
+   <module sqlite linuxOS>
+      fileName
+
+      sqlite3
+
+   <module sqlite linuxOS64>
+      fileName
+
+      sqlite3
+
+   <module sqlite linuxArm>
+      fileName
+
+      sqlite3
+
+   <module ruby winOS>
+      fileName
+
+      ruby.exe
+      msvcrt-ruby191.dll
+
+   <module lua winOS>
+      fileName
+
+      lua52.exe
+      lua52.dll
+
+   <module lua linuxOS>
+      fileName
+
+      lua52
+      libreadline.so.5
+
+   <module perl winOS>
+      fileName
+
+      perl.exe
+      perl510.dll
+
+#**FIN#
+      
+   <module python winOS>
+      fileName
+
+      python.exe
+      python3.dll
+      

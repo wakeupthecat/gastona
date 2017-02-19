@@ -276,6 +276,11 @@ public abstract class absTableWindowingEBS extends tableEvaDataEBS implements ta
    }
 
 
+   /**
+      returns the value of column col at position row 'row' (0..N-1 records)
+      Note: if the row/col par does not exists the returned value is an empty string ""
+            instead of null. To check if the position is valid use getColumns and getTotalRecords
+   */
    public String getValue (int row, int col)
    {
       if (row < 0 || col < 0) return "?1"; // absurd!
@@ -286,20 +291,8 @@ public abstract class absTableWindowingEBS extends tableEvaDataEBS implements ta
       return mustGetEvaData ().getValue (1 + row - getRecordOffset (), col);
    }
 
-   /**
-      returns the value of column '' at position row 'row' (0..N-1 records)
-      Note: if the row/col par does not exists the returned value is an empty string ""
-            instead of null. To check if the position is valid use getColumns and getTotalRecords
-   */
    public String getValue (String columnName, int row)
    {
-      int col = getColumnIndex (columnName);
-
-      if (row < 0 || col < 0) return "?1"; // absurd!
-      if (row > getTotalRecords ()) return "?2";
-
-      obtainRow (row);
-
-      return mustGetEvaData ().getValue (1 + row - getRecordOffset (), col);
+      return getValue (row, getColumnIndex (columnName));
    }
 }

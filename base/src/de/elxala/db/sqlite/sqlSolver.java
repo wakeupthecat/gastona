@@ -18,6 +18,27 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.db.sqlite;
 
+/**
+
+   Simplest example:
+
+      sqlSolver myDB = new sqlSolver ();
+      myDB.openScript ();
+      myDB.writeScript ("INSERT INTO myTable VALUES (1001, 'my first entry') ;");
+      myDB.closeScript ();
+      myDB.runSQL ("mydatabase.db");
+
+      NOTE! Composing SQL queries directly with strings requires that all possible text values
+            are escaped to avoid malformed queries due to some characters like ' and " etc
+            and also to avoid SQL injection if the string comes from the user
+   
+         String mySafeText = myDB.escapeString ("Anything whith any 'char'");
+         ...
+         myDB.writeScript ("INSERT INTO myTable VALUES (1001, "'" + mySafeText + "') ;");
+         .. or ..
+         myDB.writeScript ("INSERT INTO myTable VALUES (1001, "'" + myDB.escapeString (myAnyText) + "') ;");
+
+*/
 public class sqlSolver extends sqlSolverBatch
 {
 }

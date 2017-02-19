@@ -200,7 +200,7 @@ public class zComboBox extends JComboBox implements MensakaTarget
             //(o) TODO_REVIEW visibility issue
             // avoid setVisible (false) when the component is not visible (for the first time ?)
             boolean visible = helper.ebsTable ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
 
             break;

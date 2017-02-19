@@ -38,9 +38,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Calls Lua EXPERIMENTAL for Windows platform
       //
-      //    LUA, ONFLY, Lua expresion
-      //
-      //    LUA, FILES, fileIn, fileOut, fileErrors
+      //    LUA, Lua expresion
       //
 
    <aliases>
@@ -50,15 +48,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Makes a call to a java public static method having String [] as parameter (e.g. main method)
+         1   ,    2      , //Makes a call to Lua binary with the given script, the output will be written in the current listix target
 
    <syntaxParams>
-      synIndx, name          , defVal, desc
-         1   , ONFLY         ,       ,
-         1   , Lua expresion,       , //Lua expresion
+      synIndx, name            , defVal, desc
+         1   , [Lua expresion] ,       , //Lua expresion
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
+         1   , BODY        , luaCode        ,           , Lua code
+         1   , FILE INPUT  , filename       ,           , File to be used for input
+         1   , FILE OUTPUT , filename       ,           , File to be used for output
 
    <examples>
       gastSample
@@ -74,7 +74,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      LUA, ONFLY, //print "Hola Luarca!"
+      //      LUA, //print "Hola Luarca!"
 
    <calling Lua2>
       //#javaj#
@@ -111,7 +111,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <-- bRun>
       //      MSG, oConso clear
-      //      LUA,, @<xLuarca>
+      //      LUA, @<xLuarca>
 
 #**FIN_EVA#
 */
@@ -156,20 +156,23 @@ public class cmdLua implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      // pass parameters (solved)
-      //
-      String opt         = cmd.getArg(0);
-      String firstInline = cmd.getArg(1);
-      if (opt.equals (""))
-         opt = "onfly";
+      String script = cmd.getArg(0);
 
-      if (opt.equalsIgnoreCase ("onfly"))
+      // be compatible with old "ON FLY"
+      if (cmd.getArgSize () > 1)
       {
-         that.log().dbg (4, "LUA", "inline script");
-         String luaProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("lua"): "lua";
-
-         callCaptureInpOut.callCapture ("LUA", luaProcess, firstInline, that, commandEva, indxComm);
+         if (script.equals ("") || script.equalsIgnoreCase ("onfly") || script.equalsIgnoreCase ("on fly"))
+            script = cmd.getArg(1);
+         else {
+            cmd.getLog().err ("LUA", "unsupported option \"" + script + "\"");
+            return 1;
+         }
       }
+
+      that.log().dbg (4, "LUA", "inline script");
+      String luaProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("lua"): "lua";
+
+      callCaptureInpOut.callCapture ("LUA", luaProcess, script, that, commandEva, indxComm);
 
       // callCapture already process the options but it is not updated in this variable "cmd"!
       // so we cannot check the remaining options now

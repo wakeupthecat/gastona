@@ -18,6 +18,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.db.sqlite;
 
+// see doc in base/src/de/elxala/db/sqlite/sqlSolver.java
+//
+// Note:
+//    in PC (taken from base) tableROSelect is implemented in Batch fashion, that is calling sqlite binary directly
+//    therefore we extend directly from tableROSelectBatch
+//    since in Android this is not possible we use the SQLite api (unfortunately)
+//
+
 public class sqlSolver extends sqlSolverAApi
 {
 }

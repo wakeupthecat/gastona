@@ -45,10 +45,44 @@ public class sqlUtil
    public static final String sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_DATABASE_NAME;
    public static final String sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS  = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_ATTACHED_DBS;
 
+   private static logger log = new logger (null, "sqlUtil", null);
+
+   public static boolean existsGlobalDefaultDB ()
+   {
+      return System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, null) != null;
+   }
 
    public static String getGlobalDefaultDB ()
    {
-      return System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, "");
+      return getGlobalDefaultDB (true);
+   }
+
+   public static String getGlobalDefaultDB (boolean force)
+   {
+      String defDB = System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, null);
+      if (defDB == null && force)
+      {
+         // CREATE ONCE THE TEMPORARY DEFAULT DATABASE
+         //
+
+         // FILE INSIDE UNIQUE DIRECTORY WITHOUT CREATING THE FILE !! (for Berkeley DB)
+         //
+         defDB = fileUtil.createTempDir ("defdb", true); // destruction on exit!!
+         log.dbg (2, "getGlobalDefaultDB", "create defaultDB " + defDB);
+
+         defDB = defDB + "/defaultDB.db";
+         setGlobalDefaultDB (defDB);
+
+         // safe delete if exists etc
+         uniFileUtil.deleteTmpFileOnExit (new java.io.File (defDB));
+
+         // (old) AS FILE (ok for sqlite)
+         //
+         // defDB = fileUtil.createTemporal ("lsx", ".db");
+         // log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
+         // sqlUtil.setGlobalDefaultDB (defDB);
+      }
+      return defDB == null ? "": defDB;
    }
 
    public static void setGlobalDefaultDB (String defaultDBName)

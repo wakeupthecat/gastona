@@ -244,7 +244,7 @@ public class z2DMiRelos extends uniSceneInMotionView implements MensakaTarget
             setEnabled (helper.ebs ().getEnabled ());
 
             boolean visible = helper.ebs ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
 
             render ();

@@ -54,14 +54,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <syntaxHeader>
       synIndx, importance, desc
          1   ,    4      , //Execute the javascript code
-         2   ,    4      , //Execute the javascript code
 
    <syntaxParams>
       synIndx, name         , defVal, desc
          1   , [ script ]   , //Script to be executed
-
-         2   , ONFLY        , //
-         2   , script       , //Script to be executed
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -73,6 +69,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       javascriptExecutorGoRhino
       consecuencioDiagram
       files for goRhino
+      sqlSelect for goRhino
+      sqlRunner for goRhino
 
    <gorhino1>
       //#javaj#
@@ -195,33 +193,82 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <content>
-      //      'First line
-      //      'second ....
-      //      'and last one.
+      //      //First line
+      //      //second ....
+      //      //and last one.
       //
       //   <rewrite>
-      //     'var fix = new gFile ();
-      //     'var leos, nn = 0;
-      //     'if (fix.fopen (":mem in", "r")) {
-      //     '   var fo = new gFile ();
-      //     '   if (fo.fopen (":mem out", "w")) {
-      //     '       while ((leos = fix.readLine ()) !== null)
-      //     '          fo.writeLine ("te comento: " + (++nn) + ") " + leos);
-      //     '   }
-      //     '   fo.fclose ();
-      //     '   fix.fclose ();
-      //     '}
-      //     '"fin"
+      //      //var fix = new goFile ();
+      //      //var leos, nn = 0;
+      //      //if (fix.fopen (":mem in", "r")) {
+      //      //   var fo = new goFile ();
+      //      //   if (fo.fopen (":mem out", "w")) {
+      //      //       while ((leos = fix.readLine ()) !== null)
+      //      //          fo.writeLine ("te comento: " + (++nn) + ") " + leos);
+      //      //   }
+      //      //   fo.fclose ();
+      //      //   fix.fclose ();
+      //      //}
+      //      //"fin"
       //
       //   <main>
       //      GEN, :mem in, content
-      //      '
+      //      //
       //      goRhino, @<rewrite>
-      //      '
-      //      '
+      //      //
+      //      //
       //      LOOP, TEXT FILE, :mem out
       //          ,, @<value>
 
+   <sqlSelect for goRhino>
+      //#javaj#
+      //
+      //   <frames> oSal
+      //
+      //#listix#
+      //
+      //   <mitabla>
+      //      id, name
+      //      1282, emilia
+      //      3243, samba pati
+      //
+      //   <JS_readTable>
+      //     //var fix = new goSqlSelect ("", "SELECT * FROM mitabla");
+      //     //var out = [];
+      //     //
+      //     //for (var ii = 0; ii < fix.getRecordCount (); ii ++) {
+      //     //    out.push ("record: " + fix.getValue (ii, 0) + ") " + fix.getValue (ii, 1));
+      //     //}
+      //     //out.join ("\n");
+      //
+      //   <main>
+      //		  DB,, CREATE TABLE,  mitabla
+      //      //
+      //      goRhino, @<JS_readTable>
+
+
+   <sqlRunner for goRhino>
+      //#javaj#
+      //
+      //   <frames> oSal
+      //
+      //#listix#
+      //
+      //   <jsTail>
+      //     //var fix = new goSqlRunner ();
+      //     //fix.runSQL ("", "CREATE TABLE textos (id, text); INSERT INTO textos VALUES (18, 'mi texto');");
+      //     //fix.openScript ();
+      //     //fix.writeScript ("INSERT INTO textos VALUES (22, 'my text');");
+      //     //fix.writeScript ("INSERT INTO textos VALUES (98, 'the last entry');");
+      //     //fix.closeAndRunScript ("");
+      //     //"fin"
+      //
+      //   <main>
+      //      goRhino, @<jsTail>
+      //      //
+      //      //
+      //      LOOP, SQL,, //SELECT * FROM textos
+      //          ,, // @<id>: @<text>
 
 #**FIN_EVA#
 */
@@ -281,41 +328,25 @@ public class cmdGoRhino implements commandable
 
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      int nn = cmd.getArgSize ();
-      String opt  = cmd.getArg(0);
-      String par1 = cmd.getArg(1);
-      String strScript = null;
+      String script = cmd.getArg(0);
 
-      // admit two syntaxes (onfly is default)
-      //       gorhino, onfly, //script ...
-      //       gorhino,      , //script ...
-      //       gorhino, //script ...
+      // be compatible with old "ON FLY"
+      if (cmd.getArgSize () > 1)
+      {
+         if (script.equals ("") || script.equalsIgnoreCase ("onfly") || script.equalsIgnoreCase ("on fly"))
+            script = cmd.getArg(1);
+         else {
+            cmd.getLog().err ("GORHINO", "unsupported option \"" + script + "\"");
+            return 1;
+         }
+      }
 
-      if (nn == 1)
-      {
-         strScript = opt;
-         opt = "";
-      }
-      else if (nn == 2)
-      {
-         strScript = par1;
-      }
-      else
-      {
-         cmd.getLog().err ("GORHINO", "wrong number of parameters \"" + nn + "\"");
-         return 1;
-      }
-      if (opt.length () > 0 && ! opt.equalsIgnoreCase ("onfly"))
-      {
-         cmd.getLog().err ("GORHINO", "unsupported option \"" + opt + "\"");
-         return 1;
-      }
       String result = "";
 
-      if (strScript != null)
+      if (script != null)
       {
          cmd.getLog().dbg (2, "GORHINO", "calling goRhino");
-         result = callSingle (strScript, cmd.getLog());
+         result = callSingle (script, cmd.getLog());
          cmd.getLog().dbg (2, "GORHINO", "return from calling goRhino, result length = " + result.length ());
       }
       else cmd.getLog().dbg (2, "GORHINO", "no script given, nothing to do");
@@ -367,9 +398,11 @@ public class cmdGoRhino implements commandable
       {
          Scriptable scope = cx.initStandardObjects ();
 
-         // access to TextFile through ScriptableObject gFile
+         // access to TextFile and sqlSelect through ScriptableObject goFile, goSqlSelect and goSqlRunner
          //
-         ScriptableObject.defineClass(scope, de.elxala.langutil.filedir.gFile.class);
+         ScriptableObject.defineClass(scope, de.elxala.langutil.filedir.goFile.class);
+         ScriptableObject.defineClass(scope, de.elxala.db.sqlite.goSqlSelect.class);
+         ScriptableObject.defineClass(scope, de.elxala.db.sqlite.goSqlRunner.class);
 
          Object result = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
          sal = Context.toString(result);
@@ -394,28 +427,10 @@ public class cmdGoRhino implements commandable
 
    possible options to implement in future
 
-         , onfly, script...
-         , load , filename
-         , compile, name            will compile the script with listix variables solved and store it with the name "name" for future recall
-         , execute, name            execute the previous compiled script with name "name"
-         , discard, name            will discard the compiled script or object with name "name"
-         , outvar , varname         set the result as if were an eva variable (array of arrays) in the variable name
-         , outintern, name          store the result in an js object with the name "name"
-
-
-   poderle decir algo sobre el output
-
-         ...
-         , out, var, pepa
-
-      - que lo meta en una eva
-
-         ...
-         , out, name, pepa
-
-      - que lo guarde en una variable interna (?) como objeto js
-        a modo de resultado intermedio
-
+         , file input , filename
+         , file output, filename
+         , file error , filename
+         , body       , js code
 
 
 */

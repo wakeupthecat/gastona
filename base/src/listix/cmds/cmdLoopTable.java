@@ -186,6 +186,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           x  , END ROW     , numerical expression        ,  -1   , //End the loop at this row. The value -1 or no value means end of table
           x  , LIMIT ROWS  , numerical expression        ,  -1   , //Maximum number of rows to be iterated. The value -1 or no value means no limit
           3  , EXTENSIONS  , "extension, extension"      ,       , //Add extensions as is done in the arguments extension
+          3  , RECURSIVE   , 1/0                         , "1"   , //If '1' (default) then the seach of files will be recusive otherwise not
 
    <examples>
       gastSample

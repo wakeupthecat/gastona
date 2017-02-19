@@ -38,9 +38,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Calls perl EXPERIMENTAL for Windows platform
       //
-      //    PERL, ONFLY, Perl expresion
+      //    PERL, Perl expresion
       //
-      //    PERL FILES, fileIn, fileOut, fileErrors
       //
 
    <aliases>
@@ -51,15 +50,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Makes a call to a java public static method having String [] as parameter (e.g. main method)
+         1   ,    2      , //Makes a call to perl binary with the given script, the output will be written in the current listix target
 
    <syntaxParams>
-      synIndx, name          , defVal, desc
-         1   , ONFLY         ,       ,
-         1   , Perl expresion,       , //Perl expresion
+      synIndx, name            , defVal, desc
+         1   , [Perl expresion],       , //Perl expresion
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
+         1   , BODY        , perlCode       ,           , Perl code
+         1   , FILE INPUT  , filename       ,           , File to be used for input
+         1   , FILE OUTPUT , filename       ,           , File to be used for output
+         1   , FILE ERROR  , filename       ,           , File to be used for error output
 
    <examples>
       gastSample
@@ -75,7 +77,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      PERL, ONFLY, //print "Hola perl!"
+      //      PERL, //print "Hola perl!"
 
    <calling perl2>
       //#javaj#
@@ -129,7 +131,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <-- bRun>
       //      MSG, oConso clear
-      //      PERL,, @<xPerla>
+      //      PERL, @<xPerla>
 
 #**FIN_EVA#
 */
@@ -174,20 +176,23 @@ public class cmdPerl implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      // pass parameters (solved)
-      //
-      String opt         = cmd.getArg(0);
-      String firstInline = cmd.getArg(1);
-      if (opt.equals (""))
-         opt = "onfly";
+      String script = cmd.getArg(0);
 
-      if (opt.equalsIgnoreCase ("onfly"))
+      // be compatible with old "ON FLY"
+      if (cmd.getArgSize () > 1)
       {
-         that.log().dbg (4, "PERL", "inline script");
-         String perlProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("perl"): "perl";
-
-         callCaptureInpOut.callCapture ("PERL", perlProcess, firstInline, that, commandEva, indxComm);
+         if (script.equals ("") || script.equalsIgnoreCase ("onfly") || script.equalsIgnoreCase ("on fly"))
+            script = cmd.getArg(1);
+         else {
+            cmd.getLog().err ("PERL", "unsupported option \"" + script + "\"");
+            return 1;
+         }
       }
+
+      that.log().dbg (4, "PERL", "inline script");
+      String perlProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("perl"): "perl";
+
+      callCaptureInpOut.callCapture ("PERL", perlProcess, script, that, commandEva, indxComm);
 
       // callCapture already process the options but it is not updated in this variable "cmd"!
       // so we cannot check the remaining options now

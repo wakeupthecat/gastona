@@ -68,8 +68,8 @@ import java.lang.StringBuffer;
 */
 public class EvaUnit implements java.io.Serializable
 {
-   private String Nombre;
-   public List lis_Evas; // List < Eva > needed as public for special utilities
+   private String Nombre = "";
+   public List lis_Evas = null; // List < Eva > needed as public for special utilities
 
    public EvaUnit (String nom)
    {
@@ -81,11 +81,31 @@ public class EvaUnit implements java.io.Serializable
       clear ("");
    }
 
-   public void setEvaUnit (EvaUnit cop)
+   // This set the EvaUnit object as a reference of the passed EvaUnit "master"
+   // all changes to the reference will be reflected in the original
+   // except the name that will be simply copied
+   //
+   public void setAsReferenceOf (EvaUnit master)
+   {
+      Nombre = master.getName ();
+      lis_Evas = master.lis_Evas;
+   }
+
+   // Copies "source" EvaUnit contents to this one
+   //
+   public void copyEvaUnit (EvaUnit cop)
    {
       Nombre = cop.getName ();
-      lis_Evas = cop.lis_Evas;
+
+      lis_Evas = new Vector ();
+      for (int ii = 0; ii < cop.lis_Evas.size (); ii ++)
+      {
+         Eva eva = new Eva ();
+         eva.copyEva ((Eva) cop.lis_Evas.get (ii));
+         lis_Evas.add (eva);
+      }
    }
+
 
    /**
       returns the name of the EvaUnit

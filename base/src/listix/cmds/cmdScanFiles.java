@@ -131,7 +131,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       x      , PREFIX       ,  "tablePrefix" , "scan", //Specifies a table name prefix for the operation, all the tables will have this prefix
       x      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is sepecially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
-      1      , RECURSIVE    ,   Y/N              , "Y"    , //If 'Y' (default) then the seach of files will be recusive, otherwise simple
+      1      , RECURSIVE    ,   1/0              , "1"    , //If '1' (default) then the seach of files will be recusive, otherwise simple
       1      , FILTER       ,  "option, string"  , ""     , //Option might be +/- E,F or D or </> T, S (see filter options help)
       1      , EXTENSIONS   ,  "string"          , ""     , //comma or space separated list of extensions to admit
 
@@ -432,13 +432,8 @@ public class cmdScanFiles implements commandable
       {
          //sub-option RECURSIVE
          //
-         optStr = cmd.takeOptionString("RECURSIVE");
-         if (optStr.length () > 0)
-         {
-            currentIsRecursive = optStr.equalsIgnoreCase ("y");
-            theLog.dbg (2, "SCAN", "option RECURSIVE = '" + optStr + "' (" + currentIsRecursive + ")");
-         }
-
+         currentIsRecursive = -1 != "1yYSs".indexOf (cmd.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1").substring(0,1));
+         
          //sub-option FILTERS
          //
          String [] optArr = cmd.takeOptionParameters("FILTERS");

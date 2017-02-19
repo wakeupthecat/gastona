@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005, 2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -20,13 +20,26 @@ package de.elxala.db.sqlite;
 
 import de.elxala.Eva.abstractTable.*;
 
+//
+// Note:
+//    in PC (taken from base) tableROSelect is implemented in Batch fashion, that is calling sqlite binary directly
+//    therefore we extend directly from tableROSelectBatch
+//    since in Android this is not possible we use the SQLite api (unfortunately)
+//    see android/src/de/elxala/db/sqlite/tableROSelectAApi.java
+//
+
 public class tableROSelect extends tableROSelectBatch
 {
+   public tableROSelect ()
+   {
+      super ();
+   }
+
    public tableROSelect (baseEBS ebs)
    {
       super (ebs);
    }
-
+   
    public tableROSelect (String databaseFile, String SQLSelect)
    {
       super (databaseFile, SQLSelect);

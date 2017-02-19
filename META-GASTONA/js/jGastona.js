@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015 Alejandro Xalabarder Aulet
+Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -48,7 +48,11 @@ function jGastona (evaConfig, existingPlaceId)
 
    // default action
    loadJast (evaConfig);
-   document.body.onresize = function () { adaptaLayout () };
+
+   // IT SEEMS THAT ANY OF FOLLOWING LINES WILL WORK PROPERLY, WHY ?
+   // document.body.onresize = function () { adaptaLayout () };
+   // document.body.onresize = function () { this.adaptaLayout () };
+   document.body.onresize = adaptaLayout;
 
    // due to IE compatib.
    function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
@@ -286,9 +290,29 @@ function jGastona (evaConfig, existingPlaceId)
 
       var zwid;
 
+      //  var2Text ("eThisIsAText")); ==> "This Is A Text"
+      //  var2Text ("eThis_is_a_text")); ==> "This is a text"
+      function var2Text (name)
+      {
+         if (name.length <= 2) return "";
+         var sal = name[1];
+
+         for (var ii = 2; ii < name.length; ii ++)
+         {
+            if (name[ii] == '_')
+              sal += " ";
+            else {
+               if (name[ii] < 'Z' && sal[sal.length-1] != ' ')
+                  sal += " ";
+               sal += name[ii];
+            }
+         }
+         return sal;
+      }
+
       var updateSimpleLabel = function () {
-         //setValueToElement (this, dataUnit[name] ? getDataCell (name) : name.substr(1));
-         this.innerHTML = (dataUnit[name] ? getDataCell (name) : name.substr(1));
+         //setValueToElement (this, dataUnit[name] ? getDataCell (name) : var2Text (name));
+         this.innerHTML = (dataUnit[name] ? getDataCell (name) : var2Text (name));
       }
       var updateSimpleValue = function () {
          setValueToElement (this, getDataCell (name));
@@ -334,7 +358,7 @@ function jGastona (evaConfig, existingPlaceId)
             zwid = fabricaStandard ("button", name, { onclick: signalName, "data!": updateSimpleLabel } );
             break;
          case 'e':
-            zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, "data!": updateSimpleValue } );
+            zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, placeholder: var2Text(name), "data!": updateSimpleValue } );
             break;
 
          // --- Note about widget class for submit button
@@ -362,7 +386,7 @@ function jGastona (evaConfig, existingPlaceId)
             break;
 
          case 'p': // password
-            zwid = fabricaStandard ("input", name, { type: "password", onchange: assignValue, "data!": updateSimpleValue } );
+            zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
             break;
          case 'l':
             zwid = fabricaStandard ("label", name, { "data!": updateSimpleLabel } );
@@ -376,7 +400,7 @@ function jGastona (evaConfig, existingPlaceId)
                         tex += dataUnit[this.id][row] + "\n";
                      setValueToElement (this, tex);
                   }
-               zwid = fabricaStandard ("textarea", name, { "data!": updata, onchange: assignText } );
+               zwid = fabricaStandard ("textarea", name, { placeholder: var2Text(name), "data!": updata, onchange: assignText } );
             }
             break;
 
@@ -489,23 +513,49 @@ function jGastona (evaConfig, existingPlaceId)
    // var arr = str2jsVar ("[ 'sisie', 'nono', 234, [1, 2] ]");
    // var fun = str2jsVar ("alarm('jol')");
    //
-   function str2jsVar (str)
+   //!! function str2jsVar (str)
+   //!! {
+   //!!    var str2 = "";
+   //!!    if (typeof str !== "string")
+   //!!    {
+   //!!       for (var ii = 0; ii < str.length; ii ++)
+   //!!          str2 = (ii === 0 ? "": str2 + "\n") + str[ii];
+   //!!    }
+   //!!    else str2 = str;
+   //!!
+   //!!    if (str2.match(/^\s*[\"\']/))
+   //!!       return str2.substr(1);
+   //!!
+   //!!    if (str2.match(/^\s*[\[\{]/))
+   //!!       return eval ("(function () { return " + str2 + ";}) ()");
+   //!!
+   //!!    return function () { eval (str2); }
+   //!! }
+
+   function str2Var (str)
    {
       var str2 = "";
       if (typeof str !== "string")
       {
+         // array of strigs = text ?
+         //
          for (var ii = 0; ii < str.length; ii ++)
             str2 = (ii === 0 ? "": str2 + "\n") + str[ii];
       }
       else str2 = str;
 
+      // old style string (to be deprecated!)
+      //
       if (str2.match(/^\s*[\"\']/))
          return str2.substr(1);
 
+      // array [] or object {}
+      //
       if (str2.match(/^\s*[\[\{]/))
          return eval ("(function () { return " + str2 + ";}) ()");
 
-      return function () { eval (str2); }
+      // simply as string
+      return str2;
    }
 
    function fabricaStandard (typestr, name, atts)
@@ -524,15 +574,35 @@ function jGastona (evaConfig, existingPlaceId)
       if (typestr === "input" && !dataUnit[name])
          dataUnit[name] = [[ "" ]];
 
+      // Interpret attributes of element as follows
+      //
+      //                           action to do
+      //    <elem onXXXX>  val     elem.onXXXX = val (function)
+      //    <elem class>   val     elem.className = val
+      //    <elem +class>  val     elem.className += (" " + val)
+      //    <elem other>   val     elem.other = val
+      //
+
       for (var dd in dataUnit)
       {
+         // i.e. <eText class> //'btn
          // i.e. <eText onchange> //alarm("me change!");
          if (strStartsWith (dd, name + " "))
          {
             var attrib = dd.substr(name.length + 1);
-            var jscode = dataUnit[dd];
+            var value = dataUnit[dd];
 
-            ele[attrib] = str2jsVar (jscode);
+            if (strStartsWith (attrib, "on")) {
+               //ele[attrib] = function () { eval (value); }
+               ele.addEventListener (attrib.substr(2), function () { eval (str2Var (value)); });
+            }
+            else if (attrib == "class") {
+               ele.className = value;
+            }
+            else if (attrib == "+class") {
+               ele.className += (" " + value);
+            }
+            ele[attrib] = str2Var (value);
          }
       }
 
@@ -590,22 +660,17 @@ function jGastona (evaConfig, existingPlaceId)
 
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele["onchange"] = function () {
+      ele.addEventListener ("change",
+                  function () {
                      selectAllColumnsFromTable (dataUnit, name, this.value||"?");
                      dataUnit[name + "_value"] = [[ this.value||"?" ]]; // to have a single variable
                      mensaka(name)
-                  };
+                  });
       for (var ite in arrOp)
       {
          var subele = document.createElement ("option");
          subele["value"] = arrOp[ite];
          subele["data!"] = function () { }; //(o) TOREVIEW_jGastona_update message in subelements, is it really needed ?
-
-         // this does not occurs!
-         //
-         //subele["onchange"] = function () {
-         //          alert ("ONSOLETO !!! [" + this.value||"?" + "]");
-         //          };
 
          subele.appendChild (document.createTextNode(arrLab[ite]));
          ele.appendChild (subele);
@@ -619,7 +684,7 @@ function jGastona (evaConfig, existingPlaceId)
       var ele = document.createElement ("div");
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele["onchange"] = function () {  mensaka (name); }; // alert ("elegido = " + dataUnit[name + " selected.value"]);
+      ele.addEventListener ("change", function () {  mensaka (name); }); // alert ("elegido = " + dataUnit[name + " selected.value"]);
       for (var ite in arrOp)
       {
          var subele = document.createElement ("input");
@@ -628,11 +693,11 @@ function jGastona (evaConfig, existingPlaceId)
          subele["value"] = arrOp[ite];
          subele["label"] = arrLab[ite];
          subele["data!"] = function () { };
-         subele["onchange"] = function () {
+         subele.addEventListener ("change", function () {
                    dataUnit[name + " selected.value"] = [[ this.value||"?" ]];
                    dataUnit[name + " selected.label"] = [[ this.label||"?" ]];
                    dataUnit[name + "_value"] = [[ this.value||"?" ]]; // to have a single variable
-                   };
+                   });
          if (ite !== "0" && (orient == "Y" || orient == "V"))
             ele.appendChild (document.createElement ("br"));
          ele.appendChild (subele);
@@ -660,7 +725,7 @@ function jGastona (evaConfig, existingPlaceId)
    // helper function to check is a file can be uploaded, for example
    //
    //   <-- bUploadFoto>
-   //      //if (canUploadFile ("uPhoto", 5)) {
+   //      //if (luix.canUploadFile ("uPhoto", 5)) {
    //      //   if (luix.AJAXUploadFile ("uPhoto", "uploadFoto")) {
    //      //      feedback ("uploading file ...");
    //      //   }
@@ -859,7 +924,7 @@ function jGastona (evaConfig, existingPlaceId)
       AJAXgenericPost (postString, bodyText);
    }
 
-   function AJAXUploadFile (fileElement, postMsg, postHeaders)
+   function AJAXUploadFile (fileElement, postMsg, postHeaders, respFunction)
    {
       if (!fileElement) return false;
       var fileEle = htmlElem (fileElement);
@@ -870,7 +935,8 @@ function jGastona (evaConfig, existingPlaceId)
       var formo = new FormData ();
       formo.append ("filename", file1); // we add it but actually the mico server don't read it!
 
-      AJAXgenericPost (postMsg, formo, postHeaders);
+      AJAXgenericPost (postMsg, formo, postHeaders, respFunction);
+      return true;
    }
 
    function AJAXLoadRootJast (jastName)

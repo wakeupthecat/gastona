@@ -370,6 +370,16 @@ public class httpRequestData
       micoHttpServer.out (level, sa);
    }
 
+   public boolean isMethodGET ()
+   {
+      return theMethod.equalsIgnoreCase ("GET");
+   }
+
+   public boolean isMethodPOST ()
+   {
+      return theMethod.equalsIgnoreCase ("POST");
+   }
+
    public void dump (String title)
    {
       out (title);

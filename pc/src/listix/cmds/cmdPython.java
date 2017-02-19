@@ -39,10 +39,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Calls python EXPERIMENTAL for Windows platform
       //
-      //    PYTHON, ONFLY, python expresion
+      //    PYTHON, python expresion
       //
-      //    PYTHON, FILES, fileIn, fileOut, fileErrors
-      //
+
 
    <aliases>
       alias
@@ -51,15 +50,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Calls python interpreter to resolve the given expression
+         1   ,    2      , //Makes a call to python binary with the given script, the output will be written in the current listix target
 
    <syntaxParams>
       synIndx, name          , defVal, desc
-         1   , ONFLY         ,       ,
-         1   , python expresion,       , //Python expresion
+        1    , [python expresion],       , //Python expresion
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
+         1   , BODY        , pythonCode     ,           , Python code
+         1   , FILE INPUT  , filename       ,           , File to be used for input
+         1   , FILE OUTPUT , filename       ,           , File to be used for output
 
    <examples>
       gastSample
@@ -75,7 +76,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <main>
-      //      PYTHON, ONFLY, //print ("Hola Python!")
+      //      PYTHON, //print ("Hola Python!")
 
    <calling python2>
       //#javaj#
@@ -125,7 +126,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <-- bRun>
       //      MSG, oConso clear
-      //      PYTHON,, @<xMonty>
+      //      PYTHON, @<xMonty>
 
 #**FIN_EVA#
 */
@@ -168,20 +169,23 @@ public class cmdPython implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      // pass parameters (solved)
-      //
-      String opt         = cmd.getArg(0);
-      String firstInline = cmd.getArg(1);
-      if (opt.equals (""))
-         opt = "onfly";
+      String script = cmd.getArg(0);
 
-      if (opt.equalsIgnoreCase ("onfly"))
+      // be compatible with old "ON FLY"
+      if (cmd.getArgSize () > 1)
       {
-         that.log().dbg (4, "PYTHON", "inline script");
-         String pythonProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("python"): "python";
-
-         callCaptureInpOut.callCapture ("PYTHON", pythonProcess, firstInline, that, commandEva, indxComm);
+         if (script.equals ("") || script.equalsIgnoreCase ("onfly") || script.equalsIgnoreCase ("on fly"))
+            script = cmd.getArg(1);
+         else {
+            cmd.getLog().err ("PYTHON", "unsupported option \"" + script + "\"");
+            return 1;
+         }
       }
+
+      that.log().dbg (4, "PYTHON", "inline script");
+      String pythonProcess = utilSys.isOSWindows () ? microToolInstaller.getExeToolPath("python"): "python";
+
+      callCaptureInpOut.callCapture ("PYTHON", pythonProcess, script, that, commandEva, indxComm);
 
       // callCapture already process the options but it is not updated in this variable "cmd"!
       // so we cannot check the remaining options now

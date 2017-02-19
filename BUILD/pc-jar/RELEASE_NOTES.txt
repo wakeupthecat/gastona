@@ -8,6 +8,30 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+   date   : 19.02.2017
+   version: v1.1.170219
+
+      - FIX exception evaluating deep sql
+      - Fix Eva.js withempty evas 
+      - jGastona default placeholders
+      - jGastona improve default label using _ and camel notation
+      - unify option recursive for scan and loop files
+      - MicoHttp FIX Content-type when serving from zip or jar 
+      - FIX problem with autosize in jGastona
+      - FIX formula for file site in FileCiervo!
+      - Fix visibility problem un zAsisteTable
+      - jGastona fix assigning class, add attributes and events to html elements
+      - New class gSqlSelect for goRhino
+      - New class gSqlRunner for goRhino
+      - muTools with new sqlite 3.17 and add samefilecontent custom function
+      - remove obsolote ONFLY syntax from Lua, Ruby, Perl etc
+      - MicoHttp always was looking for files to download. Only by GET method it has to be done
+      - Only default response (when no listix format is found) in GET method
+      - AJAXUploadFile add parameter for callback, so it can be used without listix
+      - FileCiervo upload files with feedback, no progress bar but simply "uploading ..."
+      - FIX micoHttp getting files with filenames with blanks and special chars
+   
+   
    date   : 14.12.2016
    version: v1.10.161214
 

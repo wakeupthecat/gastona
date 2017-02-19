@@ -168,7 +168,7 @@ public class z2DEditRelos extends uniSceneInMotionView implements MensakaTarget
             if (vale != null) miCebolla.REDUCTION_TOLERANCE  = stdlib.atoi (vale);
             
             boolean visible = helper.ebs ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
 
             render ();

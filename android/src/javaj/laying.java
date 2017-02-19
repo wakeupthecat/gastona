@@ -390,6 +390,8 @@ public class laying
          //...
          //Component compos = quincalla.getNativeWidget (layoutModel, widgets[ww]);
          //...
+         
+         //(o) DOC/javaj/zwidgets specific zWidgets for Android
 
          View compos = null;
          switch (name.charAt (0))

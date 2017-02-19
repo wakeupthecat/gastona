@@ -128,7 +128,7 @@ public class parameters4LsxGenerate
       }
       else
       {
-         eu.setEvaUnit (euLoad);
+         eu.setAsReferenceOf (euLoad);
          cmd.getLog().dbg (2, cmd.cmdName, "loaded unit #" + unitName + "# from \"" + fileName + "\"");
       }
       return false;  // NO ERROR!

@@ -545,12 +545,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <TAMA> JS, @<sizeJS>
       //
       //   <sizeJS>
-      //      //var ndig = Math.log10(@<size>);
+      //      //function bytes2Str(num)
+      //      //{
+      //      //   var units = ["bytes", "Kb", "MB", "GB", "TB"];
+      //      //   if (num == 0) return "0 " + units[0];
+      //      //   var ndig = Math.min (units.length-1, Math.floor (1 + Math.log10((num < 0 ? -num: num)/1024)/3));
+      //      //   return Math.round (num * Math.pow(1024, - ndig)) + " " + units [ndig];
+      //      //} 
       //      //
-      //      //       if (ndig >= 9.) Math.round (@<size> * 10e-9) + "<td> GB";
-      //      //  else if (ndig >= 6.) Math.round (@<size> * 10e-6) + "<td> MB";
-      //      //  else if (ndig >= 3.) Math.round (@<size> * 10e-3) + "<td> Kb";
-      //      //  else                            @<size>           + "<td> bytes";
+      //      //bytes2Str (@<size>);
 
 
 #**FIN_EVA#

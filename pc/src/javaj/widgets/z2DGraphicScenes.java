@@ -329,7 +329,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
             //(o) TODO_REVIEW visibility issue
             // avoid setVisible (false) when the component is not visible (for the first time ?)
             boolean visible = helper.ebs ().getVisible ();
-            if (visible || isShowing ())
+            if (visible && isShowing ())
                setVisible  (visible);
 
             render ();

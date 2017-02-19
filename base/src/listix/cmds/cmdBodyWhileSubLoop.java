@@ -31,7 +31,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <docType>    listix_command
    <name>       BODY WHILE SUB LOOP
    <groupInfo>  lang_flow
-   <javaClass>  listix.cmds.cmdRunLoopTable
+   <javaClass>  listix.cmds.cmdBodyWhileSubLoop
    <importance> 7
    <desc>       //Run or continues a loop changing some conditions
 

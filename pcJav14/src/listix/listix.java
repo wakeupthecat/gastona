@@ -286,31 +286,7 @@ public class listix
 
    public synchronized String getDefaultDBName ()
    {
-      String defDB = sqlUtil.getGlobalDefaultDB ();
-      if (defDB == null || defDB.equals(""))
-      {
-         // CREATE ONCE THE TEMPORARY DEFAULT DATABASE
-         //
-
-         // FILE INSIDE UNIQUE DIRECTORY WITHOUT CREATING THE FILE !! (for Berkeley DB)
-         //
-         defDB = fileUtil.createTempDir ("defdb", true); // destruction on exit!!
-         log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
-
-         defDB = defDB + "/defaultDB.db";
-         sqlUtil.setGlobalDefaultDB (defDB);
-
-         // safe delete if exists etc
-         uniFileUtil.deleteTmpFileOnExit (new java.io.File (defDB));
-
-         // (old) AS FILE (ok for sqlite)
-         //
-         // defDB = fileUtil.createTemporal ("lsx", ".db");
-         // log.dbg (2, "createDefaultTempDBName", "create defaultDB " + defDB);
-         // sqlUtil.setGlobalDefaultDB (defDB);
-      }
-
-      return defDB;
+      return sqlUtil.getGlobalDefaultDB ();
    }
 
    public synchronized String createTempFile (String extension)

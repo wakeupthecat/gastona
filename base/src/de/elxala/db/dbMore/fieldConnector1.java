@@ -267,7 +267,8 @@ public class fieldConnector1
 
          String [] currConnArray = (new String(addBase + deepColumn)).split (" "); // e.g. "persona pare name"
          int shiftConn = 0;
-         while (currConnArray.length-shiftConn > 0 && currConnArray[1+shiftConn].length() == 0) shiftConn ++; // skip empty connections
+         while ((1+shiftConn) < currConnArray.length && currConnArray[1+shiftConn].length() == 0)
+            shiftConn ++; // skip empty connections
 
          if (log.isDebugging (4))
             log.dbg (4, "resolveConnections", "new deep column [" + addBase + deepColumn + "] alias [" + columnAlias + "] groupOp [" + groupFunc + "] groupHaving [" + groupHaving + "]");

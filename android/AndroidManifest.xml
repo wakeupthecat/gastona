@@ -1,22 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.gastona"
-      android:versionCode="12"
-      android:versionName="ERipley 1.2 decouple">
+      android:versionCode="14"
+      android:versionName="ERipley 1.4 permisoless">
+
+    
+<!--
+   NOTE ABOUT :  Google's User Data policy regarding Personal and Sensitive Information.
+   
+   The APP gastona wants following permissions (now disabled until a solution is found)
+   just to make user scripts capable of related features through the command INTENT.
+   So, maybe user script will use any of these services BUT IN ANY CASE THE APP GASTONA ITSELF
+   IS OBTAINING OR TREATING ANY PERSONAL DATA FROM THE USER AT ALL.
+   
+   According to this NO Privacy Policy of Gastona is needed in my opinion but to prevent any
+   conflict THESE PERMISSIONS ARE DISABLED UNTIL FIND A SOLUTION TO THE ISSUE.
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
     <uses-permission android:name="android.permission.CONTROL_LOCATION_UPDATES" />
-    <!-- uses-permission android:name="android.permission.SET_WALLPAPER" / -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />  
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- <uses-permission android:name="android.permission.SEND_SMS" />  PARA QUE? -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <!-- uses-sdk android:minSdkVersion="1" /-->
 

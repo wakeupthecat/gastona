@@ -132,7 +132,7 @@ public class tableAccessPathFiles extends tableAccessBase
 
       fileMultiFilter filtrum = new fileMultiFilter ();
 
-      boolean recursive = "1".equals (cmdData.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1"));
+      boolean recursive = -1 != "1yYSs".indexOf (cmdData.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1").substring(0,1));
       String [] extList = cmdData.takeOptionParameters(new String [] { "EXTENSIONS", "EXT" });
 
       // get extensions and other filters

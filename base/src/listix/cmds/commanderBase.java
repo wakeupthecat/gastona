@@ -54,6 +54,8 @@ public class commanderBase
    {
       if (mapCommands != null) return;
 
+      //(o) DOC/listix/commands commands for both PC and android
+      
       // this has to be done only once!
       //
       mapCommands = new TreeMap ();

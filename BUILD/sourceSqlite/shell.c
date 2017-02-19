@@ -2514,7 +2514,7 @@ static void samefilecontent (
       }
       if (1 != fread(zFileBuff, fileBuffSize, 1, fileIn))
       {
-         fprintf(stderr,"Error: samefilecontent cannot read %d bytes at offset %d from file \"%s\"\n", fileBuffSize, fileOffset, zFileName);
+         fprintf(stderr,"Error: samefilecontent cannot read %ld bytes at offset %ld from file \"%s\"\n", fileBuffSize, fileOffset, zFileName);
          rcSame = 0;
          break; // error            
       }         
