@@ -55,7 +55,22 @@ public class micoHttpServer extends Thread
 
    public static int monoInstanceCounter = 0;
    public static final int DEFAULT_DEBUG_LEVEL = 5;
+
+   // not static! this number is different for each instance
    public int monoInstanceNr = 0;
+
+   // About socket timeout when uploading a file:
+   //    It is needed if the client is a slow computer or the connection is poor.
+   //    A test in a slow computer (my mother's PC) shown a big maximum of 27 seconds between socket reads!
+   //    this computer succeded the upload of a 45 MB file with the given timeout of 40 seconds.
+   public static final int DEFAULT_SOCKET_TIMEOUT_WHEN_UPLOADING = 40000;
+   public static final int DEFAULT_MAXSIZE_BYTES_UPLOADING = 10*1024*1024; // 10MB
+   public int uploadSocketTimeout = DEFAULT_SOCKET_TIMEOUT_WHEN_UPLOADING;
+
+   //(o) TODO: implement uploadMaximumSizeBytes
+   //          the result if succeed or not has to be stored in some variable,
+   //          for example _fileUploaded = "0", _fileUploadReason = "oK|maxSize|socketTO|socketErr"
+   public int uploadMaximumSizeBytes = DEFAULT_MAXSIZE_BYTES_UPLOADING;
 
    protected boolean killable = false;
 
@@ -82,6 +97,7 @@ public class micoHttpServer extends Thread
    protected List responseHeaders = null;
 
 
+   protected String uploadFilesSubDir = "filesUpload";
    protected String fileServerString = null;
    protected String theOnlyLivingBoyInNY = null;
    // for now variables related with verbose are static (function static used by other classes!)
@@ -229,7 +245,7 @@ public class micoHttpServer extends Thread
             verboseFile.writeLine (System.currentTimeMillis () + ": " + msg);
             verboseFile.fclose ();
          }
-         else System.out.println ("micoHttp: " + msg);
+         else System.out.println ("micoHttp: " + System.currentTimeMillis () + ": " + msg);
       }
       log.dbg (level, msg);
    }
@@ -420,6 +436,8 @@ public class micoHttpServer extends Thread
    {
       if (millisToClose == -1) return;
 
+      // if a timer is running then stop it and make a new one
+      //
       if (closeTimer != null) closeTimer.cancel();
       TimerTask tasca = new TimerTask ()
       {
@@ -475,18 +493,27 @@ public class micoHttpServer extends Thread
             out (10, "accepted socket " + client.isConnected () + " / " + client.isInputShutdown () + " / " + client.isOutputShutdown () );
             if (theOnlyLivingBoyInNY != null)
             {
+               // MONO CLIENT requests
                if (theOnlyLivingBoyInNY.length () == 0)
                {
+                  // very first request => get IP of MONO CLIENT and process the request
                   theOnlyLivingBoyInNY = getCurrentClietnIP ();
                   out (2, "theOnlyLBINY [" + theOnlyLivingBoyInNY + "]");
                }
-               else if (!theOnlyLivingBoyInNY.equals (getCurrentClietnIP ()))
+               else if (theOnlyLivingBoyInNY.equals (getCurrentClietnIP ()))
                {
+                  // request from the "only client" ... process the request
+               }
+               else
+               {
+                  // not very first request and not the "only client" so
+                  // send reject response and not process the request further
                   out (2, "theOnlyLBINY [" + theOnlyLivingBoyInNY + "]");
                   out (2, "currentIP    [" + getCurrentClietnIP () + "]");
                   httpResponseData respa = new httpResponseData (outputStream, PAGE_MONOCLIENT, null, null);
                   respa.send ();
                   try { client.close (); } catch (Exception e) {};
+                  currentClient = null;
                   continue;
                }
             }
@@ -494,7 +521,7 @@ public class micoHttpServer extends Thread
             out (2, "request accepted from " + getCurrentClietnIP ());
 
             httpStreamReader reqReader = new httpStreamReader (inputStream);
-            reke.processRequest (reqReader, getResposeStrID ());
+            reke.processRequest (reqReader, getResposeStrID (), client, uploadSocketTimeout);
             reke.dump ("on request");
 
             // detect kill
@@ -504,6 +531,7 @@ public class micoHttpServer extends Thread
                httpResponseData respa = new httpResponseData (outputStream, PAGE_ACABADO, null, null);
                respa.send ();
                client.close ();
+               currentClient = null;
                reke.dump ("on finish");
                break;
             }
@@ -595,9 +623,10 @@ public class micoHttpServer extends Thread
             respa.send ();
             out ("response sent");
             client.close ();
+            currentClient = null;
             out ("client closed");
 
-            scheduleEnd ();
+            scheduleEnd (); // refresh server timeout if any (syntax ONE GET)
          }
          catch (java.net.SocketException se)
          {

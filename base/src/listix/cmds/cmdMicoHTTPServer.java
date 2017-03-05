@@ -123,6 +123,11 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          1   ,    3      , //Start a mico http server
          2   ,    3      , //Close a mico http server
          3   ,    3      , //Get the port number the server is listening to
+         4   ,    3      , //Set a header for the current response of the given server
+         5   ,    3      , //Set response parameters for the given server
+         6   ,    3      , //Start a mico http server and close it after a timeout with no request (default 6 s)
+         7   ,    3      , //Set the maximum size for a file to be uploaded
+         8   ,    3      , //Set the maximum timeout when uploading
 
    <syntaxParams>
       synIndx, name         , defVal    , desc
@@ -150,6 +155,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          6   , millisec     , 0         , //Millisecond to wait atfer having served the first request and before closing the server
          6   , serverName   ,           , //Optional name of the server
          6   , Port         , 0         , //Port number to serve, 0 for having it automatically assigned and -1 (default) for mono-client and launch-browse mode
+
+         7   , SET UPLOAD MAX SIZE,          ,
+         7   , serverName         ,          , //Server name
+         7   , maxSizeInBytes     , 10000000 , //Max size in bytes for a file to upload (default less that 10 MB)
+
+         8   , SET UPLOAD SOCKET TIMEOUT,    ,
+         8   , serverName         ,          , //Server name
+         8   , maxSizeInBytes     , 40000    , //Max socket timeout in milliseconds, time between partial reads, default is 40 s
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -575,6 +588,8 @@ public class cmdMicoHTTPServer implements commandable
 {
    protected static Map micoServers = new TreeMap ();
 
+   private final int DEFAULT_MS_ONEUSE = 6000;
+
    /**
       get all the different names that the command can have
    */
@@ -608,21 +623,25 @@ public class cmdMicoHTTPServer implements commandable
       String oper = cmd.getArg(0);
 
       boolean optStart      = cmd.meantConstantString (oper, new String [] { "START", "OPEN", "BEGIN" });
-      boolean optOneGet     = cmd.meantConstantString (oper, new String [] { "ONEGET", "ONCE", "BYE" });
+      boolean optOneGet     = cmd.meantConstantString (oper, new String [] { "ONEGET", "ONEUSE", "ONCE", "BYE" });
       boolean optGetPort    = cmd.meantConstantString (oper, new String [] { "GETPORT", "PORT" });
       boolean optGetReqIP   = cmd.meantConstantString (oper, new String [] { "CURRENT_REQUEST_IP", "REQUEST_IP", "REQIP" });
       boolean optClose      = cmd.meantConstantString (oper, new String [] { "CLOSE", "FIN", "BASTA", "STOP", "END" });
       boolean optSetRespHead  = cmd.meantConstantString (oper, new String [] { "SETRESPONSEHEADER", "SETHEADER" });
       boolean optSetRespParam = cmd.meantConstantString (oper, new String [] { "SETRESPONSEPARAMETERS", "SETRESPONSEPARAMS", "SETPARAMETERS", "SETPARAMS" });
 
+      boolean optSetUploadMaxSize   = cmd.meantConstantString (oper, new String [] { "SETUPLOADMAXSIZE", "UPLOADMAXSIZE", "SETUPLOADSIZE", "UPLOADSIZE" });
+      boolean optSetUploadMaxSockTO = cmd.meantConstantString (oper, new String [] { "SETUPLOADSOCKETTIMEOUT", "UPLOADSOCKETTIMEOUT", "UPLOADTIMEOUT" });
+
       if (optStart || optOneGet)
       {
          // MICOHTTP, START, Mico1, Port
+         // MICOHTTP, ONE GET, 1000, Mico1, Port
          //
          String serverName = cmd.getArg (optOneGet ? 2: 1);
          int argport = (optOneGet ? 3: 2);
          int portNr = cmd.getArgSize() > argport ? stdlib.atoi (cmd.getArg (argport)): -1; // -1 (default) for mono-client launch-browser mode
-         int surviveMs = (optOneGet ? stdlib.atoi (cmd.getArg (1)): -1);
+         int surviveMs = optOneGet ? (cmd.getArg (1).length () > 0 ? stdlib.atoi (cmd.getArg (1)): DEFAULT_MS_ONEUSE): -1;
 
          // OPTIONS
          // FILE SERVER STR, string, ":SF:/" , //Tells micoHttp to serve any file of the file system when request a "GET /FSStr/fullPath" where FSStr is the string given in the option as parameter, otherwise micoHttp only serve files from subdirs js, html, img and files
@@ -650,16 +669,32 @@ public class cmdMicoHTTPServer implements commandable
          mose.setVerboseFile (sVerboseFile);
          mose.setVerboseLevel (iVerboseLevel);
          mose.setCloseAfterMs (surviveMs);
-         if (zipFilesOpt != null)
+         if (zipFilesOpt != null && zipFilesOpt.length > 0)
          {
-            if (zipFilesOpt.length < 0 || zipFilesOpt[0].length () == 0)
+            String jarFileName = zipFilesOpt[0];
+            String dirInJar    = zipFilesOpt.length > 1 ? zipFilesOpt[1]: "";
+            if (jarFileName.length () == 0 || jarFileName.equals("*") || jarFileName.equals("-"))
             {
-               cmd.getLog().err ("MicoHttpServer", "start " + serverName + " ZIP FILES option specify no zip or jar file.");
-            }
-            else
+               // get first jar in class path
+               // property java.class.path uses the same separator as path separator of the OS
+               //
+               String allPaths = System.getProperty ("java.class.path", "");
+               String [] cpaths = null;
+               try { cpaths = allPaths.split (System.getProperty ("path.separator", ";")); }
+               catch (Exception e) {}
+               
+               if (cpaths == null)
+                  cpaths = new String [] { allPaths };
+               
+               for (int cc = 0; cc < cpaths.length; cc++)
+                  if (cpaths[cc].length () > 4 && cpaths[cc].substring (cpaths[cc].length () - 4).equalsIgnoreCase (".jar"))
             {
-               mose.setZipFilesToServe (zipFilesOpt[0], zipFilesOpt.length > 1 ? zipFilesOpt[1]: "");
+                     jarFileName = cpaths[cc];
+                     break;
             }
+            }
+            mose.setZipFilesToServe (jarFileName, dirInJar);
+            cmd.getLog().dbg (2, "MicoHttpServer", "enable serving files from directory [" + dirInJar + "] in " + jarFileName);
          }
 
          mose.start ();
@@ -679,6 +714,7 @@ public class cmdMicoHTTPServer implements commandable
          // MICOHTTP, CLOSE, Mico1
          //
          closeReceiver (cmd, cmd.getArg (1));
+         cmd.getLog().dbg (4, "MicoHttpServer", "close " + cmd.getArg (1));
       }
       else if (optGetReqIP)
       {
@@ -704,6 +740,25 @@ public class cmdMicoHTTPServer implements commandable
          if (serv != null)
             for (int ii = 2; ii < cmd.getArgSize (); ii ++)
                serv.setResponseHeader ("ajaxRESP-parameter" + (ii-1), cmd.getArg (ii));
+      }
+      else if (optSetUploadMaxSize)
+      {
+         micoHttpServer serv = getServerByName (cmd, cmd.getArg (1));
+         if (serv != null)
+         {
+            serv.uploadMaximumSizeBytes = (cmd.getArg (2).length () > 0) ? stdlib.atoi (cmd.getArg (2)): micoHttpServer.DEFAULT_MAXSIZE_BYTES_UPLOADING;
+            cmd.getLog().dbg (4, "MicoHttpServer", "Server " + cmd.getArg (1) + ", maximum upload size for a file set to " + serv.uploadMaximumSizeBytes);
+         }
+         cmd.getLog().warn ("MicoHttpServer", "Setting maximum upload size for a file is NOT IMPLEMENTED!");
+      }
+      else if (optSetUploadMaxSockTO)
+      {
+         micoHttpServer serv = getServerByName (cmd, cmd.getArg (1));
+         if (serv != null)
+         {
+            serv.uploadSocketTimeout = (cmd.getArg (2).length () > 0) ? stdlib.atoi (cmd.getArg (2)): micoHttpServer.DEFAULT_SOCKET_TIMEOUT_WHEN_UPLOADING;
+            cmd.getLog().dbg (4, "MicoHttpServer", "Server " + cmd.getArg (1) + ", maximum upload socket timeout set to " + serv.uploadSocketTimeout);
+         }
       }
       else
       {

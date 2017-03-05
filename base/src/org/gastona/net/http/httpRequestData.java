@@ -63,7 +63,9 @@ public class httpRequestData
       return "";
    }
 
-   public void processRequest (httpStreamReader inStream, String responseStrId)
+   // NOTE: parameters "Socket sok, int socketTimeout" are to allow 
+   //       changing socket timeout when uploading a file (multipart content)
+   public void processRequest (httpStreamReader inStream, String responseStrId, Socket sok, int socketTimeout)
    {
       theResponseStr = responseStrId;
       theUploadedFiles = null;
@@ -92,8 +94,7 @@ public class httpRequestData
 
       if (isMultiPart)
       {
-         //out (0, "parseMultiPartBody has to be called!!!!!");
-         //parseOtherwiseBody (bodyLen, inStream);
+         try { sok.setSoTimeout(socketTimeout); } catch (Exception e) { };
          parseMultiPartBody (inStream);
       }
       else
@@ -147,6 +148,7 @@ public class httpRequestData
       int partNo = 0;
       int BONDLEN = 0;
       boolean endMultipart = false;
+      int paciMinus1 = 20;
 
       do
       {
@@ -235,6 +237,14 @@ public class httpRequestData
             int reaL = inStream.getArrayLength ();
             out (8, "read part bytes " + reaL + " consumed so far " + inStream.getConsumedBytes () + " more bytes pending " + inStream.areBytesToConsume ());
 
+            if (reaL == -1)
+            {
+               if (paciMinus1-- > 0) continue;
+               out (0, "too many failures reading input stream, still " + inStream.areBytesToConsume () + " bytes to cosume");
+               break;
+            }
+            else paciMinus1 = 20;
+
             int b1 = -1;
             int b2 = 0;
             do
@@ -261,13 +271,16 @@ public class httpRequestData
                    out (8, "pack back not consumed bytes .. " + (reaL-b1));
                inStream.pushBackBytesFrom (b1);
             }
-         } while (!boundaryFound);
+         } while (!boundaryFound && paciMinus1 > 0);
 
          if (fileBodyMPart != null)
          {
             fileBodyMPart.fclose ();
+            //Note: not needed to garbage collection, the problem with taking so long
+            //      after uploading a large file was probably due to the zConsole (text too big!)
+            //System.gc ();
          }
-      } while (!inStream.streamExhausted () && !endMultipart);
+      } while (!inStream.streamExhausted () && !endMultipart && paciMinus1 > 0);
    }
 
    public void parseOtherwiseBody (httpStreamReader inStream)
