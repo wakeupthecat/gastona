@@ -1,0 +1,121 @@
+   
+   Right now if a goRhino script has a syntax error the 
+   error message is not good enough to figure out what went wrong.
+   
+   The js script can be checked in a browser and then enter
+   the developer mode. Only if the script uses any of 
+   the goRhino specific functions like goFile, goSqlSelect and/or goSqlRunner 
+   then the browser will complain about it.
+   
+   In order to fix that this gast script provide these functions, emulate them
+   with dummy implementations.
+
+
+#javaj#
+
+   <frames> main, Javascript Executor, , 600
+
+   <layout of main>
+      EVA, 3, 3, 2, 2
+
+         , X
+         , lEnter your javascript code
+       X , layQuelle
+         , bEjecute
+         , lSalida
+       X , xBodyResponse
+      <! X , oSalar
+      
+   <layout of layQuelle>
+      TABBED
+      
+      Code area, xCodeArea
+      goRhino simu, xGoRhinoEmula
+
+   <sysDefaultFonts>
+      Consolas, 14, 0, TextArea.font
+
+#data#
+
+   <xCodeArea>
+      //
+      //var fix = new gFile ("myfile.txt", "rb");
+      //out ("End of file is " + fix.feof ());
+      //
+      //var sqlO = new gSqlSelect ("", "SELECT * FROM tablon");
+      //out ("First value is [" + sqlO.getValue (0, 0) + "]");
+      //
+      //var sqlR = new gSqlRunner ();
+      //sqlR.runSQL ("INSERT INTO tablon (19, 'esso');");
+      //out ("end of simu test");
+      //
+      
+   <xGoRhinoEmula>
+      // function goFile (file, mode)
+      // {
+      //    return {
+      //       getFileName   : function () { return ""; },
+      //       feof   : function () { return true; },
+      //       isMemoryFile           : function () { return false; },
+      //       isFromJarOrResources   : function () { return false; },
+      //       isStream               : function () { return false; },
+      //       fopen                  : function (name, mode) { return false; },
+      //       writeLine              : function (str) { },
+      //       writeString            : function (str) { },
+      //       fclose                 : function () { },
+      //       readLines              : function () { return []; },
+      //       readLine               : function (str) { return null; }
+      //    }
+      // }
+      // 
+      // function goSqlSelect (db, select)
+      // {
+      //    return {
+      //       getRecordCount: function () { return 0; },
+      //       getColumnCount: function () { return 0; },
+      //       getColumnIndex: function (str) { return -1; },
+      //       getColumnName: function (indx) { return ""; },
+      //       setSelectQuery: function (str1, str2, str3) { },
+      //       getValue: function (row, col) { return ""; },
+      //       escapeString: function (str) { return str; },
+      //       unEscapeString: function (str) { return str; }
+      //    }
+      // }
+      // 
+      // function goSqlRunner ()
+      // {
+      //    return {
+      //       openScript     : function () { },
+      //       openScriptNoTransaction: function () { },
+      //       closeScript    : function () { },
+      //       writeScript    : function (str) { },
+      //       closeAndRunScript : function (str) { },
+      //       runScript      : function (str) { },
+      //       runSQL         : function (str, str) { },
+      //       escapeString   : function (str) { return str; },
+      //       unEscapeString : function (str) { return str; }
+      //    }
+      // }
+      //
+
+   
+
+#listix#
+
+   <-- bEjecute>
+      VAR=, STARTSTAMP, @<:lsx CLOCK>
+      MSG, lSalida data!,, Opening browser ...
+      micohttp, start, Servako
+
+   <elapsed>
+      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
+
+   <GET />
+      VAR=, USER CODE, LSX, xGoRhinoEmula
+      VAR+, USER CODE, LSX, xCodeArea
+      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
+
+   <POST /JSresponse>
+      micohttp, stop, Servako
+      MSG, lSalida data!,, //done, it took @<elapsed> seconds
+      -->, xBodyResponse load, @<_bodyMemFileName>

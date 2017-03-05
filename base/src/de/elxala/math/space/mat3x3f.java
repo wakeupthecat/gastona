@@ -209,9 +209,9 @@ public class mat3x3f
    public static vect3f product (mat3x3f mat, vect3f vv)
    {
       return new vect3f (
-            mat.v1.prod_scalar (vv),
-            mat.v2.prod_scalar (vv),
-            mat.v3.prod_scalar (vv));
+            mat.v1.dotProduct (vv),
+            mat.v2.dotProduct (vv),
+            mat.v3.dotProduct (vv));
    }
 
    /**
@@ -233,9 +233,9 @@ public class mat3x3f
    static vect3f product (vect3f vv, mat3x3f mat)
    {
       return new vect3f (
-                  vv.prod_scalar (mat.i ()),
-                  vv.prod_scalar (mat.j ()),
-                  vv.prod_scalar (mat.k ()));
+                  vv.dotProduct (mat.i ()),
+                  vv.dotProduct (mat.j ()),
+                  vv.dotProduct (mat.k ()));
    }
 
    /**
@@ -251,15 +251,15 @@ public class mat3x3f
       mat3x3f mRes = new mat3x3f (mat2);
       mRes.transpose ();
 
-      mRes.set ( new vect3f (mat1.v1.prod_scalar (mRes.v1), 
-                             mat1.v1.prod_scalar (mRes.v2), 
-                             mat1.v1.prod_scalar (mRes.v3)),
-                 new vect3f (mat1.v2.prod_scalar (mRes.v1), 
-                             mat1.v2.prod_scalar (mRes.v2), 
-                             mat1.v2.prod_scalar (mRes.v3)),
-                 new vect3f (mat1.v3.prod_scalar (mRes.v1), 
-                             mat1.v3.prod_scalar (mRes.v2), 
-                             mat1.v3.prod_scalar (mRes.v3)) );
+      mRes.set ( new vect3f (mat1.v1.dotProduct (mRes.v1), 
+                             mat1.v1.dotProduct (mRes.v2), 
+                             mat1.v1.dotProduct (mRes.v3)),
+                 new vect3f (mat1.v2.dotProduct (mRes.v1), 
+                             mat1.v2.dotProduct (mRes.v2), 
+                             mat1.v2.dotProduct (mRes.v3)),
+                 new vect3f (mat1.v3.dotProduct (mRes.v1), 
+                             mat1.v3.dotProduct (mRes.v2), 
+                             mat1.v3.dotProduct (mRes.v3)) );
 
       return mRes;
    }
@@ -313,9 +313,9 @@ public class mat3x3f
    {
       vect3f xx = new vect3f(vo1);
       vect3f yy = new vect3f(vo2);
-      vect3f zz = vect3f.prod_vectorial (xx, yy);  // zz normal al plano xx yy
+      vect3f zz = vect3f.crossProduct (xx, yy);  // zz normal al plano xx yy
       
-      yy = vect3f.prod_vectorial (zz, xx);  // yy normal al plano xx zz
+      yy = vect3f.crossProduct (zz, xx);  // yy normal al plano xx zz
 
       xx.normalize ();
       yy.normalize ();

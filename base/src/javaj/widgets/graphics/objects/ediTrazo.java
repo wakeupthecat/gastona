@@ -257,7 +257,7 @@ public class ediTrazo
          vect3f orig = indx == 0 ? pto: new vect3f (getPointAbsX (indx-1), getPointAbsY (indx-1));
          vect3f dest = indx == 0 ? new vect3f (getPointAbsX (1), getPointAbsY (1)): pto;
 
-         delta1 = vect3f.prod_vectorial (vect3f.minus (dest, orig), vect3f.k);
+         delta1 = vect3f.crossProduct (vect3f.minus (dest, orig), vect3f.k);
          delta1.normalize ();
       }
       pointAndPin[0] = pto;

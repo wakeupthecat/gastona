@@ -1,6 +1,6 @@
 /*
 package de.elxala.math.space.curve;
-(c) Copyright 2013 Wakeupthecat UG, Alejandro Xalabarder Aulet
+(c) Copyright 2013 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -23,9 +23,11 @@ import java.util.*;
 import de.elxala.math.space.*;
 import de.elxala.math.*;
 import de.elxala.langutil.*;
+import de.elxala.zServices.logger;
 
 public class pointReduction
 {
+   private static logger log = new logger (null, "elxala.math.space.curve.pointReduction", null);
    private float tolerance2 = 10.f; // square of tolerance in order to be compared with a square distance
    private List arrPoints = new Vector (); // vector<vect3f>
 
@@ -52,6 +54,12 @@ public class pointReduction
       arrPoints = new Vector ();
    }
    
+   public void addPoints (float [] xyArr)
+   {
+      for (int ii = 0; ii+1 < xyArr.length; ii += 2)
+         addPoint (new vect3f(xyArr[ii], xyArr[ii+1]));
+   }
+
    public void addPoint (float x, float y)
    {
       addPoint (new vect3f(x, y));
@@ -95,7 +103,9 @@ public class pointReduction
          double Ex = 0.f;
          double Ex2 = 0.f;
 
-         //System.out.println ("findStraighgt " +  indxX0 + " <--> " + indxX1);
+         if (log.isDebugging (6))
+            log.dbg (6, "reducePoints", "findStraight " +  indxX0 + " <--> " + indxX1);
+         
          for (int nn = indxX0+1; nn < indxX1; nn ++)
          {
             vect3f evalp = vecAt (nn);
@@ -125,7 +135,10 @@ public class pointReduction
             //
             if (n > 0) // must!
             {
-               //de.elxala.langutil.uniUtil.printLater ("  discard in interval [" +  indxX0 + " - " + indxX1 + "] " + n + " values, distMean = " + utilMath.redondeof ((float) (Ex/n), 4) + " sigma " + utilMath.redondeof ((float) Math.sqrt(((Ex2)-(Ex*Ex/n))/n), 4));
+               if (log.isDebugging (6))
+                  log.dbg (6, "reducePoints", "discard in interval [" +  indxX0 + " - " + indxX1 + "] " + n + " values, distMean = " + 
+                               utilMath.round ((float) (Ex/n), 4) + 
+                               " sigma " + utilMath.round ((float) Math.sqrt(((Ex2)-(Ex*Ex/n))/n), 4));
                totalDiscEx += Ex;
                totalDiscEx2 += Ex2;
                totalDiscN += n;
@@ -147,7 +160,15 @@ public class pointReduction
 
       if (totalDiscN > 0)
       {
-         //de.elxala.langutil.uniUtil.printLater ("  discard TOTAL [0 - " + arrPoints.size() + "]: " + totalDiscN  + " values, distMean = " + utilMath.redondeof ((float) totalDiscEx/totalDiscN, 4) + ", sigma " + utilMath.redondeof ((float) Math.sqrt(((totalDiscEx2)-(totalDiscEx*totalDiscEx/totalDiscN))/totalDiscN), 4));
+         if (log.isDebugging (6))
+            log.dbg (6, "reducePoints", "discard TOTAL [0 - " + arrPoints.size() + "]: " + totalDiscN  + 
+                        " values, distMean = " + utilMath.round ((float) totalDiscEx/totalDiscN, 4) + 
+                        ", sigma " + utilMath.round ((float) Math.sqrt(((totalDiscEx2)-(totalDiscEx*totalDiscEx/totalDiscN))/totalDiscN), 4));
+      }
+      if (log.isDebugging (2))
+      {
+         int removed = sal.size () - arrPoints.size ();
+         log.dbg (2, "reducePoints", "tolerance2 = " + tolerance2 + " removed " + removed + " points from " + arrPoints.size () + "(" + ((int) (removed * 100.f / arrPoints.size ())) + " %)");
       }
 
 

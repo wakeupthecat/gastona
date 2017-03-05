@@ -142,9 +142,13 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 function trazos2D ()
 {
    var SVGNamespace = "http://www.w3.org/2000/svg";
+   var DEFAULT_GRAPH_DX = 300;
+   var DEFAULT_GRAPH_DY = 150;
 
    return {
-      renderAllGraffitis   : renderAllGraffitis,
+      renderCanvasGraffitis : renderCanvasGraffitis,
+      renderSvgGraffitis    : renderSvgGraffitis,
+      renderClassGraffiti   : renderClassGraffiti,
       drawGrafitti2canvas  : drawGrafitti2canvas,
       trazoShape2canvas    : trazoShape2canvas,
       drawGrafitti2svg     : drawGrafitti2svg,
@@ -465,8 +469,6 @@ function trazos2D ()
    {
       var c2d = canv.getContext('2d');
 
-      autoFit = autoFit !== false; // default is true
-
       // sample trazos:
       //
       //    "defstyle", "red", "sc:#AA1010"
@@ -584,17 +586,23 @@ function trazos2D ()
 
       var styles = {};
       
-      
       // ---------------------
       // add parent element "g" basically for auto-fit transformations
       //
       var gaga = document.createElementNS (SVGNamespace, "g");
-      if (autoFit !== false)
+      if (!!autoFit)
       {
          // example transform:
          //      <g transform="translate(1, 1) scale(2, 2)  rotate(45)"><path>...</path></g>
+         var wi = parseInt (svgElem.style.width || DEFAULT_GRAPH_DX);
+         var hi = parseInt (svgElem.style.height || DEFAULT_GRAPH_DY);
 
-         var auto = boundingBoxAndAutoScale (trazos, svgElem.width.baseVal.value, svgElem.height.baseVal.value);
+         // special SVG issue with SVGLength ... change it if you know something about this stupid thing
+         //
+         if (svgElem.width && svgElem.width.baseVal) wi = parseInt (svgElem.width.baseVal.value);
+         if (svgElem.height && svgElem.height.baseVal) hi = parseInt (svgElem.height.baseVal.value);
+
+         var auto = boundingBoxAndAutoScale (trazos, wi, hi);
          gaga.setAttribute ("stroke-width", "" + (1.0 / auto.scalex));
          gaga.setAttribute ("transform",
                             " scale     (" + auto.scalex + ", " + auto.scaley + ")" +
@@ -627,27 +635,73 @@ function trazos2D ()
       }
    }
 
+   // go through all elements (divs) of class "graffiti", gets its ids
+   // and if the data <"id" graffiti> is found then
+   // set an svg or a canvas if svg is not supported and draw the graffiti
+   //
+   function renderClassGraffiti (uData)
+   {
+      var supportSVG = !!window.SVGSVGElement;
+      // supportSVG = false;
 
-   function renderAllGraffitis (uData)
+      // render all canvas graffitis
+      //
+      //NOT! var arr = document.getElementsByClassName ("graffiti");
+      var arr = [].slice.call(document.getElementsByClassName('graffiti'), 0);
+      var gele;
+      var grafo = "";
+      for (var indx in arr) {
+         grafo = arr[indx].id + " graffiti";
+         if (!uData [grafo]) continue;
+
+         var styW = parseInt(arr[indx].style.width||DEFAULT_GRAPH_DX);
+         var styH = parseInt(arr[indx].style.height||DEFAULT_GRAPH_DY);
+
+         // create new html element svg or canvas
+         // NOTE!!! create svg with special NS method!!
+         //
+         gele = (supportSVG) ? document.createElementNS (SVGNamespace, "svg"):
+                               document.createElement ("canvas");
+
+         gele.setAttribute("width", styW +  "px");
+         gele.setAttribute("height", styH +  "px");
+
+         if (supportSVG)
+            drawGrafitti2svg (uData [grafo], gele, true);
+         else
+            drawGrafitti2canvas (uData [grafo], gele, true);
+
+         // remove previous if any and add the new one
+         while (arr[indx].hasChildNodes())
+            arr[indx].removeChild(arr[indx].firstChild);
+
+         arr[indx].appendChild (gele);
+      }
+   }
+
+   function renderCanvasGraffitis (uData)
    {
       // render all canvas graffitis
       //
-      var arr = document.getElementsByTagName ("canvas");
+      var arr = [].slice.call(document.getElementsByTagName('canvas'), 0);
       var grafo = "";
       for (var indx in arr) {
          grafo = arr[indx].id + " graffiti";
          if (uData [grafo])
-            drawGrafitti2canvas (uData [grafo], arr[indx]);
+            drawGrafitti2canvas (uData [grafo], arr[indx], true);
+      }
       }
 
+   function renderSvgGraffitis (uData)
+   {
       // render all svg graffitis
       //
-      var arr = document.getElementsByTagNameNS (SVGNamespace, "svg");
+      var arr = [].slice.call(document.getElementsByTagNameNS (SVGNamespace, "svg"));
       for (var indx in arr)
       {
          grafo = arr[indx].id + " graffiti";
          if (uData [grafo])
-            drawGrafitti2svg (uData [grafo], arr[indx]);
+            drawGrafitti2svg (uData [grafo], arr[indx], true);
       }
    }
 };

@@ -123,17 +123,22 @@ public class vect3
       return aux.norm ();
    }
 
-   public static double prod_scalar (vect3 v1, vect3 v2)
+   public static double dotProduct (vect3 v1, vect3 v2)
    {
       return v1.x * v2.x + v1.y * v2.y + v1.z * v1.z;
    }
 
-   public double prod_scalar (vect3 v1)
+   public double dotProduct (vect3 v1)
    {
       return v1.x * x + v1.y * y + v1.z * z;
    }
 
-   public static vect3 prod_vectorial (vect3 v1, vect3 v2)
+   public static double dot            (vect3 v1, vect3 v2)  { return dotProduct (v1, v2); }
+   public        double dot            (vect3 v1)            { return dotProduct (v1); }
+   public static double prod_scalar    (vect3 v1, vect3 v2)  { return dotProduct (v1, v2); }
+   public        double prod_scalar    (vect3 v1)            { return dotProduct (v1); }
+
+   public static vect3 crossProduct (vect3 v1, vect3 v2)
    {
       return new vect3
             (v1.y * v2.z - v1.z * v2.y,
@@ -141,12 +146,17 @@ public class vect3
              v1.x * v2.y - v1.y * v2.x);
    }
 
-   public void prod_vectorial (vect3 v1)
+   public void crossProduct (vect3 v1)
    {
       x = y * v1.z - z * v1.y;
       y = z * v1.x - x * v1.z;
       z = x * v1.y - y * v1.x;
    }
+
+   public static vect3 cross          (vect3 v1, vect3 v2) { return crossProduct (v1, v2); }
+   public        void  cross          (vect3 v1)           { crossProduct (v1); }
+   public static vect3 prod_vectorial (vect3 v1, vect3 v2) { return crossProduct (v1, v2); }
+   public        void  prod_vectorial (vect3 v1)           { crossProduct (v1); }
 
    public double angle (vect3 v2)
    {
@@ -157,7 +167,7 @@ public class vect3
             return (double) HALF_PI;
        else
             //return acos((x * v2.x + y * v2.y + z * v2.z) / (n1 * n2));
-            return (double) Math.acos(prod_scalar (v2) / (n1 * n2));
+            return (double) Math.acos(dotProduct (v2) / (n1 * n2));
    }
 
    public double phi ()

@@ -55,7 +55,7 @@
        -->, oCanso clear
        MICOHTTP, start, ciervo, @<PORTOS>
                , FILE SERVER STR, @<FS>
-<!               , VERBOSE LEVEL, 2
+               , VERBOSE LEVEL, 2
 
    <-- bDISCONNECT>
       IN CASE, @<bDISCONNECT>
@@ -64,8 +64,8 @@
            , CONNECT, LSX, START_CIERVO
            , CONNECT, -->, bDISCONNECT data!,, DISCONNECT
 
-   <ICO_CARP> //<svg width="40" height="40" id="folder"></svg>
-   <ICO_FILE> //<svg width="40" height="40" id="fulla"></svg>
+   <ICO_CARP> //<div style="width:70px; height:40px" class="graffiti" id="folder"></div>
+   <ICO_FILE> //<div style="width:70px; height:40px" class="graffiti" id="fulla"></div>
 
    <GET />
      //<html>
@@ -115,7 +115,7 @@
      //
      //     window.onload = function(e)
      //     {
-     //        trazos2D ().renderAllGraffitis (data);
+     //        trazos2D ().renderClassGraffiti (data);
      //     }
      //
      //

@@ -234,6 +234,7 @@ public class z2DCebolla extends uniSceneInMotionView
    public void flushTrazo (boolean printout)
    {
       Eva edata = helper.ebs ().getAttribute (helper.ebs ().DATA, true, "trazos");
+      edata.clear ();
       miCebolla.thePath.getEdiPaths ().dumpIntoEva  (edata);
       if (printout)
          System.out.println (edata);

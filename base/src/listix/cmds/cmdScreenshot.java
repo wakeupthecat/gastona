@@ -78,7 +78,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //    <main0>
       //       VAR=, tmppng, @<:lsx tmp png>
       //       SCREEN, @<tmppng>, png, %35, %35, %30, %30
-      //       -->, mPantalla data!, @<tmppng>
+      //       -->, mPantalla data!,, @<tmppng>
       //
       //
 

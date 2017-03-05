@@ -42,4 +42,4 @@ Specifically it has been tested with PostgreSQL (pgsql) and with a mix of sqlite
    The application-level behavior of the two products is identical, but the advanced features of Berkeley 
    DB provide SQLite applications improved performance, concurrency, scalability, and reliability.
 
-Looking forward to do something simlar with sqlite + Kyoto Cabinet!
+Looking forward to study if something simlar is possible with sqlite and Kyoto Cabinet!

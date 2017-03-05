@@ -205,17 +205,22 @@ public class vect3f
       return inRadius (this, ve, radius);
    }
 
-   public static float prod_scalar (vect3f v1, vect3f v2)
+   public static float dotProduct (vect3f v1, vect3f v2)
    {
       return v1.x * v2.x + v1.y * v2.y + v1.z * v1.z;
    }
 
-   public float prod_scalar (vect3f v1)
+   public float dotProduct (vect3f v1)
    {
       return v1.x * x + v1.y * y + v1.z * z;
    }
 
-   public static vect3f prod_vectorial (vect3f v1, vect3f v2)
+   public static float dot            (vect3f v1, vect3f v2) { return dotProduct (v1, v2); }
+   public        float dot            (vect3f v1)            { return dotProduct (v1); }
+   public static float prod_scalar    (vect3f v1, vect3f v2) { return dotProduct (v1, v2); }
+   public        float prod_scalar    (vect3f v1)            { return dotProduct (v1); }
+   
+   public static vect3f crossProduct (vect3f v1, vect3f v2)
    {
       return new vect3f
             (v1.y * v2.z - v1.z * v2.y,
@@ -223,13 +228,18 @@ public class vect3f
              v1.x * v2.y - v1.y * v2.x);
    }
 
-   public void prod_vectorial (vect3f v1)
+   public void crossProduct (vect3f v1)
    {
       x = y * v1.z - z * v1.y;
       y = z * v1.x - x * v1.z;
       z = x * v1.y - y * v1.x;
    }
 
+   public static vect3f cross          (vect3f v1, vect3f v2) { return crossProduct (v1, v2); }
+   public        void   cross          (vect3f v1)            { crossProduct (v1); }
+   public static vect3f prod_vectorial (vect3f v1, vect3f v2) { return crossProduct (v1, v2); }
+   public        void   prod_vectorial (vect3f v1)            { crossProduct (v1); }
+   
    public float angleDegrees (vect3f v2)
    {
       return angle (v2) * 180.f / (float) Math.PI;
@@ -244,7 +254,7 @@ public class vect3f
             return (float) Math.PI / 2.f;
        else
             //return acos((x * v2.x + y * v2.y + z * v2.z) / (n1 * n2));
-            return (float) Math.acos(prod_scalar (v2) / (n1 * n2));
+            return (float) Math.acos(dotProduct (v2) / (n1 * n2));
    }
 
    public float phi ()
