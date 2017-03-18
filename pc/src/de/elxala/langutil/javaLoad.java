@@ -117,22 +117,6 @@ public class javaLoad extends Component
 //      return cosa;
 //   }
 
-   //---
-   // do not instanciate them if not needed (does it worth ?)
-   //
-   static javaLoad       singleComponent = null ;
-   static URLClassLoader singleUrlLoader = null ;
-
-   private static void getSingleComponent ()
-   {
-      if (singleComponent == null)
-      {
-         singleComponent = new javaLoad ();
-   	   singleUrlLoader = (URLClassLoader) singleComponent.getClass().getClassLoader();
-      }
-   }
-   //---
-
    private static final Class[] param_addURL = new Class[] { URL.class };
 
    /*
@@ -141,8 +125,6 @@ public class javaLoad extends Component
    */
    public static boolean addClassPath (String onePathOrJar)
    {
-      getSingleComponent ();
-
       // --
       // convert path into file (e.g. d:/xala/devjava or ./allxala.jar ...)
       //
@@ -162,7 +144,7 @@ public class javaLoad extends Component
 
       // NOTE : is not possible the direct way ...
       //
-      // singleUrlLoader.addURL (aUrl);
+      // someURLLoaderClass.addURL (aUrl);
       // because of the Error compiling : addURL(java.net.URL) has protected access in java.net.URLClassLoader
       //
 
@@ -200,8 +182,6 @@ public class javaLoad extends Component
    */
    public static boolean callStaticMethodArgs (String className, String staticMethod, String [] args, Object [] refReturnObj)
    {
-      getSingleComponent ();
-
       boolean ok = true;
       Class ella = null;
       Object returnValue = null;
@@ -272,14 +252,15 @@ public class javaLoad extends Component
    */
    public static URL getResourceURL (String resourceName)
    {
-      getSingleComponent ();
+      ClassLoader clo = Thread.currentThread ().getContextClassLoader ();
 
-      // the resource has to be found with / instead of \ and also is case sensitive
-      //
+      if (clo == null)
+      {
+         return null;
+      }
+
       String resourceNorm = resourceName.replace('\\', '/');
-      URL theUrl = singleUrlLoader.findResource (resourceNorm);
-
-      return theUrl;
+      return clo.getResource (resourceNorm);
    }
 
    public static boolean existsResource (String resourceName)

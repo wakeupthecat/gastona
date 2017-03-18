@@ -1,6 +1,6 @@
 /*
 package de.elxala.math.space.curve;
-(c) Copyright 2006,2013 Alejandro Xalabarder Aulet
+(c) Copyright 2006,2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +58,7 @@ public class polyAutoCasteljauPPT extends polyAutoCasteljau
 
       float raso = 10.f;
       float fator = (n1 + n2) * (n1 + n2);
+      if (fator != 0.f)
       dir.mult (1f / fator);
 
       // faco1 makes the curve very curly in edges
@@ -67,7 +68,7 @@ public class polyAutoCasteljauPPT extends polyAutoCasteljau
       float faco2 = n1 * n2;
 
       // atomatic arreglo : the more difference in distance the more faco2, if not more faco1
-      float prop = n1 / n2;
+      float prop = n2 > 0 ? n1 / n2: 1.f;
       if (arreglo < 0.f) arreglo = (prop > 1.f ? 1.f/prop: prop);
 
       float faco = arreglo * faco1 + (1 - arreglo) * faco2;

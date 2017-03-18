@@ -319,6 +319,7 @@ function trazos2D ()
          var fator = (n1 + n2) * (n1 + n2);
 
          var dir = vec3FromTo (v2, v1);
+         if (fator > 0)
          dir.div (fator);
 
          // faco1 makes the curve very curly in edges
@@ -328,7 +329,7 @@ function trazos2D ()
          var faco2 = n1 * n2;
 
          // atomatic arreglo : the more difference in distance the more faco2, if not more faco1
-         var prop = n1 / n2;
+         var prop = n2 > 0 ? n1 / n2: 1;
          if (arreglo < 0.) arreglo = (prop > 1. ? 1./prop: prop);
 
          dir.mult (MISTAD * (arreglo * faco1 + (1 - arreglo) * faco2));
@@ -426,6 +427,9 @@ function trazos2D ()
       c2d.beginPath();
       c2d.moveTo(px, py);
 
+      var relative = true;
+      var xx=px, yy= py;
+
       if (form === "jau") {
          var curv = autoCasteljau (px, py, closep, arrp);
          curv.computePoints ();
@@ -435,19 +439,28 @@ function trazos2D ()
             c2d.bezierCurveTo (cc[ii], cc[ii+1], cc[ii+2], cc[ii+3], cc[ii+4], cc[ii+5]);
       }
       else {
-         for (var ii = 0; ii < arrp.length; /**/)
+         for (var ii = 0; ii < arrp.length; ii += 2)
          {
+            var plusx = relative?xx:0;
+            var plusy = relative?yy:0;
+            
             if (form === "pol") {
-               c2d.lineTo (arrp[ii], arrp[ii+1]);
-               ii += 2;
+               xx = arrp[ii+0] + plusx;
+               yy = arrp[ii+1] + plusy;
+               
+               c2d.lineTo (xx, yy);
             }
             else if (form == "qua") {
-               c2d.quadraticCurveTo (arrp[ii], arrp[ii+1], arrp[ii+2], arrp[ii+3]);
-               ii += 4;
+               xx = arrp[ii+2] + plusx;
+               yy = arrp[ii+3] + plusy;
+               c2d.quadraticCurveTo (arrp[ii] + plusx, arrp[ii+1] + plusy, xx, yy);
+               ii += 2;
             }
             else if (form == "cub" || form == "bez") {
-               c2d.bezierCurveTo (arrp[ii], arrp[ii+1], arrp[ii+2], arrp[ii+3], arrp[ii+4], arrp[ii+5]);
-               ii += 6;
+               xx = arrp[ii+4] + plusx;
+               yy = arrp[ii+5] + plusy;
+               c2d.bezierCurveTo (arrp[ii] + plusx, arrp[ii+1] + plusy, arrp[ii+2] + plusx, arrp[ii+3] + plusy, xx, yy);
+               ii += 4;
             }
             else
             {
@@ -458,10 +471,11 @@ function trazos2D ()
          if (closep)
             c2d.closePath();
       }
+      var dofill = fillSty && fillSty.length > 0;
 
-      if (fillSty) c2d.fillStyle = fillSty;
+      if (dofill) c2d.fillStyle = fillSty;
       if (strkSty) c2d.strokeStyle = strkSty;
-      if (fillSty) c2d.fill ();
+      if (dofill) c2d.fill ();
       if (strkSty) c2d.stroke ();
    }
 
@@ -546,11 +560,11 @@ function trazos2D ()
       }
       else {
          if (form === "pol")
-            dstr.push (" L ");
+            dstr.push (" l ");
          else if (form == "qua")
-            dstr.push (" Q ");
+            dstr.push (" q ");
          else if (form == "cub" || form == "bez")
-            dstr.push (" C ");
+            dstr.push (" c ");
 
          for (var ii = 0; ii < arrp.length; /**/)
          {

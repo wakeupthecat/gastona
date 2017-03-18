@@ -219,17 +219,13 @@ import de.elxala.zServices.*;
       //#listix#
       //
       //   <main>
-      //      VAR=, fi, @<:lsx tmp html>
-      //      GEN, @<fi>, caballos
-      //      BROWSER, @<fi>
-      //      <! Note: on exit the temporary html will be deleted!
-      //      SLEEP, 1000
+      //      MICO, ONCE
       //
-      //   <caballos>
+      //   <GET />
       //      //<html>
       //      //<body>
       //      //      <canvas width="400" height="400" id="Caballo"></canvas>
-      //      //      <svg width="400" height="400" id="Caballo" shape-rendering="geometricPrecision"></svg>
+      //      //      <svg width="400" height="400" id="Caballo"></svg>
       //      //<script>
       //      //
       //      //@<:infile META-GASTONA/js/trazos2D-min.js>
@@ -238,7 +234,8 @@ import de.elxala.zServices.*;
       //      //
       //      //   window.onload = function(e)
       //      //   {
-      //      //      trazos2D ().renderAllGraffitis (vdata);
+      //      //      trazos2D ().renderSvgGraffitis (vdata);
+      //      //      trazos2D ().renderCanvasGraffitis (vdata);
       //      //   };
       //      //
       //      //</script>

@@ -6,13 +6,10 @@
 function conSecuencioPlain (diagData)
 {
    var arr = diagData["sequenceTable"];
-   var dia = diagData["distanceAgents"];
-   var dit = diagData["distanceTimeUnit"];
-   var maxGapTime = diagData["maxGapTime"];
+   var dia = parseInt (diagData["distanceAgents"]);
+   var dit = parseInt (diagData["distanceTimeUnit"]);
+   var maxGapTime = parseInt (diagData["maxGapTime"]);
    var autoElapsed = diagData["autoElapsed"] !== false; // to not interpret undefined as false!
-   if (typeof dia === "string") dia = parseInt (dia);
-   if (typeof dit === "string") dit = parseInt (dit);
-   if (typeof maxGapTime === "string") maxGapTime = parseInt (maxGapTime);
 
    // expected schema of sequenceTable (columns):  time, source, target, message
    //
