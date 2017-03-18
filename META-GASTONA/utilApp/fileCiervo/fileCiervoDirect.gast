@@ -13,8 +13,8 @@
                , FILE SERVER STR, @<FS>
                , VERBOSE LEVEL, 2
 
-   <ICO_CARP> //<svg width="40" height="40" id="folder"></svg>
-   <ICO_FILE> //<svg width="40" height="40" id="fulla"></svg>
+   <ICO_CARP> //<div style="width:70px; height:40px" class="graffiti" id="folder"></div>
+   <ICO_FILE> //<div style="width:70px; height:40px" class="graffiti" id="fulla"></div>
 
    <GET />
      //<html>
@@ -51,16 +51,20 @@
      // </table>
      //
      //   <br><br><a href="/thisIsTheEndMyFriend"> FINISH FILE SERVER </a><br>
+     LSX, HTML_uploadStuff
      //
      //  <script>
+     //
+     LSX, JS_uploadStuff
      //
      //@<:infile META-GASTONA/js/trazos2D-min.js>
      //@<graffiti data>
      //
      //     window.onload = function(e)
      //     {
-     //        trazos2D ().renderAllGraffitis (data);
-     //     };
+     //        trazos2D ().renderClassGraffiti (data);
+     //     }
+     //
      //
      //</script>
      //
@@ -74,6 +78,11 @@
    <GET /parent>
      VAR=, eCurrentDir, @<prevDir>
      LSX, GET /
+
+   <POST /uploadFile>
+     CHECK, VAR, _uploadedFile0, nok
+     CHECK, FILE, @<_uploadedFile0>, nok
+     ok
 
    <GET /thisIsTheEndMyFriend>
       MICOHTTP, STOP, ciervo
@@ -94,6 +103,36 @@
       //} 
       //
       //bytes2Str (@<size>);
+
+   <HTML_uploadStuff>
+      //   <br><br><input id="upInput" type="file"></input>
+      //   <br><br><button id="upButton" onclick="uploadIt ()" >Upload choosen file</button>
+
+   <JS_uploadStuff>
+     //@<:infile META-GASTONA/js/jGastona.js>
+     //
+     //     var luix = jGastona (); // for using AJAXUploadFile
+     //
+     //     function setUploadingFeedback (isUploading)
+     //     {
+     //        var boton = document.getElementById ("upButton");
+     //        boton.disabled = isUploading;
+     //        boton.innerHTML = isUploading ? "... uploading ...": "Upload choosen file";
+     //     }
+     //
+     //     function uploadIt ()
+     //     {
+     //        var fileEle = document.getElementById ("upInput").files[0]; // we only upload 1 file!
+     //        var upBtn = document.getElementById ("upButton");
+     //
+     //        if (! fileEle || fileEle === "") {
+     //            alert ("Please first choose a file!");
+     //            return;
+     //        }
+     //        setUploadingFeedback (true);
+     //        luix.AJAXUploadFile ("upInput", "uploadFile", null, function (bodyTxt) { setUploadingFeedback (false); } );
+     //    }
+
 
    <graffiti data>
       //

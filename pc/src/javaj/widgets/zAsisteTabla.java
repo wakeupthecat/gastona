@@ -155,16 +155,8 @@ import javaj.widgets.table.util.*;
       //
       //#listix#
       //
-      //   <main0>
-      //      @<copy gastona doc db>
-      //      @<update asiste>
-      //
-      //   <copy gastona doc db>
-      //      VAR=, tmp, @<:lsx tmp>
-      //      RESUTIL, COPY, META-GASTONA/WelcomeGastona/genDB/gastonaDoc.db, @<tmp>
-      //
-      //   <update asiste>
-      //      VAR=, sAsiste dbName, @<tmp>
+      //   <main>
+      //      DB,, EXECUTE, @<:infile META-GASTONA/WelcomeGastona/gastonaDocScript.sql>
       //      -->, sAsiste data!, sqlSelect, //SELECT name, desc FROM tGastItemDoc
 
    <assist sample gastonaDoc plus export>
@@ -186,18 +178,10 @@ import javaj.widgets.table.util.*;
       //
       //#listix#
       //
-      //   <main0>
-      //      @<copy gastona doc db>
-      //      @<update asiste>
-      //
-      //   <copy gastona doc db>
-      //      VAR=, tmp, @<:lsx tmp>
-      //      RESUTIL, COPY, META-GASTONA/WelcomeGastona/genDB/gastonaDoc.db, @<tmp>
-      //
-      //   <update asiste>
-      //      VAR=, sAsiste dbName, @<tmp>
+      //   <main>
+      //      DB,, EXECUTE, @<:infile META-GASTONA/WelcomeGastona/gastonaDocScript.sql>
       //      -->, sAsiste data!, sqlSelect, //SELECT name, desc FROM tGastItemDoc
-      //      LISTIX, ExportBasic set (gridName dbName), sAsiste, @<tmp>
+      //      LISTIX, ExportBasic set (gridName dbName), sAsiste, ""
       //
 
 

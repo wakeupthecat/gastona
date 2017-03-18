@@ -90,16 +90,15 @@
    <bigScript>
       LSX, sql gastonaDocCreate
       //
-      //BEGIN;
       //
       LOOP, SQL,, //SELECT fullPath FROM scan_all;
+          , LINK, ""
           ,, @<extractDoc>
       //
-      //COMMIT;
       //
 
    <extractDoc>
-      CHECK, LOAD UNIT, @<fullPath>, gastonaDoc, ///* no #gastonaDoc# unit found in @<fullPath> */
+      CHECK, LOAD UNIT, @<fullPath>, gastonaDoc
       ///* START PROCESSING @<fullPath> */
       //
       GENERATE, +, generateSql for Doc
@@ -117,8 +116,7 @@
 
       <! for all gastona documentation
       //
-      //INSERT INTO tGastItemDoc VALUES ('@<name>', '@<docType>', '@<groupInfo>', '@<javaClass>', '@<importance>',
-      //                 '@<:encode desc>', '@<:encode help>');
+      //INSERT INTO tGastItemDoc VALUES ('@<name>', '@<docType>', '@<groupInfo>', '@<javaClass>', '@<importance>', '@<:encode desc>', '@<:encode help>');
       //
       LSX, insert examples
 

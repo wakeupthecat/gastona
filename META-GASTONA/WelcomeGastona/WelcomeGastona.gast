@@ -89,7 +89,6 @@
 
       <! Extract documentation db
       DB,, EXECUTE, @<:infile META-GASTONA/WelcomeGastona/gastonaDocScript.sql>
-        , TRANSACTION, 0
 
    <main>
       @<updateTree>

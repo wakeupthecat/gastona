@@ -143,9 +143,8 @@ import javaj.widgets.kits.dndFileTransHandler;
       //
       //#listix#
       //
-      //   <main0>
-      //      SET PROP, gastona.defaultDB, @<:lsx tmp>
-      //      RESUTIL, COPY, META-GASTONA/WelcomeGastona/genDB/gastonaDoc.db, @<:sys gastona.defaultDB>
+      //   <main>
+      //      DB,, EXECUTE, @<:infile META-GASTONA/WelcomeGastona/gastonaDocScript.sql>
       //      -->, iLista data!, sqlSelect, //SELECT name, desc FROM tGastItemDoc WHERE structType == 'listix_command' ORDER BY name
       //
       //   <-- iLista>
