@@ -1,20 +1,19 @@
-2015.12.20
+2017.03.18
 
    Notes for developing and building gastona.jar (gastona PC)
    ----------------------------------------------------------
 
-   Gatona has been compiled with java sdk j2sdk1.4.2_12 and in Windows platform
-   you can do it with upper versions but note that from 1.5 you will get
-   a lot of warnings.
+   Since the inclusion of Rhino (embedded Javascript language) gastona has to be compiled with
+   javac 1.5 or above.
 
    The main class to compile is gastona/gastona.java (found at pc/src/gastona)
    So just compiling this class will produce all needed classes to be compiled as well.
 
-   Nevertheless gastona.jar include some important binaries (sqlite) as well as a database
-   with all documentation and many other useful scripts and resources that has to be packed
-   together in the jar file.
+   Nevertheless it is not enough to pack all these classes in a file (e.g. gastona.jar)
+   A basic gastona.jar has to include also some important binaries (sqlite), own documentation 
+   and many other useful scripts and resources.
 
-   Currently gastona scripts are used to generate gastona.jar (gastona generates itself!).
+   Currently two gastona scripts are used to generate gastona.jar (gastona generates itself!).
 
    For that you will need a gastona.jar binary which can be found at sourceforge
 
@@ -71,9 +70,9 @@
    Different java compilers has to be used to generate jar (pc) or apk (android) products. Also
    these two platforms offer different libraries, specially for GUI development.
 
-   Nevertheless since both share the base language which is java, many classes can share the source
-   code as well. Sharing source code for both compilers is done by using the javac compiler option "sourcepath"
-   where two root paths are given, then if the compiler does not find the source to compile in the first path
+   However since both share the same base java language many classes are identical(*). Sharing source code 
+   for both compilers is done by using the javac compiler option "sourcepath" where two root paths are 
+   given, then if the compiler does not find the source to compile in the first path
    (the specific one, e.g. for pc) it takes it from the second one (common or base path).
 
       Source code for Gastona has following directory structure:
@@ -87,6 +86,13 @@
          for pc (gastona.jar)      : -sourcepath pc/src;base/src
          for android (gastona.apk) : -sourcepath android/src;base/src
 
+  (*) At some point the relation between the common classes and the system specific ones was
+
+            subdir     # java files    bytes
+            --------  -------------    ----------
+            base          502           5.678.320
+            pc            114             944.548
+            android        79             510.283
 
    Code documentation
    --------------------------------------------------
