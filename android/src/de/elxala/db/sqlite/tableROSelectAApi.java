@@ -49,6 +49,14 @@ public class tableROSelectAApi extends absTableWindowingEBS
 
    private sqlSolver myDB = new sqlSolver ();  // database client caller
 
+   public tableROSelectAApi ()
+   {
+      super (new baseEBS ("default_tableROSelect", null, null));
+      // data & control all in one
+      EvaUnit myDataAndCtrl = new EvaUnit ();
+      setNameDataAndControl (null, myDataAndCtrl, myDataAndCtrl);
+   }
+
    public tableROSelectAApi (baseEBS ebs)
    {
       super (ebs);
@@ -115,6 +123,13 @@ public class tableROSelectAApi extends absTableWindowingEBS
       return myDB.unEscapeString (str);
    }
 
+   public void setSelectQuery (String databaseFile, String sqlSelect, String extraFilter)
+   {
+      // first extraFilter !
+      setExtraFilter (extraFilter);
+      setSelectQuery (databaseFile, sqlSelect);
+   }
+   
    public void setSelectQuery (String databaseFile, String sqlSelect)
    {
       setSimpleAttribute(DATA, sATTR_DB_DATABASE_NAME, databaseFile);

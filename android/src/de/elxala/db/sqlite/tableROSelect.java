@@ -22,6 +22,11 @@ import de.elxala.Eva.abstractTable.*;
 
 public class tableROSelect extends tableROSelectAApi
 {
+   public tableROSelect ()
+   {
+      super ();
+   }
+
    public tableROSelect (baseEBS ebs)
    {
       super (ebs);

@@ -271,6 +271,11 @@ public class sqlSolverAApi
    {
    }
 
+   public void runScript (String database)
+   {
+      runSQL (database);
+   }
+
    private boolean sqLiteCall (String database, String strCall, boolean isSelect)
    {
       // write input script file
