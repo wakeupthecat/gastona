@@ -282,7 +282,7 @@ public class zList extends JList implements MensakaTarget
    {
       if (helper.ebsTable().hasAll ())
       {
-   		getSelectionModel ().clearSelection ();
+         getSelectionModel ().clearSelection ();
 
          setModel (new dummySwingListModel());
          setModel (helper.getSwingListModel ());

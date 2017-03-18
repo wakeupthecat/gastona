@@ -576,24 +576,24 @@ public class zTree extends JTree implements
          Eva ETableNodes = helper.ebsTree ().getSelectedNodes (true);
          ETableNodes.clear (); // clear previous selection
 
-   		// get the TreePath array with the nodes selected
-   		//
+         // get the TreePath array with the nodes selected
+         //
          widgetLogger.log().dbg (4, "zTree::valueChanged", "getSelectionPaths");
-   		TreePath [] pathos = getSelectionModel ().getSelectionPaths ();
-   		if (pathos == null)
-   		{
+         TreePath [] pathos = getSelectionModel ().getSelectionPaths ();
+         if (pathos == null)
+         {
             widgetLogger.log().dbg (4, "zTree::valueChanged", "no paths selected");
-   		   //return;
-   		}
-   		else
-   		{
+            //return;
+         }
+         else
+         {
             widgetLogger.log().dbg (4, "zTree::valueChanged", "selected = " + pathos.length + " paths");
-   		   for (int ii = 0; ii < pathos.length; ii++)
-   		      TreePath2EvaLin (ETableNodes, ii, pathos[ii]);
-      		for (int ii = 0; ii < pathos.length; ii++)
-      		{
+            for (int ii = 0; ii < pathos.length; ii++)
+               TreePath2EvaLin (ETableNodes, ii, pathos[ii]);
+            for (int ii = 0; ii < pathos.length; ii++)
+            {
                ESelectedMultiPath.addLine (new EvaLine(new String [] { TreePath2Path (pathos[ii], helper.ebsTree ().getSeparator ()) }));
-      		}
+            }
          }
       }
 
@@ -622,13 +622,13 @@ public class zTree extends JTree implements
          if (node == null)
          {
             widgetLogger.log().dbg (2, "zTree::valueChanged", "nothing selected");
-   		   ERapidNode.setValue ("", 0, 0);
+            ERapidNode.setValue ("", 0, 0);
             //Nothing is selected.
             //return;
          }
          else
          {
-   		   ERapidNode.setValue (node.fullPath(), 0, 0);
+            ERapidNode.setValue (node.fullPath(), 0, 0);
          }
 
          // check if it is leaf or directory
@@ -665,10 +665,10 @@ public class zTree extends JTree implements
    private void TreePath2EvaLin (Eva peva, int row, TreePath patho)
    {
       if (patho == null) return;
-	   for (int pp = 0; pp < patho.getPathCount (); pp ++)
-	   {
-	      peva.setValue (patho.getPath () [pp].toString (), row, pp);
-	   }
+      for (int pp = 0; pp < patho.getPathCount (); pp ++)
+      {
+         peva.setValue (patho.getPath () [pp].toString (), row, pp);
+      }
    }
 
    private String TreePath2Path (TreePath patho, String separator)
@@ -676,12 +676,12 @@ public class zTree extends JTree implements
       if (patho == null) return "";
       String spath = "";
 
-	   for (int pp = 1; pp < patho.getPathCount (); pp ++)
-	   {
-	      spath += patho.getPath () [pp].toString ();
-	      if (pp+1 < patho.getPathCount ())
-	         spath += separator;
-	   }
-	   return spath;
+      for (int pp = 1; pp < patho.getPathCount (); pp ++)
+      {
+         spath += patho.getPath () [pp].toString ();
+         if (pp+1 < patho.getPathCount ())
+            spath += separator;
+      }
+      return spath;
    }
 }

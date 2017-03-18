@@ -172,7 +172,7 @@ public class fabrikMenuBar
       if (evalay.cols (row)-2 == col)
       {
          // es un item final
-      	 String itemId = evalay.getValue (row, col+1);
+         String itemId = evalay.getValue (row, col+1);
          //System.out.println  ("item final name=" + name + " text=" + itemId);
          addItem (pana, evalay.getValue (row, col+1), name, preMsg);
          return row + 1;
@@ -205,16 +205,16 @@ public class fabrikMenuBar
       mi.setName (item);
 
       // on the fly listener ... (change with primitive menuItem or so)
-	   mi.addActionListener (new ActionListener ()
-	   {
-		   public void actionPerformed(ActionEvent e)
-		   {
-		      JMenuItem tio = (JMenuItem) e.getSource ();
-		      String jol = tio.getName ();
-			   // Mensaka.sendPacket (preMsg + " menu " + jol);
-			   Mensaka.sendPacket (preMsg + jol);
-		   }
-	   });
+      mi.addActionListener (new ActionListener ()
+      {
+         public void actionPerformed(ActionEvent e)
+         {
+            JMenuItem tio = (JMenuItem) e.getSource ();
+            String jol = tio.getName ();
+            // Mensaka.sendPacket (preMsg + " menu " + jol);
+            Mensaka.sendPacket (preMsg + jol);
+         }
+      });
 
       pana.add (mi);
    }

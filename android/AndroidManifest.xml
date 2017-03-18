@@ -15,7 +15,7 @@
    
    According to this NO Privacy Policy of Gastona is needed in my opinion but to prevent any
    conflict THESE PERMISSIONS ARE DISABLED UNTIL FIND A SOLUTION TO THE ISSUE.
-
+   
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />

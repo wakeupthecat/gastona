@@ -57,7 +57,7 @@ public class z2DMiRelos extends uniSceneInMotionView
    {
       super(co);
       assignNewScene (miRelos);
-	  init (name);
+      init (name);
       setName (name);
    }
 

@@ -107,11 +107,11 @@ import javaj.widgets.basics.*;
 
 public class xyPanel extends JPanel implements setParameters_able
 {
-	public xyPanel ()
-	{
-		super ();
-		setBorder(new EmptyBorder(2, 2, 2, 2));
-	}
+   public xyPanel ()
+   {
+      super ();
+      setBorder(new EmptyBorder(2, 2, 2, 2));
+   }
 
    public void setParameters (String [] params)
    {
@@ -125,10 +125,10 @@ public class xyPanel extends JPanel implements setParameters_able
          setBorder (BorderFactory.createTitledBorder (p2));
    }
 
-	public Component add (Component co)
-	{
-		Component ret = super.add (co);
+   public Component add (Component co)
+   {
+      Component ret = super.add (co);
 
-		return ret;
-	}
+      return ret;
+   }
 }

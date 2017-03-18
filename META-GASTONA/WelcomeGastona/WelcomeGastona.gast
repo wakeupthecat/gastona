@@ -258,15 +258,15 @@
       
 
    <-- iSamples>
-	   CHECK, VAR, iSamples selected.gastSample
+      CHECK, VAR, iSamples selected.gastSample
 
       -->, lSampleTitle data!,, //@<iSamples selected.gastSample> (@<iSamples selected.name>)
       GEN, :mem gastScript, sampleAsText
       MSG, xSample load
 
-	<sampleAsText>
-	   CHECK, VAR, iSamples selected.sampleBody
-	   STRCONV, STRE-TEXT, iSamples selected.sampleBody
+   <sampleAsText>
+      CHECK, VAR, iSamples selected.sampleBody
+      STRCONV, STRE-TEXT, iSamples selected.sampleBody
 
    <-- bRun Sample>
       MSG, xSample save

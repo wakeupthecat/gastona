@@ -250,25 +250,25 @@ public class strEncoder
 /*
 #listix#
 
-	<head_desc>
-		// <Extracts> #the# {schema} of & the data_base (only table & $ % ^structure) )
+   <head_desc>
+      // <Extracts> #the# {schema} of & the data_base (only table & $ % ^structure) )
 
 
-	<main>
-		STRCONV, ESCAPE, LATEX, @<head_desc>
+   <main>
+      STRCONV, ESCAPE, LATEX, @<head_desc>
 
 */
 
       //no encontrado para � � y �
       return encoderLATEX;
    }
-   
+
 
    public static StringBuffer xorEncrypt (StringBuffer message, String key)
    {
       return xorEncrypt (message, key, -1, -1, -1);
    }
-   
+
    public static StringBuffer xorEncrypt (StringBuffer message, String key, int off1, int mult, int off2)
    {
       // DO NOT CHANGE THESE VALUES OR OLD ENCRYPTED STUFF WILL BE LOST!!
@@ -284,5 +284,5 @@ public class strEncoder
       }
       return sal;
    }
-   
+
 }

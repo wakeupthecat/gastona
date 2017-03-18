@@ -117,7 +117,7 @@ function jGastona (evaConfig, existingPlaceId)
       if (lali && lali[0])
       {
          // note: lali[0] is the first row of the variable (the only one)
-      //
+         //
          var mindx = parseInt(lali[0][0]|"0");
          var mindy = parseInt(lali[0][1]|"0");
          var maxdx = parseInt(lali[0][2]|"0");

@@ -85,7 +85,7 @@ public class EvaLayout extends ViewGroup
 {
    public void detacha()
    {
-	   detachAllViewsFromParent();
+      detachAllViewsFromParent();
    }
     public EvaLayout(Context context)
     {
@@ -286,7 +286,7 @@ public class EvaLayout extends ViewGroup
          //super(width, height);
          super(WRAP_CONTENT, WRAP_CONTENT);
          //super(MATCH_PARENT, MATCH_PARENT); // solo se consigue (en 1280x800) que los botones no tengan label!?
-         
+
          name = "";
       }
 

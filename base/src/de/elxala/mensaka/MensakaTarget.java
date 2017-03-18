@@ -18,16 +18,16 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.mensaka;
 
-/**	======== de.elxala.langutil.MensakaPaket ==========================================
-	@author Alejandro Xalabarder 25.02.2003 16:39
+/**   ======== de.elxala.langutil.MensakaPaket ==========================================
+   @author Alejandro Xalabarder 25.02.2003 16:39
 
-	06.08.2004 21:57: nuevo package de.elxala.mensaka
+   06.08.2004 21:57: nuevo package de.elxala.mensaka
 */
 
 import de.elxala.Eva.*;
 
 public interface MensakaTarget
 {
-	public boolean takePacket (int mappedMsg, EvaUnit pk, String [] parameters);
-};
+   public boolean takePacket (int mappedMsg, EvaUnit pk, String [] parameters);
+}
 

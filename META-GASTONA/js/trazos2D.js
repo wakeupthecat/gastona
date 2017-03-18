@@ -149,11 +149,11 @@ function trazos2D ()
       renderCanvasGraffitis : renderCanvasGraffitis,
       renderSvgGraffitis    : renderSvgGraffitis,
       renderClassGraffiti   : renderClassGraffiti,
-      drawGrafitti2canvas  : drawGrafitti2canvas,
-      trazoShape2canvas    : trazoShape2canvas,
-      drawGrafitti2svg     : drawGrafitti2svg,
-      trazoShape2svg       : trazoShape2svg,
-      autoCasteljau        : autoCasteljau,
+      drawGrafitti2canvas   : drawGrafitti2canvas,
+      trazoShape2canvas     : trazoShape2canvas,
+      drawGrafitti2svg      : drawGrafitti2svg,
+      trazoShape2svg        : trazoShape2svg,
+      autoCasteljau         : autoCasteljau,
    };
 
    ////////////////////
@@ -320,7 +320,7 @@ function trazos2D ()
 
          var dir = vec3FromTo (v2, v1);
          if (fator > 0)
-         dir.div (fator);
+            dir.div (fator);
 
          // faco1 makes the curve very curly in edges
          var faco1 = n1 > n2 ? n1 * n1: n2 * n2;
@@ -426,7 +426,7 @@ function trazos2D ()
    {
       c2d.beginPath();
       c2d.moveTo(px, py);
-
+      
       var relative = true;
       var xx=px, yy= py;
 
@@ -599,7 +599,7 @@ function trazos2D ()
       function makestyle (a) { return a; }
 
       var styles = {};
-      
+
       // ---------------------
       // add parent element "g" basically for auto-fit transformations
       //
@@ -704,7 +704,7 @@ function trazos2D ()
          if (uData [grafo])
             drawGrafitti2canvas (uData [grafo], arr[indx], true);
       }
-      }
+   }
 
    function renderSvgGraffitis (uData)
    {

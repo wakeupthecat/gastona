@@ -34,7 +34,7 @@ public class pointReduction
    private static final float POINT_STATE_UNKNOWN = 0.f;
    private static final float POINT_STATE_SELECTED = 1.f;
    private static final float POINT_STATE_DISCARDED = 2.f;
-   
+
    public pointReduction ()
    {
    }
@@ -53,7 +53,7 @@ public class pointReduction
    {
       arrPoints = new Vector ();
    }
-   
+
    public void addPoints (float [] xyArr)
    {
       for (int ii = 0; ii+1 < xyArr.length; ii += 2)
@@ -71,7 +71,7 @@ public class pointReduction
       p.z = POINT_STATE_UNKNOWN;
       arrPoints.add (p);
    }
-   
+
    public int getSize ()
    {
       return arrPoints.size ();
@@ -85,11 +85,11 @@ public class pointReduction
    {
       List sal = new Vector ();
       if (arrPoints.size () == 0) return sal;
-
+      
       // select first and last
       vecAt (0).z = POINT_STATE_SELECTED;
       vecAt (arrPoints.size ()-1).z = POINT_STATE_SELECTED;
-      
+
       totalDiscEx = 0.f;
       totalDiscEx2 = 0.f;
 
@@ -109,7 +109,7 @@ public class pointReduction
          for (int nn = indxX0+1; nn < indxX1; nn ++)
          {
             vect3f evalp = vecAt (nn);
-            vect3f closestp = closestPointToSegment (vecAt (indxX0), vecAt (indxX1), evalp);
+               vect3f closestp = closestPointToSegment (vecAt (indxX0), vecAt (indxX1), evalp);
 
             float d2 = (closestp.x - evalp.x) * (closestp.x - evalp.x) + (closestp.y - evalp.y) * (closestp.y - evalp.y);
             n ++;
@@ -174,7 +174,7 @@ public class pointReduction
 
       return sal;
    }
-   
+
    protected int indxX0;
    protected int indxX1;
 
@@ -209,7 +209,7 @@ public class pointReduction
 
       return new vect3f (p0.x + (p1.x - p0.x) * t, p0.y + (p1.y - p0.y) * t);
    }
-   
+
    // base of the reduction algorithm
    // find a segment where are points to be evaluated
    // when there is no segment then the algorithm is finished

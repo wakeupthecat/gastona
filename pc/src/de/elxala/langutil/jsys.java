@@ -18,15 +18,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil;
 
-/**	======== de.elxala.langutil.theStackTrace ==========================================
-	@author Alejandro Xalabarder 04.07.2004 16:28
+/**   ======== de.elxala.langutil.theStackTrace ==========================================
+   @author Alejandro Xalabarder 04.07.2004 16:28
 
-	El u'nico acceso a la stack trace es el me'todo getStackTrace de Throwable
-	(este usa Throwable.getStackTraceDepth () y Throwable.getStackTraceElement (int i) que son
-	privados y nativos !!)
+   El u'nico acceso a la stack trace es el me'todo getStackTrace de Throwable
+   (este usa Throwable.getStackTraceDepth () y Throwable.getStackTraceElement (int i) que son
+   privados y nativos !!)
 
-	Adema's no se puede obtener desde un entorno esta'tico por lo cual necesitaremos
-	un singleton (SysSingleton.java)
+   Adema's no se puede obtener desde un entorno esta'tico por lo cual necesitaremos
+   un singleton (SysSingleton.java)
 */
 
 public class jsys extends Throwable
@@ -35,12 +35,12 @@ public class jsys extends Throwable
    //
    public static StackTraceElement [] getNowStackTrace ()
    {
-      //   	El u'nico acceso a la stack trace es el me'todo getStackTrace de Throwable
-      //   	(este usa Throwable.getStackTraceDepth () y Throwable.getStackTraceElement (int i) que son
-      //   	privados y nativos !!)
+      //   El u'nico acceso a la stack trace es el me'todo getStackTrace de Throwable
+      //   (este usa Throwable.getStackTraceDepth () y Throwable.getStackTraceElement (int i) que son
+      //   privados y nativos !!)
       //
-      //   	Adema's no se puede obtener desde un entorno esta'tico por lo cual necesitaremos
-      //   	una instancia
+      //   Adema's no se puede obtener desde un entorno esta'tico por lo cual necesitaremos
+      //   una instancia
 
       return (new jsys ()).lastStack;
    }

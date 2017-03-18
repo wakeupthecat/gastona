@@ -63,7 +63,7 @@ public class javaLoad
       if (singleComponent == null)
       {
          singleComponent = new javaLoad ();
-   	   singleUrlLoader = (URLClassLoader) singleComponent.getClass().getClassLoader();
+         singleUrlLoader = (URLClassLoader) singleComponent.getClass().getClassLoader();
       }
    }
    //---

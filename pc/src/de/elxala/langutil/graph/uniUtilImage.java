@@ -117,8 +117,8 @@ public class uniUtilImage
 
    //(o) TODO_uniUtilImage implement "void saveIconTofile (Icon, filename, format) "
    //
-//  public static void main (String[] args) throws IOException
-//  {
+//   public static void main (String[] args) throws IOException
+//   {
 //      // if(args.length == 0)
 //      // {
 //         // System.out.println("Converts an image into a png file");
@@ -137,15 +137,15 @@ public class uniUtilImage
 //      // buim.createGraphics().drawImage (theImage, null, null);
 //      // //
 //      // save (args[0] + ".png", "png", buim);
-//  }
-//	public static boolean saveIconTofile (BufferedImage ima, String fileName, String formatName)
-//	{
-//	}
+//   }
+//   public static boolean saveIconTofile (BufferedImage ima, String fileName, String formatName)
+//   {
+//   }
 
 
-	public static boolean saveBufferedImageTofile (BufferedImage ima, String fileName, String formatName)
-	{
-	   boolean ok = true;
+   public static boolean saveBufferedImageTofile (BufferedImage ima, String fileName, String formatName)
+   {
+      boolean ok = true;
 
        // Write generated image to a file
        try
@@ -158,8 +158,8 @@ public class uniUtilImage
        {
          ok = false;
        }
-		return ok;
-	}
+      return ok;
+   }
 
    public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String grafFormat)
    {
@@ -177,12 +177,12 @@ public class uniUtilImage
       //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??
       if (IMG_SX == 0)
          IMG_SX = (int) oblo.originalBounds.width ();
-         
+
       if (IMG_SY == 0)
          IMG_SY = (int) oblo.originalBounds.height ();
-         
+
       // PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE to be deprecated !
-      //      
+      //
       String imSize = System.getProperty (org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_GRAFFITTI_SIZE, null);
       if (imSize != null)
          IMG_SX = IMG_SY = de.elxala.langutil.stdlib.atoi (imSize);

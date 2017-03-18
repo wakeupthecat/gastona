@@ -258,7 +258,7 @@ public class javaLoad extends Component
       {
          return null;
       }
-
+      
       String resourceNorm = resourceName.replace('\\', '/');
       return clo.getResource (resourceNorm);
    }

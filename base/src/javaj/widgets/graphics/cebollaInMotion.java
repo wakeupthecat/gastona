@@ -29,10 +29,10 @@ import javaj.widgets.graphics.objects.*;
 import java.util.*;
 
 /**
-   
+
 */
-public class cebollaInMotion 
-                implements  ISceneInMotion, 
+public class cebollaInMotion
+                implements  ISceneInMotion,
                             //zoomTouchDetector.interested,
                             multiFingerTouchDetector.interested
 {
@@ -47,7 +47,7 @@ public class cebollaInMotion
    public static int REDUCTION_TOLERANCE = 3;
    public static int MIN_DISTANCE_TWO_PTS = 1;
    public static int EDIT_POINT_RECT = 7;
-   
+
    //public static final int MODO_NOSE = 0;
    public static final int MODO_TRAZA = 1;   // refe
    public static final int MODO_MODELA = 5;
@@ -56,21 +56,21 @@ public class cebollaInMotion
    public static final int TRAZA_EDITA = 2;
    public static final int TRAZA_REDUCE_EDITA = 3;
    public static final int TRAZA_REDUCE_TRAZA = 4;
-   
+
    protected int modoActual = MODO_TRAZA;
    protected int trazaBehavior = TRAZA_REDUCE_TRAZA;
    protected int currentEditTrazo = -1;
    protected String defaultStyle = "";
-   
+
    protected final int FINGER_ATTACH_WHOLE_TRAZO = -2;
-   
+
 
    // gestures detectors/helpers
    //
    protected multiFingerTouchDetector pulpoDetector = null;
 
    public uniPath thePath = new uniPath ();
-   
+
    public cebollaInMotion ()
    {
       pulpoDetector = new multiFingerTouchDetector (this);
@@ -84,7 +84,7 @@ public class cebollaInMotion
       modoActual = MODO_TRAZA;
       currentEditTrazo = -1;
    }
-   
+
    public void setTrazaBehavior (int kind)
    {
       trazaBehavior = kind;
@@ -106,7 +106,7 @@ public class cebollaInMotion
          et.style = strstyle;
          thePath.getEdiPaths ().setContentChanged ();
       }
-      else 
+      else
       {
          defaultStyle = strstyle;
          System.out.println ("STYLE 3set default style " + strstyle );
@@ -128,7 +128,7 @@ public class cebollaInMotion
    {
       int maxIndx = thePath.getEdiPaths ().getTrazosSize ()-1;
       if (maxIndx < 0) return false;
-      
+
       int nindx = currentEditTrazo + inc;
       if (nindx >= 0 && nindx <= maxIndx)
       {
@@ -137,7 +137,7 @@ public class cebollaInMotion
       else currentEditTrazo = (inc > 0) ? maxIndx: 0;
       return true;
    }
-   
+
    public boolean VER_ARREGLOS = false;
 
    public void renderUniCanvas (uniCanvas canvas, uniColor backgroundColor)
@@ -153,8 +153,8 @@ public class cebollaInMotion
       canvas.scale (etherPortView.scaleX, etherPortView.scaleY);
       canvas.translate (- etherPortView.offsetX, - etherPortView.offsetY);
 
-      thePath.paintYou (canvas);
-      
+         thePath.paintYou (canvas);
+
       
       //------
       //------
@@ -165,7 +165,7 @@ public class cebollaInMotion
       {
          polyAutoCasteljauPPT.arreglo = 0.0f;
          canvas.drawTrazoPath (thePath, currentEditTrazo, styleGlobalContainer.getStyleObjectByName ("sw:2;sc:+200200255"));
-      
+
          polyAutoCasteljauPPT.arreglo = .25f;
          canvas.drawTrazoPath (thePath, currentEditTrazo, styleGlobalContainer.getStyleObjectByName ("sw:2;sc:+150150255"));
 
@@ -180,27 +180,27 @@ public class cebollaInMotion
 
          polyAutoCasteljauPPT.arreglo = -1.f;
       }
-      styleObject editCurrent = styleGlobalContainer.getStyleObjectByName ("editCurrentTrazo");
-      canvas.drawTrazoPath (thePath, currentEditTrazo, editCurrent);
+         styleObject editCurrent = styleGlobalContainer.getStyleObjectByName ("editCurrentTrazo");
+         canvas.drawTrazoPath (thePath, currentEditTrazo, editCurrent);
 
-      // dibujar puntos de current path
-      //
-      ediTrazo et = thePath.getEdiPaths ().getTrazo (currentEditTrazo);
-      if (et != null)
-      {
-         uniPaint pai = new uniPaint ();
-         //uniUtil.printLater ("punteando trazo " + currentEditTrazo);
-         // // float xx = et.posX;
-         // // float yy = et.posY;
-         pai.setColor  (modoActual == MODO_ELIMINA_PTOS ? DELETE_POINT_COLOR: EDIT_POINT_COLOR);
-         // // canvas.drawRect (new uniRect (true, xx, yy, EDIT_POINT_RECT, EDIT_POINT_RECT), pai);
-         for (int pp = 0; pp < et.getPairsCount (); pp ++)
+         // dibujar puntos de current path
+         //
+         ediTrazo et = thePath.getEdiPaths ().getTrazo (currentEditTrazo);
+         if (et != null)
          {
-            //System.out.println ("  rectangulito a " + xx + ", " + yy);
-            canvas.drawRect (new uniRect (true, et.getPointAbsX(pp), et.getPointAbsY(pp), EDIT_POINT_RECT, EDIT_POINT_RECT), pai);
+            uniPaint pai = new uniPaint ();
+            //uniUtil.printLater ("punteando trazo " + currentEditTrazo);
+            // // float xx = et.posX;
+            // // float yy = et.posY;
+            pai.setColor  (modoActual == MODO_ELIMINA_PTOS ? DELETE_POINT_COLOR: EDIT_POINT_COLOR);
+            // // canvas.drawRect (new uniRect (true, xx, yy, EDIT_POINT_RECT, EDIT_POINT_RECT), pai);
+            for (int pp = 0; pp < et.getPairsCount (); pp ++)
+            {
+               //System.out.println ("  rectangulito a " + xx + ", " + yy);
+               canvas.drawRect (new uniRect (true, et.getPointAbsX(pp), et.getPointAbsY(pp), EDIT_POINT_RECT, EDIT_POINT_RECT), pai);
+            }
          }
       }
-   }
 
    protected boolean showEditPoints ()
    {
@@ -255,7 +255,7 @@ public class cebollaInMotion
       processFingers ();
    }
 
-   
+
    // ==========================================================
    // funciones que actuan sobre los paths editables
    //
@@ -266,22 +266,22 @@ public class cebollaInMotion
    protected float lastDrawnX = 0;
    protected float lastDrawnY = 0;
 
-   
+
    protected void processFingers ()
    {
       int nowFingers = pulpoDetector.getActiveFingersCount ();
-      
+
       switch (modoActual)
       {
          case MODO_TRAZA:
             //System.out.println ("TRAZA champion!");
-            processDrawingShapes (); 
+            processDrawingShapes ();
             break;
          case MODO_ELIMINA_PTOS:
             //System.out.println ("ELIMINAPTOS champion!");
-         case MODO_MODELA: 
+         case MODO_MODELA:
             //System.out.println ("MODELLA champion!");
-            modelaCurrent (); 
+            modelaCurrent ();
             break;
          default: break;
        }
@@ -361,15 +361,15 @@ public class cebollaInMotion
       }
 
       //System.out.println ("==TRAZO " + currentEditTrazo + " modela " + nPtos + " con " + nFing + " dedos");
-      
+
       float [] fingerInfluenza = new float [nPtos];
       vect3f [] novaPos = new vect3f [nPtos];
-      
+
       List newPoints = new Vector ();
       boolean modeDelete = modoActual == MODO_ELIMINA_PTOS;
 
       //System.out.println ("==ANTES DE MODELA " + currentEditTrazo + " dump");
-      //System.out.println (thePath.getEdiPaths ().toString (currentEditTrazo));      
+      //System.out.println (thePath.getEdiPaths ().toString (currentEditTrazo));
 
       for (int ff = 0; ff < nFing; ff ++)
       {
@@ -385,12 +385,12 @@ public class cebollaInMotion
             uniRect fingSquare = new uniRect (true, fing.getLastPosition ().x, fing.getLastPosition ().y, 4 * EDIT_POINT_RECT, 4 * EDIT_POINT_RECT);
 
             for (int pp = 0; pp < et.getPairsCount (); pp ++)
-            {            
+            {
                vect3f pto = et.getPairAbsoluteAt (pp);
                pto.z = pp; // we store in z the point index!
                if (fingSquare.contains (pto.x, pto.y))
                {
-                  if (modeDelete) 
+                  if (modeDelete)
                   {
                      //System.out.println ("  dedo " + ff + " deletes the point with index "  + pp);
                      et.removePair (pp);
@@ -413,7 +413,7 @@ public class cebollaInMotion
             }
          }
          if (modeDelete) continue;
-         
+
          attachedPoint = (vect3f) fing.getAttachedObject ();
          if (attachedPoint == null) break; // should never happen...
          if ((int) attachedPoint.z == FINGER_ATTACH_WHOLE_TRAZO)
@@ -425,7 +425,7 @@ public class cebollaInMotion
             et.setPosX (attachedPoint.x + (float) fing.getDx ());
             et.setPosY (attachedPoint.y + (float) fing.getDy ());
          }
-         else if (attachedPoint.z >= 0)         
+         else if (attachedPoint.z >= 0)
          {
             // FINGER ff is attached to some point of the trazo, let's move the point to follow the finger
             //
@@ -440,7 +440,7 @@ public class cebollaInMotion
      }
 
      //System.out.println ("==DESPUES DE MODELA " + currentEditTrazo + " dump");
-     //System.out.println (thePath.getEdiPaths ().toString (currentEditTrazo));      
+     //System.out.println (thePath.getEdiPaths ().toString (currentEditTrazo));
    }
 
    public void reduceCurrent ()
@@ -455,7 +455,7 @@ public class cebollaInMotion
       redu.style = defaultStyle;
       current.set (redu);
    }
-   
+
    // return an ediTrazo with the reduced current drawing form or null if no current form
    //
    public ediTrazo reduceCurrent (float tolerance)
@@ -463,17 +463,17 @@ public class cebollaInMotion
       ediTrazo et = thePath.getEdiPaths ().getTrazo (currentEditTrazo);
       int nPtos = (et != null) ? et.getPairsCount (): 0;
       if (nPtos == 0) return null;
-
-      pointReduction predo = new pointReduction (tolerance);
+      
+         pointReduction predo = new pointReduction (tolerance);
 
 //uniUtil.printLater ("createReducedCurrent x y " + et.posX + ", " + et.posY + " + ptos " + nPtos);
-      for (int ii = 0; ii < nPtos; ii ++)
-         predo.addPoint (et.getPointX(ii), et.getPointY(ii));
+         for (int ii = 0; ii < nPtos; ii ++)
+            predo.addPoint (et.getPointX(ii), et.getPointY(ii));
 
       List redu = predo.reducePoints ();
       ediTrazo editredo = new ediTrazo (et.getPosX(), et.getPosY(), et.trazoForm);
       //uniUtil.printLater ("reducidos a " + redu.size ());
-      
+
       if (et.getPointX(0) == 0.f && et.getPointY(0) == 0.f)
       {
       }
@@ -536,13 +536,13 @@ OLD MODELA
             float mindist = 9999.f;
             float newposXmin = 0.f;
             float newposYmin = 0.f;
-         
+
             for (int pp = 0; pp+1 < et.points.size (); pp += 2)
-            {            
+            {
                xx = et.posX + ((float []) et.points.get(pp))[0];
                yy = et.posY + ((float []) et.points.get(pp+1))[0];
                vect3f pto = new vect3f (xx, yy);
-               
+
                float dinst = pto.distance (fing.getLastPosition ());
                if (dinst < mindist)
                {

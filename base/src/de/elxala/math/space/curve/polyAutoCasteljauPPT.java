@@ -59,7 +59,7 @@ public class polyAutoCasteljauPPT extends polyAutoCasteljau
       float raso = 10.f;
       float fator = (n1 + n2) * (n1 + n2);
       if (fator != 0.f)
-      dir.mult (1f / fator);
+         dir.mult (1f / fator);
 
       // faco1 makes the curve very curly in edges
       float faco1 = n1 > n2 ? n1 * n1: n2 * n2;

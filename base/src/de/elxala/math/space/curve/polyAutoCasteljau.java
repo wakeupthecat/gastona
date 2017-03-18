@@ -27,31 +27,31 @@ import de.elxala.math.space.*;   // vect3f
 public class polyAutoCasteljau implements IpolyAutoCasteljau
 {
    public curveWithAdjustPoint PP = null;
-   
+
    public boolean isClosed = false;
 
    public polyAutoCasteljau (curveWithAdjustPoint curve)
    {
       PP = curve;
-	   calculations ();
+      calculations ();
    }
 
    public polyAutoCasteljau (vect3f [] thePoints)
    {
       PP = new curveWithAdjustPoint (thePoints);
-	   calculations ();
+      calculations ();
    }
 
    public void create (vect3f [] thePoints)
    {
       PP = new curveWithAdjustPoint (thePoints);
-	   calculations ();
+      calculations ();
    }
 
    public void setCloseCurve (boolean closeIt)
    {
       isClosed = closeIt;
-	   calculations ();
+      calculations ();
    }
 
    public vect3f [] points ()
@@ -133,11 +133,11 @@ public class polyAutoCasteljau implements IpolyAutoCasteljau
       System.out.println  ("ERROR: bad polyAutoCasteljau!");
       return new vect3f [2];
    }
-   
+
    public void getJustifPoints (int cc, vect3f [] justif)
    {
       vect3f[] ptos = internGetControlPoints(points ()[cc-1], points ()[cc], points ()[cc+1]);
-   
+
       justif[0] = ptos[0];
       justif[1] = ptos[1];
    }

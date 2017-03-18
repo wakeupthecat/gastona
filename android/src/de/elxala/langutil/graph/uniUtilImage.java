@@ -136,28 +136,28 @@ public class uniUtilImage
 //      // //
 //      // save (args[0] + ".png", "png", buim);
 //  }
-//	public static boolean saveIconTofile (BufferedImage ima, String fileName, String formatName)
-//	{
-//	}
+//  public static boolean saveIconTofile (BufferedImage ima, String fileName, String formatName)
+//  {
+//  }
 
 
-	public static boolean saveBufferedImageTofile (BufferedImage ima, String fileName, String formatName)
-	{
-	   boolean ok = true;
+   public static boolean saveBufferedImageTofile (BufferedImage ima, String fileName, String formatName)
+   {
+      boolean ok = true;
 
-       // Write generated image to a file
-       try
-       {
-           // Save as PNG
-           File file = new File(fileName);
-           ImageIO.write(ima, formatName, file);
-       }
-       catch (IOException e)
-       {
+      // Write generated image to a file
+      try
+      {
+          // Save as PNG
+          File file = new File(fileName);
+          ImageIO.write(ima, formatName, file);
+      }
+      catch (IOException e)
+      {
          ok = false;
-       }
-		return ok;
-	}
+      }
+      return ok;
+   }
 
    public static BufferedImage graffitiToBufferedImage (Eva evaGraffiti, String graffFormat)
    {

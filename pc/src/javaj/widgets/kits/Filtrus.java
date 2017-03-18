@@ -18,55 +18,57 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package javaj.widgets.kits;
 
-/**	======== de.elxala.langutil.Filtrus ==========================================
-	@author Alejandro Xalabarder 23.03.2002 19:08
+/**   ======== de.elxala.langutil.Filtrus ==========================================
+   @author Alejandro Xalabarder 23.03.2002 19:08
 
-	Pequenya clase (temporal) que implementa un sencillo FilterFilter para el FileChooser.
+   Pequenya clase (temporal) que implementa un sencillo FilterFilter para el FileChooser.
 */
 
 public class Filtrus extends javax.swing.filechooser.FileFilter {
 
-	private String dasExtension = null;
+   private String dasExtension = null;
 
-	public Filtrus (String extension) {
-		dasExtension = extension;
-	}
+   public Filtrus (String extension)
+   {
+      dasExtension = extension;
+   }
 
 
-    	public boolean accept (java.io.File f) {
-    		if (dasExtension == null || dasExtension.length () == 0)
-    			return true;
+   public boolean accept (java.io.File f)
+   {
+      if (dasExtension == null || dasExtension.length () == 0)
+         return true;
 
-		// descubrir la extension (falta me'todo)
-		//
-		String ss = f.getName ();
-		int po = ss.length ()-1;
-		int pp = po;
+      // descubrir la extension (falta me'todo)
+      //
+      String ss = f.getName ();
+      int po = ss.length ()-1;
+      int pp = po;
 
-		// System.out.println ("ss = [" + ss + "]");
+      // System.out.println ("ss = [" + ss + "]");
 
-		while (pp >= 0) {
-			if (ss.charAt (pp) == '.') break;
-			pp --;
-		}
+      while (pp >= 0) {
+         if (ss.charAt (pp) == '.') break;
+         pp --;
+      }
 
-		// System.out.println ("pp es = [" + pp + "]");
-		if (pp >= 0) {
-			// System.out.println ("substring (" + pp + ", " + (po-pp) + ")");
-			ss = ss.substring (pp, ss.length ());
-			// System.out.println ("novo ss es = [" + ss + "]");
-			return ss.equalsIgnoreCase ("." + dasExtension);
-		}
-		return true;	// ?? directories ...
-	}
+      // System.out.println ("pp es = [" + pp + "]");
+      if (pp >= 0) {
+         // System.out.println ("substring (" + pp + ", " + (po-pp) + ")");
+         ss = ss.substring (pp, ss.length ());
+         // System.out.println ("novo ss es = [" + ss + "]");
+         return ss.equalsIgnoreCase ("." + dasExtension);
+      }
+      return true;   // ?? directories ...
+   }
 
 
     /**
      * The description of this filter. For example: "JPG and GIF Images"
      * @see FileView#getName
      */
-    	public String getDescription() {
-    		return dasExtension;
-	}
-
+   public String getDescription()
+   {
+      return dasExtension;
+   }
 }

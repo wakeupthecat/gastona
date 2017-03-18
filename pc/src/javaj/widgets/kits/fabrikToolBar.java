@@ -148,28 +148,28 @@ public class fabrikToolBar
 
       // interesting content starts at second line (index 1)
       //
-		for (int ii = 1; ii < evaTool.rows (); ii ++)
-		{
+      for (int ii = 1; ii < evaTool.rows (); ii ++)
+      {
          ImageIcon ima  = javaLoad.getSomeHowImageIcon (evaTool.getValue(ii, 2));
 
          // create concrete action  (see method JButton JToolBar::add (Action))
          //
          AbstractAction act = new AbstractAction (evaTool.getValue(ii, 0).substring(1), ima) {
-                        		   public void actionPerformed(ActionEvent e) {
-                        			   Mensaka.sendPacket (preMsg +
-                        			                       ((preMsg.length () > 0) ? " ": "") +
-                        			                       e.getActionCommand());
-                        		   }
-                        	  };
+                              public void actionPerformed(ActionEvent e) {
+                                 Mensaka.sendPacket (preMsg +
+                                                     ((preMsg.length () > 0) ? " ": "") +
+                                                     e.getActionCommand());
+                              }
+                          };
 
 
          // add it and get the button object. Set the action command and the tool tip
          //  Note: in future maybe save the buttons (register) in an array
          //
-		   JButton bb = obj.add (act);
+         JButton bb = obj.add (act);
 
-			bb.setActionCommand  ((String) evaTool.getValue (ii, 0));   // << action command
-			bb.setToolTipText    ((String) evaTool.getValue (ii, 1));   // << tool tip
-		}
+         bb.setActionCommand  ((String) evaTool.getValue (ii, 0));   // << action command
+         bb.setToolTipText    ((String) evaTool.getValue (ii, 1));   // << tool tip
+      }
    }
 }

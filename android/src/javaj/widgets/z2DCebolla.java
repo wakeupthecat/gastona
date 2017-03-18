@@ -63,7 +63,7 @@ public class z2DCebolla extends uniSceneInMotionView
    {
       super(co);
       assignNewScene (miCebolla);
-	  init (name);
+      init (name);
       setName (name);
    }
 

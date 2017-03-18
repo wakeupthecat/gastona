@@ -18,10 +18,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.mensaka;
 
-/**	======== de.elxala.mensaka.MessageHandle ==========================================
-	@author Alejandro Xalabarder 11.07.2004 02:33
+/**   ======== de.elxala.mensaka.MessageHandle ==========================================
+   @author Alejandro Xalabarder 11.07.2004 02:33
 
-	06.08.2004 21:57: nuevo package de.elxala.mensaka
+   06.08.2004 21:57: nuevo package de.elxala.mensaka
 */
 
 /**

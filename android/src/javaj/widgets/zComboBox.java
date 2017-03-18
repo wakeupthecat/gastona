@@ -127,7 +127,7 @@ public class zComboBox extends Spinner implements MensakaTarget, OnItemSelectedL
    {
       if (helper.ebsTable().hasAll ())
       {
-   		//getSelectionModel ().clearSelection ();
+         //getSelectionModel ().clearSelection ();
 
          setAdapter ((SpinnerAdapter) helper.getAndroidSpinnerModel ());
          //setCellRenderer(new MyCellRenderer());

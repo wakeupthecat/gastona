@@ -82,7 +82,7 @@
       //         ,, @<value>
       //     //
       //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>
-      
+
    <using jGatonaAJAXPost II>
       //#javaj#
       //
@@ -133,7 +133,7 @@
       //     LOOP, TEXT FILE, @<_bodyMemFileName>
       //         ,, @<value>
       //     //
-      //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>      
+      //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>
 
    <sample jGastona Boletin>
       //#javaj#
@@ -143,13 +143,13 @@
       //#listix#
       //
       //    <main>
-      //      DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
+      //       DB,, EXECUTE, //CREATE TABLE IF NOT EXISTS boletin (id INTEGER PRIMARY KEY AUTOINCREMENT, date, title, eventdesc);
       //       micohttp, start, mymico
       //
       //   <css>
-      //       // textarea {
+      //       //     textarea {
       //       //         width: 100%; height: 150px; padding: 10px 10px; resize: none;
-      //       // }
+      //       //     }
       //
       //   <GET />
       //     //<html>

@@ -25,8 +25,8 @@ import java.util.regex.*;  // Pattern and Matcher
 import de.elxala.zServices.logger;
 
 
-/**	======== de.elxala.langutil.fileMultiFilter ==========================================
-	@author Alejandro Xalabarder 11.11.2006 18:59
+/**   ======== de.elxala.langutil.fileMultiFilter ==========================================
+   @author Alejandro Xalabarder 11.11.2006 18:59
 
    File and path filter
 

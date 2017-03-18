@@ -154,8 +154,8 @@ public class zConsole extends EditText
       plug ();
    }
 
-   //(o) android/widgets/note Handler included in bildID 12412	2015-11-29
-   // 
+   //(o) android/widgets/note Handler included in bildID 12412 2015-11-29
+   //
    // to avoid android.view.ViewRootImpl$CalledFromWrongThreadException
    // when, for example, we change the content due to a http event (MICO http)
    //

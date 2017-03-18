@@ -127,11 +127,11 @@ function layoutManager (evaObj, callbackAddWidget)
             var ele = document.getElementById(wname);
             if (ele)
             {
-            ele.style.position = "absolute";
-            ele.style.left   = Math.round(x) + "px";
-            ele.style.top    = Math.round(y) + "px";
-            ele.style.width  = Math.round(dx) + "px";
-            ele.style.height = Math.round(dy) + "px";
+               ele.style.position = "absolute";
+               ele.style.left   = Math.round(x) + "px";
+               ele.style.top    = Math.round(y) + "px";
+               ele.style.width  = Math.round(dx) + "px";
+               ele.style.height = Math.round(dy) + "px";
             }
             else console.log ("ERROR expected html element " + wname + " not found!");
          },

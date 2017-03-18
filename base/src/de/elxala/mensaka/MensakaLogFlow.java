@@ -22,10 +22,6 @@ package de.elxala.mensaka;
    @author Alejandro Xalabarder
    @data   05.04.2009 12:41
 
-	05.04.2009 12:41: Solución (final ?) para message logging
-	                  Esta clase deberá eliminar las clases "restos"
-	                     MensakaProtokoller.java, Protokoll.java, Protokol2dot.java, protokolServer.java
-
 */
 
 import java.util.List;

@@ -174,7 +174,7 @@ public class goSqlSelect extends ScriptableObject
      'var fo = new goFile ();
      '
      'if (fo.fopen (":mem out", "w")) {
-     '	for (var ii = 0; ii < 2; ii ++) {
+     '   for (var ii = 0; ii < 2; ii ++) {
      '       fo.writeLine ("te comento: " + fix.getValue (ii, 0) + ") " + fix.getValue (ii, 1));
      '   }
      '   fo.fclose ();
@@ -182,7 +182,7 @@ public class goSqlSelect extends ScriptableObject
      '"fin"
 
    <main>
-		DB,, CREATE TABLE,  content
+      DB,, CREATE TABLE,  content
       '
       goRhino, @<rewrite>
       '

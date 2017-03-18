@@ -21,43 +21,6 @@ package de.elxala.langutil;
 
 import java.util.*;
 
-
-// NOTA 29.06.2008 13:53: quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-
-/**   ======== de.elxala.langutil.Cadena  ==========================================
-   Alejandro Xalabarder
-   
-   23.11.2014        StringBuffer instead of StringBuffer (more performant if synchronization is not required)
-
-   03.10.2005 14:53  Usar StringBuffer en setStrArray (performance)
-                     reemplazar el uso de bigString con el de StringBuffer
-
-   01.05.2003 02:51     fijar bug en getFirtToken (para evas):
-                     falla con una linea como : [una, "dos,dosymedio", tres]
-                     (debido a la correcion anterior!)
-
-   06.04.2003 18:08     fijar 2 bugs en getFirtToken (para evas):
-                     1) parseaba mal dobles comillas seguido de comillas (cambiar un += 2 a +=1)
-                        ejemplo : ["#include """, """"]
-                     2) parseaba mal ["algo", blabla]. paseaba bien "algo" pero luego daba como resto
-                        [, blabla] con lo cual creaba un inexistente tercer elemento
-                        ejemplo : ["#include <", ">"]
-
-                       + anyadir debug (//_DBG_)
-
-   05.03.2002 00:01     anyadir prototipo  "public int indexOf (String chars)"
-   26.02.2002 01:14     anyadir metodos length (), del (int), charAt () por su frecuente aparicion
-     12.02.2002 23:30         proteger o_str de null en constructores. Pues sino puede petar en cualquier
-                              rutina al evaluar length (). Si el programador pone directamente ob.o_str = null
-                              es su problema!
-   03.12.2001 00:47     bug en toStrArray (p.e. ",,uno")
-                            rehacerlo con la rutina "private String getFirstToken (Cadena some)"
-                            bug en setStrArray (p.e. [] [] [Algo] retornaba "Algo")
-   27.11.2001 21:10     bug en DesEnpaquetaMe
-   25.11.2001 18:10     bug en InitialMatch
-   01.11.2001 23:55     bug en replaceMe
-   17.08.2001 01:30     created
-*/
 /**
    class Cadena
    @author Alejandro Xalabarder Aulet
@@ -66,34 +29,32 @@ import java.util.*;
    Cadena wraps a String and adds some functionality. The most important added (needed) functionality
    is to parse a string comma separated in Eva style (see EvaFormat.pdf).
 
-   Note this class is old and should be rewritten (maybe using the classes Pattern, Matcher etc)
-   although this job can be postpone because it works quite well.
-
    02.02.2005 12:00 EVA Text File Specification v1.0
 */
 public class Cadena
 {
-     protected final static char ATOM_ENVOLVER = 34;  // "
-     protected final static char ATOM_SEPARATOR = 44;    // ,
+   protected final static char ATOM_ENVOLVER = 34;  // "
+   protected final static char ATOM_SEPARATOR = 44;    // ,
 
-      private static final String START_LITERAL_1 = "'";
-      private static final String START_LITERAL_2 = "//";
+   private static final String START_LITERAL_1 = "'";
+   private static final String START_LITERAL_2 = "//";
 
-     public String o_str, o_lastToken, o_separ;
+   public String o_str, o_lastToken, o_separ;
 
-     public Cadena ()                     {  clear (); }
-     public Cadena (String cad)           {  clear (); o_str = (cad != null) ? cad:"";  }
-     public Cadena (String cad, String sepa) {  clear (); o_str = (cad != null) ? cad:"";  o_separ = (sepa != null) ? sepa:""; }
+   public Cadena ()                     {  clear (); }
+   public Cadena (String cad)           {  clear (); o_str = (cad != null) ? cad:"";  }
+   public Cadena (String cad, String sepa) {  clear (); o_str = (cad != null) ? cad:"";  o_separ = (sepa != null) ? sepa:""; }
 
-     public void clear () {
-          o_str = new String();
-          o_separ = ",";
-          o_lastToken = "";
-     }
+   public void clear ()
+   {
+      o_str = new String();
+      o_separ = ",";
+      o_lastToken = "";
+   }
 
-     public String getStr    ()              { return o_str; }
-     public int    length    ()              { return o_str.length (); }
-     public char   charAt    (int indx)      { return o_str.charAt (indx); }
+   public String getStr    ()              { return o_str; }
+   public int    length    ()              { return o_str.length (); }
+   public char   charAt    (int indx)      { return o_str.charAt (indx); }
 
 
    /**
@@ -114,12 +75,21 @@ public class Cadena
    }
 
 
-     public void    setStr   (String cad)    { o_str = (cad != null) ? cad: ""; };
-     public void    setSepar (String ssepar) { o_separ = ssepar; };
-     public boolean getToken (String ssepar) {
-          o_separ = ssepar;
-          return getToken ();
-     }
+   public void setStr   (String cad)
+   {
+      o_str = (cad != null) ? cad: "";
+   }
+
+   public void setSepar (String ssepar)
+   {
+      o_separ = ssepar;
+   }
+
+   public boolean getToken (String ssepar)
+   {
+      o_separ = ssepar;
+      return getToken ();
+   }
 
    public int del (int nchars, int offset)
    {
@@ -155,51 +125,52 @@ public class Cadena
       return new String (o_str.substring (ini, fin + 1));
    }
 
-     /*  indexOf any character within the String chars
-     */
-     public int indexOf (String chars, int desde)
-     {
-          int tt = desde;
+   /*  indexOf any character within the String chars
+   */
+   public int indexOf (String chars, int desde)
+   {
+      int tt = desde;
 
-          while (desde < length ())
-          {
-               for (int ii = 0; ii < chars.length (); ii ++)
-                    if (chars.charAt(ii) == o_str.charAt(desde)) return desde;
-               desde ++;
-          }
-          return -1;
-     }
+      while (desde < length ())
+      {
+         for (int ii = 0; ii < chars.length (); ii ++)
+            if (chars.charAt(ii) == o_str.charAt(desde)) return desde;
+         desde ++;
+      }
+      return -1;
+   }
 
      public int indexOf (String chars) {
       return indexOf (chars, 0);
      }
 
-     /** indexOf any character within the String chars
-     */
-     public int indexOfsubstr (String substr, int desde) {
-          int tt = desde;
+   /** indexOf any character within the String chars
+   */
+   public int indexOfsubstr (String substr, int desde)
+   {
+      int tt = desde;
 
-          while (desde < length ()) {
-               if (substr.equals (substrBE (desde, desde + substr.length () - 1)))
-                  return desde;
-               desde ++;
-          }
-          return -1;
-     }
+      while (desde < length ()) {
+         if (substr.equals (substrBE (desde, desde + substr.length () - 1)))
+            return desde;
+         desde ++;
+      }
+      return -1;
+   }
 
-     /** indexOf any character within the String chars
-     */
-     public int indexOfsubstr (String substr)
-     {
+   /** indexOf any character within the String chars
+   */
+   public int indexOfsubstr (String substr)
+   {
       return indexOfsubstr (substr, 0);
-     }
+   }
 
-     public void replaceMe (char que, char por)
-     {
-       o_str = o_str.replace (que, por);
-     }
+   public void replaceMe (char que, char por)
+   {
+      o_str = o_str.replace (que, por);
+   }
 
-     /** Example:
+   /** Example:
 
       Cadena cad = new Cadena ("This is \\\\r a %1 \\\\t");
 
@@ -213,17 +184,15 @@ public class Cadena
 
       cad.replaceMeOnce (mapa);
       System.out.println (cad.s_str); // will print "This is \r a test"
-     */
-	public int replaceMeOnce (String [][] mapa)
-	{
-		int point = 0, miny = 0, sus = 0, indx;
-		StringBuffer ss = new StringBuffer ();
+   */
+   public int replaceMeOnce (String [][] mapa)
+   {
+      int point = 0, miny = 0, sus = 0, indx;
+      StringBuffer ss = new StringBuffer ();
 
       while (point < length ())
       {
-// System.out.println ("point = " +  point + " part [" + o_str.substring (point, o_str.length()) + "]");
-
-         // look the replacement more close to the begining
+         // look the replacement closest to the beginning
          miny = length ();
          indx = -1;
          for (int ii = 0; ii < mapa.length; ii ++)
@@ -236,16 +205,12 @@ public class Cadena
             }
          }
 
-// System.out.println ("");
-// System.out.println ("o_str = [" +  o_str + "]");
-// System.out.println ("point = " + point + " indx = " + indx);
-
-			if (indx == -1)
-			{
-				// nothing more to replace
-				ss.append (substrBE (point, length ()));
-				point = length ();
-			}
+         if (indx == -1)
+         {
+            // nothing more to replace
+            ss.append (substrBE (point, length ()));
+            point = length ();
+         }
          else
          {
             // something to replace
@@ -254,113 +219,107 @@ public class Cadena
             point = miny + mapa[indx][0].length ();
             sus ++;
          }
-// System.out.println ("ss = [" +  ss + "]");
-// System.out.println ("");
       }
 
       if (sus != 0)
          o_str = ss.toString ();
 
       return sus;
-	}
+   }
 
 
-      /*  Extension de replace con Strings
-          returns the number of times the replace is done
-      */
-      public int replaceMe (String busca, String reemp)
+   /*  Extension de replace con Strings
+       returns the number of times the replace is done
+   */
+   public int replaceMe (String busca, String reemp)
+   {
+      // is there something to do ?
+      //
+      if (busca.length () == 0)
+         return 0;
+
+      // do it!
+      //
+      int pp = 0;
+      int veces = 0;
+
+      while (pp < length ())
       {
-         // is there something to do ?
-         //
-         if (busca.length () == 0)
-            return 0;
-
-         // do it!
-         //
-         int pp = 0;
-         int veces = 0;
-
-         while (pp < length ())
-         {
-            pp = find (busca, pp);
-            if (pp == -1) break; // >>>>>>>
-            // found it !
-            o_str = substrBE (0, pp-1) +
-                  reemp +
-                  substrBE (pp + busca.length (), length ());
-            veces ++;
-            pp += reemp.length ();
-         }
-         return veces;
-     }
+         pp = find (busca, pp);
+         if (pp == -1) break; // >>>>>>>
+         // found it !
+         o_str = substrBE (0, pp-1) +
+               reemp +
+               substrBE (pp + busca.length (), length ());
+         veces ++;
+         pp += reemp.length ();
+      }
+      return veces;
+   }
 
 
-     /*  Macro substitution, example:
+   /*  Macro substitution, example:
 
-         Cadena template = new Cadena ("Hallo <<name>>, your name (<<name>>) is very <<adjective>>");
-         Map mapo = new TreeMap ();
+      Cadena template = new Cadena ("Hallo <<name>>, your name (<<name>>) is very <<adjective>>");
+      Map mapo = new TreeMap ();
 
-             mapo.put ("name",      "Alejandro");
-           mapo.put ("adjective", "feo");
-            mapo.put ("adjective", "bonito");
+          mapo.put ("name",      "Alejandro");
+        mapo.put ("adjective", "feo");
+         mapo.put ("adjective", "bonito");
 
-         template.replaceMe (mapo, "<<", ">>");
+      template.replaceMe (mapo, "<<", ">>");
 
-         System.out.println (template.s_out);
+      System.out.println (template.s_out);
 
-     */
-     public int replaceMe (Map Pairs, String sOpen, String sClose) {
+   */
+   public int replaceMe (Map Pairs, String sOpen, String sClose)
+   {
+      // EL MAPA NO TIENE ITERATORS !!! que bien !!
+      // hay que extraer las claves en un array con iterators y bla bla
 
-          // EL MAPA NO TIENE ITERATORS !!! que bien !!
-          // hay que extraer las claves en un array con iterators y bla bla
-
-          List llaves = new ArrayList(Pairs.keySet ());
+      List llaves = new ArrayList(Pairs.keySet ());
       int parcial, kk, total = 0, vueltas = 0;
 
-      do  {
-         if (vueltas >= 2) {
+      do
+      {
+         if (vueltas >= 2)
+         {
             System.err.println ("ERROR in Cadena::replaceMe (TreeMap ...)");
             return - total;
          }
 
          parcial = kk = 0;
-             while (kk < llaves.size ()) {
-               String skey, skeyFin;
+         while (kk < llaves.size ())
+         {
+            String skey, skeyFin;
 
-               skey    = (String) llaves.get (kk ++); // i.e. "Name"
-               skeyFin = sOpen + skey + sClose;    // new key (i.e. "<<Name>>")
-               parcial += replaceMe (skeyFin, (String) Pairs.get (skey));
-             }
-             total += parcial;
-             vueltas ++;
-          } while (parcial > 0);
+            skey    = (String) llaves.get (kk ++); // i.e. "Name"
+            skeyFin = sOpen + skey + sClose;    // new key (i.e. "<<Name>>")
+            parcial += replaceMe (skeyFin, (String) Pairs.get (skey));
+         }
+         total += parcial;
+         vueltas ++;
+      } while (parcial > 0);
 
       return total;
-     }
+   }
 
-     /*  find string a partir de 0
-     */
-     public int find (String busca) {
+   /*  find string a partir de 0
+   */
+   public int find (String busca)
+   {
       return find (busca, 0);
-     }
+   }
 
-     /*  find string a partir de indice
-     */
-     public int find (String busca, int indx) {
+   /*  find string a partir de indice
+   */
+   public int find (String busca, int indx)
+   {
       if (busca.length () == 0) return -1;
 
-/*
-System.out.println ("\n contingut [" + o_str + "]");
-System.out.println ("\n find (" + busca + ", " + indx + ")");
-System.out.println ("\n busca.length() = " + busca.length());
-*/
       int pp = indx;
-      while (pp != -1) {
-/*
-         pp = o_str.indexOf(busca.charAt (0), pp);
-         if (pp == -1) break;
-         if (busca.equals (substrBE (pp, pp + busca.length ()-1))) break;
-*/
+      while (pp != -1)
+      {
          if ( (-1 == (pp = o_str.indexOf(busca.charAt (0), pp))) ||
               busca.equals (substrBE (pp, pp + busca.length ()-1))
             )
@@ -368,30 +327,33 @@ System.out.println ("\n busca.length() = " + busca.length());
          pp ++;
       }
       return pp;
-     }
+   }
 
-     public void trimMe () {
+   public void trimMe ()
+   {
       o_str = o_str.trim ();
-     }
+   }
 
-     public boolean getToken () {
-          int wo = indexOf (o_separ, 0);
+   public boolean getToken ()
+   {
+      int wo = indexOf (o_separ, 0);
 
-          if (wo < 0) {
-               o_lastToken = o_str;
-               o_str = "";
-               return (o_lastToken.length () > 0);
-          }
+      if (wo < 0)
+      {
+         o_lastToken = o_str;
+         o_str = "";
+         return (o_lastToken.length () > 0);
+      }
 
-          o_lastToken = o_str.substring (0, wo);
-          o_str = o_str.substring (wo+1, length ());
-          return true;
-     }
+      o_lastToken = o_str.substring (0, wo);
+      o_str = o_str.substring (wo+1, length ());
+      return true;
+   }
 
    public String lastToken ()
    {
-          return o_lastToken;
-     }
+      return o_lastToken;
+   }
 
    private void EnpaquetaMe ()
    {
@@ -493,7 +455,8 @@ System.out.println ("\n busca.length() = " + busca.length());
       //
 
       Csep = some.o_str.indexOf (ATOM_SEPARATOR, 0);  // donde esta la coma (,)
-      if (Csep == -1) {
+      if (Csep == -1)
+      {
          // NO HAY COMA "," => un solo token
          Cadena aux = new Cadena (some.o_str);
          aux.DesEnpaquetaMe ();        // unpack it
@@ -511,7 +474,8 @@ System.out.println ("\n busca.length() = " + busca.length());
 
       // buscamos la la posible envoltura (")
       Cenv = some.o_str.indexOf (ATOM_ENVOLVER, 0);
-      if (Cenv == -1 || Cenv > Csep) {
+      if (Cenv == -1 || Cenv > Csep)
+      {
          // el problema (") esta mas adelante, en otro token o no esta
          // p.e.   [blabla,otro,"este tiene problemas"]
 
@@ -705,22 +669,29 @@ System.out.println ("\n busca.length() = " + busca.length());
          l2.get (2) => [of]
          l2.get (3) => [this]
    */
-   public static List simpleToList (String simpleStringList, String separator) {
+   public static List simpleToList (String simpleStringList, String separator)
+   {
       Cadena queda = new Cadena(simpleStringList, separator);
       List colec = new Vector ();
 
-      while (queda.getToken ()) {
+      while (queda.getToken ())
+      {
          //System.out.println ("saco = [" + quepo + "] queda [" + queda.o_str + "]");
          colec.add (queda.lastToken ());
       }
       return colec;
    }
-   public static List simpleToList (String simpleStringList) { return simpleToList (simpleStringList, ","); }
+
+   public static List simpleToList (String simpleStringList)
+   {
+      return simpleToList (simpleStringList, ",");
+   }
 
    /**
       the same as simpleToList but returning a String []
    */
-   public static String [] simpleToArray (String simpleStringList, String separator) {
+   public static String [] simpleToArray (String simpleStringList, String separator)
+   {
       List colec = simpleToList (simpleStringList, separator);
 
       // make the string array
@@ -736,18 +707,22 @@ System.out.println ("\n busca.length() = " + busca.length());
 
       return reto;
    }
-   public static String [] simpleToArray (String simpleStringList) { return simpleToArray (simpleStringList, ","); }
 
-   
-   public static String [] simpleToArray (String [] stringAndSeparator) 
-   { 
+   public static String [] simpleToArray (String simpleStringList)
+   {
+      return simpleToArray (simpleStringList, ",");
+   }
+
+
+   public static String [] simpleToArray (String [] stringAndSeparator)
+   {
       String str = (stringAndSeparator != null && stringAndSeparator.length > 0) ? stringAndSeparator[0]: "";
       String separ = (stringAndSeparator != null && stringAndSeparator.length > 1) ? stringAndSeparator[1]: ",";
-      return simpleToArray (str, separ); 
+      return simpleToArray (str, separ);
    }
 
    public static String linkStrings (String s1, String s2, String link)
-   { 
+   {
       if (s1.length () == 0) return s2;
       if (s2.length () == 0) return s1;
       return s1 + link + s2;
