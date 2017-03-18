@@ -564,7 +564,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //   if (num == 0) return "0 " + units[0];
       //      //   var ndig = Math.min (units.length-1, Math.floor (1 + Math.log10((num < 0 ? -num: num)/1024)/3));
       //      //   return Math.round (num * Math.pow(1024, - ndig)) + " " + units [ndig];
-      //      //} 
+      //      //}
       //      //
       //      //bytes2Str (@<size>);
 
@@ -688,10 +688,10 @@ public class cmdMicoHTTPServer implements commandable
                
                for (int cc = 0; cc < cpaths.length; cc++)
                   if (cpaths[cc].length () > 4 && cpaths[cc].substring (cpaths[cc].length () - 4).equalsIgnoreCase (".jar"))
-            {
+                  {
                      jarFileName = cpaths[cc];
                      break;
-            }
+                  }
             }
             mose.setZipFilesToServe (jarFileName, dirInJar);
             cmd.getLog().dbg (2, "MicoHttpServer", "enable serving files from directory [" + dirInJar + "] in " + jarFileName);

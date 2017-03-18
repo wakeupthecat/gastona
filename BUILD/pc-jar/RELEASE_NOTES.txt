@@ -4,19 +4,30 @@
    all source code available since December 2015 at
    https://github.com/wakeupthecat/gastona
 
-   
+
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
+
+   date   : 18.03.2017
+   version: v1.1.170318
+
+      - Fix samples using old welcome gastona DB
+      - FIX div by 0 in autoCasteljau when points are equal
+      - trazos2D.js do the coordinates relatives for pol, etc
+      - render graffiti with prefer svg and fallback canvas automatically
+      - Implement default jar (first in classpath) for MICO, ZIP FILES syntax
+      - FIX mico http upload with slow computers
+
 
    date   : 19.02.2017
    version: v1.1.170219
 
       - FIX exception evaluating deep sql
-      - Fix Eva.js withempty evas 
+      - Fix Eva.js withempty evas
       - jGastona default placeholders
       - jGastona improve default label using _ and camel notation
       - unify option recursive for scan and loop files
-      - MicoHttp FIX Content-type when serving from zip or jar 
+      - MicoHttp FIX Content-type when serving from zip or jar
       - FIX problem with autosize in jGastona
       - FIX formula for file site in FileCiervo!
       - Fix visibility problem un zAsisteTable
@@ -30,8 +41,8 @@
       - AJAXUploadFile add parameter for callback, so it can be used without listix
       - FileCiervo upload files with feedback, no progress bar but simply "uploading ..."
       - FIX micoHttp getting files with filenames with blanks and special chars
-   
-   
+
+
    date   : 14.12.2016
    version: v1.10.161214
 
@@ -47,7 +58,7 @@
   - fixes and improvements in jGastona.js
   - support graffiti objects in javascript trazos2D.js for both canvas and svg
   - File and Dir dialogs as static java functions
-   
+
    ----------------------
    date   : 05.09.2016
    version: v1.10.160905
