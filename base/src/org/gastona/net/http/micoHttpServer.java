@@ -84,7 +84,6 @@ public class micoHttpServer extends Thread
    public static final int STATE_ZOMBIE = 30;
    public static final int STATE_CLOSED = 40;
 
-
    protected int responseID = 10000;
 
    protected int state = STATE_ZOMBIE;
@@ -94,8 +93,7 @@ public class micoHttpServer extends Thread
    protected listix theListixLogic = null;
    protected Socket currentClient = null;
 
-   protected List responseHeaders = null;
-
+   protected TreeMap responseHeaders = new TreeMap ();
 
    protected String uploadFilesSubDir = "filesUpload";
    protected String fileServerString = null;
@@ -220,10 +218,7 @@ public class micoHttpServer extends Thread
 
    public void setResponseHeader (String name, String value)
    {
-      if (responseHeaders == null)
-         responseHeaders = new Vector ();
-
-      responseHeaders.add (name + ":" + value);
+      responseHeaders.put (name, name + " : " + value);
    }
 
    protected String defaultHTML (String text)
@@ -271,14 +266,6 @@ public class micoHttpServer extends Thread
       // which is the most desired action with a file except with css and js
 
       return "application/octet-stream; charset=utf-8";
-   }
-
-   protected String getContentType (httpRequestData req)
-   {
-      if (theListixLogic == null) return null;
-
-      Eva cty = theListixLogic.getVarEva (getLsxFormat4Response (req) + " Content-Type");
-      return (cty == null ? null: cty.getValue ());
    }
 
    //(o) TOREVIEW_micoHttp review use/need of synchronized
@@ -403,6 +390,8 @@ public class micoHttpServer extends Thread
                                   // Not the case, then check is the directory is forbidden
       if (tryFileName == null)
       {
+         //(o) MICO/special/directories/nopublic all directories that are not exposed to file serving, at least by default
+         //
          // standard serve file accepting ONLY index.html and subdirs html, img, js, css, data, files and gast
          //
          if (uri.startsWith ("/hide_") ||
@@ -439,6 +428,7 @@ public class micoHttpServer extends Thread
       // if a timer is running then stop it and make a new one
       //
       if (closeTimer != null) closeTimer.cancel();
+
       TimerTask tasca = new TimerTask ()
       {
          public void run ()
@@ -537,7 +527,7 @@ public class micoHttpServer extends Thread
             }
 
             httpResponseData respa = null;
-            responseHeaders = null;
+            responseHeaders = new TreeMap ();
 
             if (reke.isMethodGET ())
             {
@@ -569,6 +559,15 @@ public class micoHttpServer extends Thread
                   // but if we want to just download it as a file is better to send Content-Type "application/octet-stream"
                   //
                   boolean servingAsFile = fileServerString != null && fileNameDecode.startsWith ("/" + fileServerString);
+
+                  //(o) MICO/special/directories/nocache resources from this directory shouldn't be cached
+                  //
+                  if (fileNameDecode.startsWith ("/nocache/"))
+                  {
+                     responseHeaders.put ("Cache-Control", "Cache-Control : no-cache, no-store, must-revalidate");
+                     responseHeaders.put ("Pragma", "Pragma : no-cache");
+                     responseHeaders.put ("Expires", "Expires : 0");
+                  }
 
                   out ("want to serve the file [" + file2serve + "]");
                   // serving a file
@@ -616,7 +615,7 @@ public class micoHttpServer extends Thread
                out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
                // build response using listix
                //
-               respa = new httpResponseData (outputStream, buildResponse (reke), getContentType (reke), responseHeaders);
+               respa = new httpResponseData (outputStream, buildResponse (reke), null, responseHeaders);
             }
 
             out ("sending response");

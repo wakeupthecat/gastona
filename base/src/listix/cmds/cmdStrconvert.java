@@ -704,7 +704,7 @@ public class cmdStrconvert implements commandable
          Eva target = that.getSomeHowVarEva (p2);
          target.clear ();
 
-         EvaFile.textLines2Eva (source.getAsArray (), target);
+         EvaFile.text2Eva (source.getAsArray (), target);
       }
       else if (oper.equals ("GEN EVA"))
       {

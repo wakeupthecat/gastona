@@ -28,6 +28,8 @@ function EvaLayout (mangr, layName)
 {
    // "use strict";
 
+   var DBG_ON = 0;
+
    var HEADER_ADAPT      = "A";
    var HEADER_EXPAND     = "X";
    var EXPAND_HORIZONTAL = "-";
@@ -125,9 +127,9 @@ function EvaLayout (mangr, layName)
          }
       }
 
-      function addItem (headType, /**/ ite)
+      function addItem (headType)
       {
-         ite = HeaderItem(headType || "");
+         var ite = HeaderItem(headType || "");
          regla.push (ite);
          totalExtra += ite.extraPercent;
       }
@@ -140,8 +142,9 @@ function EvaLayout (mangr, layName)
             regla[index].len = Math.max(regla[index].len, len);
       }
 
-      function endItems (/**/ ii, ele)
+      function endItems ()
       {
+         var ii, ele;
          // compute final fixed size and the extraPercent if needed
          //
          fixLineSize = margin + margin + /*COMPENSATE_BROWSER + */ gap * (regla.length - 1);
@@ -154,9 +157,9 @@ function EvaLayout (mangr, layName)
          }
       }
 
-      function getLengthInRange (totalExtra, index, toIndx, /*var*/ suma)
+      function getLengthInRange (totalExtra, index, toIndx)
       {
-         suma = 0;
+         var suma = 0;
          toIndx = toIndx || index; // per default range = index, index
 
          // toIndx -1 means : until the end
@@ -219,7 +222,9 @@ function EvaLayout (mangr, layName)
 
             var wname = getGridCell(rr, cc);
             if (! wname ) continue;
-            //... console.log ("precalc " + wname);
+
+            if (DBG_ON)
+               console.log ("precalc " + wname);
             var laya = mangr.getLayableByName (wname);
             if (! laya) continue;
 
@@ -255,7 +260,8 @@ function EvaLayout (mangr, layName)
                //
                headRows.setLengthOfItemAt (rr, laya.iniRect.bottom - laya.iniRect.top);
             }
-            //... console.log ("precalc set " + wname + " at " + laya.indxPos);
+            if (DBG_ON)
+               console.log ("precalc set " + wname + " at " + laya.indxPos.ileft + ", " + laya.indxPos.itop + ", " + laya.indxPos.iright + ", " + laya.indxPos.ibottom);
 
             laya.isLaidOut = true;
          }
@@ -278,8 +284,8 @@ function EvaLayout (mangr, layName)
    {
       precalculateLayout ();
 
-      var extraVertical   = (totHeight - headRows.fixedSize ());
-      var extraHorizontal = (totWidth  - headColumns.fixedSize ());
+      var extraVertical   = Math.max(0, totHeight - headRows.fixedSize ());
+      var extraHorizontal = Math.max(0, totWidth  - headColumns.fixedSize ());
 
       var posX = x0 + headColumns.margin;
       for (var cc = 0; cc < headColumns.countItems (); cc ++)
@@ -310,16 +316,19 @@ function EvaLayout (mangr, layName)
 
                if (posX < 0 || posY < 0 || dx < 0 || dy < 0)
                {
-                  //... console.log ("esto " + wname + " no se ve na de na " + posX + ", " + posY + ", " + dx + ", " + dy);
+                  if (DBG_ON)
+                     console.log ("esto " + wname + " no se ve na de na " + posX + ", " + posY + ", " + dx + ", " + dy);
                   continue;
                }
-               //... console.log ("widget " + wname + " set at " + posX + ", " + posY + " dim " + dx + " x " + dy);
+               if (DBG_ON)
+                  console.log ("widget " + wname + " set at " + posX + ", " + posY + " dim " + dx + " x " + dy);
                laya.doMove (posX, posY, dx, dy);
                laya.doShow (true);
             }
             else
             {
-               //... console.log ("esto " + wname + " lo oculto ");
+               if (DBG_ON)
+                  console.log ("esto " + wname + " lo oculto ");
                laya.doShow (false);
             }
          }

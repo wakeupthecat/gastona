@@ -109,7 +109,7 @@ public class sqlUtil
       String attachString = System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS, "");
       if (attachString.equals ("")) return null;
 
-      String [] arrDbName = Cadena.simpleToArray (attachString, ",");
+      String [] arrDbName = attachString.split (",");
 
       Eva eva = new Eva("attachedDBs");
       eva.addLine (new EvaLine (new String [] { "alias", "dbName" } ));

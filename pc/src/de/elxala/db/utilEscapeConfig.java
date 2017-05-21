@@ -20,14 +20,14 @@ package de.elxala.db;
 
 /**
    To allow different default behaviour for Android (apk) than for PC (jar)
-   
+
    PC prefer native encode (~1 ~2 etc)
    and Android use better UTF-8 to support International characters
    Idea is also migrate PC to UTF-8 , inclusive gastona welcome documentation database
-   
+
 */
 public class utilEscapeConfig
 {
-   public static final String SEPARATOR = "|";
+   public static final char SEPARATOR = '|';
    public static String ENCODE_MODEL_NAME = ""; // "UTF-8" used in Android
 }

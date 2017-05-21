@@ -204,7 +204,10 @@ public class xmelonSchema
       if (checkMisprog (cached == null, "cached")) return null;
 
       cliDB.openScript ();
-      out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + cached.fileID + ", '" + cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileName + "');");
+      out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + 
+                    cached.fileID + ", '" + 
+                    cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + 
+                    cliDB.escapeString (fileName) + "');");
 
       log.dbg (2, "processOneFile", "start parsing [" + fileName + "]");
       TextFile tf = new TextFile ();

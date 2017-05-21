@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -275,8 +275,13 @@ public class baseEBS
 
    public String getSimpleDataAttribute (String attName)
    {
+      return getSimpleDataAttribute (attName, null);
+   }
+
+   public String getSimpleDataAttribute (String attName, String defaultValue)
+   {
       Eva eva = getAttribute(DATA, false, attName);
-      if (eva == null) return null;
+      if (eva == null) return defaultValue;
 
       return eva.getValue (0, 0);
    }
@@ -331,7 +336,7 @@ public class baseEBS
 
    /**
       same as getDataAttribute (String attName) but
-      forcing the creation of the attribute if 
+      forcing the creation of the attribute if
       it does not exist
    */
    public Eva getEnsureDataAttribute (String attName)

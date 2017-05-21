@@ -124,14 +124,20 @@ public class cebollaClockInMotion // solo idea ... public cebollaInMotion
 
    private void saveCurrentRelos ()
    {
-      EvaFile.saveEvaUnit (getCurrentRelosFileName (), currentRelos.getDataEbs ().getData ());
+      EvaFile ef = new EvaFile ();
+      ef.allUnits.add (currentRelos.getDataEbs ().getData ());
+      ef.saveFile (getCurrentRelosFileName ());
    }
 
    private void saveRelos ()
    {
       String filename = getRELOS_DATA_DIR () + "/" + DateFormat.getStr (new Date (), "yyyyMMdd_HH_mm_ss_S") + ".rel";
       currentRelos.saveData ();
-      EvaFile.saveEvaUnit (filename, currentRelos.getDataEbs ().getData ());
+
+      EvaFile ef = new EvaFile ();
+      ef.allUnits.add (currentRelos.getDataEbs ().getData ());
+      ef.saveFile (filename);
+
       System.out.print ("salvando [" + filename + "] ... ");
       File fi = fileUtil.getNewFile (filename);
       if (fi.exists ())

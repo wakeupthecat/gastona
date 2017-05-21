@@ -8,9 +8,23 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+   date   : 18.04.2017
+   version: v1.2.170418
+   
+      - faster EvaLine parser, new EvaFile methods
+      - jGastona new pack and unpack utilities for requests and respopnses
+      - js libraries, several improvements and fixes 
+      - Eva.js parser support now all features: quotes, rest of line marker, comments etc 
+      - MICO new commands RESP_HEADER=, RESP_VAR= and improve header settings
+      - zWidget mImagen new opacity and backcolor
+      - FIX issue with filenames with quotes in parsers in Parsons and xmelon
+      - jGastona new handle of "main" in listix JAST
+      - FIX Micohttp served files were not closed
+      
    date   : 18.03.2017
    version: v1.1.170318
 
+      - Fix Android compilation (broken on 2017-02-12)
       - Fix samples using old welcome gastona DB
       - FIX div by 0 in autoCasteljau when points are equal
       - trazos2D.js do the coordinates relatives for pol, etc

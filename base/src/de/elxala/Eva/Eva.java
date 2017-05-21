@@ -239,6 +239,12 @@ public class Eva implements java.io.Serializable
       lis_EvaLin.add (new EvaLine (newRow));
    }
 
+   public void add (EvaLine newRow)
+   {
+      lis_EvaLin.add (newRow);
+   }
+
+
    /**
       Inserts a new row at the position 'indx' with the value 'newRow'. If the position 'indx' is not
       in the ranges of current rows (0 .. rows () -1), then 'newRow' is simply added at the end

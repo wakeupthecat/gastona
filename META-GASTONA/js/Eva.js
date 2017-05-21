@@ -45,36 +45,13 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
    console.log ("Gauss lived in " + comol.obj["unit primera"]["milist"][1][1]);
 
 
-  jsEva v0.20
+  jEva v0.80
 
-  differences respect eva parser in C++ and java
-
-   - "rest of line" (chat ' or //) is only implemented  for the first column!
-
-         for example
-
-            first, second, //third, etc
-
-         should be parsed as [ "first", "second", "third, etc"]     (3 elem)
-         but results in      [ "first", "second", "//third", "etc"] (4 elem)
-
-
-   - double quotation is not handled! the rows are splited simply by comma (,)
-
-         for example
-
-            first, "second ""and"" last"
-
-         should be parsed as [ 'first', 'second "and" last']     (2 elem)
-         but results in      [ 'first', '"second ""and"" last"'] (1 elem)
-
-   - final cells are processed with the function decodeURIComponent ()
-     this allow the inclusion of any unicode character, returns (%0A) and commas (%2C)!
-
-       this is actually an advantage regards the C++ and java parsers
-
-  - to allow content with commas, either use "rest of the line" (//) if the row has only
-     one column or use %2C
+      2017.04.17  parser compatible with other implementations
+                  implement correctly rest of line in all columns
+                  implement double quotes in all columns
+                  implement comment <!
+                  implement logic end of file #**...#
 
 */
 
@@ -98,43 +75,48 @@ function evaFileObj (obj)
 
    function evaFileObj2Text (evafileObj)
    {
-      var str = "", uni;
-      for (uni in evafileObj)
+      var str = [];
+      for (var uni in evafileObj)
       {
-         str += "\n#" + uni + "#\n";
-         str += evaUnitObj2Text (evafileObj[uni]);
+         str.push ("#" + uni + "#");
+         str.push ("");
+         str.push (evaUnitObj2Text (evafileObj[uni]));
+         str.push ("");
       }
-      return str;
+      return str.join ("\n");
    }
 
    function evaUnitObj2Text (obj)
    {
-      var str = "", eva;
-      for (eva in obj)
+      var str = [];
+      for (var eva in obj)
       {
-         str += "\n   <" + eva + ">\n";
-         str += evaObj2Text (obj[eva]);
+         str.push ("");
+         str.push ("   <" + eva + ">");
+         str.push ("");
+         str.push (evaObj2Text (obj[eva]));
       }
-      return str;
+      return str.join ("\n");
    }
 
    function evaObj2Text (obj)
    {
-      var str = "", lin;
+      var str = [], lin = "";
       for (var row in obj)
       {
-         str += "      ";
+         lin = "      ";
          for (var col in obj[row])
          {
             if (col > 0)
-               str += ", ";
+               lin += ", ";
             if (col == obj[row].length - 1)
-               str += "//";
-            str += obj[row][col];
+               lin += "//";
+            lin += obj[row][col];
          }
-         str += "\n";
+
+         str.push (lin);
       }
-      return str;
+      return str.join ("\n");
    }
 }
 
@@ -158,7 +140,6 @@ function evaFileStr2obj (fileStr)
       }
    }
 
-
    return parseFileStr (fileStr);
 
    /*
@@ -171,7 +152,7 @@ function evaFileStr2obj (fileStr)
    */
    function isname (line, charStart, charEnd)
    {
-      if (line.indexOf (charStart) != 0) return;
+      if (line.charAt (0) !== charStart) return;
       var indx = line.indexOf (charEnd, 1);
       if (indx > 0)
          return {
@@ -185,38 +166,90 @@ function evaFileStr2obj (fileStr)
       out (parseEvaLine ("    one    , two,     three ... etc   "));
       // => [ "one", "two", "three ... etc" ]
    */
-   function parseEvaLine (evalineStr, /*var*/ le, arr, indx)
+   function parseEvaLine (str)
    {
-      evalineStr = evalineStr.trim ();
-      le = evalineStr.length;
-      if (le == 0) return;
+       var eline = [];
+       var FIN = str.length;
+       var pi = 0;
 
-      // implement basic rest of line escape either with ' or // but ONLY for the first column!
-      if (evalineStr.indexOf("'") == 0)
-      {
-         return [ evalineStr.substr(1) ];
-      }
-      if (evalineStr.indexOf("//") == 0)
-      {
-         return [ evalineStr.substr(2) ];
-      }
+       function fin() { return pi >= str.length; }
+       function getCell ()
+       {
+          var cell = "";
 
-      // remove last trailing "," if last character
-      //
-      //       ","  => 1 element
-      //       ",," => 2 element
-      //       etc..
-      //
-      if (evalineStr.lastIndexOf (",") == le - 1)
-         evalineStr = evalineStr.substring (0, le - 1);
+          // trim
+          while (pi < str.length && (str.charAt(pi) == ' ' || str.charAt(pi) == '\t')) pi++;
+          if (fin ()) return null;
 
-      arr = evalineStr.split(',');
-      for (indx in arr)
-      {
-         arr[indx] = decodeURIComponent (arr[indx].trim ());
-      }
+          if (str.charAt(pi) == '\'')
+          {
+             cell = str.substring (pi+1);
+             pi = FIN;
+             return cell;
+          }
 
-      return arr;
+          // si // return str.substring (pos+2);
+          //
+          if (str.charAt(pi) == '/' && str.charAt(pi+1) == '/')
+          {
+             cell = str.substring (pi+2);
+             pi = FIN;
+             return cell;
+          }
+
+          var envolta = str.charAt(pi) == '\"';
+          var ini = envolta ? ++pi: pi;
+          do
+          {
+              if (envolta)
+              {
+                 if (str.charAt(pi) != '\"') pi ++;
+                 else
+                     if (str.charAt(pi+1) == '\"')
+                     {
+                       // double ""
+                       // add a part including one " and continue
+                       cell += (pi+1 > ini ? str.substring (ini, pi+1): "");
+                       pi += 2;
+                       ini = pi;
+                     }
+                     else break; // close "
+              }
+              else
+              {
+                  if (str.charAt (pi) == ',') break;
+                  pi ++;
+              }
+          } while (! fin ());
+
+          var fi2 = pi;
+
+          // right trim if not quoted
+          //
+          if (! envolta)
+            while (fi2 > ini && (str.charAt(fi2-1) === ' ' || str.charAt(fi2-1) === '\t')) fi2 --;
+
+          if (fi2 > ini)
+            cell += str.substring (ini, fi2);
+
+          pi ++;
+
+          if (envolta) {
+             // find the next comma if any
+             while (! fin () && str.charAt(pi) != ',') pi++;
+             pi ++;
+          }
+
+          return cell;
+       }
+
+       do {
+            var cel = getCell ();
+            if (typeof cel === "string")
+               eline.push (cel);
+       } while (! fin ());
+
+       return eline;
    }
 
    function parseFileStr (filetext)
@@ -252,11 +285,15 @@ function evaFileStr2obj (fileStr)
       {
          linStr = textArr[lindx].trim ();
 
+         // check if comment, then ignore line
+         if (linStr.charAt (0) === '<' && linStr.charAt (1) === '!') continue;
+
          // check if start of unit
          //
          novoName = isname (linStr, "#", "#");
          if (novoName)
          {
+            if (novoName.name && novoName.name.charAt(0) === '*' && novoName.name.charAt(1) == '*') break; // logic end of file
             setCurrent (true);
             nameUnit = novoName.name;
             // console.log ("ignoring " + novoName.rest);
@@ -274,10 +311,10 @@ function evaFileStr2obj (fileStr)
             if (linStr.length == 0) continue;
          }
 
-         // it is a eva line or something to ignore like
-         // something before first unit or first eva of the current unit
+         // line is not empty
+         // and we are within a unit and an eva
          //
-         if (nameUnit && nameEva)
+         if (linStr && nameUnit && nameEva)
          {
             lineArr = parseEvaLine (linStr);
             if (lineArr)

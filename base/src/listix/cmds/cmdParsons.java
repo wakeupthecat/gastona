@@ -346,12 +346,12 @@ import de.elxala.mensaka.*;   // for messages start, progress, end
 
 /**
    Scans (source) either :
-         a file 
+         a file
          a text contained in a variable
-      or a string 
-      
+      or a string
+
    and can place the result(s) (target) in
-   
+
       a db table
       a variable as a table
       a variable as a single value
@@ -531,9 +531,9 @@ public class cmdParsons implements commandable
             //    for example
             //             ...
             //             , VAR, v1, v2, //@<someBegin> (@<pattv1)..(\d*) etc
-            //         
-            String [] agentOptPar = 
-                    cmd.takeOptionParameters (new String [] { optStr }, 
+            //
+            String [] agentOptPar =
+                    cmd.takeOptionParameters (new String [] { optStr },
                                               (agType == parsonsAgent.SINGLE_EVA_VALUE)); // solve to true if SINGLE VAR since pattern is there!
 
             if (evaWithPattern.rows () > 0)
@@ -833,7 +833,10 @@ public class cmdParsons implements commandable
                           sourceEvavar != null ? (":var " + myDB.escapeString (sourceEvavar.getName ())): "?source";
 
       myDB.openScript ();
-      myDB.writeScript ("INSERT INTO " + PARSONS_FILES_TABLENAME + " VALUES (" + fileIDret + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + sourceStr + "');");
+      myDB.writeScript ("INSERT INTO " + PARSONS_FILES_TABLENAME + " VALUES (" +
+                                fileIDret + ", '" +
+                                myDB.escapeString (DateFormat.getTodayStr ()) + "', '" +
+                                myDB.escapeString (sourceStr) + "');");
 
       // ensure all tables and variables
       for (int tt = 0; tt < agents.size (); tt ++)
@@ -930,11 +933,11 @@ public class cmdParsons implements commandable
          Eva var = that.getGlobalData ().getSomeHowEva (agent.tableName);
          // new line number
          int lineNr = var.rows ();
-         
+
          var.setValue (fileID + "", lineNr, 0);
          var.setValue (agent.getFirstLine () + "", lineNr, 1);
          var.setValue (agent.getLastLine  () + "", lineNr, 2);
-         
+
          // set all column values
          for (int ii = 0; ii < agent.getColumnCount (); ii ++)
             var.setValue (agent.getColumnValue (ii), lineNr, 3 + ii);

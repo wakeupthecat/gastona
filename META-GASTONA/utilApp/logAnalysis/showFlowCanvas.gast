@@ -62,12 +62,12 @@
      //
      //  #data#
      //
-     //     <distanceAgents> 360
-     //     <distanceTimeUnit> 40
+     //     <distanceAgents> 30
+     //     <distanceTimeUnit> 1
      //     <autoElapsed> true
-     //     <maxGapTime> 6
+     //     <maxGapTime> 3
      //
-     //     <sequence>
+     //     <sequenceTable>
      //
      //        time, source, target, message
      //
@@ -79,19 +79,10 @@
      //#**#
      //*/}.toString ();
      //
-     //   function getProp (evaunit, prop) { return evaunit[prop] ? evaunit[prop][0][0]: null; }
-     //
      //   var texta = document.getElementById('place');
      //   var data = evaFileStr2obj (DATAinline)["data"];
      //   if (data) {
-     //      var diagData = {
-     //           sequenceTable    : data["sequence"],
-     //           distanceAgents   : getProp (data ,"distanceAgents"),
-     //           distanceTimeUnit : getProp (data ,"distanceTimeUnit"),
-     //           maxGapTime       : getProp (data ,"maxGapTime"),
-     //           autoElapsed      : getProp (data ,"autoElapsed"),
-     //        };
-     //        conSecuencioCanvas (texta.getContext ('2d'), diagData);
+     //        conSecuencioCanvas (texta.getContext ('2d'), data);
      //   }
      //
      //</script>

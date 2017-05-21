@@ -241,12 +241,14 @@ public class gastona
    private static final String UNIT_LISTIX        = "listix";
    private static final String UNIT_GASTONA       = "gastona";
    private static final String UNIT_JAVAJ         = "javaj";
+   private static final String UNIT_GUIX          = "guix";
    private static final String UNIT_DATA          = "data";
 
    private static String sessionLogDirSlash = null;
 
    protected logger log = new logger (this, "gastona", null);
 
+   private EvaFile allUnits = null;
    private EvaUnit unitGastona = null;
    private EvaUnit unitListix  = null;
    private EvaUnit unitJavaj   = null;
@@ -340,7 +342,8 @@ public class gastona
    {
       log.dbg (2, "loadUnits", "loading units");
 
-      unitGastona = EvaFile.loadEvaUnit (fileName, UNIT_GASTONA);
+      allUnits = new EvaFile (fileName, new String [] { UNIT_GASTONA, UNIT_LISTIX, UNIT_JAVAJ, UNIT_GUIX, UNIT_DATA });
+      unitGastona = allUnits.getUnit (UNIT_GASTONA);
 
       if (unitGastona != null)
       {
@@ -367,20 +370,27 @@ public class gastona
          log.dbg (0, "loadUnits", (evaDbgClients == null ? 0: evaDbgClients.rows ()) + "logLevels specified, logLevelGlobal is " + dbgLevel);
          logServer.configure (dbgLevel, evaDbgClients);
       }
+      else
+      {
+         unitGastona = allUnits.getSomehowUnit (UNIT_GASTONA);
+      }
 
+      unitListix  = allUnits.getSomehowUnit  (UNIT_LISTIX);
 
-      unitListix  = EvaFile.loadEvaUnit (fileName, UNIT_LISTIX);
-      unitJavaj   = EvaFile.loadEvaUnit (fileName, UNIT_JAVAJ);
-      unitData    = EvaFile.loadEvaUnit (fileName, UNIT_DATA);
+      // load "guix" with compatible fallback "javaj"
+      // if any one present then force empty "guix"
+      //
+      unitJavaj = allUnits.getUnit  (UNIT_GUIX);
+      if (unitJavaj == null)
+         unitJavaj = allUnits.getUnit  (UNIT_JAVAJ);
+      if (unitJavaj == null)
+         unitJavaj = allUnits.getSomehowUnit  (UNIT_GUIX);
 
-      if (unitGastona == null) unitGastona = new EvaUnit ("gastona");
-      if (unitListix == null)  unitListix = new EvaUnit ("listix");
-      if (unitJavaj == null)   unitJavaj = new EvaUnit ("javaj");
-      if (unitData == null)    unitData = new EvaUnit ("data");
+      unitData    = allUnits.getSomehowUnit  (UNIT_DATA);
 
       log.dbg (2, "loadUnits", "loaded unit #gastona# with " + unitGastona.size () + " evas");
       log.dbg (2, "loadUnits", "loaded unit #listix# with " + unitListix.size () + " evas");
-      log.dbg (2, "loadUnits", "loaded unit #javaj# with " + unitJavaj.size () + " evas");
+      log.dbg (2, "loadUnits", "loaded unit #guix# with " + unitJavaj.size () + " evas");
       log.dbg (2, "loadUnits", "loaded unit #data# with " + unitData.size () + " evas");
 
       //(o) gastona_fusion Here takes place the fusion
@@ -411,10 +421,18 @@ public class gastona
             if (log.isDebugging (3))
                log.dbg (3, "loadUnits", "fusion file [" + fileFus + "] type " + policy);
 
-            unitGastona.merge (EvaFile.loadEvaUnit (fileFus, UNIT_GASTONA) , policy);
-            unitJavaj.merge   (EvaFile.loadEvaUnit (fileFus, UNIT_JAVAJ)   , policy);
-            unitListix.merge  (EvaFile.loadEvaUnit (fileFus, UNIT_LISTIX)  , policy);
-            unitData.merge    (EvaFile.loadEvaUnit (fileFus, UNIT_DATA)    , policy);
+            EvaFile fuse = new EvaFile (fileFus);
+
+            unitGastona.merge (fuse.getUnit (UNIT_GASTONA) , policy);
+
+            // merge "guix" accepting "javaj" as backwards compatible
+            EvaUnit guix = fuse.getUnit (UNIT_GUIX);
+            if (guix == null)
+               guix = fuse.getUnit (UNIT_JAVAJ);
+            unitJavaj.merge   (guix, policy);
+
+            unitListix.merge  (fuse.getUnit (UNIT_LISTIX)  , policy);
+            unitData.merge    (fuse.getUnit (UNIT_DATA)    , policy);
          }
          log.dbg (2, "loadUnits", "fusion done");
       }
@@ -621,11 +639,9 @@ public class gastona
 
       //(o) gastona_traces save generated_linked.gast
       //
-      if (log.getLogDirectory () != null)
+      if (log.getLogDirectory () != null && allUnits != null)
       {
-         EvaFile.saveEvaUnit (log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST, unitListix);
-         EvaFile.saveEvaUnit (log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST, unitData);
-         EvaFile.saveEvaUnit (log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST, unitJavaj);
+         allUnits.saveFile (log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST, new String [] { "listix", "data", "javaj" });
          log.dbg (2, "init", log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST + " saved");
 
 //         //try to clean sqlite log file
@@ -637,6 +653,7 @@ public class gastona
          microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/logViewer.gast", sessionLogDirSlash + "logViewer.gast");
          microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowPlain.gast", sessionLogDirSlash + "showFlowPlain.gast");
          microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowCanvas.gast", sessionLogDirSlash + "showFlowCanvas.gast");
+         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/listix2Dot.gast", sessionLogDirSlash + "listix2Dot.gast");
       }
 
       loadMetadata ();
@@ -726,7 +743,7 @@ public class gastona
    {
       javax.swing.JOptionPane.showMessageDialog (
             null,
-            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2016\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
+            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2017\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
             "About",
             javax.swing.JOptionPane.INFORMATION_MESSAGE);
    }

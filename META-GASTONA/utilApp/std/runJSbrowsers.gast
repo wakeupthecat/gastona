@@ -1,0 +1,60 @@
+#javaj#
+
+   <frames> main, Javascript Executor
+
+   <layout of main>
+      EVA, 3, 3, 2, 2
+
+         , , X
+         , lEnter your javascript code, -
+       X , xCodeArea, -
+         , rgBrowsers, bEjecute
+         , lSalida, -
+       X , xBodyResponse, -
+       X , oSalar, -
+
+   <sysDefaultFonts>
+      Consolas, 14, 0, TextArea.font
+
+#data#
+
+   <rgBrowsers orientation> X
+   <rgBrowsers>
+      label  , selected, exe
+      Chrome , 1       , //C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+      IE     , 0       , //C:\Program Files\Internet Explorer\iexplore.exe
+      Firefox, 0       , //C:\Program Files (x86)\Mozilla Firefox\firefox.exe
+
+   <xCodeArea>
+      //
+      //function encript (t1, t2)
+      //{
+      //   return t2 + t1;
+      //}
+      //
+      //out ("output of this function is ... " + encript ("TheCat", "WakeUp"));
+      //
+
+#listix#
+   
+   <main>
+      micohttp, start, Servako
+      
+   <theport>
+      micohttp, GET PORT, Servako
+      
+   <-- bEjecute>
+      MSG, lSalida data!,, Opening browser ...
+		LAUNCH, //"@<rgBrowsers selected.exe>" http://localhost:@<theport>
+
+   <elapsed>
+      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
+
+   <GET />
+      VAR=, USER CODE, LSX, xCodeArea
+      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
+      VAR=, STARTSTAMP, @<:lsx CLOCK>
+
+   <POST /JSresponse>
+      MSG, lSalida data!,, //done, it took @<elapsed> seconds
+      -->, xBodyResponse load, @<_bodyMemFileName>

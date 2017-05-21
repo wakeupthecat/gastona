@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -29,7 +29,7 @@ import de.elxala.mensaka.*;
 
 import javaj.widgets.kits.dndFileTransHandler;
 import javaj.widgets.basics.*;
-
+import javaj.widgets.graphics.*;
 
 /*
    //(o) WelcomeGastona_source_javaj_widgets (m) zImage
@@ -134,13 +134,15 @@ import javaj.widgets.basics.*;
 */
 public class zImage extends JPanel implements MouseListener, MensakaTarget
 {
-   private basicAparato helper = null;
-   private dndFileTransHandler dndHandler = null;
+   protected basicAparato helper = null;
+   protected dndFileTransHandler dndHandler = null;
 
-   private Color backColor = new JButton().getBackground (); // new JButton().getBackgroundColor ();
+
+   protected Color backColor = Color.GRAY; //new JButton().getBackground (); // new JButton().getBackgroundColor ();
 
    // own data
-   private Icon theImage = null;
+   protected Icon theImage = null;
+   protected float alpha = 0.f;
 
    public zImage ()
    {
@@ -171,6 +173,21 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
       setBackground(new JButton().getBackground ());
    }
 
+   private void readAlpha ()
+   {
+      alpha = (float) stdlib.atof (helper.ebs ().getSimpleDataAttribute ("alpha", "1"));
+      if (alpha == 1.f)
+         alpha = (float) stdlib.atof (helper.ebs ().getSimpleDataAttribute ("opacity", "1"));
+
+      String backC = helper.ebs ().getSimpleDataAttribute ("backcolor");
+      if (backC != null)
+      {
+         uniColor uco = new uniColor ();
+         uco.parseColor (backC);
+         backColor = uco.getNativeColor ();
+      }
+   }
+
    public boolean takePacket (int mappedID, EvaUnit euData, String [] pars)
    {
       switch (mappedID)
@@ -179,6 +196,7 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
             helper.ebs ().setDataControlAttributes (euData, null, pars);
 
             theImage = javaLoad.getSomeHowImageIcon (helper.ebs ().getText ());
+            readAlpha ();
             //paintImmediately (new Rectangle (0, 0, getSize().width, getSize().height));
             paintImmediately (getVisibleRect());
             // repaint ();
@@ -188,6 +206,7 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
             helper.ebs ().setDataControlAttributes (null, euData, pars);
 
             setEnabled (helper.ebs ().getEnabled ());
+            readAlpha ();
 
             //(o) TODO_REVIEW visibility issue
             // avoid setVisible (false) when the component is not visible (for the first time ?)
@@ -284,6 +303,13 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
       int left  = (d.width - theImage.getIconWidth()) / 2;
       int right = (d.height - theImage.getIconHeight()) / 2;
 
-      theImage.paintIcon(this, g, left, right);
+      if (alpha < 1.f)
+      {
+         Graphics2D g2d = (Graphics2D) g;
+         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, alpha));
+         theImage.paintIcon(this, g2d, left, right);
+      }
+      else
+         theImage.paintIcon(this, g, left, right);
    }
 }

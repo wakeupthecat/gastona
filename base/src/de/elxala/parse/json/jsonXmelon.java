@@ -186,8 +186,6 @@ public class jsonXmelon
             
             boolean transparent = optTransparentTagList.contains (dimension);
 
-            //String newpropName = Cadena.linkStrings (campoBase, dimension, "_");
-
             if (theObj != null)
             {
                if (theTablePolicy == TABLE_POLICY_REDUCED)

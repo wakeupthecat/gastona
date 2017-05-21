@@ -135,8 +135,6 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
          if (orden.equals ("text"))
          {
             // text, style, x, y, enmarcado, ?, texto
-            //Cadena ctext = new Cadena (eline.getValue (6));
-            //ctext.replaceMeOnce (new String [][] { { "\\\\", "\\" }, { "\\r", "\n" }, { "\\n", "\n" }});
             String str = getTextEncoder().decode (eline.getValue (6));
             processSvgText    (str, eline.getFloat(2), eline.getFloat(3), eline.getFloat(4) == 1.f, style);
          }

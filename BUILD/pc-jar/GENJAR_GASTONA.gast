@@ -21,8 +21,8 @@
       X  , layJavaErrorsClickAndGo, - , -
 
 #data#
-
-   <gastonaVersion>  //1.1.170318 \"ERipley darkmatter\"
+   
+   <gastonaVersion>  //1.2.170521 \"Praias\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

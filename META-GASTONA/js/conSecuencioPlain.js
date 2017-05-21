@@ -5,11 +5,21 @@
 
 function conSecuencioPlain (diagData)
 {
+   function getAnInt (obj, defval)
+   {
+      if (!obj) return defval;
+      if (typeof obj === "number") return parseInt(obj);
+      return parseInt (obj[0][0]);
+   }
+   
    var arr = diagData["sequenceTable"];
-   var dia = parseInt (diagData["distanceAgents"]);
-   var dit = parseInt (diagData["distanceTimeUnit"]);
-   var maxGapTime = parseInt (diagData["maxGapTime"]);
-   var autoElapsed = diagData["autoElapsed"] !== false; // to not interpret undefined as false!
+   var dia = getAnInt (diagData["distanceAgents"], 30);
+   var dit = getAnInt (diagData["distanceTimeUnit"], 4);
+   var maxGapTime = getAnInt (diagData["maxGapTime"], 3);
+   var autoElapsed = diagData["autoElapsed"];
+   if (typeof autoElapsed === "string")
+      autoElapsed = (autoElapsed === "1" || autoElapsed === "true");
+   autoElapsed = autoElapsed !== false;
 
    // expected schema of sequenceTable (columns):  time, source, target, message
    //
@@ -38,9 +48,9 @@ function conSecuencioPlain (diagData)
       {
          if (ii === "0") continue;
 
-         if (tx != -1 && agArr.indexOf (mats[ii][tx]) == -1)
+         if (tx != -1 && mats[ii][tx] && agArr.indexOf (mats[ii][tx]) == -1)
             agArr.push (mats[ii][tx]);
-         if (rx != -1 && agArr.indexOf (mats[ii][rx]) == -1)
+         if (rx != -1 && mats[ii][rx] && agArr.indexOf (mats[ii][rx]) == -1)
             agArr.push (mats[ii][rx]);
       }
 
@@ -63,12 +73,6 @@ function conSecuencioPlain (diagData)
    }
 
    // ----- TEXT
-
-   // DEFAULT VALUES
-   //
-   dia = dia || 30;  // horizontal distance between agents
-   dit = dit ||  4;  // vertical distance between time units (i.e. seconds)
-   maxGapTime = maxGapTime || 3;
 
    //GENERAL UTILITIES
    // trim for IE8
@@ -124,7 +128,7 @@ function conSecuencioPlain (diagData)
       return ba;
    }
 
-   function flecha (ifrom, ito, text)
+   function putFlecha (ifrom, ito, text)
    {
       var pre = "", post = "";
       if (ifrom > ito)
@@ -136,14 +140,14 @@ function conSecuencioPlain (diagData)
              post);
    }
 
-   function label (timo, indxFrom, indxTo, txt)
+   function putLabel (timo, indxFrom, indxTo, txt)
    {
       var p1, ii;
 
       if (indxFrom == -1)
       {
-          if (indxTo == -1) return;
-          indxFrom = indxTo;
+         if (indxTo == -1) return;
+         indxFrom = indxTo;
       }
       else if (indxTo == -1)
            indxTo = indxFrom;
@@ -194,7 +198,7 @@ function conSecuencioPlain (diagData)
       // arrow
       out (stim +
            barras (i0) +
-           flecha (indxFrom, indxTo, getElapsed (timo, indxFrom, indxTo)) +
+           putFlecha (indxFrom, indxTo, getElapsed (timo, indxFrom, indxTo)) +
            barras (agents.length - i1 - 1));
    }
 
@@ -230,6 +234,8 @@ function conSecuencioPlain (diagData)
       var a1 = agents.indexOf (arr[aa][iAgentTx]);
       var a2 = agents.indexOf (arr[aa][iAgentRx]);
       var tx = arr[aa][iMessage];
+      
+      if (tx === undefined) continue;
 
       // plot time difference
       //
@@ -246,7 +252,7 @@ function conSecuencioPlain (diagData)
       }
       lastTim = ti;
 
-      label (ti, a1, a2, tx);
+      putLabel (ti, a1, a2, tx);
    }
    out (sCont);
    out (sAgeRay);

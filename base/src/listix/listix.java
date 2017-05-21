@@ -457,6 +457,7 @@ public class listix
       if (name.length () == 0 || name.charAt (0) != ':')
          return null;
 
+
       //(o) TODO_listix improve the scan of primitive with a regular expresion
 
       String lowName = name.toLowerCase ();
@@ -685,7 +686,19 @@ public class listix
          return new String (stdlib.hexStr2charArr (varname));
       }
 
-      StringBuffer strBufvar = evaVarToText (varname, solveVar);
+      //NOTE: the fact that path is solve by default creates a little bit mess in code :(
+      //
+
+      // evaluate no primitive before geting "path" primitive.
+      //
+      boolean noPrimitive = primiVar[0].length () == 0;
+
+      // we get the path primitive first since it is needed for solving option
+      // path will be always solved because something like "@<xxx>" make no sense within a path
+      //
+      boolean isPath = primitiveExtract (primiVar, new String [] {"path"});
+
+      StringBuffer strBufvar = evaVarToText (varname, solveVar || isPath);
       if (strBufvar == null)
       {
          if (!beSilent)
@@ -693,17 +706,17 @@ public class listix
          return "";
       }
 
-      if (primiVar[0].length () == 0)
+      if (noPrimitive)
       {
          // no primitive ? then is wanted to print out the variable itself with given options
          // e.g.  @<:check myvar>  or  @<:raw-check myvar> etc
          return strBufvar.toString ();
       }
 
-      if (primitiveExtract (primiVar, new String [] {"path"}))
+      if (isPath)
       {
          // NOTE: here we cannot use "solve" as option since "solve" is used for all with another meaning.
-         String str = (primitiveExtract (primiVar, new String [] {"points"})) ? 
+         String str = (primitiveExtract (primiVar, new String [] {"points"})) ?
                          fileUtil.resolveRelativePointsInPath (strBufvar.toString ())
                          :
                          strBufvar.toString ();
@@ -731,9 +744,7 @@ public class listix
             if (primitiveExtract (primiVar, new String [] {"strjs"}))
                return strBufvar.toString ().replace ("\\", "\\\\").replace("\"", "\\\"").replace("\'", "\\\'");
             if (primitiveExtract (primiVar, new String [] {"regex"}))
-               return strBufvar.toString ().replace ("\\", "\\\\").replace ("(", "\\(").replace (")", "\\)")
-                                           .replace ("[", "\\[").replace ("]", "\\]").replace (".", "\\.")
-                                           .replace ("\"", "\\\"").replace ("/", "\\/");
+               return strUtil.stringToRegexStr (strBufvar.toString ()); 
 
             return utilEscapeStr.escapeStr (strBufvar.toString (), primiVar[0]);
          }

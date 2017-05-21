@@ -39,13 +39,13 @@
 
    <xCodeArea>
       //
-      //var fix = new gFile ("myfile.txt", "rb");
+      //var fix = new goFile ("myfile.txt", "rb");
       //out ("End of file is " + fix.feof ());
       //
-      //var sqlO = new gSqlSelect ("", "SELECT * FROM tablon");
+      //var sqlO = new goSqlSelect ("", "SELECT * FROM tablon");
       //out ("First value is [" + sqlO.getValue (0, 0) + "]");
       //
-      //var sqlR = new gSqlRunner ();
+      //var sqlR = new goSqlRunner ();
       //sqlR.runSQL ("INSERT INTO tablon (19, 'esso');");
       //out ("end of simu test");
       //
@@ -97,13 +97,11 @@
       //    }
       // }
       //
-
    
 
 #listix#
 
    <-- bEjecute>
-      VAR=, STARTSTAMP, @<:lsx CLOCK>
       MSG, lSalida data!,, Opening browser ...
       micohttp, start, Servako
 
@@ -114,6 +112,7 @@
       VAR=, USER CODE, LSX, xGoRhinoEmula
       VAR+, USER CODE, LSX, xCodeArea
       @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
+      VAR=, STARTSTAMP, @<:lsx CLOCK>
 
    <POST /JSresponse>
       micohttp, stop, Servako

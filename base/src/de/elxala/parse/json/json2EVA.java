@@ -122,7 +122,7 @@ public class json2EVA
       int currentCount = 0;
 
       boolean newRecord = subName.length () > 0;
-      String newBaseName = Cadena.linkStrings (baseName, subName, "_");
+      String newBaseName = strUtil.linkStrings (baseName, subName, "_");
       Eva tabla = eu.getSomeHowEva (newBaseName);
       if (tabla.rows() == 0)
       {
@@ -161,7 +161,7 @@ public class json2EVA
             JSONObject theObj = jsoo.optJSONObject(fieldName);
             JSONArray theArr = jsoo.optJSONArray(fieldName);
 
-            String newFieldName = Cadena.linkStrings (campoBase, fieldName, "_");
+            String newFieldName = strUtil.linkStrings (campoBase, fieldName, "_");
 
             if (theObj != null)
             {

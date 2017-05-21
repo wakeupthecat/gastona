@@ -143,13 +143,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
          4   , SET RESPONSE HEADER,           ,
          4   , serverName         ,           , //Name of the server
-         4   , headerName         ,           , //Header name, for example ajaxRESP-param1
+         4   , headerName         ,           , //Header name
          4   , headerValue        ,           , //Header value
+         5   , ...                ,           , //further header name-value pairs
 
-         5   , SET RESPONSE PARAMETERS,       ,
+         5   , SET RESPONSE VARIABLE,       ,
          5   , serverName         ,           , //Name of the server
-         5   , parameter1         ,           , //value of first parameter (implicit header name ajaxRESP-parameter1)
-         5   , ...                ,           , //value of further parameters (implicit header name ajaxRESP-parameterX)
+         5   , variableName       ,           , //variable name
+         5   , variableValue      ,           , //variable value
+         5   , ...                ,           , //further variable name-value pairs
 
          6   , ONE GET      ,           ,
          6   , millisec     , 0         , //Millisecond to wait atfer having served the first request and before closing the server
@@ -328,7 +330,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bEjecute>
-      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
       //      MSG, lSalida data!,, Opening browser ...
       //      micohttp, start, Servako
       //
@@ -338,6 +339,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <GET />
       //      VAR=, USER CODE, LSX, xCodeArea
       //      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
+      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
       //
       //   <POST /JSresponse>
       //      micohttp, stop, Servako
@@ -461,8 +463,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      mico, start, micoHelp
       //
       //   <GET />
-      //      IN FILE, META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx
-
+      //      //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
 
 
    <whoareyou>
@@ -581,12 +582,13 @@ import java.io.*;
 import listix.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.*;
+import de.elxala.db.utilEscapeStr;
 import org.gastona.net.http.*;
 
 
 public class cmdMicoHTTPServer implements commandable
 {
-   protected static Map micoServers = new TreeMap ();
+   protected static TreeMap micoServers = new TreeMap ();
 
    private final int DEFAULT_MS_ONEUSE = 6000;
 
@@ -627,8 +629,8 @@ public class cmdMicoHTTPServer implements commandable
       boolean optGetPort    = cmd.meantConstantString (oper, new String [] { "GETPORT", "PORT" });
       boolean optGetReqIP   = cmd.meantConstantString (oper, new String [] { "CURRENT_REQUEST_IP", "REQUEST_IP", "REQIP" });
       boolean optClose      = cmd.meantConstantString (oper, new String [] { "CLOSE", "FIN", "BASTA", "STOP", "END" });
-      boolean optSetRespHead  = cmd.meantConstantString (oper, new String [] { "SETRESPONSEHEADER", "SETHEADER" });
-      boolean optSetRespParam = cmd.meantConstantString (oper, new String [] { "SETRESPONSEPARAMETERS", "SETRESPONSEPARAMS", "SETPARAMETERS", "SETPARAMS" });
+      boolean optSetRespHead  = cmd.meantConstantString (oper, new String [] { "SETRESPONSEHEADER", "SETHEADER", "RESP_HEADER=" });
+      boolean optSetRespVar   = cmd.meantConstantString (oper, new String [] { "SETRESPONSEVARIABLE", "SETVARIABLE", "RESP_VAR=" });
 
       boolean optSetUploadMaxSize   = cmd.meantConstantString (oper, new String [] { "SETUPLOADMAXSIZE", "UPLOADMAXSIZE", "SETUPLOADSIZE", "UPLOADSIZE" });
       boolean optSetUploadMaxSockTO = cmd.meantConstantString (oper, new String [] { "SETUPLOADSOCKETTIMEOUT", "UPLOADSOCKETTIMEOUT", "UPLOADTIMEOUT" });
@@ -682,10 +684,10 @@ public class cmdMicoHTTPServer implements commandable
                String [] cpaths = null;
                try { cpaths = allPaths.split (System.getProperty ("path.separator", ";")); }
                catch (Exception e) {}
-               
+
                if (cpaths == null)
                   cpaths = new String [] { allPaths };
-               
+
                for (int cc = 0; cc < cpaths.length; cc++)
                   if (cpaths[cc].length () > 4 && cpaths[cc].substring (cpaths[cc].length () - 4).equalsIgnoreCase (".jar"))
                   {
@@ -732,14 +734,21 @@ public class cmdMicoHTTPServer implements commandable
       {
          micoHttpServer serv = getServerByName (cmd, cmd.getArg (1));
          if (serv != null)
-            serv.setResponseHeader (cmd.getArg (2), cmd.getArg (3));
+            for (int ii = 2; ii < cmd.getArgSize (); ii += 2)
+               serv.setResponseHeader (cmd.getArg (ii), cmd.getArg (ii + 1));
       }
-      else if (optSetRespParam)
+      else if (optSetRespVar)
       {
          micoHttpServer serv = getServerByName (cmd, cmd.getArg (1));
          if (serv != null)
-            for (int ii = 2; ii < cmd.getArgSize (); ii ++)
-               serv.setResponseHeader ("ajaxRESP-parameter" + (ii-1), cmd.getArg (ii));
+         {
+            StringBuffer oneL = new StringBuffer ();
+            for (int ii = 2; ii < cmd.getArgSize (); ii += 2)
+               oneL.append ((ii > 2 ? "&": "") +
+                            cmd.getArg (ii) + "=" +
+                            utilEscapeStr.escapeStr (cmd.getArg (ii+1), "utf-8").replaceAll ("\\+", "%20"));
+            serv.setResponseHeader ("XParamsInOneLine", oneL.toString ());
+         }
       }
       else if (optSetUploadMaxSize)
       {
@@ -772,6 +781,11 @@ public class cmdMicoHTTPServer implements commandable
 
    protected micoHttpServer getServerByName (listixCmdStruct cmd, String name)
    {
+      // only if there is only one server name can be empty string representing the default value
+      //
+      if (name.length () == 0 && micoServers.size () == 1)
+         return (micoHttpServer) micoServers.get (micoServers.firstKey ());
+
       micoHttpServer serv = (micoHttpServer) micoServers.get (name);
       if (serv == null)
          cmd.getLog().err ("MicoHttpServer", "server [" + name + "] not found!");

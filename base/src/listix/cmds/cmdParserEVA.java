@@ -151,7 +151,7 @@ public class cmdParserEVA implements commandable
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
       String oper = cmd.getArg(0);
-      
+
       boolean todb   = cmd.meantConstantString (oper, new String [] { "FILE2DB" } );
       boolean tojson = cmd.meantConstantString (oper, new String [] { "FILE2JSON" } );
       boolean dbtofile = cmd.meantConstantString (oper, new String [] { "DB2FILE" } );
@@ -170,12 +170,12 @@ public class cmdParserEVA implements commandable
       cmd.checkRemainingOptions ();
       return 1;
    }
-   
+
    private String commaif(int counter)
    {
       return (counter > 0) ? ",": "";
    }
-   
+
    // NOTE:   text  [hello "how" aren't you ?]
    //
    //       text.replaceAll("('|\")", "\\\\$1")
@@ -189,7 +189,7 @@ public class cmdParserEVA implements commandable
       String dbName      = cmd.getArg(2);
       String tablePrefix = cmd.getArg(3);
       String fileNameInDB  = cmd.getArg(4);
-      
+
       boolean toJSON = ! toDB;
 
       if (toDB)
@@ -208,16 +208,15 @@ public class cmdParserEVA implements commandable
       if (cmd.getLog().isDebugging (2))
          cmd.getLog().dbg (2, "PARSER EVA", "execute with : oper [" + oper + "] fileSource [" + fileSource + "] dbName [" +  dbName + "] prefix [" + tablePrefix + "]");
 
-      // Get the unit catalog
-      String [] catalog = EvaFile.loadEvaUnitCatalog (fileSource);
-      cmd.getLog().dbg (2, "PARSER EVA", "found " + catalog.length + " units");
+      EvaFile efi = new EvaFile (fileSource);
+      cmd.getLog().dbg (2, "PARSER EVA", "found " + efi.allUnits.size () + " units");
 
-      if (catalog.length == 0)
+      if (efi.allUnits.size () == 0)
       {
          cmd.checkRemainingOptions ();
          return;
       }
-      
+
       StringBuffer jsoStrBuf = new StringBuffer ();
       String taFiles = tablePrefix + "_files";
       String taData  = tablePrefix + "_evaData";
@@ -248,21 +247,24 @@ public class cmdParserEVA implements commandable
 
          long fileID = sqlUtil.getNextID(dbName, taFiles, "fileID", 1000);
          myDB.openScript ();
-         myDB.writeScript ("INSERT INTO " + taFiles + " VALUES (" + fileID + ", '" + myDB.escapeString (DateFormat.getTodayStr ()) + "', '" + fileNameInDB + "');");
+         myDB.writeScript ("INSERT INTO " + taFiles + " VALUES (" +
+                       fileID + ", '" +
+                       myDB.escapeString (DateFormat.getTodayStr ()) + "', '" +
+                       myDB.escapeString (fileNameInDB) + "');");
       }
 
       if (toJSON) jsoStrBuf.append ("{ ");
-      for (int ii = 0; ii < catalog.length; ii ++)
+      for (int ii = 0; ii < efi.allUnits.size (); ii ++)
       {
-         if (toJSON) jsoStrBuf.append (commaif(ii) + " \"" + catalog[ii] + "\" : { ");
+         EvaUnit eu = (EvaUnit) efi.allUnits.get (ii);
+         if (toJSON) jsoStrBuf.append (commaif(ii) + " \"" + eu.getName () + "\" : { ");
 
-         EvaUnit eu = EvaFile.loadEvaUnit (fileSource, catalog[ii]);
          for (int vv = 0; vv < eu.size() ; vv ++)
          {
             Eva eva = eu.getEva (vv);
             if (toJSON) jsoStrBuf.append (commaif(vv) + " \"" + eva.getName () + "\" : [ ");
 
-            if (eva == null) 
+            if (eva == null)
             {
                if (toJSON) jsoStrBuf.append (" [] ]");
                continue;
@@ -281,7 +283,7 @@ public class cmdParserEVA implements commandable
                   {
                      myDB.writeScript ("INSERT INTO " + taData + " VALUES ("
                      + fileID + ", "
-                     + "'" + myDB.escapeString(catalog[ii]) + "', "
+                     + "'" + myDB.escapeString(eu.getName ()) + "', "
                      + "'" + myDB.escapeString(eva.getName ()) + "', "
                      + rr + ", "
                      + cc + ", "

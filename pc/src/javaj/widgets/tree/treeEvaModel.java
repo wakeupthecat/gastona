@@ -346,7 +346,7 @@ public class treeEvaModel implements javax.swing.tree.TreeModel
 //
 //   public static void addNodo (EvaUnit dataOfModel, String fullpath, boolean expanded, String separator)
 //   {
-//      String [] arrPath = Cadena.simpleToArray (fullpath, separator);
+//      String [] arrPath = de.elxala.Eva.EvaLine.simpleStringSeparator2Array (fullpath, separator);
 //
 //      String tripat = "" + separator;
 //      String knote = "" + separator;

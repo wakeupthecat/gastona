@@ -48,10 +48,12 @@ public class laya
          return;
       }
 
-      EvaUnit eu = EvaFile.loadEvaUnit (aa[0], "javaj");
+      EvaUnit eu = EvaFile.loadEvaUnit (aa[0], "guix");
+      if (eu == null) 
+         eu = EvaFile.loadEvaUnit (aa[0], "javaj");
       if (eu == null)
       {
-         System.err.println ("Not found either the file " + aa[0] + " or the EvaUnit javaj inside!");
+         System.err.println ("Not found either the file " + aa[0] + " or the EvaUnits guix or javaj inside!");
          return;
       }
 

@@ -71,25 +71,14 @@
    <GET />
       LSX, index_html
 
-   <! ----- ((( ----------- load main frame from variable "jastName"_jast or file "jastName".jast
-   <POST /loadRootJast>
-      CHECK, VAR, ajaxREQ-jastName
-      CHECK, VAR, @<ajaxREQ-jastName>_jast, LSX, tryLoadFile, @<ajaxREQ-jastName>.jast
-      LSX, @<ajaxREQ-jastName>_jast
-
    <! ----- ((( ----------- get data of specific contents by id
-   <POST /getIdContent>
-      CHECK, VAR, ajaxREQ-id
-      CHECK, VAR, getIdContent @<ajaxREQ-id>
-      LSX, getIdContent @<ajaxREQ-id>, @<ajaxREQ-param>
+   <POST /getDataForId>
+      LSX, getContentOf @<id>
 
-   <!   NOTE! Feature (button) disabled until a solution is found
    <!
    <! ----- ((( ----------- test current script in target
    <POST /testgast>
       GAST, @<_bodyMemFileName>
-      <!  CHECK, ANDROID, GAST, @<_bodyMemFileName>
-      <!  BOX, T, //Feature is not yet ready for android :(
 
    <! ----- ((( ----------- save current script in target
    <POST /savegast>
@@ -98,20 +87,21 @@
       FILEUTIL, COPY, @<_bodyMemFileName>, @<ajaxREQ-gastName>
       LSX, LOAD_DIR, @<ajaxREQ-gastName>/..
 
-   <getIdContent dDir>
-      VAR=, eldir, @<SOLVED_DIR>
-      //eDir:@<eldir>
+   <getContentOf dDir>
+      //eDir:
+      LSX, SOLVED_DIR, @<dir>
+      //
       //:
       //
-      LSX, LOAD_DIR, @<eldir>
+      LSX, LOAD_DIR, @<dir>
 
-   <getIdContent xFileContent>
-      //eFileName:@<p1>
+   <getContentOf xFileContent>
+      //eFileName:@<fileName>
       //:
       //
-      LSX, tryLoadFile, @<p1>
+      LSX, tryLoadFile, @<fileName>
 
-   <getIdContent checkFileName>
+   <getContentOf checkFileName>
       //fileName allowed:@<ALLOWED_FILENAME>
       //fileName exists:@<EXISTS_FILENAME>
       //:
@@ -119,12 +109,12 @@
 
    <ALLOWED_FILENAME>
       <! just don't allow to overwrite these two scripts from programMe for "safety comfort"
-      CHECK, <>, "autoStart.gast", @<p1>, 0
-      CHECK, <>, "programMe.gast", @<p1>, 0
+      CHECK, <>, "autoStart.gast", @<fileName>, 0
+      CHECK, <>, "programMe.gast", @<fileName>, 0
       1
 
    <EXISTS_FILENAME>
-      CHECK, FILE, @<p1>, 0
+      CHECK, FILE, @<fileName>, 0
       1
 
    <LOAD_DIR>
@@ -155,13 +145,13 @@
      // <p id="dirlabel">Path : @<p1>
      IN CASE, @<p1>
             , "."   , //
-            , ELSE  , //  <button onclick="luix.AJAXgetIdContent ('dDir', '@<DIRLABEL>/..', true)">back</button>
+            , ELSE  , //  <button onclick="luix.AJAXgetDataForId ('dDir', 'dir=@<DIRLABEL>/..', true)">back</button>
      //</p>
      // <table>
      //
      LOOP, DIRS, @<DIRLABEL>
          , RECURSIVE, 0
-         ,, //<tr> <td> <div style="width:@<DIMSVG>; height:@<DIMSVG>" class="Graffiti" id="gFolder" onclick="luix.AJAXgetIdContent ('dDir', '@<FULLNORM>', true)"/> <td>  @<fileName> </tr>
+         ,, //<tr> <td> <div style="width:@<DIMSVG>; height:@<DIMSVG>" class="Graffiti" id="gFolder" onclick="luix.AJAXgetDataForId ('dDir', 'dir=@<FULLNORM>', true)"/> <td>  @<fileName> </tr>
 
      //
      LOOP, FILES, @<DIRLABEL>, gast
@@ -188,23 +178,14 @@
       //
       //<script>
       //
-      //
       //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //
       //@<:infile META-GASTONA/js/trazos2D-min.js>
       //
       //@<graffiti data>
       //
-      //   var luix = jGastona ();
+      //   var luix = jGastona (evaFileUTF82obj ("@<:encode-utf8 programMe_jast>"));
       //   var isFileContentDirty = false;
-      //
-      //   window.onload = function() {
-      //      luix.AJAXLoadRootJast ("programMe");
-      //   }
-      //
-      //   function drawGraffitis () {
-      //      trazos2D ().renderClassGraffiti (data);
-      //   }
       //
       //   function setToDirty (dirty) {
       //       isFileContentDirty = dirty;
@@ -214,13 +195,13 @@
       //      if (isFileContentDirty && false == confirm("Load " + pathToLoad + " and overwrite edition ?"))
       //         return; // do nothing!
       //
-      //      luix.AJAXgetIdContent('xFileContent', pathToLoad, true);
+      //      luix.AJAXgetDataForId('xFileContent', 'fileName=' + pathToLoad, true);
       //      setToDirty (false);
       //   }
       //
       //   function updateFileNameCheck () {
-      //      var allow = luix.getData ("fileName allowed");
-      //      var exists = luix.getData ("fileName exists");
+      //      var allow = luix.getDataCell ("fileName allowed");
+      //      var exists = luix.getDataCell ("fileName exists");
       //      if (! allow || !exists) return;
       //      var ele = document.getElementById ("eFileName");
       //      ele.style["background-color"] = (allow==="0" ? "red": (exists === "1" ? "#FAA0B7": "#A6FC7C"));
@@ -251,7 +232,7 @@
       //   <bTest> Test/execute script on device
       //
       //   <eFileName onkeyup>
-      //      //luix.AJAXgetIdContent ("checkFileName", luix.getIdValue("eFileName"), true);
+      //      //AJAXgetDataForId ("checkFileName", 'fileName=' + getIdValue("eFileName"), true);
       //
       //   <eFileName>  //
       //
@@ -265,17 +246,18 @@
       //
       //#listix#
       //
-      //   <-- ajaxResponse loadRootJast>
-      //      //luix.AJAXgetIdContent ("dDir", ".", true);
+      //   <main>
+      //      //AJAXgetDataForId ("dDir", "dir=.", true);
       //
-      //   <-- ajaxResponse getIdContent>
-      //      //updateFileNameCheck (); drawGraffitis ();
+      //   <-- ajaxResponse getDataForId>
+      //      //updateFileNameCheck ();
+      //      //trazos2D ().renderClassGraffiti (data);
       //
       //   <-- bSave>
-      //      //luix.AJAXPost ("savegast", luix.getIdValue ("xFileContent"), { "ajaxREQ-gastName": luix.getIdValue("eFileName") });
+      //      //AJAXPost ("savegast", getIdValue ("xFileContent"), { "ajaxREQ-gastName": getIdValue("eFileName") });
       //
       //   <-- bTest>
-      //      //luix.AJAXPost ("testgast", luix.getIdValue ("xFileContent"));
+      //      //AJAXPost ("testgast", getIdValue ("xFileContent"));
       //
       //   <-- bEmpty>
       //      //loadAndOverwriteFileContent ('@<SPECIAL_HELLO>');

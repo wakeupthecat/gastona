@@ -1,6 +1,6 @@
 
 Gastona together with javaj and listix is
-Copyright (C) 2007-2016 Alejandro Xalabarder Aulet
+Copyright (C) 2007-2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

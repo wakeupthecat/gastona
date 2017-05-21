@@ -28,7 +28,7 @@ package de.elxala.db;
 */
 public class utilEscapeConfig
 {
-   public static final String SEPARATOR = "|";
+   public static final char SEPARATOR = '|';
    public static String ENCODE_MODEL_NAME = "UTF-8";
 
 }

@@ -100,24 +100,20 @@ public class naming
    {
       if (thePath.length () == 0) return "";
 
-      // ensure we have only one path separator (/)
-      thePath = thePath.replace ('\\', '/');
-
-      String [] subpaths = Cadena.simpleToArray (thePath, "/");
-      String ss = "";
+      String [] subpaths = thePath.split("[\\\\\\/]"); // either \ or /
+      StringBuffer ss = new StringBuffer ();
       int ii = 0;
 
       if (subpaths.length > 0)
       {
          // for each except the last one!
-         for (ii = 0; (ii+1) < subpaths.length; ii ++)
+         for (ii = 0; ii + 1 < subpaths.length; ii ++)
          {
-            ss += toNameISO_9660Joliet (subpaths[ii]);
-            ss += "/";
+            toNameISO_9660Joliet (subpaths[ii] + "/");
          }
-         ss += toNameISO_9660Joliet (subpaths[ii]);
+         ss.append (toNameISO_9660Joliet (subpaths[ii]));
       }
 
-      return ss;
+      return ss.toString ();
    }
 }

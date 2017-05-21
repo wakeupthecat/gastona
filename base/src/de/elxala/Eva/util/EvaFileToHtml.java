@@ -98,21 +98,20 @@ public class EvaFileToHtml
       fix.writeLine ("    </table>");
       fix.writeLine ("");
 
-      EvaFile ef = new EvaFile ();
+      EvaFile ef = new EvaFile (evaFileName);
       EvaUnit eu = new EvaUnit ();
 
       // list of units
       //
-      String [] catalogo = ef.getCatalog(evaFileName);
-      fix.writeLine (unitCatalog2HtmlList(catalogo));
+      fix.writeLine (unitCatalog2HtmlList(ef));
 
       // loop units
       //
-      for (int ii = 0; ii < catalogo.length; ii ++)
+      for (int ii = 0; ii < ef.allUnits.size (); ii ++)
       {
-         fix.writeLine ("    <h2><a name=\"UNIT_" + catalogo[ii] + "\">" + "Unit #" + catalogo[ii] + "#</a></h2>");
-         eu = ef.load(evaFileName, catalogo[ii]);
+         eu = (EvaUnit) ef.allUnits.get (ii);
 
+         fix.writeLine ("    <h2><a name=\"UNIT_" + eu.getName () + "\">" + "Unit #" + eu.getName () + "#</a></h2>");
          fix.writeLine ("    <ul class=\"evalist\">");
          // list of units
          for (int ee = 0; ee < eu.size (); ee ++)
@@ -157,14 +156,15 @@ public class EvaFileToHtml
    }
 
 
-   public static String unitCatalog2HtmlList (String [] catalogo)
+   public static String unitCatalog2HtmlList (EvaFile efi)
    {
       String sal = "   <h2>List of units</h2><br>\n";
       sal += "    <ul class=\"units\">";
       // list of units
-      for (int ii = 0; ii < catalogo.length; ii ++)
+      for (int ii = 0; ii < efi.allUnits.size (); ii ++)
       {
-         sal += "      <li class=\"unit\"><a href=\"#UNIT_" + catalogo[ii] + "\">" + catalogo[ii] + "</a></li>";
+         EvaUnit eu = (EvaUnit) efi.allUnits.get (ii);
+         sal += "      <li class=\"unit\"><a href=\"#UNIT_" + eu.getName () + "\">" + eu.getName () + "</a></li>";
       }
       sal += "    </ul>";
       return sal;

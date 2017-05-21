@@ -67,7 +67,7 @@
      //     <autoElapsed> true
      //     <maxGapTime> 6
      //
-     //     <sequence>
+     //     <sequenceTable>
      //
      //        time, source, target, message
      //
@@ -90,19 +90,10 @@
      //      }
      //   }
      //
-     //   function getProp (evaunit, prop) { return evaunit[prop] ? evaunit[prop][0][0]: null; }
-     //
      //   var texta = document.getElementById('myDiagram');
      //   var data = evaFileStr2obj (DATAinline)["data"];
      //   if (data) {
-     //      var diagData = {
-     //           sequenceTable    : data["sequence"],
-     //           distanceAgents   : getProp (data ,"distanceAgents"),
-     //           distanceTimeUnit : getProp (data ,"distanceTimeUnit"),
-     //           maxGapTime       : getProp (data ,"maxGapTime"),
-     //           autoElapsed      : getProp (data ,"autoElapsed"),
-     //        };
-     //        texta.value = conSecuencioPlain (diagData);
+     //        texta.value = conSecuencioPlain (data);
      //   }
      //   adapta () ;
      //

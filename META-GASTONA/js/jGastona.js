@@ -17,16 +17,34 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
       Logic in javascript emulating as close as possible the one
       used in gastona + javaj + listix + mensaka in gastona java project
 
-      It is in its very first development phase ...
+      what is implemented is
 
-      what is implemented for now is
+         - automatic generation of html widgets and layout (#javaj# unit)
 
-         - automatic generation of html widgets based on the layout component's first character
-           including binding with data model (eva unit data)
+               'd': // div
+               'n': // link (login ?)
+               'b': // button
+               'e': // text input
+               'u': // upload file selector
+               'm': // image
+               'p': // password
+               'h1': header
+               'h2': header
+               'h3': header
+               'l': // label
+               'x': // text area
+               't': // simple table
+               'c': // combo
+               'r': // radio group
+               'k': // checkbox group
+               'i': // list
+
+
+         - creation of data model and binding with widgets (#data# unit + widgets in #javaj#)
 
          - handling of messages : msg to widgets, msg from widgets, msg responseAjax
 
-         - AJAX facility methods : AJAXFormatBody and AJAXSend
+         - AJAX facility methods : httPack and AJAXSend
 
 
 */
@@ -40,14 +58,15 @@ function jGastona (evaConfig, existingPlaceId)
        listixUnit,
        corpiny,
        layMan,
-       responseAjaxUnit,   // of AJAX
        javajzWidgets       // of widgetFactory
        ;
    var minWidth = -1;
    var minHeight = -1;
 
+   var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)
+
    // default action
-   loadJast (evaConfig);
+   loadJast (evaConfig, existingPlaceId);
 
    // IT SEEMS THAT ANY OF FOLLOWING LINES WILL WORK PROPERLY, WHY ?
    // document.body.onresize = function () { adaptaLayout () };
@@ -58,44 +77,67 @@ function jGastona (evaConfig, existingPlaceId)
    function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
    function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
 
-   // It does not work for IE8, 9
-   //
-   //if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
-
    return {
       // public functions to export
 
       getLayoutMan       : function () { return layMan; },
       mensaka            : mensaka,
       getIdValue         : function (id) { var ele = document.getElementById(id); return (ele) ? ele.value : getDataCell (id); },
-      getData            : getDataCell,
+      getData            : getData,
+      getDataCell        : getDataCell,
       setData            : setData,
+      setDataCell        : setDataCell,
       setVarTable_DimVal : setVarTable_DimVal,
       getCellEvaUnit     : getCellEvaUnit,
       adapta             : adaptaLayout,
-      mask               : function (a, b) { if (layMan) { layMan.maskLayoutId (a, b); adaptaLayout (); } },
-      unmask             : function (a)    { if (layMan) { layMan.unmaskLayoutId (a); adaptaLayout (); } },
+      mask               : mask,
+      unmask             : unmask,
       htmlElem           : htmlElem,
       canUploadFile      : canUploadFile,
 
       // part ajax ...
-      getAjaxResponse  : function () { return responseAjaxUnit; },
-      AJAXPost         : AJAXgenericPost,
-      AJAXSendData     : AJAXSendData,        // send data as evanit, prop:value or json
-      AJAXSendBody     : AJAXSendData,        // alias to be deprecated ...
+      //
+      AJAXPostRaw      : AJAXPostRaw,
+      AJAXSend         : AJAXSend,            // send data as eva, json or prop:value
       AJAXUploadFile   : AJAXUploadFile,      // upload one file (NOTE: only one file!)
-      AJAXLoadRootJast : AJAXLoadRootJast,    // ask the server for a jast file to generate html for the page
-      AJAXgetIdContent : AJAXgetIdContent,    // ask the server for content for the id, on resposte the content will be updated automatically
-      AJAXgetIdMultipleContents: AJAXgetIdMultipleContents,
+      AJAXLoadRootJast : AJAXLoadRootJast,    // ask the server for a jast file to be loaded
+      AJAXgetDataForId : AJAXgetDataForId,    // ask the server for content for the id, on resposte the content will be updated automatically
 
       // getDataUnit    : function () { return dataUnit; }
    };
+
+   // shorcuts
+   function mask   (a, b) { if (layMan) { layMan.maskLayoutId (a, b); adaptaLayout (); } }
+   function unmask (a)    { if (layMan) { layMan.unmaskLayoutId (a); adaptaLayout (); } }
+
+   function isEvaValue (eva)
+   {
+      // is an array >0 of arrays
+      return Array.isArray (eva) && eva.length > 0 && Array.isArray (eva[0]);
+   }
+
+   function isEvaSingleValue (eva)
+   {
+      // contains only one row and one column
+      return isEvaValue (eva) && eva.length == 1 && eva[0].length == 1;
+   }
+
+
+   function isEvaEmpty (eva)
+   {
+      // contains only one row and one column and its value is ""
+      return isEvaSingleValue (eva) && eva[0][0] === "";
+   }
+
 
    function strStartsWith (s1, s2, pos)
    {
       pos = pos || 0;
       return s1.indexOf(s2, pos) === pos;
       //return s1.slice(0, s2.length) === s2;
+
+      // thisdoes not work for IE8, 9
+      //
       //if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
    }
 
@@ -132,10 +174,9 @@ function jGastona (evaConfig, existingPlaceId)
          layMan.doLayout(dx, dy);
    }
 
-   function loadJast (evaConfig)
+   function loadJast (evaConfig, placeId)
    {
       javajzWidgets = {};
-      responseAjaxUnit = {};
       dataUnit = {};
       listixUnit = {};
       layMan = undefined;
@@ -143,13 +184,13 @@ function jGastona (evaConfig, existingPlaceId)
       if (! evaConfig ) return;
 
       dataUnit = evaConfig["data"] || {};
-      listixUnit = evaConfig["listix"] || {};
+      listixUnit = evaConfig["jListix"] || evaConfig["jlistix"] || evaConfig["listix"] || {};
 
       // ensure corpinyo (STAMM) is a root element in the document's body
       //
       if (!corpiny)
       {
-         var STAMM = existingPlaceId ? existingPlaceId: "jGastonaStammHtmlElem";
+         var STAMM = placeId ? placeId: "jGastonaStammHtmlElem";
          if (! document.getElementById(STAMM))
             document.body.innerHTML = "<div id='" + STAMM + "' style = 'position:relative;'></div>";
          corpiny = document.getElementById(STAMM);
@@ -167,11 +208,21 @@ function jGastona (evaConfig, existingPlaceId)
       //
       layMan = layoutManager (evaConfig, onAddWidget);
       adaptaLayout ();
+
+      //do the first task : "main" if exists
+      var fmain = listixUnit["main"];
+      if (fmain)
+         executeListixFormat (fmain);
    }
 
    function getCellEvaUnit (unit, eva, row, col)
    {
       return unit[eva] ? unit[eva][row||"0"][col||"0"]||"": "";
+   }
+
+   function getData (name)
+   {
+      return !dataUnit[name] ? undefined: dataUnit[name];
    }
 
    function getDataCell(name, row, col)
@@ -181,25 +232,32 @@ function jGastona (evaConfig, existingPlaceId)
 
    function setDataCell (name, value, row, col)
    {
+      row = row||"0";
+      col = col||"0";
       // create variable if needed
       if (!dataUnit[name])
          dataUnit[name] = [[""]];
 
       // create row if needed
-      if (!dataUnit[name][row||"0"])
-         dataUnit[name][row||"0"] = [ "" ];
+      if (!dataUnit[name][row])
+         dataUnit[name][row] = [ "" ];
 
-      dataUnit[name][row||"0"][col||"0"] = value||"";
+      dataUnit[name][row][col] = value||"";
    }
 
+   // set the value into the data variable "name"
+   // being value either a string or an eva variable
+   // after that send the message data! to the widget "name" if exists
+   //
    function setData (name, value)
    {
       // create on demand
       if (typeof value === "string")
       {
+         dataUnit[name] = [[""]];
          setDataCell (name, value);
       }
-      else if (Array.isArray (value) && value.length > 0 && Array.isArray (value[0]))
+      else if (isEvaValue (value))
       {
          dataUnit[name] = value;
       }
@@ -311,8 +369,10 @@ function jGastona (evaConfig, existingPlaceId)
       }
 
       var updateSimpleLabel = function () {
-         //setValueToElement (this, dataUnit[name] ? getDataCell (name) : var2Text (name));
          this.innerHTML = (dataUnit[name] ? getDataCell (name) : var2Text (name));
+      }
+      var updateSimpleLabel2 = function () {
+         this.innerHTML = (dataUnit[name] ? getDataCell (name) : var2Text (name.substr(1)));
       }
       var updateSimpleValue = function () {
          setValueToElement (this, getDataCell (name));
@@ -388,6 +448,13 @@ function jGastona (evaConfig, existingPlaceId)
          case 'p': // password
             zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
             break;
+
+         //(o) TOCHECK: some strange thing happen when two h's are put beside in EVALAYOUT
+         case 'h':
+            if (widgetclass.length >= 2)
+               zwid = fabricaStandard ("h" + widgetclass.charAt (1), name, { "data!": updateSimpleLabel2 } );
+            break;
+
          case 'l':
             zwid = fabricaStandard ("label", name, { "data!": updateSimpleLabel } );
             break;
@@ -396,8 +463,9 @@ function jGastona (evaConfig, existingPlaceId)
             {
                var updata = function () {
                      var tex = "", row;
-                     for (row in dataUnit[this.id])
-                        tex += dataUnit[this.id][row] + "\n";
+                     if (!isEvaEmpty (dataUnit[this.id]))
+                        for (row in dataUnit[this.id])
+                           tex += dataUnit[this.id][row] + "\n";
                      setValueToElement (this, tex);
                   }
                zwid = fabricaStandard ("textarea", name, { placeholder: var2Text(name), "data!": updata, onchange: assignText } );
@@ -421,7 +489,7 @@ function jGastona (evaConfig, existingPlaceId)
 
                      for (row in evaData)
                      {
-                        if (row === "0" && evaData[0].length == 1 && evaData[0][0] === "")
+                        if (isEvaEmpty (evaData))
                         {
                            // row === "0" only one column and empty ==> no headers
                            // no headers!
@@ -508,30 +576,10 @@ function jGastona (evaConfig, existingPlaceId)
          alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
    }
 
-   // converts an string into a "string", "object" or js "function"
+   // converts a string into a "string", "object" or js "function"
    // var str = str2jsVar ("\"sisie");
    // var arr = str2jsVar ("[ 'sisie', 'nono', 234, [1, 2] ]");
-   // var fun = str2jsVar ("alarm('jol')");
    //
-   //!! function str2jsVar (str)
-   //!! {
-   //!!    var str2 = "";
-   //!!    if (typeof str !== "string")
-   //!!    {
-   //!!       for (var ii = 0; ii < str.length; ii ++)
-   //!!          str2 = (ii === 0 ? "": str2 + "\n") + str[ii];
-   //!!    }
-   //!!    else str2 = str;
-   //!!
-   //!!    if (str2.match(/^\s*[\"\']/))
-   //!!       return str2.substr(1);
-   //!!
-   //!!    if (str2.match(/^\s*[\[\{]/))
-   //!!       return eval ("(function () { return " + str2 + ";}) ()");
-   //!!
-   //!!    return function () { eval (str2); }
-   //!! }
-
    function str2Var (str)
    {
       var str2 = "";
@@ -539,8 +587,7 @@ function jGastona (evaConfig, existingPlaceId)
       {
          // array of strigs = text ?
          //
-         for (var ii = 0; ii < str.length; ii ++)
-            str2 = (ii === 0 ? "": str2 + "\n") + str[ii];
+         str2 = str.join ("\n");
       }
       else str2 = str;
 
@@ -741,10 +788,10 @@ function jGastona (evaConfig, existingPlaceId)
 
       if (! fileEle || fileEle === "") {
          if (alertEmpty !== "")
-            alert (alertEmpty ? alertEmpty: "Please choose first a file!");
+            alert (alertEmpty ? alertEmpty: "Please first choose a file!");
          return false;
       }
-      if (sizeLimitMB && sizeLimitMB > 0 && fileEle.size > sizeLimitMB*1024*1024) {
+      if (sizeLimitMB && sizeLimitMB > 0 && fileEle.size > sizeLimitMB * 1024 * 1024) {
          if (alertTooBig !== "")
             alert (alertTooBig ? alertTooBig: ("File is too big to be uploaded, limit is " + maxSizeMB + " MB"));
          return false;
@@ -755,37 +802,174 @@ function jGastona (evaConfig, existingPlaceId)
    // --------- START PART AJAX
    //
 
-
-   // ============ AJAX stuff (AJAX approach V0.11)
+   // ============ AJAX stuff (AJAX approach V0.90)
    //
-   //    Uses Eva.js of prop-val text for the body of requests and responses
-   //    EXAMPLE
-   //        AJAXSendBody ("addApp", ["title", "source", "code" ], format);
+   // ------------- packing and unpacking HTTP messages using paramCfg, respFuncOrObj
    //
-   //    ajax request format = "eva"
-   //                  #unitAjaxRequest#
-   //                     <title>  //value of title variable
-   //                     <source> //a good friend
-   //                     <code>   //#!/usr/bin/gastona ... (UFT-8 escaped!)
+   //    The method used for all ajax requests is POST so the places to put any information
+   //    remains urlstring, querystring (for request), headers and the body itself
    //
-   //    ajax request format "propval"
-   //                title: value of title variable
-   //                source: a good friend
-   //                code: #!/usr/bin/gastona ... (UFT-8 escaped!)
+   //    in the request:
    //
-   //    ajax response (depend on the server)
-   //        #unitAjaxResponse#
+   //          POST urlstring?querystring HTTP/1.1
+   //          Xheader1: valheader1
+   //          Xheader2: valheader2
    //
-   //          <result> ok
-   //          <resultStr> //app mirelos.gast has been added successfully
+   //          body (raw/html, eva, json, prop-val)
+   //
+   //    in the response:
+   //
+   //          HTTP/1.1 200 OK
+   //          Xheader1: valheader1
+   //          Xheader2: valheader2
+   //          Content-Type: text/eva
+   //          XParamsInOneLine: querystring
+   //
+   //          body (raw/html, eva, json, prop-val)
+   //
+   //    We can put all the information by ourselves using javascript and the data structure
+   //    provided by jGastona and consume the response simply reading the http response object directly
+   //    or let all be packed and unpacked more conveniently.
+   //
+   //    --------- Packing data in requests (paramCfg)
+   //
+   //    We can pack data using the parameter "paramCfg" in two methods AJAXSend and AJAXgetDataForId
+   //
+   //    The simplest way to use paramCfg is given it as string, then it acts as query string directly
+   //
+   //          AJAXSend ("myPost?id=1771");
+   //          AJAXSend ("myPost", "id=1771");
+   //          AJAXgetDataForId ("myId", "extra=yes")
+   //
+   //    by given it as object we can specify following properties:
+   //
+   //          property        type      example                  meaning
+   //
+   //          body            string    "my body"                if given, it is the body to send
+   //          params          string    "id=myId&name=MiNombre"  querystring to send
+   //          params          object    { id="myId", .. }        the querystring will be formed using encodingUTF8
+   //          headers         object    { Xhead1: "hh", ... }    Headers will be send except
+   //          bodyVars        array     [ "eTitle", "eDesc" ]    variables to be packed in the body, if not specified or empty
+   //                                                             and no body specified then they are all variables!
+   //          bodyVarsFormat  string    "eva"                    Format to use for the body: eva is default, json or propval
+   //          encodeUTF8      boolean   false                    For using encoding UTF8 in params (object) and bodyVars,
+   //                                                             if not explicity set to false it is always true
    //
    //
-   //    the response body is placed in the variable responseAjaxUnit accessible through getAjaxResponse ()
-   //    after processing the response the message "ajaxResponse xxxx" is sent
-   //    for example if the request was "login" then the message will be "ajaxResponse login"
+   //          Example of calls packing variables (data from JAST script and generated by jGastona)
    //
-
-   // uses var responseAjaxUnit
+   //             AJAXSend ("myPost");                         // all variables will be packed
+   //             AJAXSend ("myPost", "");                     // NO variable at all
+   //             AJAXSend ("myPost", { body="" });            // NO variable at all
+   //             AJAXSend ("myPost", { bodyVars = ["one"] }); // only variable "one" will be packed
+   //
+   //
+   //          Example of body packed as "eva"
+   //
+   //             #data#
+   //
+   //               <title>  //value of title variable
+   //               <source> //a good friend
+   //               <code>   //#!/usr/bin/gastona ... (UTF-8 escaped!)
+   //
+   //          Example of body packed as "json"
+   //
+   //               { "title": "value of title variable", "source": "a good friend", "code": "..." }
+   //
+   //          Example of body packed as "propval"
+   //
+   //               title: value of title variable
+   //               source: a good friend
+   //               code: #!/usr/bin/gastona ... (UTF-8 escaped!)
+   //
+   //
+   //    --------- Unpacking data from responses (respFuncOrObj)
+   //
+   //    In following functions we can specify a parameter respFuncOrObj
+   //
+   //        function AJAXPostRaw    (sendStr, bodyStr, objPOSTHeader, respFuncOrObj)
+   //        function AJAXSend       (postString, paramCfg, respFuncOrObj)
+   //        function AJAXUploadFile (fileElement, postMsg, postHeaders, respFuncOrObj)
+   //
+   //    if this parameter is a function then it might take two parameter: body and response object
+   //
+   //    For example to consume the response by ourselves, we can pass a function like
+   //
+   //                function processResponse (body, respObj)
+   //                {
+   //                    processBody (body);
+   //                    processHeaders (respObj.getAllResponseHeaders ());
+   //                }
+   //
+   //    If we pass an object, this will be filled with properties result of unpacking
+   //    the response as specified below
+   //
+   //    Two headers has to be set by the server for the proper unpacking "Content-Type" and "XParamInOneLine"
+   //
+   //    --- unpacking the body
+   //
+   //    Unpacking body when "Content-Type" contains "text/eva"
+   //          The body will be interpreted as an anonymous eva unit and each eva variable will be
+   //          converted in a property of type array of array of strings.
+   //          Example body:
+   //
+   //             #data#
+   //               <title>   //my title
+   //               <list>    "Lunes", "Martes", "Miercoles"
+   //               <table>   id  , name
+   //                         1811, Evariste
+   //                         1777, Carolo
+   //          Unpacked object:
+   //             {
+   //                data:
+   //                { title: [["my title"]],
+   //                  list: [["Lunes", "Martes", "Miercoles"]],
+   //                  table: [["id", "name"], ["1811", "Evariste"], ["1777", "Carolo"]]
+   //                }
+   //             }
+   //
+   //    Unpacking body when "Content-Type" contains "text/json"
+   //          The body will be interpreted as an JSON object and will be unpacked using JSON.parse(bodytxt)
+   //
+   //    If no Conten-Type or any of the two above are found a new property "rawBody" containing
+   //    the whole body as string will be created
+   //
+   //    --- unpacking XParamInOneLine
+   //
+   //    If the server sets the header XParamInOneLine then it will be interpreted as a query string type of variables
+   //    that is
+   //            variable=value&variable2=value2...
+   //
+   //    each variable-value will be set as a property-value in the response object
+   //
+   //    --- unpacking all headers
+   //
+   //    All headers will be set in the response object having the property name "header:"headerName
+   //          Example headers:
+   //               XMyheader : "etc"
+   //               Content-Type: text/eva
+   //               ...
+   //
+   //          { "header:XMyheader" : "etc", "header:Content-Type": "text/eva", .. }
+   //
+   //    --------- How to initialize and use the response object
+   //
+   //    While passing an object as response, it is important to notice that the properties of the unpacking
+   //    process are going to be added but the object is not going to be cleared previosly, so it has to be
+   //    done before the request in order not to take into account possible old response properties!
+   //
+   //          myResp2AHA = {},
+   //          AJAXSend ("AHA", "", myResp2AHA);
+   //
+   //    Passing respFuncOrObj as functions, this code accomplish the same
+   //
+   //          myResp2AHA = {},
+   //          AJAXSend ("AHA", "",
+   //                      function (body, resObj) {
+   //                          Object.assign (myResp2AHA, httUnpack (resObj.responseText, resObj));
+   //                      });
+   //
+   //
 
    function jaxGetHttpReq ()
    {
@@ -797,113 +981,49 @@ function jGastona (evaConfig, existingPlaceId)
       alert("Your browser does not support AJAX!");
    }
 
-   function jaxDefaultResponseFunc (bodytxt, httresp)
-   {
-      var RESPUNITNAME = "unitAjaxResponse";
-
-      if (strStartsWith (bodytxt, "#" + RESPUNITNAME + "#"))
-           responseAjaxUnit = evaFileStr2obj (bodytxt)[RESPUNITNAME] || { };
-      else responseAjaxUnit = { "ajaxRESP-rawBody": [[ bodytxt ]] };
-      var hparval, np = 1;
-
-      // add variables for "ajaxRESP-parameterX" named headers found in the response
-      do
-      {
-         hparval = httresp.getResponseHeader ("ajaxRESP-parameter" + np);
-         if (hparval)
-            responseAjaxUnit ["ajaxRESP-parameter" + np] = [[ hparval ]];
-         np ++;
-      } while (hparval);
-   }
-
-   function AJAXFormatBody (postString, bodyVariables, format, raw)
-   {
-      var vv;
-
-      function getValueVariable (va)
-      {
-         if (!raw &&
-              dataUnit[bodyVariables[va]] &&
-              dataUnit[bodyVariables[va]].length == 1 &&
-              dataUnit[bodyVariables[va]][0].length == 1)
-            return [[ encodeURIComponent (dataUnit[bodyVariables[va]]) ]];
-
-         return dataUnit[bodyVariables[va]] || "";
-      }
-
-      format = format || "eva";
-
-      if (! bodyVariables)
-      {
-         // all variables, if don't want this then set bodyVariables to []
-         bodyVariables = [];
-         for (var ii in dataUnit)
-            bodyVariables.push (ii);
-      }
-
-      var sal = "";
-
-      if (format === "propval")
-      {
-         // each in one line with the format
-         //   prop:value
-         //
-         for (vv in bodyVariables)
-            sal += "\n" + bodyVariables[vv] + ":" + getValueVariable (vv);
-      }
-      else if (format === "json")
-      {
-         // each in one line with the format
-         //   prop:value
-         //
-         sal = "{";
-         for (vv in bodyVariables)
-            sal += "'" + bodyVariables[vv] + "' : '" + getValueVariable (vv) + "', ";
-         sal += "}";
-      }
-      else if (format === "eva")
-      {
-         // to be deprecated ... ???
-         // prepare the body
-         //
-         var evaObj = evaFileObj (
-                       "#unitAjaxRequest#"    + "\n"
-                       );
-         var bodyUnit = evaObj.obj["unitAjaxRequest"];
-
-         for (vv in bodyVariables)
-            bodyUnit[bodyVariables[vv]] = getValueVariable (vv);
-
-         sal = evaObj.toText ();
-      }
-      else
-      {
-         alert ("ERROR: calling AJAXFormatBody with not supported format [" + format + "]");
-      }
-
-      return sal;
-   }
-
    function ajaxGenericPreProcessResponse (httresp)
    {
       //
    }
 
+   //  (parameters: response body, response object)
+   //
+   //
+   //  Example
 
-   function AJAXgenericPost (sendStr, bodyStr, objPOSTHeader, respFunction)
+
+   //  Send a general POST using given url, body and headers
+   //
+   //     Example:
+   //          AJAXPostRaw ("myPost/et?par=nothing", "this is my body", { XHeader-A: 167, XHeader2: "Maria" });
+   //
+   //  If a response from the server has to be handled, the forth parameter respFuncOrObj
+   //  can be used (see respFuncOrObj responses)
+   //
+   function AJAXPostRaw (sendStr, bodyStr, objPOSTHeader, respFuncOrObj)
    {
       var httpero = jaxGetHttpReq ();
       if (!httpero) return false;
 
-      if (!respFunction)
-         respFunction = jaxDefaultResponseFunc;
+      // get the post url minus parameters
+      var postTitle = sendStr.substring(0, sendStr.indexOf('?'));
+      if (postTitle.length == 0)
+         postTitle = sendStr;
 
       // add callback
       httpero.onreadystatechange = function () {
          if (httpero.readyState == 4 && httpero.status == 200) {
             ajaxGenericPreProcessResponse (httpero);
-            respFunction (httpero.responseText, httpero);
-            mensaka ("ajaxResponse " + sendStr);
+
+            if (typeof respFuncOrObj === "function") {
+               // just call the function
+               respFuncOrObj (httpero.responseText, httpero);
+            }
+            else if (typeof respFuncOrObj == "object") {
+               // merge the unpack object of the response into the given object
+               Object.assign (respFuncOrObj, httUnpack (httpero.responseText, httpero));
+            }
+            mensaka (AJAX_RESPONSE_MESSAGE + " " + postTitle);
          }
       }
 
@@ -917,14 +1037,24 @@ function jGastona (evaConfig, existingPlaceId)
       httpero.send (bodyStr||"");
    }
 
-   function AJAXSendData (postString, bodyContent, format, raw)
+   //  Send a POST using given url, paramCfg and respFuncOrObj (see packing and unpacking HTTP messages with paramCfg and respFuncOrObj)
+   //
+   //     Example:
+   //          AJAXPostRaw ("myPost/et?par=nothing", "this is my body", { XHeader-A: 167, XHeader2: "Maria" });
+   //
+   //  If a response from the server has to be handled, the forth parameter respFuncOrObj
+   //  can be used (see respFuncOrObj responses)
+   //
+   function AJAXSend (postString, paramCfg, respFuncOrObj)
    {
-      var bodyText = (typeof bodyContent === "string") ? bodyContent: AJAXFormatBody (postString, bodyContent, format, raw);
-
-      AJAXgenericPost (postString, bodyText);
+      var poso = httPack (paramCfg, dataUnit);
+      AJAXPostRaw (postString + "?" + poso.onelineparams,
+                poso.body,
+                poso.headers,
+                respFuncOrObj);
    }
 
-   function AJAXUploadFile (fileElement, postMsg, postHeaders, respFunction)
+   function AJAXUploadFile (fileElement, postMsg, postHeaders, respFuncOrObj)
    {
       if (!fileElement) return false;
       var fileEle = htmlElem (fileElement);
@@ -935,22 +1065,61 @@ function jGastona (evaConfig, existingPlaceId)
       var formo = new FormData ();
       formo.append ("filename", file1); // we add it but actually the mico server don't read it!
 
-      AJAXgenericPost (postMsg, formo, postHeaders, respFunction);
+      AJAXPostRaw (postMsg + "?fileName=" + file1, formo, postHeaders, respFuncOrObj);
       return true;
    }
 
-   function AJAXLoadRootJast (jastName)
+   function AJAXLoadRootJast (jastName, placeId)
    {
-      AJAXgenericPost ("loadRootJast", "", { "ajaxREQ-jastName": jastName },
-                        function (txt) {
-                           loadJast (evaFileStr2obj (txt));
-                        }
-                        );
+      AJAXPostRaw ("loadRootJast?jastName=" + jastName,
+                   "",     // body
+                   null,   // headers
+                           // callback
+                   function (txt) {
+                      loadJast (evaFileStr2obj (txt), placeId);
+                   }
+                  );
    }
 
-   function setContentsFromBody (idname, bodystr, multiple)
+   function AJAXgetIdContent ()
    {
-      var mainbody = "";
+      alert ("ops! this function is deprecated! use AJAXgetDataForId instead");
+   }
+
+   // depending on the type of the second parameter there are two possible syntaxes:
+   //
+   //    //1 using the one line parameters
+   //    AJAXgetDataForId ("myTextArea", "source=content.txt&fromLine=166&toLine=200");
+   //
+   //    //2 passing more headers
+   //    AJAXgetDataForId ("myTextArea", { "ajaxREQ-id": "myTextArea", "theFile": "content.txt" });
+   //
+   //    if multiple is true then the server will send additional id:value pairs using the format
+   //          id1:value
+   //          id2:value
+   //          :
+   //          mainid value
+   //
+   //    if onlyhtml is true, only the html element will be updated
+   //    and the data will not be set in "data" unit. This is convenient for not
+   //    duplication in case of big contents. This flag only affects the main id,
+   //    multiple ids will be updated using setData always.
+   //
+   function AJAXgetDataForId (idname, paramCfg, multiple, onlyhtml)
+   {
+      var poso = httPack (paramCfg, dataUnit);
+      AJAXPostRaw ("getDataForId?" + "id=" + idname + "&" + poso.onelineparams,
+                    poso.body,
+                    poso.headers,
+                    function (txt) {
+                       setContentsFromBody (idname, txt, multiple, onlyhtml);
+                    }
+                );
+   }
+
+   function setContentsFromBody (idname, bodystr, multiple, onlyhtml)
+   {
+      var mainbody = multiple ? "": bodystr;
       if (multiple)
       {
          // format body = sub-header sub-body
@@ -973,49 +1142,13 @@ function jGastona (evaConfig, existingPlaceId)
          for (var bb = hh; bb < textArr.length; bb ++)
             mainbody = mainbody + (bb != hh ? "\n": "") + textArr[bb];
       }
-      else
+
+      if (onlyhtml)
       {
-         // format body = directly the content
-         mainbody = bodystr;
+         var ele = document.getElementById (idname);
+         if (ele)
+            setValueToElement (ele, mainbody);
       }
-
-      var ele = document.getElementById (idname);
-      if (ele)
-         setValueToElement (ele, mainbody);
-   }
-
-   // depending of the type of the first parameter there are two possible syntaxes:
-   //
-   //    //1 using implicit header names ajaxREQ-id and ajaxREQ-param
-   //    jgas.AJAXgetIdContent ("myTextArea", "content.txt");
-   //
-   //    //2 passing more headers
-   //    jgas.AJAXgetIdContent ("myTextArea", { "ajaxREQ-id": "myTextArea", "theFile": "content.txt" });
-   //
-   //    if multiple is true then the server will send additional id:value pairs using the format
-   //          id1:value
-   //          id2:value
-   //          :
-   //          mainid value
-   //
-   function AJAXgetIdContent (idname, param, multiple)
-   {
-      // either param is a string and we add a header "ajaxREQ-param"
-      // or it is actually an objects with the headers to be send
-      // in the end we add always "ajaxREQ-id"
-      //
-      var heads = (typeof param === "string") ? { "ajaxREQ-param": param }: (param||{});
-      heads["ajaxREQ-id"] = idname;
-
-      AJAXgenericPost ("getIdContent", "", heads,
-         function (txt) {
-            setContentsFromBody (idname, txt, multiple);
-         }
-      );
-   }
-
-   function AJAXgetIdMultipleContents (idname, param)
-   {
-      AJAXgetIdContent (idname, param, true);
+      else setData (idname, mainbody);
    }
 }

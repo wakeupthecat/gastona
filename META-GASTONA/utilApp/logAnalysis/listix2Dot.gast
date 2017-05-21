@@ -1,0 +1,24 @@
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// generates a dot (graphwiz) graph for the listix part of 
+// the gast script (generated_linked.gast)
+//
+
+#listix#
+
+   <main>
+      CHECK, FILE, generated_linked.gast
+      GEN, generated_linked.dot, JSRUN
+      OPEN, generated_linked.dot
+      
+   <JSRUN> JS, @<script>
+
+   <script>
+     //@<:infile META-GASTONA/js/Eva.js>
+     //@<:infile META-GASTONA/utilApp/gastAnalyzer/gastGlass2dot.js>
+     //
+     //gastGlass2dot (evaFileUTF82obj ("@<:solve-encode-utf8 THEGAST>"));
+
+   <THEGAST>
+      @<:infile generated_linked.gast>
+ 
+#**#

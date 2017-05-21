@@ -47,6 +47,7 @@ public class gastClassGenerator
       fi.writeLine ("{");
       writeLoader (fi, "gastona", gastU);
       writeLoader (fi, "javaj", gastJ);
+      writeLoader (fi, "guix", gastJ);
       writeLoader (fi, "data", gastD);
       writeLoader (fi, "listix", gastL);
       

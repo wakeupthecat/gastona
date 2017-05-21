@@ -344,7 +344,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
             return;
          }
 
-         setColumnNames (Cadena.simpleToArray ((String)resultPragma.get(0), "|"));
+         setColumnNames (((String)resultPragma.get(0)).split ("\\|"));  // character |
 
          int totalRows = 0;
          //System.err.println ("resultPragma[0] [" + resultPragma[0] + "]");
@@ -517,7 +517,7 @@ public class tableROSelectBatch extends absTableWindowingEBS
       {
          //header (column names)
          //
-         EvaLine eliHead = new EvaLine (Cadena.simpleToArray ((String)result.get(0), "|"));
+         EvaLine eliHead = new EvaLine (((String)result.get(0)).split ("\\|"));
          eliHead.removeColumn (0); // due to rowNull
          setColumnNames (eliHead.getColumnArray ());
 

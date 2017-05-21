@@ -32,7 +32,7 @@ public class httpResponseData
    private long inpSize = -1;
 
    private String mContentTypeStr = "";
-   private List myHeaderLines = null;
+   private TreeMap myHeaderLines = new TreeMap ();
    private static final String CRLF = "\r\n";
 
    /**
@@ -45,7 +45,7 @@ public class httpResponseData
                null         = "text/html; charset=utf-8"
                other        = the one specified
    */
-   public httpResponseData (OutputStream outputStream, String respTxt, String contentTypeStr, List headerLines)
+   public httpResponseData (OutputStream outputStream, String respTxt, String contentTypeStr, TreeMap headerLines)
    {
       outStream = outputStream;
       try
@@ -56,25 +56,42 @@ public class httpResponseData
       {
          respBody = null;
       }
-      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "text/html; charset=utf-8";
-      myHeaderLines = headerLines;
+
+      setHeadersAndContentType (headerLines, contentTypeStr, "text/html; charset=utf-8");
    }
 
-   public httpResponseData (OutputStream outputStream, File file2serve, String contentTypeStr, List headerLines)
+   public httpResponseData (OutputStream outputStream, File file2serve, String contentTypeStr, TreeMap headerLines)
    {
       outStream = outputStream;
       respFile = file2serve;
-      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "application/octet-stream";
-      myHeaderLines = headerLines;
+      setHeadersAndContentType (headerLines, contentTypeStr, "application/octet-stream");
    }
 
-   public httpResponseData (OutputStream outputStream, InputStream inputStream, long size, String contentTypeStr, List headerLines)
+   public httpResponseData (OutputStream outputStream, InputStream inputStream, long size, String contentTypeStr, TreeMap headerLines)
    {
       outStream = outputStream;
       inpStream = inputStream;
       inpSize   = size;
-      mContentTypeStr = (contentTypeStr != null) ? contentTypeStr: "application/octet-stream";
+      setHeadersAndContentType (headerLines, contentTypeStr, "application/octet-stream");
+   }
+
+   private void setHeadersAndContentType (TreeMap headerLines, String contentTypeStr, String fallbackCT)
+   {
+      final String CT = "Content-Type";
+
+      // set headers
+      //
       myHeaderLines = headerLines;
+
+      // is specified contentType set it (replacing any existing!)
+      //
+      if (contentTypeStr != null)
+         myHeaderLines.put (CT, CT + " : " + contentTypeStr);
+
+      // is we still don't have a contentType set the fallback
+      //
+      if (myHeaderLines.get (CT) == null)
+         myHeaderLines.put (CT, CT + " : " + fallbackCT);
    }
 
    private byte [] crlfAndBytes (String content)
@@ -82,17 +99,33 @@ public class httpResponseData
       return (content + CRLF).getBytes ();
    }
 
-   private void writeResponseHeaders ()
+   private void writeResponseHeaders (long bodySize)
    {
-      if (myHeaderLines == null) return;
-      try
+      myHeaderLines.put ("Content-Length", "Content-Length : " + bodySize);
+
+      Object[] heas = myHeaderLines.values ().toArray ();
+      for (int ii = 0; ii < heas.length; ii ++)
       {
-         for (int ii = 0; ii < myHeaderLines.size (); ii ++)
-            outStream.write (crlfAndBytes ((String) myHeaderLines.get (ii)));
+         String heastr = (String) heas[ii];
+         try {
+            outStream.write (crlfAndBytes (heastr));
+            if (isDebugging ())
+               out ("    " + heastr);
+         }
+         catch (Exception e) {}
       }
-      catch (Exception e)
-      {
-      }
+      
+      //try {
+      //   NavigableMap<String, String> desc = myHeaderLines.descendingMap ();
+      //
+      //   for (String key : desc.keySet())
+      //   {
+      //       ...
+      //   }
+      //}
+      //catch (Exception e)
+      //{
+      //}
    }
 
    public void send ()
@@ -103,6 +136,10 @@ public class httpResponseData
       try
       {
          outStream.write (crlfAndBytes ("HTTP/1.1 200 OK"));
+         if (isDebugging ()) {
+            out ("--- RESPONSE : HTTP/1.1 200 OK");
+            out ("--- HEADER");
+         }
 
          //test for AJAX (XMLHttpRequest) response
          //
@@ -112,26 +149,27 @@ public class httpResponseData
          if (mContentTypeStr.length () > 0)
          {
             outStream.write (crlfAndBytes ("Content-Type: " +  mContentTypeStr));
+            if (isDebugging ())
+               out ("    Content-Type: " +  mContentTypeStr);
          }
 
          if (respBody != null)
          {
-            outStream.write (crlfAndBytes ("Content-Length: " + respBody.length));
-            writeResponseHeaders ();
+            writeResponseHeaders (respBody.length);
             outStream.write (crlfAndBytes ("")); // BODY separation !!!
             outStream.write (respBody);
 
             if (isDebugging ()) // avoid to string convertion if it not necessary
             {
                out ("--- RESPONSE BODY");
-               out (new String (respBody));
+               out ("\n" + new String (respBody));
                out ("---");
             }
          }
+
          if (respFile != null)
          {
-            outStream.write (crlfAndBytes ("Content-Length: " + respFile.length ()));
-            writeResponseHeaders ();
+            writeResponseHeaders (respFile.length ());
             outStream.write (crlfAndBytes ("")); // BODY separation !!!
             TextFile fi = new TextFile ();
             if (fi.fopen (respFile.getPath (), "rb"))
@@ -145,13 +183,15 @@ public class httpResponseData
                   if (leo == -1) break;
                   outStream.write (arr, 0, leo);
                } while (!fi.feof ());
+               fi.fclose ();
+               if (isDebugging ())
+                  out ("Body sent");
             }
          }
 
          if (inpStream != null)
          {
-            outStream.write (crlfAndBytes ("Content-Length: " + inpSize));
-            writeResponseHeaders ();
+            writeResponseHeaders (inpSize);
             outStream.write (crlfAndBytes ("")); // BODY separation !!!
 
             byte [] arr = new byte[1024];
@@ -163,6 +203,8 @@ public class httpResponseData
                if (leo == -1) break;
                outStream.write (arr, 0, leo);
             } while (leo >= 0);
+            if (isDebugging ())
+               out ("Body sent");
          }
 
          outStream.close ();

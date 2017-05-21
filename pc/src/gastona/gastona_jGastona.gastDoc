@@ -35,9 +35,78 @@
    <examples>
       gastSample
 
+      jGatona & Evalayout
       using jGatonaAJAXPost I
       using jGatonaAJAXPost II
       sample jGastona Boletin
+
+
+   <jGatona & Evalayout>
+      //#javaj#
+      //
+      //    <frames> oConsola
+      //
+      //#listix#
+      //
+      //   <main>
+      //       micohttp, start, monoMico
+      //
+      //   <GET />
+      //     //<html><style> * { font-family: Consolas; font-size: 18px;  } </style><body><script>
+      //     //
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //
+      //     //   jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
+      //     //
+      //     //</script></body></html>
+      //
+      //   <MAIN_JAST>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //      EVALAYOUT, 10, 10, 5, 5
+      //      //
+      //      //         ,            ,    X
+      //      //         , bSwitchMain, form1
+      //      //         , bMask1     ,   +
+      //      //         , bMask2     ,   +
+      //      //         , bUnmask    ,   +
+      //      //        X,            ,   +
+      //      //
+      //      //   <layout of second>
+      //      //      EVALAYOUT, 10, 10, 5, 5
+      //      //
+      //      //      ZZZ,            ,    X     ,
+      //      //         , lLabel1    , eEdit1   , -
+      //      //         , lLabel2    , xMemo    , lLabel3
+      //      //         , lLabel4    ,    +     , iLista
+      //      //         , bSwitchBack,    +     , +
+      //      //         ,            ,    +     , +
+      //      //       X ,            ,    +     , +
+      //      //         , cCombo     ,    -     , +
+      //      //
+      //      //   <layout of form1>
+      //      //      EVALAYOUT, 10, 10, 5, 5
+      //      //
+      //      //         ,           ,    X     ,
+      //      //         , lLabel1   , eEdit1   , -
+      //      //         , lLabel2   , eEdit2   , lLabel3
+      //      //       X , xMemo     , -        , -
+      //      //
+      //      //   <layout of form2>
+      //      //      EVALAYOUT, 10, 10, 5, 5
+      //      //
+      //      //         ,           ,    X
+      //      //         , lLabel4   , cCombo
+      //      //       X ,           , iLista
+      //      //
+      //      //#jListix#
+      //      //
+      //      //   <-- bSwitchMain>   //mask ("main", "second")
+      //      //   <-- bSwitchBack>   //mask ("main")
+      //      //   <-- bMask1>        //mask ("form1", "form2")
+      //      //   <-- bMask2>        //mask ("form1", "xMemo")
+      //      //   <-- bUnmask>       //mask ("form1")
 
 
    <using jGatonaAJAXPost I>
@@ -57,25 +126,25 @@
       //     //
       //     //<script>
       //     //
-      //     IN FILE, META-GASTONA/js/jGastona.js
+      //     //@<:infile META-GASTONA/js/jGastona.js>
       //     //
       //     //   var jgas = jGastona ();
       //     //
-      //     //   jgas.AJAXPost ("questionToU",
-      //     //                  "this is the body of the question",
-      //     //                  { "ajaxREQ-pi1" : "refining the question"},
-      //     //                  function (txt, htp) {
-      //     //                      document.getElementById ("salida").value =
+      //     //   jgas.AJAXPostRaw ("questionToU",
+      //     //                     "this is the body of the question",
+      //     //                     { "ajaxREQ-pi1" : "refining the question"},
+      //     //                     function (txt, htp) {
+      //     //                         document.getElementById ("salida").value =
       //     //                         "----RESP-HEADERS:\n" + htp.getAllResponseHeaders () +
       //     //                         "\n----RESP-BODY:\n" + txt +
       //     //                         "\n----RESP-END";
-      //     //                  }
-      //     //                 );
+      //     //                     }
+      //     //                     );
       //     //
       //     //</script></body></html>
       //
       //   <POST /questionToU>
-      //     MICO, SET RESPONSE PARAMETERS, monoMico, uno, dos, "tres y cuatro etc"
+      //     MICO, RESP_VAR=, monoMico, P1, uno, P2, dos, P3, "tres y cuatro etc"
       //     //you sent me the body:
       //     //
       //     LOOP, TEXT FILE, @<_bodyMemFileName>
@@ -86,54 +155,71 @@
    <using jGatonaAJAXPost II>
       //#javaj#
       //
-      //    <frames> oConso
+      //    <frames> oConsola
       //
       //#listix#
       //
-      //    <main>
+      //   <main>
       //       micohttp, start, monoMico
       //
       //   <GET />
-      //     //<html><body>
+      //     //<html><style> * { font-family: Consolas; font-size: 18px;  } </style><body><script>
       //     //
-      //     //   <!-- nothing! -->
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //<script>
-      //     //
-      //     @<:infile META-GASTONA/js/jGastonaEva-min.js>
-      //     //
-      //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
-      //     //
-      //     //   jgas.AJAXPost ("questionToU",
-      //     //                  "this is the body of the question",
-      //     //                  { "ajaxREQ-pi1" : "refining the question"}
-      //     //                 );
+      //     //   var respObj = {};
+      //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
       //     //
       //     //</script></body></html>
       //
-      //   <MAIN_JGAST>
+      //   <MAIN_JAST>
       //      //#javaj#
       //      //
       //      //   <layout of main>
-      //      //        EVA,
-      //      //        grid, X
-      //      //           X, xTesto
+      //      //        EVA, 12, 12, 8, 8
+      //      //        grid, X       , X
+      //      //            , h2Parameters, -
+      //      //            , lP1
+      //      //            , lP2
+      //      //            , lP3
+      //      //            , h2ResponseObject , h2ResponseUnit
+      //      //           X, xResponseObject, xUnit
       //      //
       //      //#listix#
       //      //
-      //      //  <-- ajaxResponse questionToU>
-      //      //     //var eo = evaFileObj ({ "responseUnit": jgas.getAjaxResponse () });
-      //      //     //jgas.setData ("xTesto", eo.toText ());
+      //      //  <main>
+      //      //     //respObj = {};
+      //      //     //AJAXSend ('questionToU', {
+      //      //     //            body: 'this is the body of the question', 
+      //      //     //            params: { reqVar1 : 21321, reqVar2: 423 },
+      //      //     //            headers: { XmyHeader : 'refining the question'} 
+      //      //     //           },
+      //      //     //           respObj
+      //      //     //          );
+      //      //     //
       //      //
-      //
+      //      //  <-- ajaxResponse questionToU>
+      //      //     //setData ('lP1', 'myVar1 = [' + respObj['obj-params']['myVar1'] + ']');
+      //      //     //setData ('lP2', 'myVar2 = [' + respObj['obj-params']['myVar2'] + ']');
+      //      //     //setData ('lP3', 'myVar3 = [' + respObj['obj-params']['myVar3'] + ']');
+      //      //     //setData ('xResponseObject', JSON.stringify (respObj, null, ' '));
+      //      //     //setData ('xUnit', evaFileObj (respObj['obj-body']).toText ());
+      //      //
+      //   
       //   <POST /questionToU>
-      //     MICO, SET RESPONSE PARAMETERS, monoMico, uno, dos, "tres y cuatro etc"
-      //     //you sent me the body:
+      //     MICO, RESP_VAR=,, myVar1, uno, myVar2, dos, myVar3, "tres y cuatro etc"
+      //     MICO, RESP_HEADER=,, Content-Type, text/eva
+      //     //#data#
       //     //
+      //     //   <body that you sent me>
       //     LOOP, TEXT FILE, @<_bodyMemFileName>
-      //         ,, @<value>
+      //         ,,  //     //@<value>
       //     //
-      //     //and the header ajaxREQ-pi1 with value @<ajaxREQ-pi1>
+      //     //  <your header> XmyHeader, //@<XmyHeader>
+      //     //  <and request params>
+      //     //      reqVar1, //@<reqVar1>
+      //     //      reqVar2, //@<reqVar2>
+
 
    <sample jGastona Boletin>
       //#javaj#
@@ -158,9 +244,9 @@
       //     //   <!-- nothing! -->
       //     //<script>
       //     //
-      //     @<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+      //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
       //     //
       //     //</script></body></html>
       //
@@ -188,37 +274,37 @@
       //      //#listix#
       //      //
       //      //  <-- bSave>
-      //      //     //jgas.AJAXSendBody ("insertEvent");
+      //      //     //AJAXSend ("insertEvent");
       //      //
       //      //  <-- ajaxResponse insertEvent>
-      //      //     //jgas.AJAXgetIdContent ("dBoletin", "all");
+      //      //     //AJAXgetDataForId ("dBoletin");
       //
       //   <POST /insertEvent>
       //      LSX, StoreRecord,
-      //         , LOAD DATA, @<_bodyMemFileName>, unitAjaxRequest
+      //         , LOAD DATA, @<_bodyMemFileName>, data
       //      //ok
       //
       //   <StoreRecord>
       //      DB,, EXECUTE, //INSERT INTO boletin (date, title, eventdesc) VALUES ('@<eEventDate>', '@<:encode eEventTitle>', '@<:encode xEventDesc>');
       //
-      //   <DEL_COMMAND> //jgas.AJAXgetIdContent ('dBoletin', { 'REQ-REMOVE-ID': '@<id>'}, false);
+      //   <DEL_COMMAND> //jgas.AJAXgetDataForId ('dBoletin', 'removeId=@<id>');
       //
-      //   <POST /getIdContent>
+      //   <POST /getDataForId>
       //      LSX, checkRemoveId
       //      //<table>
       //      //
       //      LOOP, SQL,, //SELECT * FROM boletin LIMIT 50
       //          ,, // <tr> <td>
       //          ,, //       <table> <tr> <td> @<date> <td> @<:decode-utf8 title> <td> <button onclick="@<DEL_COMMAND>">Delete</button></tr>
-      //          ,, //               <tr> <td colspan="3"> <textarea>@<eventdesc></textarea> </tr>
+      //          ,, //               <tr> <td colspan="3"> <textarea>@<:decode-utf8 eventdesc></textarea> </tr>
       //          ,, //       </table>
       //          ,, // </tr>
       //      //
       //      //</table>
       //
       //   <checkRemoveId>
-      //      CHECK, VAR, REQ-REMOVE-ID
-      //      DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<REQ-REMOVE-ID> ;
+      //      CHECK, VAR, removeId
+      //      DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<removeId> ;
 
 #**FIN_EVA#
 

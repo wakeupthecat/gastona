@@ -18,6 +18,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 package de.elxala.Eva;
+import java.util.Vector;
+import java.util.List;
 
 import de.elxala.langutil.*;
 
@@ -46,10 +48,18 @@ import de.elxala.langutil.*;
 */
 public class EvaLine implements java.io.Serializable
 {
+   protected final static char ATOM_ENVOLVER = 34;  // "
+   protected final static char ATOM_SEPARATOR = 44;    // ,
+
+   private static final String START_LITERAL_1 = "'";
+   private static final String START_LITERAL_2 = "//";
+   private static final char START_LITERAL_1_CH = '\'';
+   private static final char START_LITERAL_2_CH = '/';
+
    private String [] arr_Column = null;
 
    /**
-      Constructs a EvaLne object from a String array
+      Constructs a EvaLine object from a String array
    */
    public EvaLine (String [] arrData)
    {
@@ -60,11 +70,6 @@ public class EvaLine implements java.io.Serializable
          return;
       }
       arr_Column = arrData;
-
-      // ! this check may affect performance
-      for (int ii = 0; ii < arrData.length; ii ++)
-         if (arrData[ii] == null)
-            arrData[ii] = "";
    }
 
    public EvaLine ()
@@ -81,14 +86,6 @@ public class EvaLine implements java.io.Serializable
    }
 
    /**
-      Constructs a EvaLine object from a Cadena object (de.elxala.langutil.Cadena)
-   */
-   public EvaLine (Cadena sLin)
-   {
-      set (sLin);
-   }
-
-   /**
       Constructs a EvaLine object from String 'sLin' where the columns are comma separated
       Example:
 
@@ -96,7 +93,7 @@ public class EvaLine implements java.io.Serializable
    */
    public EvaLine (String sLin)
    {
-      set (new Cadena (sLin));
+      parseLine (sLin);
    }
 
 
@@ -104,12 +101,12 @@ public class EvaLine implements java.io.Serializable
    {
       arr_Column = new String [] {""};
    }
-   
+
    public void copy (EvaLine eline2)
    {
       arr_Column = new String [] {""};
       if (eline2 == null) return;
-      
+
       arr_Column = new String [eline2.arr_Column.length];
       for (int ii = 0; ii < arr_Column.length; ii ++)
       {
@@ -123,16 +120,6 @@ public class EvaLine implements java.io.Serializable
    public String [] getColumnArray ()
    {
       return arr_Column;
-   }
-
-   /**
-      // NOTA : quitar acentos por el p problema con gcj "error: malformed UTF-8 character." de los c
-      Carga la liinea a partir de una cadena que contiene los elementos
-      separados por comas (con "" cuando conviene)
-   */
-   public void set (Cadena sLin)
-   {
-      arr_Column = sLin.toStrArray ();
    }
 
    /**
@@ -188,17 +175,6 @@ public class EvaLine implements java.io.Serializable
          arr_Column = newLine;
       }
       arr_Column [ncol] = (sVal != null) ? sVal: "";
-   }
-
-   /**
-      Returns a Cadena object where the whole EvaLine (with all its elements) is serialized
-   */
-   public Cadena getAsCadena ()
-   {
-      Cadena cad = new Cadena ();
-      cad.setStrArray (arr_Column);
-
-      return cad;
    }
 
    /**
@@ -260,7 +236,7 @@ public class EvaLine implements java.io.Serializable
       // copy until offset-1
       for (int cc = 0; cc < offset; cc ++)
          nline[cc] = getValue (cc);
-      
+
       // copy from offset + nelements
       for (int cc = offset + nelem; cc < cols (); cc ++)
          nline[cc-nelem] = getValue (cc);
@@ -297,6 +273,160 @@ public class EvaLine implements java.io.Serializable
    */
    public String toString ()
    {
-      return (getAsCadena ()).o_str;
+      // more effective way, the whole line is a string
+      if (arr_Column.length == 1)
+      {
+         // we print out the escape column only if not ended with blank!
+         // since this end blanks would be erroniously trimmed
+         if (!arr_Column[0].endsWith (" ") && !arr_Column[0].endsWith ("\t"))
+         {
+            return START_LITERAL_2 + arr_Column[0];
+         }
+      }
+
+      // look one per one
+      StringBuffer sb = new StringBuffer ("");
+      for (int ii = 0; ii < arr_Column.length; ii ++)
+      {
+         if (ii > 0)
+            sb.append (ATOM_SEPARATOR);
+         sb.append (enpaqueta (arr_Column[ii]));
+      }
+      return sb.toString ();
+   }
+
+   private String enpaqueta (String str)
+   {
+      //_DBG_ System.out.println ("[>>] Cadena::EnpaquetaMe");
+      //_DBG_ System.out.println ("o_str [" + o_str + "]");
+
+      if (str.length () == 0)
+      {
+         // value is ""
+         return ATOM_ENVOLVER + "" + ATOM_ENVOLVER;
+      }
+
+      boolean quote = str.indexOf (ATOM_ENVOLVER) != -1 ||     //  ..."...
+                      str.indexOf (ATOM_SEPARATOR) != -1 ||    //  ...,...
+                      str.indexOf ("#") != -1 ||               //  ...#...
+                      str.indexOf ("<") != -1 ||               //  ...<...
+                      str.startsWith (START_LITERAL_1) ||      //  '......
+                      str.startsWith (START_LITERAL_2) ||      //  //.....
+                      str.startsWith (" ") ||                  //  s......
+                      str.startsWith ("\t") ||                 //  t......
+                      str.endsWith (" ") ||                    //  ......s
+                      str.endsWith ("\t")                      //  ......t
+                      ;
+      
+      if (quote)
+         // "frase"
+         return ATOM_ENVOLVER + 
+                str.replaceAll ("\\\"", "" + ATOM_ENVOLVER + ATOM_ENVOLVER) + 
+                ATOM_ENVOLVER;
+      
+      return str;
+   }
+
+   protected static String getNextToken (stringCursor spo, char separator, boolean restLineLiterals)
+   {
+      // trim
+      while (!spo.ended () && (spo.charPoint() == ' ' || spo.charPoint() == '\t')) spo.inc();
+      if (spo.ended ()) return null;
+
+      // is it a unique token ?
+      //
+      if (restLineLiterals)
+      {
+         if (spo.charPoint() == START_LITERAL_1_CH)
+         {
+            String str = spo.str ().substring (spo.indx + START_LITERAL_1.length ()); // remove literal1
+            spo.incEnd ();
+            return str;
+         }
+         if (!spo.endIn (1) && spo.charPoint() == START_LITERAL_2_CH && spo.charPoint(1) == START_LITERAL_2_CH)
+         {
+            String str = spo.str ().substring (spo.indx + START_LITERAL_2.length ()); // remove literal2
+            spo.incEnd ();
+            return str;
+         }
+      }
+
+      // iterate until , or closing " if it starts with "
+      //
+      boolean envolta = spo.charPoint() == ATOM_ENVOLVER;
+      int ini = envolta ? ++ spo.indx: spo.indx;
+      StringBuffer cell = new StringBuffer ();
+
+      do {
+         if (envolta)
+         {
+           if (spo.charPoint() != ATOM_ENVOLVER) spo.inc ();
+           else
+               if (spo.charPoint(1) == ATOM_ENVOLVER)
+               {
+                 // double ""
+                 // add a part including one " and continue
+                 cell.append (spo.indx + 1 > ini ? spo.str ().substring (ini, spo.indx + 1): "");
+                 spo.inc (2);
+                 ini = spo.indx;
+               }
+               else break; // close "
+         }
+         else
+         {
+            if (spo.charPoint() == separator) break;
+            spo.inc ();
+         }
+      } while (!spo.ended ());
+
+      // right trim if not quoted
+      //
+      int bak = 0;
+
+      if (! envolta)
+         while (spo.charPoint(-(bak+1)) == ' ' || spo.charPoint(-(bak+1)) == '\t') bak ++;
+
+      if (ini < spo.indx - bak)
+          cell.append (spo.str ().substring (ini, spo.indx - bak));
+
+      spo.inc ();
+      if (envolta)
+      {
+         // find the next comma if any
+         while (!spo.ended () && spo.charPoint () != separator) spo.inc ();
+         spo.inc (); // skip the comma
+      }
+
+      return cell.toString ();
+   }
+
+   public int parseLine (String sline)
+   {
+      // special case ! string "" has to retorn one element (like ",")
+      //
+      if (sline.length () == 0)
+      {
+         arr_Column = new String [] { "" };
+         return cols ();
+      }
+
+      stringCursor spo = new stringCursor (sline);
+
+      List colec = new Vector ();
+      while (!spo.ended ())
+      {
+         String quepo = getNextToken (spo, ATOM_SEPARATOR, true);
+         if (quepo != null)
+            colec.add (quepo);
+         // System.out.println ("saco = [" + quepo + "] queda [" + queda.o_str + "]");
+      }
+
+      // make the string array
+      //
+      arr_Column = new String[colec.size ()];
+      for (int ii = 0; ii < colec.size (); ii ++)
+         arr_Column[ii] = (String) colec.get(ii);
+
+      return cols ();
    }
 }

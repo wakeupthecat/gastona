@@ -7,11 +7,27 @@
 //
 function conSecuencioCanvas (c2d, diagData)
 {
+   function getAnInt (obj, defval)
+   {
+      if (!obj) return defval;
+      if (typeof obj === "number") return parseInt(obj);
+      return parseInt (obj[0][0]);
+   }
+
    var arr = diagData["sequenceTable"];
-   var dia = parseInt (diagData["distanceAgents"]);
-   var dit = parseInt (diagData["distanceTimeUnit"]);
-   var maxGapTime = parseInt (diagData["maxGapTime"]);
-   var autoElapsed = diagData["autoElapsed"] !== false; // to not interpret undefined as false!
+   var dia = getAnInt (diagData["distanceAgents"], 30);
+   var dit = getAnInt (diagData["distanceTimeUnit"], 4);
+   var maxGapTime = getAnInt (diagData["maxGapTime"], 3);
+   var autoElapsed = diagData["autoElapsed"];
+   if (typeof autoElapsed === "string")
+      autoElapsed = (autoElapsed === "1" || autoElapsed === "true");
+   autoElapsed = autoElapsed !== false;
+
+   // multipliers to convert from char space to pixels
+   //
+   dia *= 12;
+   dit *= 12;
+   maxGapTime *= 3;
 
    if (arr.length == 0) return ;
 
@@ -42,9 +58,9 @@ function conSecuencioCanvas (c2d, diagData)
       {
          if (ii === "0") continue;
 
-         if (tx != -1 && agArr.indexOf (mats[ii][tx]) == -1)
+         if (tx != -1 && mats[ii][tx] && agArr.indexOf (mats[ii][tx]) == -1)
             agArr.push (mats[ii][tx]);
-         if (rx != -1 && agArr.indexOf (mats[ii][rx]) == -1)
+         if (rx != -1 && mats[ii][rx] && agArr.indexOf (mats[ii][rx]) == -1)
             agArr.push (mats[ii][rx]);
       }
 
@@ -68,12 +84,6 @@ function conSecuencioCanvas (c2d, diagData)
 
 
    // ----- CANVAS
-
-   // DEFAULT VALUES
-   //
-   dia = dia || 360;  // horizontal distance between agents
-   dit = dit ||  50;  // vertical distance between time units (i.e. seconds)
-   maxGapTime = maxGapTime || 6;
 
    function textWidth (txt) { return c2d.measureText (txt).width ; }
 
@@ -164,6 +174,8 @@ function conSecuencioCanvas (c2d, diagData)
       a1 = agents.indexOf (arr[aa][iAgentTx]);
       a2 = agents.indexOf (arr[aa][iAgentRx]);
       tx = arr[aa][iMessage];
+
+      if (tx === undefined) continue;
 
       dirLR = a1 < a2;
 

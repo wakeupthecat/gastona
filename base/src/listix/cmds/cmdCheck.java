@@ -269,8 +269,11 @@ public class cmdCheck implements commandable
          //
          String fileName = cmd.getArg(nargRead ++);
          String evaUnitName = cmd.getArg(nargRead ++);
-
-         checked = EvaFile.existsEvaUnitInFile (fileName, evaUnitName);
+         
+         // by now a little bit expensive ... we load the whole file!
+         //
+         EvaFile efi = new EvaFile (fileName);
+         checked = efi.getUnit (evaUnitName) != null;
       }
       else if (listixCmdStruct.meantConstantString (chkType, new String [] {"NUMEXPR", "NUM", "EXPR", "FORMULA" }))
       {

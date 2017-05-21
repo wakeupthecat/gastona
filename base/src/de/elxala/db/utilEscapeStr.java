@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2017 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,14 +18,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.db;
 
-import java.util.Vector;
+import java.util.List;
 import de.elxala.langutil.*;
 
 /**
 */
 public class utilEscapeStr
 {
-   private static final String SEPARATOR = utilEscapeConfig.SEPARATOR;
+   private static final char SEPARATOR = utilEscapeConfig.SEPARATOR;
 
    private static String ENCODE_MODEL_NAME = utilEscapeConfig.ENCODE_MODEL_NAME;
 
@@ -234,8 +234,7 @@ public class utilEscapeStr
       StringBuffer ss = new StringBuffer ();
       for (int ii = 0; ii < strArray.length; ii ++)
       {
-         ss.append (escapeStr (strArray [ii]));
-         ss.append (SEPARATOR);
+         ss.append (escapeStr (strArray [ii]) + SEPARATOR);
       }
       return ss.toString ();
    }
@@ -253,18 +252,14 @@ public class utilEscapeStr
       if (campsStr == null || campsStr.length() == 0)
          return new String[1];
 
-      // System.out.println ("la row es = " + row + " el tamanyo en si es " + ptrStr.length);
-      Cadena c = new Cadena (campsStr);
-      c.setSepar (SEPARATOR);
+      String [] columnas = campsStr.split (strUtil.stringToRegexStr ("" + SEPARATOR));
+      if (columnas.length - offset <= 0)
+         return new String [0];
+      String [] mat = new String [columnas.length - offset];
 
-      Vector columnas = new Vector ();
-      while (c.getToken ())
-         if (offset -- <= 0)
-            columnas.add (c.lastToken ());
-
-      String [] mat = new String [columnas.size ()];
-      for (int cc = 0; cc < columnas.size (); cc ++)
-         mat[cc] = desEscapeStr ((String) columnas.get (cc));
+      if (offset >= 0 && offset < columnas.length)
+         for (int cc = offset; cc < columnas.length; cc ++)
+            mat[cc-offset] = desEscapeStr (columnas[cc]);
 
       return mat;
    }

@@ -41,6 +41,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 function layoutManager (evaObj, callbackAddWidget)
 {
    "use strict";
+   var DBG_VERBOSE = false;
    var guiLayouts,
        guiConfig,
        changeInWidgets,
@@ -89,11 +90,11 @@ function layoutManager (evaObj, callbackAddWidget)
       currentLayoutName = name;
    }
 
-   function invalidateAll (/*var*/ layo, layname)
+   function invalidateAll ()
    {
-      for (layname in layoutElemBag)
+      for (var layname in layoutElemBag)
       {
-         layo = layoutElemBag[layname];
+         var layo = layoutElemBag[layname];
          if (!layo.isWidget)
             layo.invalidate ();
          else
@@ -105,6 +106,21 @@ function layoutManager (evaObj, callbackAddWidget)
    //
    function createLayableWidget (wname, oRect)
    {
+      // try to estimate default size (height & width) for the element
+      //
+      var ele = document.getElementById(wname);
+      if (ele && !oRect)
+      {
+         var height = (ele.offsetHeight + 1);
+         var width  = (ele.offsetWidth + 1);
+         
+         if (DBG_VERBOSE)
+            console.log ("element " + wname + " content[" + ele.innerHTML + "] estimates " + width + " x " + height);
+         
+         if (height > 1)
+            oRect = { left: 0, right: width * 1.2, top: 0, bottom: height * 1.2 };
+      }
+
       return {
          // general layable info (it could be a basis prototype)
          //
@@ -238,6 +254,11 @@ function layoutManager (evaObj, callbackAddWidget)
       // either find unit #layouts# containing all layouts
       //
       guiConfig = {};
+      
+      // #layouts# 
+      //    is the name to be used in scripts that only use layout manager (not jGastona), 
+      //    all variables are suppose to be "layout of"
+      //
       guiLayouts = evaObj["layouts"];
       if (! guiLayouts)
       {
@@ -246,7 +267,7 @@ function layoutManager (evaObj, callbackAddWidget)
          // containing layouts in variables <layout of ...>
          // and other configurations
          //
-         var javajUnit = evaObj["javaj"];
+         var javajUnit = evaObj["jGuix"] || evaObj["guix"] || evaObj["javaj"]; // towards "guix" instead of javaj ...
          if (! javajUnit)
          {
             console.log ("Error: unit layouts not found!");
@@ -288,7 +309,7 @@ function layoutManager (evaObj, callbackAddWidget)
          {
             // +++ collect "layeables" layouts ids
             layoutElemBag[lay] = ela;
-            console.log ("adding layout id [" + lay + "]");
+            // ... console.log ("adding layout id [" + lay + "]");
             //... layoutList.push (lay);
          }
       }

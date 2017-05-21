@@ -102,20 +102,18 @@ public class lsx2Html
 
    private String prepareString (String str)
    {
-      Cadena ca = new Cadena (str);
-
-      ca.replaceMe ("<", "&lt;");
-      ca.replaceMe (">", "&gt;");
+      String novo = str.replaceAll ("<", "&lt;").replaceAll (">", "&gt;");
+      String sal = "";
 
       int partede = 0;
 
       do
       {
-         int indx = ca.indexOfsubstr ("@&lt;", partede); // index of "@<"
+         int indx = novo.indexOf ("@&lt;", partede); // index of "@<"
          if (indx == -1) break;
 
          // referencia encontrada !
-         int end = ca.indexOfsubstr ("&gt;", indx);    // index of ">" after "@<"
+         int end = novo.indexOf ("&gt;", indx);    // index of ">" after "@<"
          if (end == -1) break;
 
          //System.out.println ("PECADORLS! partede=" + partede + " indx=" + indx + " end=" + end + " cosa [" + ca.o_str + "]");
@@ -123,19 +121,17 @@ public class lsx2Html
          // example if found @<payas> then
          // convert it into "<a href=\"#payas\">@&lt;payas&gt;</a>"
          //
-         String namico = ca.o_str.substring (indx+5, end);
-         String todo = ca.o_str.substring (indx, end);
+         String namico = novo.substring (indx+5, end);
+         String todo = novo.substring (indx, end);
 
-         str = ca.o_str.substring (0, indx);
-         str += "<a href=\"#" + namico + "\">" + todo + "</a>";
-         partede = str.length ();
-         str += ca.o_str.substring (end);
-
-         ca.setStr (str);
+         sal = novo.substring (0, indx);
+         sal += "<a href=\"#" + namico + "\">" + todo + "</a>";
+         partede = sal.length ();
+         sal += novo.substring (end);
       }
       while (true);
 
-      return ca.o_str;
+      return sal;
    }
 
 

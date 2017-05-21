@@ -32,7 +32,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <javaClass>  gastona.cmds.CmdJavaj
    <importance> 3
    <desc>       //Communication to javaj module
-   
+
    <pc-android info> //The command is not yet implemented in gastona-Android
 
    <help>
@@ -48,7 +48,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       // The command has just two arguments: the masked layout and the layout that masks. When masking
       // a layout this is replaced with the one that masks it, therefore it disapears. To restore the old
-      // layout it is enough to mask again the original giving an empty string. Masking is not limited 
+      // layout it is enough to mask again the original giving an empty string. Masking is not limited
       // just to layouts but also single widgets can be masked and mask other widgets or layouts.
       //
 
@@ -72,6 +72,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <examples>
       gastSample
       javaj masking
+      javaj masking II
       javaj mask perspectives
 
    <javaj masking>
@@ -119,6 +120,79 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <-- bMask2>  JAVAJ, MASK, lay1, lay2
       //   <-- bHide>   JAVAJ, MASK, xText, bCover
       //   <-- bCover>  JAVAJ, MASK, xText
+
+   <javaj masking II>
+      //
+      //   In this sample three features of EvaLayoutManager are shown:
+      //
+      //   1) Layout composition
+      //      Layout "main" contain 4 buttons plus a reference to another layout ("form1")
+      //      So the layout "from1" will be placed inside the layout "main". Composition can be
+      //      deeper, for instance layout "form1" could contain a reference to another layout and so on.
+      //
+      //   2) Switching the whole layout.
+      //      We change the layout of the entire window between layout "main" and "second"
+      //      when pressing "bSwitchMain" and viceversa when "bSwitchBack" is pressed
+      //
+      //   3) Masking a component
+      //      We can change selectively a part of a layout by means of the masking mechanism
+      //      Specifically in layout "main"
+      //
+      //       bMask1 masks "form1" with "form2" ==> when it is time to show "form1" form2 will be shown instead
+      //       bMask2 masks "form1" with "xMemo" ==> when it is time to show "form1" xMemo will be shown instead
+      //       bUnmask unmasks "form1"
+      //
+      //
+      //#gastona#
+      //
+      //   <!PAINT LAYOUT>
+      //
+      //#javaj#
+      //
+      //   <layout of main>
+      //      EVALAYOUT, 7, 7, 3, 3
+      //
+      //         ,            ,    X
+      //         , bSwitchMain, form1
+      //         , bMask1     ,   +
+      //         , bMask2     ,   +
+      //         , bUnmask    ,   +
+      //        X,            ,   +
+      //
+      //   <layout of second>
+      //      EVALAYOUT, 7, 7, 3, 3
+      //
+      //      ZZZ,            ,    X     ,
+      //         , lLabel1    , eEdit1   , -
+      //         , lLabel2    , xMemo    , lLabel3
+      //         , lLabel4    ,    +     , iLista
+      //         , bSwitchBack,    +     , +
+      //         ,            ,    +     , +
+      //       X ,            ,    +     , +
+      //         , cCombo     ,    -     , +
+      //
+      //   <layout of form1>
+      //      EVALAYOUT, 7, 7, 3, 3
+      //
+      //         ,           ,    X     ,
+      //         , lLabel1   , eEdit1   , -
+      //         , lLabel2   , eEdit2   , lLabel3
+      //       X , xMemo     , -        , -
+      //
+      //   <layout of form2>
+      //      EVALAYOUT, 7, 7, 3, 3
+      //
+      //         ,           ,    X
+      //         , lLabel4   , cCombo
+      //       X ,           , iLista
+      //
+      //#listix#
+      //
+      //   <-- bSwitchMain>   JAVAJ, MASK, main, second
+      //   <-- bSwitchBack>   JAVAJ, MASK, main
+      //   <-- bMask1>        JAVAJ, MASK, form1, form2
+      //   <-- bMask2>        JAVAJ, MASK, form1, xMemo
+      //   <-- bUnmask>       JAVAJ, MASK, form1
 
    <javaj mask perspectives>
       //#javaj#

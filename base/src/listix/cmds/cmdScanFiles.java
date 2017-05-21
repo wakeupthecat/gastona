@@ -453,10 +453,10 @@ public class cmdScanFiles implements commandable
                theLog.err ("SCAN", "option EXTENSIONS accept only one parameter (string)");
             else
             {
-               List extensions = Cadena.simpleToList (extensionStr[0], " ,;:.");
-               for (int ii = 0; ii < extensions.size (); ii ++)
+               String [] extArr = extensionStr[0].split ("[\\s,;:\\.]"); // space, comma, semicolon, colon or point
+               for (int ii = 0; ii < extArr.length; ii ++)
                {
-                  filtrum.addCriteria ("+", (String) extensions.get (ii));
+                  filtrum.addCriteria ("+", extArr[ii]);
                }
             }
           }
