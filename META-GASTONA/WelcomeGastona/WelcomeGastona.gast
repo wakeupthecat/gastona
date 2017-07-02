@@ -1,7 +1,13 @@
+#gastona#
+
+   <fusion>
+       META-GASTONA/utilApp/std/ExportBasicDialog.gasti
+
 #javaj#
 
    <frames>
       Fmain, Gastona Welcome
+      fastIndex, Gastona doc fast index
 
    <sysDefaultFonts>
       Monospaced, 13, 0, TextArea.font
@@ -14,6 +20,15 @@
          , eFilterTree , lContext & Name , -
        X , aSrcTree    , layHelpAndSamples, -
          ,   +         , options          , -
+         , bFastDoc    , +
+
+   <layout of fastIndex>
+      EVA, 6, 6, 2, 2
+
+         , X
+         , rgDoctype
+       X , sFastDoc
+         , layExportBasic
 
    <layout of options>
       PANEL, X
@@ -52,6 +67,26 @@
 
 #data#
 
+   <Fmain posX> 200
+   <Fmain posY> 100
+
+   <fastIndex posX> 280
+   <fastIndex posY> 140
+   <fastIndex sizeX> 1300
+   <fastIndex sizeY> 600
+
+
+   <rgDoctype orientation> X
+   <rgDoctype>
+      label     , selected , cond
+      All docs       , 1        , //LIKE '%'
+      listix commands, 0        , //LIKE 'listix_command%'
+      listix all     , 0        , //LIKE 'listix%'
+      javaj layouts  , 0        , //LIKE 'javaj_layout%'
+      javaj widgets  , 0        , //LIKE 'javaj_widget%'
+      javaj all      , 0        , //LIKE 'javaj%'
+      other docs     , 0        , //NOT LIKE 'javaj%' AND node NOT LIKE 'listix%'
+
    <bSearchInSamples image> javaj/img/linterna.png
    <bSearchInSamples> "All"
 
@@ -63,9 +98,6 @@
    <kDetails enabled> 0
    <kDetails selected> 0
 
-   <Fmain posX> 200
-   <Fmain posY> 100
-
    <xSample tabulator> 3
    <xHelp tabulator> 3
 
@@ -75,10 +107,10 @@
 
    <iSamples visibleColumns> gastSample
 
-   <node field> //structType || (CASE WHEN groupInfo = "" THEN "" ELSE "_" END) || groupInfo || "_" || name
-
    <xSample fileName> :mem gastScript
    <xHelp fileName> :mem helpText
+
+   <sFastDoc visibleColumns> structType, groupInfo, name, desc
 
 #listix#
 
@@ -94,14 +126,18 @@
       @<updateTree>
       @<-- bClearConsole1>
       @<-- bClearConsole2>
+      LISTIX, ExportBasic set (gridName dbName), sFastDoc, ""
 
    <-- eFilterTree>  @<updateTree>
 
    <updateTree>
-      -->, aSrcTree data!, sqlSelect, //@<sql for tree>
+      -->, aSrcTree data!, sqlSelect, //SELECT node FROM (@<SQL_DOC_EXT> @<Where&OrderBy from FilterTree>) ORDER BY node
 
-   <sql for tree>
-      //SELECT * FROM (SELECT @<node field> AS node FROM tGastItemDoc @<Where&OrderBy from FilterTree>) ORDER BY node
+   <SQL_DOC_EXT>
+      // SELECT
+      //     *,
+      //     structType || (CASE WHEN groupInfo = "" THEN "" ELSE "_"||groupInfo END) || "_" || name AS node
+      // FROM tGastItemDoc
 
    <default position frame>
       NUM=, Fmain posX, 0.1 * @<:lsx screenX>
@@ -117,18 +153,22 @@
    <-- ERROR_DETECTED>
       -->, lErrorState data!,, *** Error(s) on the console!
 
-   <-- aSrcTree>      @<show Doc Item>
-   <-- kDescription>  @<show Doc Item>
-   <-- kDetails>      @<show Doc Item>
+   <-- aSrcTree>      LSX, setCurrentItem, @<aSrcTree selectedPath>
+   <-- kDescription>  @<showDocCurrentItem>
+   <-- kDetails>      @<showDocCurrentItem>
 
    <turn checks(enabled)>
       -->, kDescription control!, enabled, @<p1>
       -->, kDetails control!, enabled, @<p1>
 
-   <show Doc Item>
+   <setCurrentItem>
+      VAR=, CURRENT_NODE, @<p1>
+      LSX, showDocCurrentItem
+
+   <showDocCurrentItem>
       <! Intended Loop for 1 record
-      LOOP, SQL,, //SELECT * FROM tGastItemDoc WHERE @<node field> = '@<aSrcTree selectedPath>';
-          ,, -->, lContext & Name data!, , @<structType> : @<name>
+      LOOP, SQL,, //SELECT * FROM (@<SQL_DOC_EXT>) WHERE node = '@<CURRENT_NODE>';
+          ,, -->, lContext & Name data!,, //@<structType> : @<name>
           ,, @<build help text>
           ,, @<get samples>
 
@@ -255,7 +295,7 @@
 
    <-- bSearchInSamples>
       -->, iSamples data!, sqlSelect, //SELECT * FROM tGastExamples @<Where&OrderBy from FilterSample>
-      
+
 
    <-- iSamples>
       CHECK, VAR, iSamples selected.gastSample
@@ -282,5 +322,25 @@
 
    <Where&OrderBy from FilterSample>
       JAVA STATIC, javaj.widgets.table.util.utilAsiste, getComposedWhereCondition, @<eSearchSample>, name, gastSample, sampleBody
+
+   <! ----------------- fast doc
+
+   <-- bFastDoc>
+      -->, sFastDoc data!, sqlSelect, //@<SQLFastDoc>
+      LISTIX, ExportBasic set (gridName dbName), sFastDoc, ""
+      -->, fastIndex show
+
+   <-- rgDoctype>
+      -->, sFastDoc data!, sqlSelect, //@<SQLFastDoc>
+      LISTIX, ExportBasic set (gridName dbName), sFastDoc, ""
+
+   <-- sFastDoc>
+      LSX, setCurrentItem, @<sFastDoc selected.node>
+
+   <SQLFastDoc>
+      //SELECT node, structType, groupInfo, name, desc
+      // FROM  (@<SQL_DOC_EXT>)
+      // WHERE node @<rgDoctype selected.cond>
+      // ORDER BY node, name
 
 #**#

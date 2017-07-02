@@ -142,7 +142,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       //All selected row(s) :
       //       //
       //       LOOP, EVA, tTabla subTableSelection
-      //       //    @<name> (id = @<id>)
+      //          ,, //    @<name> (id = @<id>)
 
    <hello zTable select2>
       //#javaj#
@@ -276,8 +276,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //      SET VAR, tMultTable, @<p1> x ..., "", " "
       //      LOOP, FOR, ii, 1, 9
-      //      @<setvalue>
-      //      ,,
+      //          ,, @<setvalue>
       //      MSG, tMultTable data!
       //
       //   <setvalue>    ADD TO VAR, tMultTable, "@<p1> x @<ii>", "=", @<calculaVal>

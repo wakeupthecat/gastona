@@ -1,4 +1,8 @@
 /*
+jGastonaEva-min.js version 0.20170702 / perito moreno
+composed by Eva.js + EvaLayout.js + LayoutManager.js + httSaco.js + jGastona.js minified
+is part of the open source project https://github.com/wakeupthecat/gastona
+
 Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
@@ -10,6 +14,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 /**
    @author Alejandro Xalabarder
    @date   2015.07.26
+   @version 0.20170702
 
    @file   jGastona.js
 
@@ -97,6 +102,7 @@ function jGastona (evaConfig, existingPlaceId)
 
       // part ajax ...
       //
+      AJAXAnyMethodRaw : AJAXAnyMethodRaw,
       AJAXPostRaw      : AJAXPostRaw,
       AJAXSend         : AJAXSend,            // send data as eva, json or prop:value
       AJAXUploadFile   : AJAXUploadFile,      // upload one file (NOTE: only one file!)
@@ -307,11 +313,10 @@ function jGastona (evaConfig, existingPlaceId)
 
    function executeListixFormat (fbody)
    {
-      var strBody = ""
-      for (var ii in fbody)
-         strBody += fbody[ii] + "\n";
-
-      eval (strBody);
+      // by now a listix or jlistix format is just an array of text containing javascript code
+      // so we join it all and call eval
+      //
+      eval (fbody.join ("\n"));
    }
 
    // ============ DATA AND VARIABLES HANDLING
@@ -521,24 +526,33 @@ function jGastona (evaConfig, existingPlaceId)
          case 'i': // list
             {
                var labels = [], values = [];
+               var indxLabel = 0, indxValue = 0;
+
                // Now assume list of "value, label" for the data (with column names in the first row!)
                //
                for (var row in dataUnit[name])
                {
-                  if (row !== "0")
+                  if (row === "0")
                   {
-                     values.push (dataUnit[name][row][0]||"?");
-                     labels.push (dataUnit[name][row][1]||"?");
+                     indxLabel = dataUnit[name][row].indexOf ("label");
+                     if (indxLabel == -1) indxLabel = 0;
+                     indxValue = dataUnit[name][row].indexOf ("value");
+                     if (indxValue == -1) indxValue = 0;
+                  }
+                  else
+                  {
+                     values.push (dataUnit[name][row][indxValue]||"?");
+                     labels.push (dataUnit[name][row][indxLabel]||"?");
                   }
                }
                var orient = dataUnit[name + " orientation"]||"X";
 
-               //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelect (...
+               //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelectList (...
 
                if (name.charAt (0) == 'c')
-                  corpiny.appendChild (fabricaSelect (name, values, labels, false));
+                  corpiny.appendChild (fabricaSelectList (name, values, labels, false));
                if (name.charAt (0) == 'i')
-                  corpiny.appendChild (fabricaSelect (name, values, labels, true));
+                  corpiny.appendChild (fabricaSelectList (name, values, labels, true));
                if (name.charAt (0) == 'r')
                   corpiny.appendChild (fabricaGrupo ("radio", orient, name, values, labels));
                if (name.charAt (0) == 'k')
@@ -649,7 +663,14 @@ function jGastona (evaConfig, existingPlaceId)
             else if (attrib == "+class") {
                ele.className += (" " + value);
             }
-            ele[attrib] = str2Var (value);
+
+            try {
+               // This try catch is only due to IE11, for example if value is "date"
+               // it would cause "invalid argument" error and NOTHING will be shown
+               // this may happen in more places, should we do a try catch erverywhere !?
+               //
+               ele[attrib] = str2Var (value);
+            } catch (err) {}
          }
       }
 
@@ -659,47 +680,60 @@ function jGastona (evaConfig, existingPlaceId)
       return ele;
    }
 
-   function fabricaCombo (name, arrOp, arrLab)
-   {
-      return fabricaSelect (name, arrOp, arrLab, false);
-   }
-
-   function fabricaList (name, arrOp, arrLab)
-   {
-      return fabricaSelect (name, arrOp, arrLab, true);
-   }
-
    //== selectAllColumnsFromTable
    // <mytable>
-   //        id, name
-   //        01, my first name
-   //        02, second
+   //        value, name          , phone
+   //        01   , my first name , 88888
+   //        02   , second        , 77777
    //
    // selectAllColumnsFromTable (unit, "mytable", "01");
    // produces setting the variables
    //
    //    <mytable selected.id> 01
    //    <mytable selected.name> my first name
+   //    <mytable selected.phone> 88888
    //
    function selectAllColumnsFromTable (unit, name, strvalue)
    {
-      if (!unit || !unit[name] || !unit[name][0]) return;
+      if (!unit || !unit[name] || !unit[name][0]) return false;
       var colnames = unit[name][0];
+
+      var indxVal = colnames.indexOf ("value");
+      if (indxVal === -1) indxVal = 0;
+
+      // clean all <name selected.column> variables
+      for (var col in colnames)
+         delete unit[name + " selected." + colnames[col]];
 
       //search the row with the value (unique id) at position 0
       for (var rosel = 1; rosel < unit[name].length; rosel ++)
       {
-         if (unit[name][rosel][0] == strvalue)
+         if (unit[name][rosel][indxVal] === strvalue)
          {
             for (var col in colnames)
-            {
                unit[name + " selected." + colnames[col]] = [[ unit[name][rosel][col]||"?" ]];
-            }
+
+            return true;
          }
       }
+      return false;
    }
 
-   function fabricaSelect (name, arrOp, arrLab, ismultiple)
+   // set all the variables for all column names <name seleted.columnname>
+   // the single variable <name_value> and send the mensaka message "name"
+   // or remove the variables if no value is selected (deselecting last item in a list)
+   //
+   function whenChangeTableSelection (name, value)
+   {
+      if (selectAllColumnsFromTable (dataUnit, name, value||"?"))
+           dataUnit[name + "_value"] = [[ value||"?" ]]; // to have a single variable
+      else delete dataUnit[name + "_value"];
+      mensaka(name)
+   }
+
+   // for lists and combos
+   //
+   function fabricaSelectList (name, arrOp, arrLab, ismultiple)
    {
       var ele = document.createElement ("select");
       if (ismultiple)
@@ -707,12 +741,7 @@ function jGastona (evaConfig, existingPlaceId)
 
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele.addEventListener ("change",
-                  function () {
-                     selectAllColumnsFromTable (dataUnit, name, this.value||"?");
-                     dataUnit[name + "_value"] = [[ this.value||"?" ]]; // to have a single variable
-                     mensaka(name)
-                  });
+      ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
       for (var ite in arrOp)
       {
          var subele = document.createElement ("option");
@@ -726,12 +755,16 @@ function jGastona (evaConfig, existingPlaceId)
       return ele;
    }
 
+   // for checkbox and radio groups
+   //
    function fabricaGrupo (tipo, orient, name, arrOp, arrLab)
    {
       var ele = document.createElement ("div");
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele.addEventListener ("change", function () {  mensaka (name); }); // alert ("elegido = " + dataUnit[name + " selected.value"]);
+
+      //cannot do this here like in fabricaSelect, but to be done on each element
+      //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
       for (var ite in arrOp)
       {
          var subele = document.createElement ("input");
@@ -740,11 +773,7 @@ function jGastona (evaConfig, existingPlaceId)
          subele["value"] = arrOp[ite];
          subele["label"] = arrLab[ite];
          subele["data!"] = function () { };
-         subele.addEventListener ("change", function () {
-                   dataUnit[name + " selected.value"] = [[ this.value||"?" ]];
-                   dataUnit[name + " selected.label"] = [[ this.label||"?" ]];
-                   dataUnit[name + "_value"] = [[ this.value||"?" ]]; // to have a single variable
-                   });
+         subele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
          if (ite !== "0" && (orient == "Y" || orient == "V"))
             ele.appendChild (document.createElement ("br"));
          ele.appendChild (subele);
@@ -861,7 +890,7 @@ function jGastona (evaConfig, existingPlaceId)
    //             AJAXSend ("myPost");                         // all variables will be packed
    //             AJAXSend ("myPost", "");                     // NO variable at all
    //             AJAXSend ("myPost", { body="" });            // NO variable at all
-   //             AJAXSend ("myPost", { bodyVars = ["one"] }); // only variable "one" will be packed
+   //             AJAXSend ("myPost", { bodyVars: ["one"] });  // only variable "one" will be packed
    //
    //
    //          Example of body packed as "eva"
@@ -992,20 +1021,20 @@ function jGastona (evaConfig, existingPlaceId)
    //  Example
 
 
-   //  Send a general POST using given url, body and headers
+   //  Send a general request using given method, url, body and headers
    //
    //     Example:
-   //          AJAXPostRaw ("myPost/et?par=nothing", "this is my body", { XHeader-A: 167, XHeader2: "Maria" });
+   //          AJAXAnyMethodRaw ("OPENSESAME", "myPost/etc?par=nothing", "this is my body", { "XHeader-A": "167", XHeader2: "Maria" });
    //
-   //  If a response from the server has to be handled, the forth parameter respFuncOrObj
+   //  If a response from the server has to be handled, the fourth parameter respFuncOrObj
    //  can be used (see respFuncOrObj responses)
    //
-   function AJAXPostRaw (sendStr, bodyStr, objPOSTHeader, respFuncOrObj)
+   function AJAXAnyMethodRaw (method, sendStr, bodyStr, objHeader, respFuncOrObj)
    {
       var httpero = jaxGetHttpReq ();
       if (!httpero) return false;
 
-      // get the post url minus parameters
+      // get the Method url minus parameters or query part, e.g. "POST blah" from "POST blah?name=Salma"
       var postTitle = sendStr.substring(0, sendStr.indexOf('?'));
       if (postTitle.length == 0)
          postTitle = sendStr;
@@ -1027,14 +1056,27 @@ function jGastona (evaConfig, existingPlaceId)
          }
       }
 
-      httpero.open ("POST", sendStr, true);
+      httpero.open (method, sendStr, true);
 
-      if (objPOSTHeader) {
-         for (var indx in objPOSTHeader)
-            httpero.setRequestHeader(indx, objPOSTHeader[indx]);
+      if (objHeader) {
+         for (var indx in objHeader)
+            httpero.setRequestHeader(indx, objHeader[indx]);
       }
 
       httpero.send (bodyStr||"");
+   }
+
+   //  Send a general POST using given url, body and headers
+   //
+   //     Example:
+   //          AJAXPostRaw ("myPost/et?par=nothing", "this is my body", { XHeader-A: 167, XHeader2: "Maria" });
+   //
+   //  If a response from the server has to be handled, the fourth parameter respFuncOrObj
+   //  can be used (see respFuncOrObj responses)
+   //
+   function AJAXPostRaw (sendStr, bodyStr, objPOSTHeader, respFuncOrObj)
+   {
+      return AJAXAnyMethodRaw ("POST", sendStr, bodyStr, objPOSTHeader, respFuncOrObj);
    }
 
    //  Send a POST using given url, paramCfg and respFuncOrObj (see packing and unpacking HTTP messages with paramCfg and respFuncOrObj)
@@ -1042,7 +1084,7 @@ function jGastona (evaConfig, existingPlaceId)
    //     Example:
    //          AJAXPostRaw ("myPost/et?par=nothing", "this is my body", { XHeader-A: 167, XHeader2: "Maria" });
    //
-   //  If a response from the server has to be handled, the forth parameter respFuncOrObj
+   //  If a response from the server has to be handled, the fourth parameter respFuncOrObj
    //  can be used (see respFuncOrObj responses)
    //
    function AJAXSend (postString, paramCfg, respFuncOrObj)

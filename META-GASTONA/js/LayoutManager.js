@@ -113,10 +113,10 @@ function layoutManager (evaObj, callbackAddWidget)
       {
          var height = (ele.offsetHeight + 1);
          var width  = (ele.offsetWidth + 1);
-         
+
          if (DBG_VERBOSE)
             console.log ("element " + wname + " content[" + ele.innerHTML + "] estimates " + width + " x " + height);
-         
+
          if (height > 1)
             oRect = { left: 0, right: width * 1.2, top: 0, bottom: height * 1.2 };
       }
@@ -254,9 +254,9 @@ function layoutManager (evaObj, callbackAddWidget)
       // either find unit #layouts# containing all layouts
       //
       guiConfig = {};
-      
-      // #layouts# 
-      //    is the name to be used in scripts that only use layout manager (not jGastona), 
+
+      // #layouts#
+      //    is the name to be used in scripts that only use layout manager (not jGastona),
       //    all variables are suppose to be "layout of"
       //
       guiLayouts = evaObj["layouts"];
@@ -313,21 +313,18 @@ function layoutManager (evaObj, callbackAddWidget)
             //... layoutList.push (lay);
          }
       }
-      // now that we have collect all layout names
+      // now that we have collected all layout names
       // go again through all layouts and find the inner elements (widgets or layout references)
       //
-      var eva, rr, maxrr, cc, maxcc, ele;
       //... for (lay in layoutList)
-      for (lay in guiLayouts)
+      for (var lay in guiLayouts)
       {
-         eva = guiLayouts[lay];
-         maxrr = eva.length;
-         for (var rr = 2; rr < maxrr; rr ++)
+         var eva = guiLayouts[lay];
+         for (var rr = 2; rr < eva.length; rr ++)
          {
-            maxcc = eva[rr].length;
-            for (var cc = 1; cc < maxcc; cc ++)
+            for (var cc = 1; cc < eva[rr].length; cc ++)
             {
-               ele = eva[rr][cc];
+               var ele = eva[rr][cc];
                if (cellElementIsAnId (ele))
                {
                   // widget id candidate .. check if it is not a layout id

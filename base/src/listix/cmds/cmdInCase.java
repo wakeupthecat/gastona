@@ -189,18 +189,16 @@ public class cmdInCase extends inCaseCommon implements commandable
       return "IN CASE";
    }
 
-   protected tableSimpleFilter comparator = null;
-
-   public String processMainValue (listixCmdStruct cmd, String oper, String mainValue)
+   public String processMainValue (comparator compa, listixCmdStruct cmd, String oper, String mainValue)
    {
-      comparator = new tableSimpleFilter (oper, mainValue);
+      compa.filter = new tableSimpleFilter (oper, mainValue);
       return mainValue;
    }
 
-   public String doCase (listixCmdStruct cmd, String oper, String par2)
+   public String doCase (comparator compa, listixCmdStruct cmd, String oper, String par2)
    {
       String value2 = par2;
-      if (comparator.passOperand2 (value2))
+      if (compa.filter.passOperand2 (value2))
          return "" + value2;
       return null;
    }
@@ -216,6 +214,6 @@ public class cmdInCase extends inCaseCommon implements commandable
    */
    public int execute (listix that, Eva commandEva, int indxComm)
    {
-      return super.execute (that, commandEva, indxComm);
+      return executeInCase (new comparator (), that, commandEva, indxComm);
    }
 }

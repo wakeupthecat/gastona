@@ -95,7 +95,10 @@ public class headerTextReader
          int sep = lin.indexOf (':');
          if (sep > 0)
          {
-            String attName = lin.substring (0, sep).toLowerCase ();
+            // NO LOWERCASE!
+            //String attName = lin.substring (0, sep).toLowerCase ();
+
+            String attName = lin.substring (0, sep);
             String attValue = lin.substring (sep+1);
             attValue = attValue.replaceAll("^[\\s\\t]+","");
             attValue = attValue.replaceAll("[\\s\\t]+$","");

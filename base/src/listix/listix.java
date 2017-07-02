@@ -757,10 +757,8 @@ public class listix
             if (primitiveExtract (primiVar, new String [] {"strjs"}))
                return strBufvar.toString ().replace("\\\'", "\'").replace("\\\"", "\"").replace ("\\\\", "\\");
             if (primitiveExtract (primiVar, new String [] {"regex"}))
-               return strBufvar.toString ().replace ("\\/", "/").replace ("\\\"", "\"").replace ("\\.", ".")
-                                           .replace ("\\]", "]").replace ("\\[", "[").replace ("\\)", ")")
-                                           .replace ("\\(", "(").replace ("\\\\", "\\");
-
+               return strUtil.regexStrToString (strBufvar.toString ());
+            
             return utilEscapeStr.desEscapeStr (strBufvar.toString (), primiVar[0]);
          }
       }

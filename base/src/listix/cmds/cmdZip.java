@@ -271,18 +271,9 @@ public class cmdZip implements commandable
       return 1;
    }
 
-   private byte[] theBuffer = null;
-
-   private void resetBuffer ()
+   private byte[] getNewBuffer ()
    {
-      theBuffer = null;
-   }
-
-   private byte[] getBuffer ()
-   {
-      if (theBuffer == null)
-         theBuffer = new byte[8192];  // (8Kb)
-      return theBuffer;
+      return new byte[8192];  // (8Kb)
    }
 
    private String toPathZip (String path)
@@ -349,8 +340,6 @@ public class cmdZip implements commandable
          ok = false;
          theLog.severe ("ZIP", "zip on writing on target file [" + ziFile + "]" + e);
       }
-      resetBuffer ();
-
       theLog.dbg (4, "ZIP", "zip " + ((ok) ? "well done.": "ended with errors!"));
    }
 
@@ -406,8 +395,6 @@ public class cmdZip implements commandable
          ok = false;
          theLog.severe ("ZIP", "zip on writing on target file [" + ziFile + "]" + e);
       }
-      resetBuffer ();
-
       theLog.dbg (4, "ZIP", "zip " + ((ok) ? "well done.": "ended with errors!"));
    }
 
@@ -502,7 +489,7 @@ public class cmdZip implements commandable
 
          // write data
          int len = 0;
-         byte [] buff = getBuffer ();
+         byte [] buff = getNewBuffer ();
          while((len = in.read(buff)) != -1)
             outStream.write(buff, 0, len);
 
@@ -514,8 +501,6 @@ public class cmdZip implements commandable
          theLog.err ("ZIP", "zip writing on zip file: " + e);
          return false;
       }
-      resetBuffer ();
-
       return true;
    }
 
@@ -552,8 +537,6 @@ public class cmdZip implements commandable
          ok = false;
          theLog.severe ("ZIP", "zipEntries [" + ziFile + "]" + e);
       }
-      resetBuffer ();
-
       theLog.dbg (4, "ZIP", "zipEntries " + ((ok) ? "well done.": "ended with errors!"));
    }
 
@@ -583,7 +566,7 @@ public class cmdZip implements commandable
    private void unzip (String ziFile, List onlyThese, String basePath)
    {
       boolean ok = true;
-      byte [] buff = getBuffer ();
+      byte [] buff = getNewBuffer ();
       boolean targetIsOnMemory = TextFile.isMemoryFile (basePath);
 
       theLog.dbg (2, "ZIP", "unzip [" + ziFile + "] on [" + basePath + "]");
@@ -697,8 +680,6 @@ public class cmdZip implements commandable
          ok = false;
          theLog.severe ("ZIP", "unzip [" + ziFile + "] " + e);
       }
-      resetBuffer ();
-
       theLog.dbg (4, "ZIP", "unzip " + ((ok) ? "well done.": "ended with errors!"));
    }
 
@@ -737,13 +718,13 @@ public class cmdZip implements commandable
 
       // COMPRESS THE FILE
       //
+      byte [] buff = getNewBuffer ();
       try
       {
          InputStream in = tfinput.getAsInputStream ();
          if (in != null)
          {
             int len;
-            byte [] buff = getBuffer ();
             while ((len = in.read (buff)) != -1)
             {
                zipout.write (buff, 0, len);
@@ -769,7 +750,6 @@ public class cmdZip implements commandable
          ok = false;
          theLog.severe ("ZIP", "gzip target file [" + targetZip + "] could not be closed" + e);
       }
-      //resetBuffer ();
 
       if (setDateTimeFromFile)
       {
@@ -834,12 +814,12 @@ public class cmdZip implements commandable
 
       // Uncompress the file
       //
+      byte [] buff = getNewBuffer ();
       try
       {
          //!!! FileOutputStream out = new FileOutputStream (targetFile);
 
          int len;
-         byte [] buff = getBuffer ();
          while ((len = zipin.read (buff)) != -1)
          {
             //!!! out.write (buff, 0, len);
@@ -881,7 +861,6 @@ public class cmdZip implements commandable
       }
 
       theLog.dbg (4, "ZIP", "ungzip " + ((ok) ? "well done.": "ended with errors!"));
-      //resetBuffer ();
       return ok;
    }
 }

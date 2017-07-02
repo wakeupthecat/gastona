@@ -46,6 +46,15 @@ public class strUtil
    {
       return raw.replace ("\\", "\\\\").replace ("(", "\\(").replace (")", "\\)")
                 .replace ("[", "\\[").replace ("]", "\\]").replace (".", "\\.")
-                .replace ("\"", "\\\"").replace ("/", "\\/").replace("|", "\\|");
+                .replace ("\"", "\\\"").replace ("/", "\\/").replace("|", "\\|")
+                .replace("+", "\\+").replace("?", "\\?");
    }
+   
+   public static String regexStrToString (String regexStr)
+   {
+      return regexStr.replace ("\\?", "?").replace ("\\+", "+")
+                     .replace ("\\\"", "\"").replace ("\\/", "/").replace("\\|", "|")
+                     .replace ("\\[", "[").replace ("\\]", "]").replace ("\\.", ".")
+                     .replace ("\\)", ")").replace ("\\(", "(").replace ("\\\\", "\\");
+   }   
 }

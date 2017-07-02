@@ -21,17 +21,17 @@
       X  , layJavaErrorsClickAndGo, - , -
 
 #data#
-   
-   <gastonaVersion>  //1.2.170521 \"Praias\"
+
+   <gastonaVersion>  //1.2.170702 \"Perito Moreno\" 
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
    <jarName>       gastona.jar
 
    <manifestFile>
-      'Manifest-Version: 1.0
-      'Main-Class: @<manifestClass>
-      'Created-By: Ale-jarando (host @<:lsx host name> / user @<:sys user.name>)
+      //Manifest-Version: 1.0
+      //Main-Class: @<manifestClass>
+      //Created-By: Wakeupthecat (host @<:lsx host name> / user @<:sys user.name>)
 
    <traspasosTo>
       fromSubDir            , toSubDir

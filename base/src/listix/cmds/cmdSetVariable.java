@@ -60,6 +60,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName, parameters, defVal, desc
           1  , SOLVE LSX , 1 / 0       ,    1  , //If false (0) the values parameters will be set without any listix resolve (variables @<..>) at all
+          1  , ADD       , values      ,       , //(default option) Add more values in consecutive rows
           1  , COPY CONTENT FROM , evaVarToCopy,       , //Copy all the content of the given variable
           1  , REFERENCE CONTENT OF, evaVarToReference,, //Reference the content of the given variable. NOTE! It is not strictly a reference changes in the variable may or may not be propagated, use it as a way of doing a fast copy of some variable of constant content
 
@@ -187,6 +188,18 @@ public class cmdSetVariable implements commandable
          value = cmd.getArg (cc, solveLsx);
          theVar.setValue (value, 0, cc-1);
       }
+
+      // process also values to add in option + or ""
+      //
+      int row = 0;
+      String [] moreVAlues = null;
+      while ((moreVAlues = cmd.takeOptionParameters (new String [] { "ADD", "+", ""}, solveLsx)) != null)
+      {
+         row ++;
+         for (int cc = 0; cc < moreVAlues.length; cc ++)
+            theVar.setValue (moreVAlues[cc], row, cc);
+      }
+
 
       String copyFrom = cmd.takeOptionString(new String [] { "COPYCONTENTFROM", "COPYCONTENT", "COPYFROM", "COPY" }, null);
       if (copyFrom != null)

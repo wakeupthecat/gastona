@@ -35,7 +35,7 @@ import de.elxala.Eva.*;
 
       <enumerateMonths>
          LOOP, FOR,, 1, 12
-         // month @<forIndex>
+            ,, // month @<forIndex>
 
    Example2: Print out the tables of multiplication from 1 to 9
 
@@ -43,14 +43,14 @@ import de.elxala.Eva.*;
          // TABLAS DE MULTIPLICAR:
          //
          LOOP, FOR, multiploA, 1, 9
-         @<tablaDel>
+            ,, @<tablaDel>
 
       <tablaDel>
          //
          // tabla del @<multiploA>:
          //
          LOOP, FOR, multiploB, 1, 9
-         //    @<multiploA> x @<multiploB> = @<opera>
+             ,, //    @<multiploA> x @<multiploB> = @<opera>
 
       <opera>
          =, multiploA * multiploB

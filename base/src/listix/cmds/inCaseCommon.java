@@ -24,9 +24,19 @@ import de.elxala.Eva.*;
 
 public abstract class inCaseCommon
 {
-   public abstract String commandStr ();
-   public abstract String processMainValue (listixCmdStruct cmd, String oper, String mainValue);
-   public abstract String doCase (listixCmdStruct cmd, String oper, String par2);
+   public abstract String commandStr       ();
+   public abstract String processMainValue (comparator compa, listixCmdStruct cmd, String oper, String mainValue);
+   public abstract String doCase           (comparator compa, listixCmdStruct cmd, String oper, String par2);
+   
+   // struct that contains the comparation status for both cmdInCase and cmdInCaseNumeric
+   //
+   protected class comparator
+   {
+      public tableSimpleFilter filter = null;
+      public double mainCalc = 0.f;
+   }
+
+   //protected tableSimpleFilter comparator = null;
 
    /**
       Execute the commnad and returns how many rows of commandEva
@@ -37,7 +47,7 @@ public abstract class inCaseCommon
          indxCommandEva : index of commandEva where the commnad starts
 
    */
-   public int execute (listix that, Eva commandEva, int indxComm)
+   public int executeInCase (comparator compa, listix that, Eva commandEva, int indxComm)
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
@@ -47,7 +57,7 @@ public abstract class inCaseCommon
       if (oper.equals(""))
          oper = "=";
 
-      String mv = processMainValue (cmd, oper, mainValue);
+      String mv = processMainValue (compa, cmd, oper, mainValue);
       that.log().dbg (2, commandStr (), mv + oper);
 
       boolean executeOtherwise = true;
@@ -62,7 +72,7 @@ public abstract class inCaseCommon
          //                   0       1       2       3      4    5   << index for cmd.getArg
          //    IN CASE NUM, valueRef, oper, value, command, par, etc
          //
-         String doCaseStr = doCase (cmd, oper, cmd.getArg (2));
+         String doCaseStr = doCase (compa, cmd, oper, cmd.getArg (2));
          if (doCaseStr != null)
          {
             that.log().dbg (2, "case value [", doCaseStr + "] (line 0) will be executed");
@@ -119,7 +129,7 @@ public abstract class inCaseCommon
          // check it as a normal case
          if (!elseCase)
          {
-            String doCaseStr = doCase (cmd, oper, cmd.getListix ().solveStrAsString (commandEva.getValue (theCase, 1)));
+            String doCaseStr = doCase (compa, cmd, oper, cmd.getListix ().solveStrAsString (commandEva.getValue (theCase, 1)));
             executeThat = doCaseStr != null;
             if (doCaseStr != null)
                that.log().dbg (2, "caseValue [" + doCaseStr + "] (option " + (theCase - indxComm) + ") will be executed");

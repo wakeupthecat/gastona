@@ -100,7 +100,7 @@ import de.elxala.langutil.*;
       //    <nodeField> //country || "/" || city || "/" || name AS node
       //    <-- aTree>
       //       LOOP, SQL, @<db>, //SELECT id, etc, @<nodeField> WHERE node = '@<aTree selectedPath>';
-      //       @<use id etc selected>
+      //           ,, @<use id etc selected>
       //
       // where <use id etc selected> is supposed to be a format that works with the retrieved values
       // of the selected path.

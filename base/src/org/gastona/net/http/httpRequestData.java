@@ -63,7 +63,7 @@ public class httpRequestData
       return "";
    }
 
-   // NOTE: parameters "Socket sok, int socketTimeout" are to allow 
+   // NOTE: parameters "Socket sok, int socketTimeout" are to allow
    //       changing socket timeout when uploading a file (multipart content)
    public void processRequest (httpStreamReader inStream, String responseStrId, Socket sok, int socketTimeout)
    {
@@ -81,8 +81,8 @@ public class httpRequestData
 
       // Procede with body
       //
-      String conLen  = (String) theHeader.get ("content-length");
-      String conType = (String) theHeader.get ("content-type");
+      String conLen  = (String) theHeader.get ("Content-Length");
+      String conType = (String) theHeader.get ("Content-Type");
       boolean isMultiPart = conType != null && conType.startsWith ("multipart/form-data");
 
       if (conLen == null)
@@ -169,7 +169,7 @@ public class httpRequestData
          out (8, "part " +  partNo + "  boundary [" + boundStr + "]");
 
          TreeMap attsPart = partHead.parseFromRow (1);
-         String conDispo = (String) attsPart.get ("content-disposition");
+         String conDispo = (String) attsPart.get ("Content-Disposition");
 
          String fileName = null;
          if (conDispo != null)

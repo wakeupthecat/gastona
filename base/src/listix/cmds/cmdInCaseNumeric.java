@@ -113,23 +113,21 @@ public class cmdInCaseNumeric extends inCaseCommon implements commandable
       return false;
    }
 
-   protected double mainV = 0.f;
-
    public String commandStr ()
    {
       return "IN CASE NUM";
    }
 
-   public String processMainValue (listixCmdStruct cmd, String oper, String mainValue)
+   public String processMainValue (comparator compa, listixCmdStruct cmd, String oper, String mainValue)
    {
-      mainV = calcFormulas.calcFormula (cmd.getListix (), mainValue);
-      return mainValue + "(" + mainV + ") ";
+      compa.mainCalc = calcFormulas.calcFormula (cmd.getListix (), mainValue);
+      return mainValue + "(" + compa.mainCalc + ") ";
    }
 
-   public String doCase (listixCmdStruct cmd, String oper, String par2)
+   public String doCase (comparator compa, listixCmdStruct cmd, String oper, String par2)
    {
       double value2 = calcFormulas.calcFormula (cmd.getListix (), par2);
-      if (operationTrue (mainV, value2, oper))
+      if (operationTrue (compa.mainCalc, value2, oper))
          return "" + value2;
       return null;
    }
@@ -146,6 +144,6 @@ public class cmdInCaseNumeric extends inCaseCommon implements commandable
    */
    public int execute (listix that, Eva commandEva, int indxComm)
    {
-      return super.execute (that, commandEva, indxComm);
+      return executeInCase (new comparator (), that, commandEva, indxComm);
    }
 }

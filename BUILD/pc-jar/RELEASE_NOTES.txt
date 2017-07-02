@@ -8,6 +8,22 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+   date   : 02.07.2017
+   version: v1.2.170702
+   
+      - jGastona improve selection in lists, checkbox and radio groups
+      - MICOHTTP Don't lowercase headers
+      - Welcome gastona add fast search button
+      - Fix samples that were using old LOOP syntax
+      - FIX important bug in listix commands InCase and InCaseNum
+      - new option + (default) in VAR= and VAR+
+      - jGastona FIX IE11 error invalid argument on type = "date"
+      - MICO http add directory nocache
+      - Fix exception java.lang.NegativeArraySizeException in utilEscapeStr::expandRow
+      - New analysis script  listix2Dot.gast in sessionLog dir
+      - FIX saving generated_linked.gast
+      - removing Cadena.java
+   
    date   : 18.04.2017
    version: v1.2.170418
    
