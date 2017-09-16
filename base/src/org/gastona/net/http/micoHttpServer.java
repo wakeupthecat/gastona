@@ -457,6 +457,7 @@ public class micoHttpServer extends Thread
          try   // If any error ocurrs ... keep inside the loop !!
          {
             httpRequestData reke = new httpRequestData (getMemFileName4ReqBody ());
+            if (reke == null) continue;
             InputStream inputStream = null;
             OutputStream outputStream = null;
 
@@ -520,7 +521,7 @@ public class micoHttpServer extends Thread
             {
                httpResponseData respa = new httpResponseData (outputStream, PAGE_ACABADO, null, null);
                respa.send ();
-               client.close ();
+               try { client.close (); } catch (Exception e) {};
                currentClient = null;
                reke.dump ("on finish");
                break;
@@ -621,9 +622,8 @@ public class micoHttpServer extends Thread
             out ("sending response");
             respa.send ();
             out ("response sent");
-            client.close ();
+            try { client.close (); out ("client closed"); } catch (Exception e) { out ("cannot close client " + e); };
             currentClient = null;
-            out ("client closed");
 
             scheduleEnd (); // refresh server timeout if any (syntax ONE GET)
          }

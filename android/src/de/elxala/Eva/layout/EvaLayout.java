@@ -49,8 +49,8 @@ import de.elxala.zServices.*;
    {
       public static void main (String [] aa)
       {
-XXXXXXXXXXXXX         JFrame frame = new JFrame ("sampleEvaLayout");
-XXXXXXXXXXXXX         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame frame = new JFrame ("sampleEvaLayout");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
          Container pane = frame.getContentPane ();
          Eva lay = new Eva();

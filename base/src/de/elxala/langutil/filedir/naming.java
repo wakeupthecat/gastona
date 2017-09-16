@@ -39,7 +39,7 @@ public class naming
    public static String toVariableName (String text)
    {
       if (text.length () == 0) return "_";
-      return toNameISO_9660Joliet (text);
+      return toNameISO_9660Joliet (text.replaceAll (".", "_"));
    }
 
    // allow array as parameter for static call JAVAJ STATIC
