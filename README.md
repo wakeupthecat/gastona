@@ -130,9 +130,7 @@ mini http server MICOHTTP. But now for this demo let's use following static html
 
       <html><body>
       <script src="jGastonaEva-min.js"> </script>
-      <script>
-         var scriptStr = function () {
-         /*
+      <script id="mainJast" type="jast">
             #javaj#
                
                <layout of main>
@@ -157,11 +155,11 @@ mini http server MICOHTTP. But now for this demo let's use following static html
             
                <-- bAction>
                   //alert ("Calling " + jgas.getData ('iPeople selected.phone'));
-            #**#
-         */
-         }.toString ();
+      </script>
 
-         var jgas = jGastona (evaFileStr2obj (scriptStr));
+      <script>
+
+         jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
 
       </script></body></html>
 
