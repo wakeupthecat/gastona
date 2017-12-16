@@ -151,10 +151,10 @@ mini http server MICOHTTP. But now for this demo let's use following static html
             #listix#
             
                <-- iPeople>   
-                  //alert ("You have selected " + jgas.getData ('iPeople selected.name'));
+                  //alert ("You have selected " + getData ('iPeople selected.name'));
             
                <-- bAction>
-                  //alert ("Calling " + jgas.getData ('iPeople selected.phone'));
+                  //alert ("Calling " + getData ('iPeople selected.phone'));
       </script>
 
       <script>
