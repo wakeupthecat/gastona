@@ -1,9 +1,5 @@
 /*
-jGastonaEva-min.js version 0.20170702 / perito moreno
-composed by Eva.js + EvaLayout.js + LayoutManager.js + httSaco.js + jGastona.js minified
-is part of the open source project https://github.com/wakeupthecat/gastona
-
-Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
+Copyright (C) 2015,2016,2017,2018 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -14,7 +10,6 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 /**
    @author Alejandro Xalabarder
    @date   2015.07.26
-   @version 0.20170702
 
    @file   jGastona.js
 
@@ -62,6 +57,7 @@ function jGastona (evaConfig, existingPlaceId)
    var dataUnit,
        listixUnit,
        corpiny,
+       isStammLayout = false, // only if it will occupy the whole window area
        layMan,
        javajzWidgets       // of widgetFactory
        ;
@@ -70,25 +66,46 @@ function jGastona (evaConfig, existingPlaceId)
 
    var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)
 
-   // default action
-   loadJast (evaConfig, existingPlaceId);
+   // 2018.03.17
+   //  a jGastona object has to be started explicitly, for instance
+   //
+   //    var jast = jGastona (...);
+   //    jast.start (); // or jast.run ();
+   //
+   // this gives more flexibility, for instance it allows more objects to be loaded and
+   // be prepared for a future use. Also very importantly it allows to reference the
+   // object (e.g. jast) from a external script that may be called by the very first listix "main" entry.
+   // If the object where started automatically, as it was done before, the code of "main"
+   // would be called before the variable "jast" exists causing an error if any extern function tries to use
+   // it at that time.
+   //
+   var started = false;
+   function start ()
+   {
+      started = true;
+      loadJast (evaConfig, existingPlaceId);
+      window.addEventListener("resize", adaptaLayout);
+   }
 
-   // IT SEEMS THAT ANY OF FOLLOWING LINES WILL WORK PROPERLY, WHY ?
-   // document.body.onresize = function () { adaptaLayout () };
-   // document.body.onresize = function () { this.adaptaLayout () };
-   document.body.onresize = adaptaLayout;
-
-   // due to IE compatib.
-   function getWindowWidth () { return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; };
-   function getWindowHeight () { return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight; };
+   setTimeout (function () {
+         if (! started) {
+            start ();
+            console.error ("ERROR! jGastona: jast has been started by timeout!.\nThis \"compatibility feature\" will be deprecated since now a jGastona object has to be started explicitly (e.g. jgast.start ();)");
+         }
+      },
+      100
+      );
 
    return {
       // public functions to export
 
+      start              : start,
+      run                : start,      // alias of start
       getLayoutMan       : function () { return layMan; },
       mensaka            : mensaka,
-      getIdValue         : function (id) { var ele = document.getElementById(id); return (ele) ? ele.value : getDataCell (id); },
+      getIdValue         : getIdValue,
       getData            : getData,
+      getDataAsTextArray : getDataAsTextArray,
       getDataCell        : getDataCell,
       setData            : setData,
       setDataCell        : setDataCell,
@@ -112,9 +129,47 @@ function jGastona (evaConfig, existingPlaceId)
       // getDataUnit    : function () { return dataUnit; }
    };
 
+   function str2lineArray (str) { return str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); }
+
+   function getWindowWidth ()
+   {
+      return isStammLayout ?
+             // due to IE compatib.
+             (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) - 15:  // 15 is an empiric number ...
+             corpiny.offsetWidth;
+   }
+
+   function getWindowHeight ()
+   {
+      return isStammLayout ?
+             // due to IE compatib.
+             (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight) - 15: // 15 is an empiric number ...
+             corpiny.offsetHeight;
+   }
+
+   function getIdValue (id)
+   {
+      var ele = document.getElementById(id);
+      return (ele) ? ele.value : getDataCell (id);
+   }
+
    // shorcuts
-   function mask   (a, b) { if (layMan) { layMan.maskLayoutId (a, b); adaptaLayout (); } }
-   function unmask (a)    { if (layMan) { layMan.unmaskLayoutId (a); adaptaLayout (); } }
+   function mask (a, b)
+   {
+      if (layMan) {
+         layMan.maskLayoutId (a, b);
+         adaptaLayout ();
+      }
+   }
+
+   function unmask (a)
+   {
+      if (layMan && layMan.unmaskLayoutId (a)) {
+         adaptaLayout ();
+         return true;
+      }
+      return false;
+   }
 
    function isEvaValue (eva)
    {
@@ -134,7 +189,6 @@ function jGastona (evaConfig, existingPlaceId)
       // contains only one row and one column and its value is ""
       return isEvaSingleValue (eva) && eva[0][0] === "";
    }
-
 
    function strStartsWith (s1, s2, pos)
    {
@@ -157,9 +211,8 @@ function jGastona (evaConfig, existingPlaceId)
    function adaptaLayout ()
    {
       if (!layMan) return;
-
-      var dx = getWindowWidth ()  - 15; // 15 is an empiric number ...
-      var dy = getWindowHeight () - 15;
+      var dx = getWindowWidth ();
+      var dy = getWindowHeight ();
 
       var lali = layMan.guiConfig["layoutWindowLimits"]; // <layoutWindowLimits> mindx, mindy, maxdx, maxy
       if (lali && lali[0])
@@ -196,12 +249,17 @@ function jGastona (evaConfig, existingPlaceId)
       //
       if (!corpiny)
       {
-         var STAMM = placeId ? placeId: "jGastonaStammHtmlElem";
-         if (! document.getElementById(STAMM))
-            document.body.innerHTML = "<div id='" + STAMM + "' style = 'position:relative;'></div>";
-         corpiny = document.getElementById(STAMM);
+         var baseId = placeId||"jGastonaStammHtmlElem";
+         if (!document.getElementById(baseId)) {
+            document.body.innerHTML = "<div id='" + baseId + "' style = 'position:relative;'></div>";
+            isStammLayout = true;
+         }
+         corpiny = document.getElementById(baseId);
       }
-      if (!corpiny) alert ("ERROR no " + STAMM + " no fun!");
+      if (!corpiny) {
+         console.error ("no baseId can be found!");
+         return;
+      }
 
       // remove last main jast layout if any
       // here candidate to push instead
@@ -229,6 +287,16 @@ function jGastona (evaConfig, existingPlaceId)
    function getData (name)
    {
       return !dataUnit[name] ? undefined: dataUnit[name];
+   }
+
+   function getDataAsTextArray (name)
+   {
+      var eva = getData (name);
+
+      var sal = [];
+      for (var ii in eva)
+         sal.push (eva[ii][0]);
+      return sal;
    }
 
    function getDataCell(name, row, col)
@@ -271,9 +339,12 @@ function jGastona (evaConfig, existingPlaceId)
       {
          alert ("Error: setData \"" + name  + "\", the value is not a string nor looks like an eva variable");
       }
-      var wiz = getzWidgetByName (name);
-      if (wiz)
-         updatezWidget (wiz);
+
+      //2017.11.05 more general approach, even if no widget associated we send the message "name data!"
+      //           if there is a widget associated then two things will happen, widget update plus message
+      //..
+      //.. deliverMsgToWidget (getzWidgetByName (name));
+      mensaka (name + " data!");
    }
 
    function mensaka (msg)
@@ -285,14 +356,12 @@ function jGastona (evaConfig, existingPlaceId)
       {
          var wnam = msg.substr (0,ii); // widget name i.e. "bBoton"
          var wmet = msg.substr (ii+1); // method      i.e. "data!"
-         if (javajzWidgets[wnam])
-         {
-            // widget found, so we will return
-            if (javajzWidgets[wnam][wmet])
-                 javajzWidgets[wnam][wmet] ();
-            else console.log ("Error: widget " + wnam  + " has no method '" + wmet + "'");
-            return;
-         }
+
+         deliverMsgToWidget (getWidgetByName (wnam), wmet);
+         //2017.11.05 more general approach
+         //           continue since maybe the user (listix) is notified to the widget message as well
+         // // if (deliverMsgToWidget (getWidgetByName (wnam), wmet))
+         // //     return;
       }
 
       // look for the variable <-- message>, first in data else in listix
@@ -304,7 +373,7 @@ function jGastona (evaConfig, existingPlaceId)
       if (! fbody)
       {
          // message not subscribed! ignore it
-         console.log ("ignoring mensaka \"" + msg  + "\"");
+         // console.log ("ignoring mensaka \"" + msg  + "\"");
          return;
       }
 
@@ -345,7 +414,6 @@ function jGastona (evaConfig, existingPlaceId)
          else element.innerHTML = valueStr;
       }
    }
-
 
    function onAddWidget (name)
    {
@@ -390,24 +458,28 @@ function jGastona (evaConfig, existingPlaceId)
       }
       var updateImage = function () {
          // this.src = getDataCell (name);
+         //console.log ("setting background image for " + name + " [" + getDataCell (name) + "]");
          this["style"]["background-image"] = "url('" + getDataCell (name) + "')";
       }
 
+      var signalName = function () {
+         mensaka(name);
+      }
       var assignValue = function () {
          dataUnit[name][0] = [ this.value||"?" ];
+         signalName ();
       };
       var assignText = function ()
                        {
                            dataUnit[name] = [ [ ] ];
                            var text = this.value||"?";
-                           var rows = text.split("\n");
+                           var rows = str2lineArray (text);
                            for (var rr in rows)
                               dataUnit[name][rr] = [ rows[rr] ];
+
+                           signalName ();
                        };
 
-      var signalName = function () {
-         mensaka(name);
-      }
       var hayClassOf = dataUnit["class of " + name];
       var widgetclass = hayClassOf ? hayClassOf[0][0] : name;
 
@@ -431,7 +503,7 @@ function jGastona (evaConfig, existingPlaceId)
          //    zwid = fabricaStandard ("input", name, { type: "submit", ...
          //    but this is not necessary since we can use a button ('b') and set its property "type" to submit
          //    for example
-         //          <bSendIt type> //'submit
+         //          <bSendIt type> //submit
 
 
          // --- Note about upload (choose file) widget class
@@ -444,7 +516,7 @@ function jGastona (evaConfig, existingPlaceId)
 
          case 'm': // image
             // zwid = fabricaStandard ("img", name, { "data!": updateImage } );
-            zwid = fabricaStandard ("div", name, { "data!": updateImage } );
+            zwid = fabricaStandard ("div", name, { onclick: signalName, "data!": updateImage } );
             zwid.style["background-position"] = "center center";
             zwid.style["background-repeat"] = "no-repeat";
             zwid.style["background-size"] = "contain";
@@ -567,7 +639,7 @@ function jGastona (evaConfig, existingPlaceId)
          javajzWidgets[name] = zwid;
          corpiny.appendChild (zwid);
 
-         updatezWidget (zwid);
+         deliverMsgToWidget (zwid, "data!");
 
          // experimental! all widgets need data!
          if (!dataUnit[name])
@@ -575,19 +647,39 @@ function jGastona (evaConfig, existingPlaceId)
       }
    }
 
-   function getzWidgetByName (widName)
+   function getWidgetByName (widName)
    {
       return javajzWidgets[widName];
    }
 
+   //alias
+   function getzWidgetByName (nam) { return getWidgetByName (nam); }
+
+
+   function deliverMsgToWidget (zwidget, msg)
+   {
+      if (! zwidget) return false;
+
+      if (zwidget[msg]) {
+         zwidget[msg] (); // update data
+         return true;
+      }
+      alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
+      return false;
+   }
+
+
    function updatezWidget (zwidget)
    {
-      if (! zwidget) return;
+      //2017.11.05
+      mensaka (zwidget + " data!");
 
-      if (zwidget["data!"])
-         zwidget["data!"] (); // update data
-      else
-         alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
+      //  if (! zwidget) return;
+      //
+      //  if (zwidget["data!"])
+      //     zwidget["data!"] (); // update data
+      //  else
+      //     alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
    }
 
    // converts a string into a "string", "object" or js "function"
@@ -654,8 +746,17 @@ function jGastona (evaConfig, existingPlaceId)
             var value = dataUnit[dd];
 
             if (strStartsWith (attrib, "on")) {
-               //ele[attrib] = function () { eval (value); }
-               ele.addEventListener (attrib.substr(2), function () { eval (str2Var (value)); });
+               // notification to some event (e.g. "onkeyup", "onwheel" etc)
+               //
+               ele.addEventListener (attrib.substr(2),
+                     function () {
+                        // we must ensure that data of widget is reflected in dataUnit
+                        // before doing anything with it for example "onkeyup" may occur before an
+                        // onchange which sets automatically the data to the dataUnit
+                        if (attrib !== "onchange" && ele["onchange"])
+                              ele.onchange ();
+                        eval (str2Var (value));
+                     });
             }
             else if (attrib == "class") {
                ele.className = value;
@@ -762,6 +863,12 @@ function jGastona (evaConfig, existingPlaceId)
       var ele = document.createElement ("div");
       ele["id"] = name;
       ele.style.visibility = "hidden";
+      
+      // *** Own width calculation
+      // we have to estimate width, for some reason if not specified 
+      // width (offsetWidth) per default is the whole width whereas the height is
+      // correctly calculated from the content.
+      var widthEstim = 0;
 
       //cannot do this here like in fabricaSelect, but to be done on each element
       //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
@@ -772,13 +879,24 @@ function jGastona (evaConfig, existingPlaceId)
          subele["name"] = name;
          subele["value"] = arrOp[ite];
          subele["label"] = arrLab[ite];
+
+         // a more accurate measure has to take into account the final font
+         // which might be not know right now (?!)
+         var estimW = 12 * subele["label"].length; // mean 12px per char
+         
          subele["data!"] = function () { };
          subele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
-         if (ite !== "0" && (orient == "Y" || orient == "V"))
+         if (ite !== "0" && (orient == "Y" || orient == "V")) {
             ele.appendChild (document.createElement ("br"));
+            widthEstim = Math.max (widthEstim, estimW);
+         }
+         else {
+            widthEstim += estimW;
+         }
          ele.appendChild (subele);
          ele.appendChild (document.createTextNode(arrLab[ite]));
       }
+      ele.style.width = widthEstim + "px";
 
       return ele;
   }
@@ -889,7 +1007,7 @@ function jGastona (evaConfig, existingPlaceId)
    //
    //             AJAXSend ("myPost");                         // all variables will be packed
    //             AJAXSend ("myPost", "");                     // NO variable at all
-   //             AJAXSend ("myPost", { body="" });            // NO variable at all
+   //             AJAXSend ("myPost", { body:"" });            // NO variable at all
    //             AJAXSend ("myPost", { bodyVars: ["one"] });  // only variable "one" will be packed
    //
    //
@@ -1123,11 +1241,6 @@ function jGastona (evaConfig, existingPlaceId)
                   );
    }
 
-   function AJAXgetIdContent ()
-   {
-      alert ("ops! this function is deprecated! use AJAXgetDataForId instead");
-   }
-
    // depending on the type of the second parameter there are two possible syntaxes:
    //
    //    //1 using the one line parameters
@@ -1155,6 +1268,11 @@ function jGastona (evaConfig, existingPlaceId)
                     poso.headers,
                     function (txt) {
                        setContentsFromBody (idname, txt, multiple, onlyhtml);
+                       // AJAXAnyMethodRaw already sends the message "ajaxResponse getDataForId"
+                       // here we trigger the extra message "ajaxResponse getDataForId myId"
+                       // to allow reacting to the setting of a particular id
+                       //
+                       mensaka (AJAX_RESPONSE_MESSAGE + " getDataForId " + idname);
                     }
                 );
    }
@@ -1171,18 +1289,19 @@ function jGastona (evaConfig, existingPlaceId)
          // :---body
          // subbody
 
-         var textArr = bodystr.split("\n");
+         var textArr = str2lineArray (bodystr);
 
          var hh = 0;
          while (hh < textArr.length)
          {
-            var idval = /([^:]*):(.*)/.exec (textArr[hh ++]);
-            if (!idval) continue; // not "id:val" nor ":" ?
-            if (idval[1] === "") break; // end of "id:val"
+            var strlin = textArr[hh ++];
+            if (!strlin) break;
+
+            var idval = /([^:]*):(.*)/.exec (strlin);
+            // console.log ("multi set " + idval[1] + " [" + idval[2] + "]");
             setData (idval[1], idval[2]);
          }
-         for (var bb = hh; bb < textArr.length; bb ++)
-            mainbody = mainbody + (bb != hh ? "\n": "") + textArr[bb];
+         mainbody = textArr.slice(hh).join ("\n");
       }
 
       if (onlyhtml)

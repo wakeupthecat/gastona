@@ -150,8 +150,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <syntaxHeader>
       synIndx, importance, desc
          1   ,    4      , //Parse 'xmlSourceFile' and set the result into the database 'dbName' creating the schema if needed
-         2   ,    4      , //Enables or disables a cache used to keep loaded tables (tagID and pathID) that accelerates the parsing with multiple files
-         3   ,    4      , //Create views and connections (see command DEEPDB) for all the xml paths containing data found in all parsed xml files
+         2   ,    4      , //Parse 'jsonSourceFile' and set the result into the database 'dbName' creating the schema if needed
+         3   ,    4      , //Enables or disables a cache used to keep loaded tables (tagID and pathID) that accelerates the parsing with multiple files
+         4   ,    4      , //Create views and connections (see command DEEPDB) for all the xml paths containing data found in all parsed xml files
 
 
    <syntaxParams>
@@ -549,8 +550,6 @@ public class cmdXmelon implements commandable
             <some>
                <name>my second name<name>
             </some>
-
-
       */
 
 

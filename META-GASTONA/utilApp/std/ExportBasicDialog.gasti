@@ -13,6 +13,7 @@
       label  , ext , separ, preRow, postRow, head, tail
 
       Html   , html, "<td>", "<tr><td>", "</tr>", @<ExportBasic headHtml>, @<ExportBasic tailHtml>
+      CSV    , csv , """, """, """", """"
       Excel  , xls , @<TAB>
       Text   , txt , ", "
 
@@ -78,7 +79,7 @@
 
    <ExportBasic headHtml>
       //<html>
-      //
+      //   <style> * { font-family: Consolas } </style>
       //   <table border="1" cellspacing="0" cellpadding="6" bordercolor=gray>
       //
 

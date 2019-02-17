@@ -1,6 +1,6 @@
 /**
  * conSecuencioPlain - simple and plain sequence diagram
- * Copyright (c) 2016, Alejandro Xalabarder
+ * Copyright (c) 2016-2018, Alejandro Xalabarder
  */
 
 function conSecuencioPlain (diagData)
@@ -11,10 +11,10 @@ function conSecuencioPlain (diagData)
       if (typeof obj === "number") return parseInt(obj);
       return parseInt (obj[0][0]);
    }
-   
+
    var arr = diagData["sequenceTable"];
-   var dia = getAnInt (diagData["distanceAgents"], 30);
-   var dit = getAnInt (diagData["distanceTimeUnit"], 4);
+   var distAgents = Math.max (2, getAnInt (diagData["distanceAgents"], 30));
+   var distTimeUnit = getAnInt (diagData["distanceTimeUnit"], 4);
    var maxGapTime = getAnInt (diagData["maxGapTime"], 3);
    var autoElapsed = diagData["autoElapsed"];
    if (typeof autoElapsed === "string")
@@ -28,6 +28,7 @@ function conSecuencioPlain (diagData)
    var iAgentRx   = arr[0].indexOf ("target");
    var iMessage   = arr[0].indexOf ("message");
 
+   var agentsAlias = {};
    var agents = getAgents(arr, iAgentTx, iAgentRx);
    var timesIda = {}; // track elapsed times (or try to)
 
@@ -38,6 +39,17 @@ function conSecuencioPlain (diagData)
 
    function getAgents (mats, tx, rx)
    {
+      function pushAgent (agname)
+      {
+         // name and alias if any
+         var namalia = agname.split("=");
+
+         agArr.push (namalia[0]);
+         if (namalia[1])
+            agentsAlias[namalia[0]] = namalia[1];
+      }
+
+      agentsAlias = {};
       var agArr = [];
       var siz = mats.length;
       if (siz < 2) return agArr;
@@ -49,9 +61,9 @@ function conSecuencioPlain (diagData)
          if (ii === "0") continue;
 
          if (tx != -1 && mats[ii][tx] && agArr.indexOf (mats[ii][tx]) == -1)
-            agArr.push (mats[ii][tx]);
+            pushAgent (mats[ii][tx]);
          if (rx != -1 && mats[ii][rx] && agArr.indexOf (mats[ii][rx]) == -1)
-            agArr.push (mats[ii][rx]);
+            pushAgent (mats[ii][rx]);
       }
 
       return agArr;
@@ -101,17 +113,19 @@ function conSecuencioPlain (diagData)
       }
    }
 
-   // char.repeat (n) but checking to avoid javascript error
+   // string.repeat(count) not in IE 11 !
    //
-   function rechar (cha, times)
+   function repeat (what, times)
    {
-      if (times <= 0) return '';
-      return cha.repeat (times);
+      var arr = [];
+      for (var ii=0; ii < times; ii ++)
+         arr.push (what);
+      return arr.join ("");
    }
 
    var plotResult = [];
    var TIME_LEN = 13;
-   var sPre  = ' '.repeat (dia * 0.06);
+   var sPre  = repeat (" ", distAgents * 0.06);
    var lastTim = 0.;
 
    function out (str)
@@ -121,10 +135,11 @@ function conSecuencioPlain (diagData)
 
    function barras (n, cha)
    {
+      if (n < 0) return "";
       cha = cha || '|';
       var ba = cha;
       for (var ii = 0; ii < n; ii ++)
-         ba = ba + rechar (' ', dia) +  cha;
+         ba = ba + repeat (' ', distAgents) +  cha;
       return ba;
    }
 
@@ -136,7 +151,7 @@ function conSecuencioPlain (diagData)
       else
          post = "" + (text ? (text + "--"): "") + ">";
       return (pre +
-             rechar ('-', (dia + 1) * Math.abs (ifrom - ito) - 1 - pre.length - post.length) +
+             repeat ('-', (distAgents + 1) * Math.abs (ifrom - ito) - 1 - pre.length - post.length) +
              post);
    }
 
@@ -157,28 +172,27 @@ function conSecuencioPlain (diagData)
 
       // split text into a text array if larger than distance between agents
       //
-      if (dia < 2) dia = 2;   // some minimum
 
       // make array of strings if needed
       var txtarr = [];
-      for (p1 = 0, ii = 0; p1 < txt.length; p1 += (dia-sPre.length), ii ++)
+      for (p1 = 0, ii = 0; p1 < txt.length; p1 += (distAgents - sPre.length), ii ++)
       {
-         txtarr [ii] = txt.substring (p1, p1+(dia-sPre.length));
+         txtarr [ii] = txt.substring (p1, p1+(distAgents - sPre.length));
       }
 
       // time
       //
-      var stim = (rechar(' ', 10) + (timo >= 0 ? timo: " ")).right (10) + rechar (' ', 3);
+      var stim = (repeat(' ', 10) + (timo >= 0 ? timo: " ")).right (10) + repeat (' ', 3);
 
       // first line(s) for label
       //
       var sPos, title, b1, b2;
       for (ii = 0; ii < txtarr.length; ii ++)
       {
-         sPos = rechar (' ', dia - sPre.length - txtarr[ii].length);
+         sPos = repeat (' ', distAgents - sPre.length - txtarr[ii].length);
          title, b1, b2;
 
-         if (indxFrom < indxTo)
+         if (indxFrom <= indxTo)
          {
             title = sPre + txtarr[ii] + sPos;
             b1 = i0;
@@ -192,20 +206,23 @@ function conSecuencioPlain (diagData)
          }
 
          // label
-         out (rechar (' ', stim.length) + barras (b1) + title + barras (b2));
+         out (repeat (' ', stim.length) + barras (b1) + title + barras (b2));
       }
 
-      // arrow
-      out (stim +
-           barras (i0) +
-           putFlecha (indxFrom, indxTo, getElapsed (timo, indxFrom, indxTo)) +
-           barras (agents.length - i1 - 1));
+      if (indxFrom != indxTo)
+      {
+         // arrow
+         out (stim +
+              barras (i0) +
+              putFlecha (indxFrom, indxTo, getElapsed (timo, indxFrom, indxTo)) +
+              barras (agents.length - i1 - 1));
+      }
    }
 
-   var band = Math.round (dia / 3);
-   var sLeft = rechar (' ', TIME_LEN);
-   var sLeft0 = rechar (' ', TIME_LEN + 1 - band/2);
-   var sGap  = rechar (' ', dia - band + 1);
+   var band = Math.round (distAgents / 3);
+   var sLeft = repeat (' ', TIME_LEN);
+   var sLeft0 = repeat (' ', TIME_LEN + 1 - band/2);
+   var sGap  = repeat (' ', distAgents - band + 1);
 
    var sAgeNom = "";  //  name    name   ...
    var sAgeRay = "";  //  _____  _____   ...
@@ -214,9 +231,10 @@ function conSecuencioPlain (diagData)
 
    for (var ag in agents)
    {
-      var half = Math.round ((band - agents[ag].length) / 2);
-      sAgeNom = sAgeNom + rechar (' ', half) + agents[ag] + rechar (' ', band-half-agents[ag].length) + sGap;
-      sAgeRay = sAgeRay + rechar ('_', band) + sGap;
+      var agentStr = agentsAlias[agents[ag]] || agents[ag];
+      var half = Math.round ((band - agentStr.length) / 2);
+      sAgeNom = sAgeNom + repeat (' ', half) + agentStr + repeat (' ', band-half - agentStr.length) + sGap;
+      sAgeRay = sAgeRay + repeat ('_', band) + sGap;
    }
    sAgeNom = sLeft0 + sAgeNom.trimTail ();
    sAgeRay = sLeft0 + sAgeRay.trimTail ();
@@ -234,15 +252,19 @@ function conSecuencioPlain (diagData)
       var a1 = agents.indexOf (arr[aa][iAgentTx]);
       var a2 = agents.indexOf (arr[aa][iAgentRx]);
       var tx = arr[aa][iMessage];
-      
-      if (tx === undefined) continue;
+
+      if (tx === undefined) {
+         // agents with no message
+         // this might be useful as a way of fixing some order of agents
+         continue;
+      }
 
       // plot time difference
       //
-      if (dit > 0 && ti >= 0)
+      if (distTimeUnit > 0 && ti >= 0)
       {
-         var ncont = lastTim ? (ti - lastTim) * dit: 2;
-         if (ncont > maxGapTime * dit) {
+         var ncont = lastTim ? (ti - lastTim) * distTimeUnit: 2;
+         if (ncont > maxGapTime * distTimeUnit) {
             out (sDisc);
             out (sDisc);
          }

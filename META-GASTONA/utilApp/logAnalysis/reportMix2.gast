@@ -1,0 +1,79 @@
+#listix#
+
+   <maxLevel> 12
+
+   <main>
+      DB CONFIG, DEFAULT, logDatabase.db,
+      GEN, mixiReport.html, report mixer html
+      OPEN, mixiReport.html
+
+   <! HTML HTML HTML HTML HTML HTML HTML HTML
+
+   <report mixer html>
+      //<html>
+      //    <body>
+      @<table mixa>
+      //    </body>
+      //</html>
+
+   <table mixa>
+      LOOP, SQL,, //SELECT message AS cost FROM logMessages WHERE clientID=0 AND context = "estimatedStoreLogCost"
+          ,, @<asignaCost>
+      LOOP, SQL,, //SELECT MAX(formatStackDepth) AS maxDepth FROM logCustom_listix_flow
+          ,, @<asignaMax>
+      //       <table border="0">
+      //          <tr><td>time<td>kind<td>level<td>text</tr>
+      LOOP, SQL,, @<ditabla sql>
+          ,, //          <tr bgcolor=@<colore>>@<contents></tr>
+      //       </table>
+
+
+   <colore>
+      IN CASE, @<msgKind>,
+             , lsxFlow   , #FF22FF
+             , lsxCmd    , #FF11FF
+             , dbgMsg    , @<cole2>
+             , ELSE      , #EEEEEE
+
+   <cole2>
+      IN CASE, @<level>
+             , 3    , #ff0011
+             , ELSE , #ffeeee
+
+   <contents>
+      //    <td>@<estimatedRealTime>
+      //    <td>@<msgKind>
+      //    <td>@<level>
+      //    <td>@<dataStr>
+
+
+   <ditabla sql>
+      //SELECT "lsxFlow" AS msgKIND, msgCounter, milliStamp, value AS dataStr, formatStackDepth, level FROM logCustom_listix_flow WHERE message='format'
+      //  UNION
+      //SELECT "lsxCmd" AS msgKIND, msgCounter, milliStamp, value AS dataStr, formatStackDepth, level FROM logCustom_listix_flow WHERE message='cmd'
+      //  UNION
+      //SELECT "dbgMsg" AS msgKIND, msgCounter, milliStamp, message AS dataStr, "-" AS formatStackDepth, level FROM logMessages WHERE level+0 <= @<maxLevel>
+      //  ORDER BY msgCounter
+
+   <asignaMax>     SETVAR, maxima, @<maxDepth>
+   <asignaCost>     SETVAR, logCost, @<cost>
+
+   <depthsLabels>
+      LOOP, FOR, ii, 1, @<maxima>
+          ,,//<td>Depth @<ii>
+
+   <coloca value>
+      //<td>@<estimatedRealTime>
+      LOOP, FOR, ii, 1, @<thisDepth>
+          ,, //<td>
+      @<value>
+      //
+      LOOP, FOR, ii, @<nextDepth>, @<maxima>
+          ,, //<td>&nbsp
+
+   <thisDepth> =, formatStackDepth
+   <nextDepth> =, formatStackDepth + 1
+
+   <seconds>   =, milliStamp / 1000.
+
+   <estimatedRealTime>  =, (milliStamp - (msgCounter - 10000) * logCost) / 1000.

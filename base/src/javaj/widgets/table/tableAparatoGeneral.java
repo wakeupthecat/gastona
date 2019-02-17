@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2018 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -400,14 +400,6 @@ public class tableAparatoGeneral extends basicTableAparato
          // add subtable entry
          for (int col = 0; col < eSubTable.cols (0); col ++)
          {
-            //26.04.2009 13:01 FIX Error "wrong use of a tableWidgetBaseEBS! Its method loadRowsFromOffset cannot be called!"
-            //
-            //  Using ebsTable() instead of getRealTableObject () works fine in most cases
-            //  But only the getRealTableObject can properly retrieve new records (method loadRowsFromOffset)
-            //  Rarely a selection would need a record that is not already in cache, but this happens while scrolling
-            //  a table having a record selected (scrolling with page up / down)
-            //
-            //String value = ebsTable().getValue (indices[row], col);
             tableEvaDataEBS ta = getRealTableObject();
             if (ta != null)
             {
@@ -434,11 +426,6 @@ public class tableAparatoGeneral extends basicTableAparato
          String nameEva = ebsTable().evaNameSelectedField (header [cc]);
          Eva selEva = ebsTable ().getControl ().getSomeHowEva (nameEva);
 
-         //24.03.2012 14:06 FIX Error "wrong use of a tableWidgetBaseEBS! Its method loadRowsFromOffset cannot be called!"
-         //                 See the first fix (26.04.2009) in the previous "for"
-         //                 The same error appeared now in this line (luckly it was good documented!!)
-         //-old- String value = ebsTable().getValue (indices[0], cc);
-         //-old- selEva.setValue (value, 0, 0);
          tableEvaDataEBS ta = getRealTableObject();
          if (ta != null)
          {

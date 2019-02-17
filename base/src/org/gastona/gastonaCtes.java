@@ -5,6 +5,7 @@ public class gastonaCtes
 {
    public static final String NAME_LINKED_GAST = "generated_linked.gast";
 
+   public static final String PROP_TMP_DIR                 = "gastona.tmp.dir";
    public static final String PROP_SESSION_LOG_DIR         = "gastona.sessionLog.dir";
    public static final String PROP_GASTONA_FILEPATH        = "gastona.gastFile.path";
    public static final String PROP_GASTONA_FILEDIR         = "gastona.gastFile.dir";
@@ -14,6 +15,8 @@ public class gastonaCtes
    
    public static final String PROP_GASTONA_DEFAULT_DATABASE_NAME = "gastona.defaultDB";
    public static final String PROP_GASTONA_DEFAULT_ATTACHED_DBS  = "gastona.defaultDBaliasAttach";
+
+   public static final String PROP_GASTONA_NOT_PEDANTIC_COLUMN_NAMES  = "gastona.generateNoQuotedColumNames";
    
    //public static String PROP_GASTONA_ISFILERESOURCE  = "gastona.";
 

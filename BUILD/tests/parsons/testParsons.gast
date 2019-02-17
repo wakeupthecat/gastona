@@ -1,0 +1,95 @@
+#javaj#
+
+   <frames> o
+
+#data#
+
+   <texte>
+      //
+      // ID:1234 DESC:Primeras ID:77812 DESC:Segundas ID:4403
+      //DESC:Terceras DESC:MALAMENTE! ID:4444
+      // kjasd kljs adlkjd ID:7777
+      // asddasas
+      // DESC:Quartas
+      //
+      // ID:9999
+      // DESC:LaUltima
+      //
+      // one:1 one:10 two:2 two:20 two:200 three:3 three:30
+
+#listix#
+
+   <main0>
+      DUMP, data,, texte
+      PARSONS, VAR, texte
+            , CLEAN, 1
+            , VAR, lastID, //ID:(\d*)
+            , EVATABLE , records, CONST, //'@<lastID>'
+            ,          , id  , //ID:(\d*)
+            ,          , desc, //DESC:(\w*)
+      LSX, show, //in same order
+
+      PARSONS, VAR, texte
+            , CLEAN, 1
+            , VAR, lastID, //ID:(\d*)
+            , EVATABLE , records, CONST, //'@<lastID>'
+            ,          , id, desc, //ID:(\d*)\s*DESC:(\w*)
+            , EVATABLE , records2
+            ,          , one, two, three, //one:(\d*).*two:(\d*).*three:(\d*)
+
+      LSX, show, //in same line
+
+    <show>
+      //
+      //=== catch @<p1>
+      //
+      DUMP, data, , lastID, records
+
+#**FIN#
+
+=== DESIRED OUPUT 
+====== NOTE THAT CONST DOES NOT WORK WITH EVA TABLE!
+
+#data#
+
+   <texte>
+      //
+      // ID:1234 DESC:Primeras ID:77812 DESC:Segundas ID:4403
+      //DESC:Terceras DESC:MALAMENTE! ID:4444
+      // kjasd kljs adlkjd ID:7777
+      // asddasas
+      // DESC:Quartas
+      //
+      // ID:9999
+      // DESC:LaUltima
+      //
+      // one:1 one:10 two:2 two:20 two:200 three:3 three:30
+
+=== catch in same order
+#data#
+
+   <lastID>
+      //9999
+
+   <records>
+      fileID,lineNr,lastLineNr,id,desc
+      -1,2,2,1234,Primeras
+      -1,2,2,77812,Segundas
+      -1,2,3,4403,Terceras
+      -1,3,6,4444,Quartas
+      -1,8,9,9999,LaUltima
+
+=== catch in same line
+#data#
+
+   <lastID>
+      //9999
+
+   <records>
+      fileID,lineNr,lastLineNr,id,desc
+      -1,2,2,1234,Primeras
+      -1,2,2,77812,Segundas
+
+   <records2>
+      fileID,lineNr,lastLineNr,one,two,three
+      -1,11,11,1,200,30

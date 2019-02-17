@@ -124,6 +124,14 @@
       //
       //         Returns the height in pixels of the whole screen
       //
+      //      @<:lsx uuid>
+      //
+      //         Generates an immutable universally unique identifier (UUID). A UUID represents a 128-bit value.
+      //
+      //      @<:lsx mutool MICROTOOL>
+      //
+      //         Returns the full path of the executable related with the microtool 
+      //
       //   --- Convert or process content of a variable or literal (e.g. file name)
       //
       //      This syntax permit making complex processes to the contents of a variable or

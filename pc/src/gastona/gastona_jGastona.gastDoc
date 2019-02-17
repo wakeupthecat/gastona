@@ -56,7 +56,8 @@
       //     //
       //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //   jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
+      //     //   jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"))
+      //     //       .start ();
       //     //
       //     //</script></body></html>
       //
@@ -129,6 +130,7 @@
       //     //@<:infile META-GASTONA/js/jGastona.js>
       //     //
       //     //   var jgas = jGastona ();
+      //     //   // jgas.start ();
       //     //
       //     //   jgas.AJAXPostRaw ("questionToU",
       //     //                     "this is the body of the question",
@@ -169,6 +171,7 @@
       //     //
       //     //   var respObj = {};
       //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
+      //     //   jgas.start ();
       //     //
       //     //</script></body></html>
       //
@@ -190,9 +193,9 @@
       //      //  <main>
       //      //     //respObj = {};
       //      //     //AJAXSend ('questionToU', {
-      //      //     //            body: 'this is the body of the question', 
+      //      //     //            body: 'this is the body of the question',
       //      //     //            params: { reqVar1 : 21321, reqVar2: 423 },
-      //      //     //            headers: { XmyHeader : 'refining the question'} 
+      //      //     //            headers: { XmyHeader : 'refining the question'}
       //      //     //           },
       //      //     //           respObj
       //      //     //          );
@@ -205,7 +208,7 @@
       //      //     //setData ('xResponseObject', JSON.stringify (respObj, null, ' '));
       //      //     //setData ('xUnit', evaFileObj (respObj['obj-body']).toText ());
       //      //
-      //   
+      //
       //   <POST /questionToU>
       //     MICO, RESP_VAR=,, myVar1, uno, myVar2, dos, myVar3, "tres y cuatro etc"
       //     MICO, RESP_HEADER=,, Content-Type, text/eva
@@ -247,6 +250,7 @@
       //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
       //     //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+      //     //   jgas.start ();
       //     //
       //     //</script></body></html>
       //
@@ -268,7 +272,7 @@
       //      //
       //      //#data#
       //      //
-      //      //    <eEventDate type>   //'date
+      //      //    <eEventDate type>   //date
       //      //    <dBoletin>
       //      //
       //      //#listix#

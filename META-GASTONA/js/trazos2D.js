@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015,2016 Alejandro Xalabarder Aulet
+Copyright (C) 2015,2016,2017,2018 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -143,22 +143,92 @@ function trazos2D ()
 {
    var SVGNamespace = "http://www.w3.org/2000/svg";
    var DEFAULT_GRAPH_DX = 300;
-   var DEFAULT_GRAPH_DY = 150;
+   var DEFAULT_GRAPH_DY = 200;
+   var graffitiPila = [];  // to avoid recurrent graffitis
 
    return {
       renderCanvasGraffitis : renderCanvasGraffitis,
       renderSvgGraffitis    : renderSvgGraffitis,
       renderClassGraffiti   : renderClassGraffiti,
-      drawGrafitti2canvas   : drawGrafitti2canvas,
+      drawGraffiti2canvas   : drawGraffiti2canvas,
       trazoShape2canvas     : trazoShape2canvas,
-      drawGrafitti2svg      : drawGrafitti2svg,
+      drawGraffiti2svg      : drawGraffiti2svg,
       trazoShape2svg        : trazoShape2svg,
       autoCasteljau         : autoCasteljau,
+      convertPathArrayJ2C   : convertPathArrayJ2C,
    };
+
+   ////////////////////
+   // parse2DStyle
+   ////////////////////
+
+   function parse2DStyle (stylestr)
+   {
+      var reto = {};
+      if (!stylestr) return reto;
+      var atts = stylestr.split (';');
+      if (!atts || atts.length === 0) return reto;
+
+
+      var aliases = {
+            op: "opacity",
+            sc: "stroke",
+            sw: "stroke-width",
+            so: "stroke-opacity",
+            fc: "fill",
+            fr: "fill-rule",
+            fo: "fill-opacity",
+            font: "font-family",
+            ff: "font-family",
+            fof: "font-family",
+            fs: "font-size",
+            fos: "font-size",
+            ft: "font-type",
+            fot: "font-type",
+      };
+
+      for (var ii = 0; ii < atts.length; ii ++)
+      {
+         var atval = atts[ii].split (':');
+         if (atval.length !== 2) continue;
+
+         var name = atval[0].trim ();
+
+         reto [aliases[name] || name] = atval[1].trim ();
+      }
+
+      return reto;
+   }
+
+   // function outobj(o)
+   // {
+   //    for (var ii in o) out (ii + " : [" + o[ii] + "]");
+   // }
+   //
+   // outobj (parse2DStyle ());
+   // outobj (parse2DStyle (""));
+   // outobj (parse2DStyle ("fc : #9100fe"));
+   // outobj (parse2DStyle ("     font: Cursava;   fc : #9100fe   "));
+   // outobj (parse2DStyle (" stroke-width: 6 ; sc: #eeff03;    font: Cursava;   fc : #9100fe   "));
+   //
 
    ////////////////////
    // autoCasteljau
    ////////////////////
+
+
+   // convert an array 'jau' (autocasteljau) into a c curve (cubic)
+   //    example
+   //    out (ta.convertPathArrayJ2C (40, 10, false, [1, 2, 7, -2]));
+   //  outpts
+   //    39.75,9.5,39.78275799460319,12,41,12,42.21724200539681,12,46.25,10.5,48,10
+   //
+   function convertPathArrayJ2C (px, py, closePath, arrJ)
+   {
+      var au = autoCasteljau (px, py, closePath, arrJ);
+      au.computePoints ();
+      return au.getArrayCasteljau ().slice(2); // slice (2) to remove position 0, 0 (why is it included ?)
+   }
 
    function autoCasteljau (x0, y0, close, arrPtos)
    {
@@ -399,13 +469,13 @@ function trazos2D ()
       }
 
       function compute (trazo) {
-         xx = trazo[1];
-         yy = trazo[2];
+         xx = +(trazo[1]);
+         yy = +(trazo[2]);
          computePair (xx, yy);
          for (ii = 5; ii+1 < trazo.length; ii += 2)
          {
-            xx += trazo[ii];
-            yy += trazo[ii+1];
+            xx += +(trazo[ii]);
+            yy += +(trazo[ii+1]);
             computePair (xx, yy);
          }
       }
@@ -422,16 +492,16 @@ function trazos2D ()
    // trazos - graffiti 2 canvas
    ///////////////////////////////////
 
-   function trazoShape2canvas (c2d, form, px, py, fillSty, strkSty, closep, arrp)
+   function trazoShape2canvas (c2d, form, px, py, pathStyle, closep, arrp)
    {
       c2d.beginPath();
       c2d.moveTo(px, py);
-      
+
       var relative = true;
-      var xx=px, yy= py;
+      var xx = +(px), yy = +(py);
 
       if (form === "jau") {
-         var curv = autoCasteljau (px, py, closep, arrp);
+         var curv = autoCasteljau (+(px), +(py), closep, arrp);
          curv.computePoints ();
          var cc = curv.getArrayCasteljau ();
 
@@ -441,25 +511,25 @@ function trazos2D ()
       else {
          for (var ii = 0; ii < arrp.length; ii += 2)
          {
-            var plusx = relative?xx:0;
-            var plusy = relative?yy:0;
-            
+            var plusx = relative ? xx : 0;
+            var plusy = relative ? yy : 0;
+
             if (form === "pol") {
-               xx = arrp[ii+0] + plusx;
-               yy = arrp[ii+1] + plusy;
-               
+               xx = +(arrp[ii+0]) + plusx;
+               yy = +(arrp[ii+1]) + plusy;
+
                c2d.lineTo (xx, yy);
             }
             else if (form == "qua") {
-               xx = arrp[ii+2] + plusx;
-               yy = arrp[ii+3] + plusy;
-               c2d.quadraticCurveTo (arrp[ii] + plusx, arrp[ii+1] + plusy, xx, yy);
+               xx = +(arrp[ii+2]) + plusx;
+               yy = +(arrp[ii+3]) + plusy;
+               c2d.quadraticCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, xx, yy);
                ii += 2;
             }
             else if (form == "cub" || form == "bez") {
-               xx = arrp[ii+4] + plusx;
-               yy = arrp[ii+5] + plusy;
-               c2d.bezierCurveTo (arrp[ii] + plusx, arrp[ii+1] + plusy, arrp[ii+2] + plusx, arrp[ii+3] + plusy, xx, yy);
+               xx = +(arrp[ii+4]) + plusx;
+               yy = +(arrp[ii+5]) + plusy;
+               c2d.bezierCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, +(arrp[ii+2]) + plusx, +(arrp[ii+3]) + plusy, xx, yy);
                ii += 4;
             }
             else
@@ -471,15 +541,42 @@ function trazos2D ()
          if (closep)
             c2d.closePath();
       }
-      var dofill = fillSty && fillSty.length > 0;
-
-      if (dofill) c2d.fillStyle = fillSty;
-      if (strkSty) c2d.strokeStyle = strkSty;
-      if (dofill) c2d.fill ();
-      if (strkSty) c2d.stroke ();
    }
 
-   function drawGrafitti2canvas (trazos, canv, autoFit)
+   function drawImage2canvas (c2d, source, px, py)
+   {
+      //void ctx.drawImage(image, dx, dy);
+      //void ctx.drawImage(image, dx, dy, dWidth, dHeight);
+      //void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+
+      // the problem with this is that since drawImage will be delayed
+      // the layer order will not be kept! so it is possible that the
+      // image appears on top even if it is the first element on the list
+      // (then should be back)
+
+      var img = new Image();
+      img.onload = function () { c2d.drawImage(img, +(px), +(py));  }
+      img.src = source;
+   }
+
+   function applyCanvasStyle (c2d, styles, strstyle)
+   {
+      var estilos = parse2DStyle (styles [strstyle] || strstyle);
+
+      if ("fill" in estilos)
+      {
+         c2d.fillStyle = estilos["fill"];
+         c2d.fill ();
+      }
+      if ("stroke-width" in estilos)
+      {
+         c2d.lineWidth = estilos["stroke-width"];
+      }
+      c2d.strokeStyle = ("stroke" in estilos) ? estilos["stroke"]: "#000000";
+      c2d.stroke ();
+   }
+
+   function drawGraffiti2canvas (trazos, canv, props)
    {
       var c2d = canv.getContext('2d');
 
@@ -494,16 +591,18 @@ function trazos2D ()
 
       var styles = {};
 
+      var applyprop = (!props || props.autofit) ? boundingBoxAndAutoScale (trazos, canv.width, canv.height): props;
+      var hasScaleAndOffsets = "scalex" in applyprop;
 
-      if (autoFit)
+      // apply scales and offsets
+      //
+      if (hasScaleAndOffsets)
       {
-         var auto = boundingBoxAndAutoScale (trazos, canv.width, canv.height);
-
          c2d.save ();
 
-         c2d.lineWidth = 1.0 / auto.scalex; // compensate the scale with stroke
-         c2d.scale (auto.scalex, auto.scaley);
-         c2d.translate (auto.offsetx, auto.offsety);
+         c2d.lineWidth = 1.0 / applyprop.scalex; // compensate the scale with stroke
+         c2d.scale (applyprop.scalex, applyprop.scaley);
+         c2d.translate (applyprop.offsetx, applyprop.offsety);
       }
 
       for (var rr in trazos)
@@ -512,22 +611,54 @@ function trazos2D ()
          if (trazos[rr][0] === "defstyle") {
             styles [trazos[rr][1]] = makestyle (trazos[rr][2]);
          }
+         else if (trazos[rr][0] === "img") {
+            //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
+            drawImage2canvas (c2d, trazos[rr][4], trazos[rr][1], trazos[rr][2])
+         }
+         else if (trazos[rr][0] === "text" || trazos[rr][0] === "txt") {
+            var estilos = parse2DStyle (styles [trazos[rr][3]] || trazos[rr][3]);
+            if ("fill" in estilos)
+            {
+               c2d.fillStyle = estilos["fill"];
+               c2d.fillText (trazos[rr][4], trazos[rr][1], trazos[rr][2]);
+            }
+            if ("stroke" in estilos)
+            {
+               c2d.strokeStyle = estilos["stroke"];
+               c2d.strokeText (trazos[rr][4], trazos[rr][1], trazos[rr][2]);
+            }
+         }
+         else if (trazos[rr][0] === "rect" || trazos[rr][0] === "rec") {
+            c2d.rect (trazos[rr][1], trazos[rr][2], trazos[rr][4], trazos[rr][5]);
+            applyCanvasStyle (c2d, styles, trazos[rr][3]);
+         }
+         else if (trazos[rr][0] === "circle" || trazos[rr][0] === "cir") {
+            c2d.beginPath();
+            c2d.ellipse (trazos[rr][1], trazos[rr][2], trazos[rr][4], trazos[rr][4], 0, 2 * Math.PI, 0);
+            applyCanvasStyle (c2d, styles, trazos[rr][3]);
+         }
+         else if (trazos[rr][0] === "ellipse" || trazos[rr][0] === "ell") {
+            // void ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
+            c2d.beginPath();
+            c2d.ellipse (trazos[rr][1], trazos[rr][2], trazos[rr][4], trazos[rr][5], 0, 2 * Math.PI, 0);
+            applyCanvasStyle (c2d, styles, trazos[rr][3]);
+         }
          else if (trazos[rr][0] === "z" && trazos[rr].length >= 6) {
             // 0   1    2     3      4  5...
             // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
-            // trazoShape2canvas (c2d, form, px, py, fillSty, strkSty, closep, arrp)
+            // trazoShape2canvas (c2d, form, px, py, style, closep, arrp)
             trazoShape2canvas (c2d,
                         trazos[rr][4].substring (0, 3),              // type ("pol" "jau" etc)
                         trazos[rr][1],                               // x0
                         trazos[rr][2],                               // y0
-                        styles [trazos[rr][3]]|| trazos[rr][3],      // color fill
-                        "#000000",                                   // color stroke
+                        styles [trazos[rr][3]]|| trazos[rr][3],      // path style
                         trazos[rr][4].length > 3 && trazos[rr][4].substring(3) === 'z', // is closed ?
                         trazos[rr].slice (5));
+            applyCanvasStyle (c2d, styles, trazos[rr][3]);
          }
       }
 
-      if (autoFit)
+      if (hasScaleAndOffsets)
          c2d.restore ();
    }
 
@@ -535,22 +666,69 @@ function trazos2D ()
    // trazos - graffiti 2 svg
    ///////////////////////////////////
 
-   function trazoShape2svg (svgEle, form, px, py, fillSty, strkSty, closep, arrp)
+   function trazoText2svg (svgEle, px, py, pathStyle, textContent)
+   {
+      var pato = document.createElementNS (SVGNamespace, "text");
+
+      pato.setAttribute ("x", +(px));
+      pato.setAttribute ("y", +(py));
+      pato.textContent = textContent;
+
+      var estilos = parse2DStyle (pathStyle);
+      for (var ee in estilos)
+         pato.setAttribute (ee, estilos[ee]);
+      if (!("stroke" in estilos))
+         pato.setAttribute ("stroke", "#000000");
+
+      svgEle.appendChild (pato);
+   }
+
+   function trazoImage2svg (svgEle, px, py, pathStyle, imageSource)
+   {
+      //<svg>
+      //
+      //   <image x="20" y="20" width="256" height="256" opacity="0.5" href="tiles/14/7813/5985.png" />
+      //   <image x="236" y="20" width="256" height="256" href="tiles/13/3906/2992.png" />
+      //
+      //</svg>
+      var pato = document.createElementNS (SVGNamespace, "image");
+      pato.setAttribute ("x", +(px));
+      pato.setAttribute ("y", +(py));
+      pato.setAttribute ("href", imageSource);
+
+      var estilos = parse2DStyle (pathStyle);
+      for (var ee in estilos)
+         pato.setAttribute (ee, estilos[ee]);
+
+      svgEle.appendChild (pato);
+   }
+
+   function createSvgElement (svgtype, style)
+   {
+      var pato = document.createElementNS (SVGNamespace, svgtype);
+
+      var estilos = parse2DStyle (style);
+      for (var ee in estilos)
+         pato.setAttribute (ee, estilos[ee]);
+      if (!("stroke" in estilos))
+         pato.setAttribute ("stroke", "#000000");
+
+     return pato;
+   }
+
+   function trazoShape2svg (svgEle, forma, px, py, pathStyle, closep, arrp)
    {
       //<svg height="210" width="400">
       //   <path d="M150 0 L75 200 L225 200 Z" />
       //</svg>
 
      // <path d="M 100 350 q 150 -300 300 0" stroke="blue"  stroke-width="5" fill="none" />
-      var pato = document.createElementNS (SVGNamespace, "path");
-
-      pato.setAttribute ("stroke", strkSty||"#000000");
-      pato.setAttribute ("fill", fillSty|| "none");
+      var pato = createSvgElement ("path", pathStyle);
 
       var dstr = [ "M " + px + " " + py + " " ];
 
-      if (form === "jau") {
-         var curv = autoCasteljau (px, py, closep, arrp);
+      if (forma === "jau") {
+         var curv = autoCasteljau (+(px), +(py), closep, arrp);
          curv.computePoints ();
          var cc = curv.getArrayCasteljau ();
 
@@ -559,30 +737,30 @@ function trazos2D ()
             dstr.push (cc[ii] + " " + cc[ii+1] + " " + cc[ii+2] + " " + cc[ii+3] + " " + cc[ii+4] + " " + cc[ii+5] + " ");
       }
       else {
-         if (form === "pol")
+         if (forma === "pol")
             dstr.push (" l ");
-         else if (form == "qua")
+         else if (forma == "qua")
             dstr.push (" q ");
-         else if (form == "cub" || form == "bez")
+         else if (forma == "cub" || forma == "bez")
             dstr.push (" c ");
 
          for (var ii = 0; ii < arrp.length; /**/)
          {
-            if (form === "pol") {
+            if (forma === "pol") {
                dstr.push (arrp[ii] + " " + arrp[ii+1] + " ");
                ii += 2;
             }
-            else if (form == "qua") {
+            else if (forma == "qua") {
                dstr.push (arrp[ii] + " " + arrp[ii+1] + " " + arrp[ii+2] + " " + arrp[ii+3] + " ");
                ii += 4;
             }
-            else if (form == "cub" || form == "bez") {
+            else if (forma == "cub" || forma == "bez") {
                dstr.push (arrp[ii] + " " + arrp[ii+1] + " " + arrp[ii+2] + " " + arrp[ii+3] + " " + arrp[ii+4] + " " + arrp[ii+5] + " ");
                ii += 6;
             }
             else
             {
-               console.log ("ERROR: unknow form " + form + " calling trazoShape!");
+               console.log ("ERROR: unknow form " + forma + " calling trazoShape!");
                break; // error!
             }
          }
@@ -594,7 +772,7 @@ function trazos2D ()
       svgEle.appendChild (pato);
    }
 
-   function drawGrafitti2svg (trazos, svgElem, autoFit)
+   function drawGraffiti2svg (trazos, svgElem, props, restData)
    {
       function makestyle (a) { return a; }
 
@@ -604,7 +782,9 @@ function trazos2D ()
       // add parent element "g" basically for auto-fit transformations
       //
       var gaga = document.createElementNS (SVGNamespace, "g");
-      if (!!autoFit)
+
+      var applyprop = props || { autofit: true };
+      if (applyprop.autofit)
       {
          // example transform:
          //      <g transform="translate(1, 1) scale(2, 2)  rotate(45)"><path>...</path></g>
@@ -616,11 +796,18 @@ function trazos2D ()
          if (svgElem.width && svgElem.width.baseVal) wi = parseInt (svgElem.width.baseVal.value);
          if (svgElem.height && svgElem.height.baseVal) hi = parseInt (svgElem.height.baseVal.value);
 
-         var auto = boundingBoxAndAutoScale (trazos, wi, hi);
-         gaga.setAttribute ("stroke-width", "" + (1.0 / auto.scalex));
+         applyprop = boundingBoxAndAutoScale (trazos, wi, hi);
+      }
+      var hasScaleAndOffsets = "scalex" in applyprop;
+
+      // apply scales and offsets
+      //
+      if (hasScaleAndOffsets)
+      {
+         gaga.setAttribute ("stroke-width", "" + (1.0 / applyprop.scalex));
          gaga.setAttribute ("transform",
-                            " scale     (" + auto.scalex + ", " + auto.scaley + ")" +
-                            " translate (" + auto.offsetx + ", " + auto.offsety + ")");
+                            " scale     (" + applyprop.scalex + ", " + applyprop.scaley + ")" +
+                            " translate (" + applyprop.offsetx + ", " + applyprop.offsety + ")");
       }
       svgElem.appendChild (gaga);
 
@@ -633,16 +820,91 @@ function trazos2D ()
          if (trazos[rr][0] === "defstyle") {
             styles [trazos[rr][1]] = makestyle (trazos[rr][2]);
          }
+         else if (trazos[rr][0] === "gra" || trazos[rr][0] === "graf" || trazos[rr][0] === "graffiti") {
+
+            var graffitiName = trazos[rr][3];
+            var enPila = graffitiPila.indexOf (graffitiName) > -1;
+
+            // "graf", 50, 50, Caballar, 100
+            var graf = restData ? restData[graffitiName]: null;
+            if (graf && !enPila)
+            {
+               var gelo = document.createElementNS (SVGNamespace, "svg");
+               gelo.setAttribute("width",  trazos[rr][4] +  "px");
+               gelo.setAttribute("height", trazos[rr][5]  +  "px");
+               gelo.setAttribute("x", trazos[rr][1] +  "px");
+               gelo.setAttribute("y", trazos[rr][2] +  "px");
+
+               //gelo.setAttribute("preserveAspectRatio", "xMidYMid");
+               //gelo.setAttribute("viewBox", "" + -trazos[rr][1] + " " + -trazos[rr][2] + " " + trazos[rr][4] + " " + trazos[rr][5] + " ");
+
+               // enter recursive call
+               graffitiPila.push (graffitiName);
+               drawGraffiti2svg (graf, gelo, null, restData);
+               graffitiPila.slice (-1, 1); // pop
+
+               gaga.appendChild (gelo);
+            }
+         }
+         else if (trazos[rr][0] === "img") {
+            //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
+            trazoImage2svg (gaga,
+                           trazos[rr][1],
+                           trazos[rr][2],
+                           styles [trazos[rr][3]]|| trazos[rr][3],
+                           trazos[rr][4]);
+         }
+         else if (trazos[rr][0] === "text" || trazos[rr][0] === "txt") {
+            //    [ "text" ,238, 121, "",  "pericollosso" ],
+            trazoText2svg (gaga,
+                           trazos[rr][1],
+                           trazos[rr][2],
+                           styles [trazos[rr][3]]|| trazos[rr][3],
+                           trazos[rr][4]);
+         }
+         else if (trazos[rr][0] === "rect" || trazos[rr][0] === "rec") {
+            //    [ "rect" ,238, 121, "",  dx, dy, rx, ry ],
+            var pato = createSvgElement ("rect", styles [trazos[rr][3]]|| trazos[rr][3]);
+
+            // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+            pato.setAttribute ("x", trazos[rr][1]);
+            pato.setAttribute ("y", trazos[rr][2]);
+            pato.setAttribute ("width",  trazos[rr][4]);
+            pato.setAttribute ("height", trazos[rr][5]);
+            pato.setAttribute ("rx", trazos[rr][6]||0);
+            pato.setAttribute ("ry", trazos[rr][7]||0);
+            gaga.appendChild (pato);
+         }
+         else if (trazos[rr][0] === "circle" || trazos[rr][0] === "cir") {
+            //    [ "circle" ,238, 121, "",  dx, dy, rx, ry ],
+            var pato = createSvgElement ("circle", styles [trazos[rr][3]]|| trazos[rr][3]);
+
+            // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+            pato.setAttribute ("cx", trazos[rr][1]);
+            pato.setAttribute ("cy", trazos[rr][2]);
+            pato.setAttribute ("r", trazos[rr][4]);
+            gaga.appendChild (pato);
+         }
+         else if (trazos[rr][0] === "ellipse" || trazos[rr][0] === "ell") {
+            //    [ "circle" ,238, 121, "",  rx, ry ],
+            var pato = createSvgElement ("ellipse", styles [trazos[rr][3]]|| trazos[rr][3]);
+
+            // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
+            pato.setAttribute ("cx", trazos[rr][1]);
+            pato.setAttribute ("cy", trazos[rr][2]);
+            pato.setAttribute ("rx", trazos[rr][4]);
+            pato.setAttribute ("ry", trazos[rr][5]);
+            gaga.appendChild (pato);
+         }
          else if (trazos[rr][0] === "z" && trazos[rr].length >= 6) {
             // 0   1    2     3      4  5...
             // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
-            // trazoShape2SVG (gaga, form, px, py, fillSty, strkSty, closep, arrp)
+            // trazoShape2SVG (gaga, form, px, py, styleStr, closep, arrp)
             trazoShape2svg (gaga,
                         trazos[rr][4].substring (0, 3),
                         trazos[rr][1],
                         trazos[rr][2],
                         styles [trazos[rr][3]]|| trazos[rr][3],
-                        "#000000",
                         trazos[rr][4].length > 3 && trazos[rr][4].substring(3) == 'z',
                         trazos[rr].slice (5));
          }
@@ -653,7 +915,7 @@ function trazos2D ()
    // and if the data <"id" graffiti> is found then
    // set an svg or a canvas if svg is not supported and draw the graffiti
    //
-   function renderClassGraffiti (uData)
+   function renderClassGraffiti (uData, scalesAndOffsets)
    {
       var supportSVG = !!window.SVGSVGElement;
       // supportSVG = false;
@@ -662,10 +924,8 @@ function trazos2D ()
       //
       //NOT! var arr = document.getElementsByClassName ("graffiti");
       var arr = [].slice.call(document.getElementsByClassName('graffiti'), 0);
-      var gele;
-      var grafo = "";
       for (var indx in arr) {
-         grafo = arr[indx].id + " graffiti";
+         var grafo = arr[indx].id + " graffiti";
          if (!uData [grafo]) continue;
 
          var styW = parseInt(arr[indx].style.width||DEFAULT_GRAPH_DX);
@@ -674,16 +934,16 @@ function trazos2D ()
          // create new html element svg or canvas
          // NOTE!!! create svg with special NS method!!
          //
-         gele = (supportSVG) ? document.createElementNS (SVGNamespace, "svg"):
+         var gele = (supportSVG) ? document.createElementNS (SVGNamespace, "svg"):
                                document.createElement ("canvas");
 
          gele.setAttribute("width", styW +  "px");
          gele.setAttribute("height", styH +  "px");
 
          if (supportSVG)
-            drawGrafitti2svg (uData [grafo], gele, true);
+            drawGraffiti2svg (uData [grafo], gele, scalesAndOffsets, uData);
          else
-            drawGrafitti2canvas (uData [grafo], gele, true);
+            drawGraffiti2canvas (uData [grafo], gele, scalesAndOffsets);
 
          // remove previous if any and add the new one
          while (arr[indx].hasChildNodes())
@@ -693,29 +953,28 @@ function trazos2D ()
       }
    }
 
-   function renderCanvasGraffitis (uData)
+   function renderCanvasGraffitis (uData, scalesAndOffsets)
    {
       // render all canvas graffitis
       //
       var arr = [].slice.call(document.getElementsByTagName('canvas'), 0);
-      var grafo = "";
       for (var indx in arr) {
-         grafo = arr[indx].id + " graffiti";
+         var grafo = arr[indx].id + " graffiti";
          if (uData [grafo])
-            drawGrafitti2canvas (uData [grafo], arr[indx], true);
+            drawGraffiti2canvas (uData [grafo], arr[indx], scalesAndOffsets);
       }
    }
 
-   function renderSvgGraffitis (uData)
+   function renderSvgGraffitis (uData, scalesAndOffsets)
    {
       // render all svg graffitis
       //
       var arr = [].slice.call(document.getElementsByTagNameNS (SVGNamespace, "svg"));
       for (var indx in arr)
       {
-         grafo = arr[indx].id + " graffiti";
+         var grafo = arr[indx].id + " graffiti";
          if (uData [grafo])
-            drawGrafitti2svg (uData [grafo], arr[indx], true);
+            drawGraffiti2svg (uData [grafo], arr[indx], scalesAndOffsets, uData);
       }
    }
 };

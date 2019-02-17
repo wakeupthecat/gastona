@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2018 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -24,7 +24,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
    // load a complete set of layouts to be composed or switched
    //
-   var managr = layoutManager (evaFile ("#layouts#\n <layout1> Evalayout...."));
+   var managr = layoutManager (evaFile ("#layouts#\n <layout1> Evalayout...."), zWidgets);
 
    // select a specific layout, if the function is not called the name "main" is assumed
    managr.setLayout ("layout3");
@@ -38,14 +38,12 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
    managr.maskLayoutId ("button1", "combo4");
 
 */
-function layoutManager (evaObj, callbackAddWidget)
+function layoutManager (evaObj, zWidgets)
 {
    "use strict";
-   var DBG_VERBOSE = false;
    var guiLayouts,
        guiConfig,
        changeInWidgets,
-       callbAddWidget = callbackAddWidget || function (ele) { console.log ("adding widget id [" + ele + "]"); },
        maskMap = {},
        layoutStack = [],
        layoutElemBag = {},
@@ -106,20 +104,7 @@ function layoutManager (evaObj, callbackAddWidget)
    //
    function createLayableWidget (wname, oRect)
    {
-      // try to estimate default size (height & width) for the element
-      //
-      var ele = document.getElementById(wname);
-      if (ele && !oRect)
-      {
-         var height = (ele.offsetHeight + 1);
-         var width  = (ele.offsetWidth + 1);
-
-         if (DBG_VERBOSE)
-            console.log ("element " + wname + " content[" + ele.innerHTML + "] estimates " + width + " x " + height);
-
-         if (height > 1)
-            oRect = { left: 0, right: width * 1.2, top: 0, bottom: height * 1.2 };
-      }
+      oRect = zWidgets.defaultSize4widget (wname, oRect);
 
       return {
          // general layable info (it could be a basis prototype)
@@ -138,29 +123,8 @@ function layoutManager (evaObj, callbackAddWidget)
          // specific for widget (html widget)
          //
          isWidget  : true,
-         doMove : function (x, y, dx, dy)
-         {
-            var ele = document.getElementById(wname);
-            if (ele)
-            {
-               ele.style.position = "absolute";
-               ele.style.left   = Math.round(x) + "px";
-               ele.style.top    = Math.round(y) + "px";
-               ele.style.width  = Math.round(dx) + "px";
-               ele.style.height = Math.round(dy) + "px";
-            }
-            else console.log ("ERROR expected html element " + wname + " not found!");
-         },
-
-         doShow : function (bShow) {
-               var elm = document.getElementById(wname);
-               if(elm)
-               {
-                  //don't work on IE ... sometimes ???
-                  //elm.style.display = bShow ? "inline-block" : "none";
-                  elm.style.visibility = bShow ? "visible" : "hidden";
-               }
-            }
+         doMove : function (x, y, dx, dy)      {  zWidgets.doMoveWidget (wname, x, y, dx, dy);  },
+         doShow : function (bShow)             {  zWidgets.doShowWidget (wname, bShow); }
       };
    }
 
@@ -198,9 +162,12 @@ function layoutManager (evaObj, callbackAddWidget)
 
    function unmaskElement (masked)
    {
+      if (! maskMap[masked]) return false;
+
       maskMap[masked] = undefined;
       changeInWidgets = true;
       invalidateAll ();
+      return true;
    }
 
    // basically return the proper name according to the mask state
@@ -330,7 +297,7 @@ function layoutManager (evaObj, callbackAddWidget)
                   // widget id candidate .. check if it is not a layout id
                   if (! layoutElemBag[ele])
                   {
-                     callbAddWidget (ele);
+                     zWidgets.addWidget (ele);
                      layoutElemBag[ele] = createLayableWidget (ele);  // +++ collect "layeables" widget ids
                   }
                }

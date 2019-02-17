@@ -1,0 +1,106 @@
+#listix#
+
+   <setMaxDepth>
+      LOOP, SQL,, //SELECT MAX(formatStackDepth) AS maxDepth FROM logCustom_listix_flow
+          ,, VAR=, maxima, @<maxDepth>
+
+   <setCost>
+      LOOP, SQL,, //SELECT message AS cost FROM logMessages WHERE clientID=0 AND context = "estimatedStoreLogCost"
+          ,, VAR=, logCost, @<cost>
+
+   <! TEXT TEXT TEXT TEXT TEXT TEXT TEXT TEXT
+
+   <report listix_flow text>
+      LSX, setMaxDepth
+      // Informes acercas de actividades listix
+      //
+      //
+      LOOP, SQL,, //SELECT * FROM logCustom_listix_flow WHERE message = 'format' AND message <> 'formatEnd'
+           ,, LOOP, FOR, ii, 0, @<formatStackDepth>
+           ,,     , LINK, ""
+           ,,     ,, //"    "
+           ,, //<@<value>>
+
+   <! HTML HTML HTML HTML HTML HTML HTML HTML
+
+   <report listix_flow html>
+      //<html>
+      //    <body>
+      @<table listix flow>
+      //    </body>
+      //</html>
+
+   <report mixer html>
+      //<html>
+      //    <body>
+      @<table mixa>
+      //    </body>
+      //</html>
+      
+   <table listix flow>
+      LSX, setCost
+      LSX, setMaxDepth
+
+      //       <table border="1">
+      //          <tr><td>milliStamp<td>estimatedTime@<depthsLabels><td>Debug output</tr>
+      LOOP, SQL,, //SELECT * FROM logCustom_listix_flow WHERE message = 'format'
+          ,, //          <tr>@<coloca value></tr>
+      //       </table>
+
+
+   <table mixa>
+      LSX, setCost
+      LSX, setMaxDepth
+
+      //       <table border="1">
+      //          <tr><td>milliStamp<td>estimatedTime@<depthsLabels><td>Debug output</tr>
+      LOOP, SQL,, @<ditabla sql>
+          ,, //       <tr>
+          ,, //          @<entraTabla>
+          ,, WHILE SAME, KIND
+          ,,     ,, //@<contents>
+          ,, //       </tr>
+      //       </table>
+
+
+   <entraTabla>
+      IN CASE, @<KIND>
+             , "listixflow", //     <table border="1">   <tr><td>milliStamp<td>estimatedTime@<depthsLabels><td>Debug output</tr>
+             , "dbgMsg"    , //     <table border="1">   <tr><td>level<td>Debug output</tr>
+             , ELSE        , //     <table> ??
+
+
+   <contents>
+      VAR=, value, @<dataStr>
+      IN CASE, @<KIND>
+             , "listixflow", //     <tr>@<coloca value></tr>
+             , "dbgMsg"    , //     <tr><td>@<level><td>@<dataStr></tr>
+             , ELSE        , //     <tr> <td>??</tr>
+
+
+   <ditabla sql>
+      //SELECT "listixflow" AS KIND, msgCounter, milliStamp, value AS dataStr, formatStackDepth, level FROM logCustom_listix_flow WHERE message='format'
+      //UNION
+      //  SELECT "dbgMsg" AS KIND, msgCounter, milliStamp, message AS dataStr, "-" AS formatStackDepth, level FROM logMessages WHERE level+0 > @<maxLevel>
+      //ORDER BY msgCounter
+      //
+
+   <depthsLabels>
+      LOOP, FOR, ii, 1, @<maxima>
+          ,, //<td>Depth @<ii>
+
+   <coloca value>
+      //<td>@<milliStamp><td>@<estimatedRealTime>
+      LOOP, FOR, ii, 1, @<thisDepth>
+          ,, //<td>
+      @<value>
+      //
+      LOOP, FOR, ii, @<nextDepth>, @<maxima>
+         ,, //<td>&nbsp
+
+   <thisDepth> =, formatStackDepth
+   <nextDepth> =, formatStackDepth + 1
+
+   <seconds>   =, milliStamp / 1000.
+
+   <estimatedRealTime>  =, (milliStamp - (msgCounter - 10000) * logCost) / 1000.

@@ -44,7 +44,7 @@
 
    <-- kAllowUploadFile>
        CHECK, DIR, filesUpload, GEN, filesUpload/.createdir, void
-       
+
    <-- bSHOW CONNECTION URL>
       -->, oCanso clear
       //try one of these urls in your browser
@@ -69,11 +69,11 @@
 
    <GET />
      //<html>
-     //<style> 
-     //     * { 
-     //         font-family: Tahoma, Consolas, sans-serif;  
-     //         margin-left: 6px;  
-     //         margin-right: 6px; 
+     //<style>
+     //     * {
+     //         font-family: Tahoma, Consolas, sans-serif;
+     //         margin-left: 6px;
+     //         margin-right: 6px;
      //     }
      //</style>
      //<body>
@@ -85,9 +85,9 @@
      //
      LOOP, DIRS, @<eCurrentDir>
          , RECURSIVE, 0
-         ,, // <tr> 
+         ,, // <tr>
          ,, //    <td> <a href="/setdir?dir=@<fullPath>"> @<ICO_CARP> </a>
-         ,, //    <td>  @<fileName> 
+         ,, //    <td>  @<fileName>
          ,, //    <td>
          ,, // </tr>
      //
@@ -95,7 +95,7 @@
          , RECURSIVE, 0
          ,, // <tr>
          ,, //     <td> <a href="@<FS>/@<:linux-path fullPath>"> @<ICO_FILE> </a>
-         ,, //     <td> @<fileName> 
+         ,, //     <td> @<fileName>
          ,, //     <td align="right"> @<TAMA>
          ,, // </tr>
      //
@@ -153,19 +153,19 @@
       //   if (num == 0) return "0 " + units[0];
       //   var ndig = Math.min (units.length-1, Math.floor (1 + Math.log10((num < 0 ? -num: num)/1024)/3));
       //   return Math.round (num * Math.pow(1024, - ndig)) + " " + units [ndig];
-      //} 
+      //}
       //
       //bytes2Str (@<size>);
-      
+
    <HTML_uploadStuff>
       //   <br><br><input id="upInput" type="file"></input>
       //   <br><br><button id="upButton" onclick="uploadIt ()" >Upload choosen file</button>
 
    <JS_uploadStuff>
      //@<:infile META-GASTONA/js/jGastona.js>
-     // 
+     //
      //     var luix = jGastona (); // for using AJAXUploadFile
-     // 
+     //
      //     function setUploadingFeedback (isUploading)
      //     {
      //        var boton = document.getElementById ("upButton");
@@ -177,7 +177,7 @@
      //     {
      //        var fileEle = document.getElementById ("upInput").files[0]; // we only upload 1 file!
      //        var upBtn = document.getElementById ("upButton");
-     //        
+     //
      //        if (! fileEle || fileEle === "") {
      //            alert ("Please first choose a file!");
      //            return;
@@ -185,7 +185,7 @@
      //        setUploadingFeedback (true);
      //        luix.AJAXUploadFile ("upInput", "uploadFile", null, function (bodyTxt) { setUploadingFeedback (false); } );
      //    }
-   
+
 
    <graffiti data>
       //

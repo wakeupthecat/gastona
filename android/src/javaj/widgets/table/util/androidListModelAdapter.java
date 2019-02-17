@@ -102,8 +102,8 @@ public class androidListModelAdapter implements ListAdapter
 
       for (int ii = 0; ii < visibleColArray.length; ii ++)
       {
-         int realCol = tabletaVisible.getColumnIndex (visibleColArray[ii]);
-         value += ((ii > 0) ? ", ": "") + tabletaVisible.getValue (row, realCol);
+         int realCol = tabletaReal.getColumnIndex (visibleColArray[ii]);
+         value += ((ii > 0) ? ", ": "") + tabletaReal.getValue (row, realCol);
       }
 
       //widgetLogger.log ().dbg (4, "androidListModelAdapter::getItem", "me askean " + row + "[" + value + "]");

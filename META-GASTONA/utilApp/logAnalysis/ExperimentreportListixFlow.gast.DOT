@@ -1,0 +1,50 @@
+digraph osoa
+{
+   main -> reportXlistix_flowXhtml
+   main -> reportXmixerXhtml
+
+   reportXlistix_flowXhtml -> tableXlistixXflow
+   reportXmixerXhtml -> tableXmixa
+   tableXlistixXflow -> asignaCost
+   tableXlistixXflow -> asignaMax
+   tableXlistixXflow -> depthsLabels
+   
+   tableXmixa -> asignaCost
+   tableXmixa -> asignaMax
+   tableXmixa -> setablea 
+   
+   setablea -> entraTabla
+   setablea -> contents
+   
+   entraTabla -> KIND
+   entraTabla -> depthsLabels
+   
+   contents -> dataStr
+   contents -> colocaXvalue
+   contents -> level
+
+   ditablaXsql -> maxLevel
+
+   asignaMax  ->  maxDepth
+   asignaCost ->  cost
+
+
+   depthsLabels -> maxima
+
+
+   colocaXvalue -> milliStamp
+   colocaXvalue -> estimatedRealTime
+   colocaXvalue -> thisDepth
+   colocaXvalue -> value
+   colocaXvalue -> nextDepth
+   colocaXvalue -> maxima
+
+   thisDepth -> formatStackDepth
+   nextDepth -> formatStackDepth
+
+   seconds  -> milliStamp
+
+   estimatedRealTime -> milliStamp msgCounter logCost
+}
+
+

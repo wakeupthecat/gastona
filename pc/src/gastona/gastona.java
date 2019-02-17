@@ -650,10 +650,10 @@ public class gastona
 //            fi.delete ();
 
          //try to copy log helper (viewer)
-         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/logViewer.gast", sessionLogDirSlash + "logViewer.gast");
-         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowPlain.gast", sessionLogDirSlash + "showFlowPlain.gast");
-         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/showFlowCanvas.gast", sessionLogDirSlash + "showFlowCanvas.gast");
-         microToolInstaller.copyFileFromJar (null, "META-GASTONA/utilApp/logAnalysis/listix2Dot.gast", sessionLogDirSlash + "listix2Dot.gast");
+         fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/logViewer.gast", sessionLogDirSlash + "logViewer.gast");
+         fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/showFlowPlain.gast", sessionLogDirSlash + "showFlowPlain.gast");
+         fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/showFlowCanvas.gast", sessionLogDirSlash + "showFlowCanvas.gast");
+         fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/listix2Dot.gast", sessionLogDirSlash + "listix2Dot.gast");
       }
 
       loadMetadata ();
@@ -743,7 +743,7 @@ public class gastona
    {
       javax.swing.JOptionPane.showMessageDialog (
             null,
-            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2017\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
+            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2018\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
             "About",
             javax.swing.JOptionPane.INFORMATION_MESSAGE);
    }

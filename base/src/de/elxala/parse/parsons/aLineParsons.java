@@ -50,7 +50,34 @@ import de.elxala.zServices.*;
                     ":keep" can be implemented in a higher level (cmdParsons) using an agent table (master)
                     old value is thought for delta-records but delta-records has to be done of filtered tables, thus
                     this delta built while parsing hardly seems to be useful.
-            
+
+   2019.02.16 15:20 preparation for supporting smooth header values
+
+                    Supporting last-record and inclusion of special references to other last-record agents would
+                    be valuable, for instance
+
+                        parsons, ...
+                               , TABLE, header
+                               ,      , orderNr, orderDate, //Ref: (.*) Date: (.*)
+                               , TABLE, lines
+                               ,      , #orderNr, prodId, desc, quantity, price, //   (.*),(.*),(.*),(.*)
+
+                    could benefit from the last orderNr of the table header
+
+                    other syntaxes are possible, for instance
+
+                           #fieldname=agent_tablename.field
+
+                    being more flexible
+                        - handle different names
+                        - be able to specify any field from any agent table
+
+                    First thing to do in aLineParsons to support this syntax is not expecting a capture group for such fields
+
+                    In order to facilitate the implementation all "#" fields have to be found at the beginning of the
+                    field list!
+
+
 */
 public class aLineParsons
 {
@@ -163,8 +190,6 @@ public class aLineParsons
    /**
       <patternFieldMap>
 
-         :keep, :optional, headName, //TITLE: (.*)
-
          fileName   , //FileName: (.*)
          time       , //Timestamp: (.*)
          Camera     , //Camera: (.*)
@@ -172,12 +197,6 @@ public class aLineParsons
 
          shutter, units, //Shutter: (.*) (.*)
 
-
-
-      where
-         :keep     => the field value will kept, not reset on each new record
-         :optional => the field is optional, might or might not appear
-                      (policy ? if it does not appear .. NULL or empty string ?)
 
    */
    public boolean init ()
@@ -267,6 +286,9 @@ public class aLineParsons
          for (int cc = 0; cc < patternMap.cols (ii) - 1; cc ++)
          {
             String fname = patternMap.getValue (ii, cc);
+
+            if (fname.length () == 0) continue;
+            if (fname.charAt(0) == '#') continue; // support of "#" fields that are not actually in the pattern
 
             fieldType fi = new fieldType (fname);
 
@@ -456,18 +478,21 @@ public class aLineParsons
          }
          else
          {
+            int sta = matcher.start(ii);
+            int end = matcher.end(ii);
+            String grapo = matcher.group(ii);
             log.dbg (7, "machado", " index = " + ii + " row = " + row + " offset = " + offset +
                         " item (" + matcher.start(ii) + " to " + matcher.end(ii) + ")" );
             currentRecord[offset + ii - 1].value = matcher.group(ii);
 
             // NOTE: See documentation of Matcher.start (int)
-            //       return value : The index of the first character captured by the group, or -1 if the match was successful but "The index of the first character captured by the group, or -1 if the match was successful but the group itself did not match anything 
+            //       return value : The index of the first character captured by the group, or -1 if the match was successful but "The index of the first character captured by the group, or -1 if the match was successful but the group itself did not match anything
             //       ? "the group itself did not match anything" ?
             //       parece que no matcha!
             //if (matcher.start(ii) == -1)
             //{
             //   log.err ("machado", "pattern matches but group with no containt");
-            //}            
+            //}
 
          }
       }

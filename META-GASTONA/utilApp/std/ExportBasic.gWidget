@@ -1,0 +1,121 @@
+
+   2018.01.01
+   On developing phase!
+   Example of defining a gastona widget (not complete)
+
+
+#interface#
+
+   <! message     : text to be used for the input message "instance-comptype message"
+   <! description : description of the message
+   <! param1      : parameter1
+   <! descparam1  : description of parameter1
+   <! ...
+   <inputMessages>
+      setTableWidget  , "Set the widget to be associated with the export", gridName, Table component having attributes sqlSelect and sqlExtraFilter, dbName, Database of the table component
+      setAutoOpenFile , "Switch to open the file automatically after exporting it (default true)", autoOpen, "Set to false if not desire the automatic open"
+      setBaseName     , "Base path name for the exported file", basePath, "Base path, if not set the file will be a temporary one"
+
+   <outMessages>
+      fileExported, "A file has been exported", fileName, "Exported file name"
+
+
+#javaj#
+
+   <layout of main>
+        EVA, 5, 5, 5, 5
+
+           ,  X
+           , eColumnTemplate, rgExportType, bExport
+
+#data#
+
+   <rgExportType orientation> X
+   <rgExportType>
+      label  , ext , separ, preRow, postRow, head, tail
+
+      Html   , html, "<td>", "<tr><td>", "</tr>", @<ExportBasic headHtml>, @<ExportBasic tailHtml>
+      CSV    , csv , """, """, """", """"
+      Excel  , xls , @<TAB>
+      Text   , txt , ", "
+
+   <TAB> @<:hex 09>
+
+#listix#
+
+   <-- rgExportType>
+      LSX, ExportBasic showFields
+
+   <-- bExport>
+      LSX, ExportBasic doExport
+
+
+      <! trigger interface output message (options ...)
+      -->, @<I>-ExportBasic fileExported
+      INTERFACE MESSAGE, fileExported
+      I-->, fileExported
+
+      CHECK, ==, 1, @<AutoOpenFile>
+      OPEN, @<ExportBasic fileName>
+
+   <ExportBasic set (gridName dbName)>
+      VAR=, ExportBasic gridName, @<p1>
+      VAR=, ExportBasic gridDBName, @<p2>
+      -->, rgExportType select!, #, 0
+      LSX, ExportBasic showFields
+
+
+   <ExportBasic sql base>
+      LSX, @<ExportBasic gridName> sqlSelect
+
+   <ExportBasic sql complete>
+      //SELECT * FROM (@<ExportBasic sql base>)
+      CHECK, VAR, @<ExportBasic gridName> sqlExtraFilter
+      " "
+      LSX, @<ExportBasic gridName> sqlExtraFilter
+
+   <ExportBasic showFields>
+      -->, eColumnTemplate data!,, @<ExportBasic showFields.gen>
+
+   <ExportBasic showFields.gen>
+      LOOP, SQL, @<ExportBasic gridDBName>, SELECT * FROM (@<ExportBasic sql base>) LIMIT 1
+          ,, LOOP, COLUMNS
+          ,,     , LINK, @<rgExportType selected.separ>
+          ,,     ,, @<@><@<columnName>>
+
+   <ExportBasic create temp>
+      LSX, :lsx tmp @<rgExportType selected.ext>
+
+   <ExportBasic doExport>
+      VAR=, ExportBasic fileName, @<ExportBasic create temp>
+      GENERATE, @<ExportBasic fileName>, ExportBasic formatGen
+
+   <ExportBasic formatGen>
+      @<rgExportType selected.head>
+      LOOP, SQL, @<ExportBasic gridDBName>, @<ExportBasic sql complete>
+          , HEAD, LSX, ExportBasic columNames
+          ,, @<rgExportType selected.preRow>@<eColumnTemplate>@<rgExportType selected.postRow>
+          , TAIL, @<rgExportType selected.tail>
+
+   <ExportBasic columNames>
+      LSX, rgExportType selected.preRow
+      LOOP, COLUMNS
+          , LINK, @<rgExportType selected.separ>
+          ,, @<columnName>
+      LSX, rgExportType selected.postRow
+      //
+      //
+
+   <ExportBasic headHtml>
+      //<html>
+      //
+      //   <table border="1" cellspacing="0" cellpadding="6" bordercolor=gray>
+      //
+
+   <ExportBasic tailHtml>
+      //
+      //   </table>
+      //</html>
+      //
+
+#**#

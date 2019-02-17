@@ -81,7 +81,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
             1, LINE BREAK     , 0 / 1            , 1     , If set to 0 it returns a string with no line breaks
             1, DEEP COL HEADER, 0 / 1            , 0     , If set to 1 headers are expected in the first row of EvaDeepColList (actually the first row will be ignored/skiped)
             1, CONNECTION HEADER, 0 / 1          , 0     , If set to 1 headers are expected in the first row of EvaConnectionList (actually the first row will be ignored/skiped)
-            <!1, EMPTYSQL, sqlselect         , "SELECT """" AS ""no selection""" , 
+            <!1, EMPTYSQL, sqlselect         , "SELECT """" AS ""no selection""" ,
 
             3, CONNECTION     , "connName, sourceTable, sourceKey, targetTable, targetKey",, //Conenction given to be stored
 
@@ -219,7 +219,6 @@ public class cmdDBMore implements commandable
          // NOTE: the "order by" selecting connections can be another one but important is that both sourceTable and connName
          //       are included
          //
-
          tableROSelect myRO = new tableROSelect (dbName, "SELECT * FROM " + deepSqlUtil.CONNECTION_TABLE_NAME + " ORDER BY sourceTable, connName;");
          myRO.copyDataToEva(evavar, addHeader, 3000); // no limit?
 

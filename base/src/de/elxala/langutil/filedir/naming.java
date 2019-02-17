@@ -35,11 +35,11 @@ import de.elxala.langutil.*;
 public class naming
 {
    static int UNIQUE_LONNAME_ID = 0;
-   
+
    public static String toVariableName (String text)
    {
       if (text.length () == 0) return "_";
-      return toNameISO_9660Joliet (text.replaceAll (".", "_"));
+      return toNameISO_9660Joliet (text.replaceAll ("\\.", "_"));
    }
 
    // allow array as parameter for static call JAVAJ STATIC

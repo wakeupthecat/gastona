@@ -129,6 +129,7 @@ public class commanderBase
       loadCommandable (new cmdFileutil ());
 
       loadCommandable (new cmdGoRhino ());
+      loadCommandable (new cmdDOC ());
 
       load_specific_commands ();
 

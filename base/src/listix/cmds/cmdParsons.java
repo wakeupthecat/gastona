@@ -751,16 +751,18 @@ public class cmdParsons implements commandable
                      // write record
                      writeRecordOfAgent (ii, that, myDB, fileID);
                      nRecords ++;
-                     if (multiLinePossible && age.hasRemainingLine ())
+                     if (multiLinePossible && !age.isTypeSINGLE_EVA_VALUE() && age.hasRemainingLine ())
                      {
-                        // usually is not the case, but it has to be taken into account!
+                        // NOTE: Variable agents do not consume the line! they just pick their stuff
+                        // other agents are allowed to look for multiple records in the same line
+                        //
                         remLineStr = age.getRemainingLine ();
+                        hasRemainingPart = true;
                         age.consumeRemainingLine ();
-                        hasRemainingPart = true;  // << keep in the loop
                         that.log ().dbg (2, "PARSONS", "doParseFile remaining line [" + remLineStr + "]");
                         //System.out.println ("doParseFile remaining line [" + remLineStr + "]");
                      }
-                     //else remLineStr = ""
+                     //NOT! else remLineStr = "";
 
                      age.consumeRecord ();
                      agents.commonAgent.consumeRecord ();

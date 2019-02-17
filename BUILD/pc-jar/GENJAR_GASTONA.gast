@@ -9,9 +9,9 @@
 #javaj#
 
    <frames>
-         F, Generador de gastona.jar, 700, 600
+         main, Generador de gastona.jar, 700, 600
 
-   <layout of F>
+   <layout of main>
          EVA, 10 , 10, 5, 5
 
          ,               , X
@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.170702 \"Perito Moreno\" 
+   <gastonaVersion>  //1.2.190217 \"parsivalfix-ben\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

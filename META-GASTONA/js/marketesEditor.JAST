@@ -1,0 +1,26 @@
+#javaj#
+
+   <layout of main>
+      Evalayout, 30, 30, 20, 20
+         --- , X          , X2
+           X , xMarketesIn, dMarketesOut
+           X , xHtmlOut   , +
+
+#data#
+
+   <xMarketesIn onkeyup> //mensaka ("refresh");
+   <xMarketesIn>
+      //#h Cabecera
+      //-- Titulo
+      // Hola! escribe algo en marketes!
+      //
+
+#listix#
+
+   <main>
+      //mensaka ("refresh");
+
+   <-- refresh>
+      //var prod = marketes (getDataAsTextArray('xMarketesIn'));
+      //setData ("xHtmlOut", prod);
+      //setData ("dMarketesOut", prod);

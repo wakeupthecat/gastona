@@ -71,7 +71,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName  , parameters       ,  defVal             , desc
 
-         1   , UNIT2LOAD   , nameOfEvaUnit    ,  data|formats|listix, //EvaUnit to be load. Usually not needed, the default value is the same as first parameter ('data', 'formats' or 'listix')
+         1   , UNIT2LOAD   , nameOfEvaUnit    ,  data|formats|listix, //EvaUnit to be load from the file, if not specified it has the same name as the target EvaUnit ('data', 'formats' or 'listix')
          1   , MERGE       , CLEAN/REPLACE/ADD,  REPLACE            , //CLEAN: Clean current before merging, REPLACE: replacing existing Evas, ADD: Adding lines to existing Evas
 
    <examples>
@@ -110,11 +110,11 @@ public class cmdLoadUnit implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      String whatLoad   = cmd.getArg(0);
+      String targetUnit = cmd.getArg(0);
       String fileName   = cmd.getArg(1);
 
       String mergeType  = cmd.takeOptionString ("MERGE"    , "REPLACE");
-      String unitName   = cmd.takeOptionString ("UNIT2LOAD", whatLoad);
+      String unit2Load  = cmd.takeOptionString ("UNIT2LOAD", targetUnit);
 
       // check number of arguments
       if (cmd.getArgSize() != 2)
@@ -126,17 +126,17 @@ public class cmdLoadUnit implements commandable
       // Getting the unit target
       //
       EvaUnit uTarget = null;
-      if (unitName.equals("data"))
+      if (targetUnit.equals("data"))
       {
          uTarget = cmd.getListix ().getGlobalData ();
       }
-      else if (unitName.equals("formats") || unitName.equals("listix"))
+      else if (targetUnit.equals("formats") || targetUnit.equals("listix"))
       {
          uTarget = cmd.getListix ().getGlobalFormats ();
       }
       else
       {
-         cmd.getLog ().err ("LOAD UNIT", "LOAD wrong unit target (first parameter), given \"" + unitName + "\", it should be either 'data', 'formats' or 'listix'");
+         cmd.getLog ().err ("LOAD UNIT", "LOAD wrong unit target (first parameter), given \"" + targetUnit + "\", it should be either 'data', 'formats' or 'listix'");
          return 1;
       }
 
@@ -165,8 +165,8 @@ public class cmdLoadUnit implements commandable
 
       // Getting the unit source (to merge)
       //
-      cmd.getLog ().dbg (2, "LOAD UNIT", "load unit [" + unitName + "] from [" + fileName + "] merge type " + mergeType + " (" + iMergeType + ")");
-      EvaUnit uSource = EvaFile.loadEvaUnit (fileName, unitName);
+      cmd.getLog ().dbg (2, "LOAD UNIT", "load unit [" + unit2Load + "] from [" + fileName + "] merge type " + mergeType + " (" + iMergeType + ")");
+      EvaUnit uSource = EvaFile.loadEvaUnit (fileName, unit2Load);
 
       uTarget.merge (uSource, iMergeType);
 

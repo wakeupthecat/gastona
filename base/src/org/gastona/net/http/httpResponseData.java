@@ -81,7 +81,8 @@ public class httpResponseData
 
       // set headers
       //
-      myHeaderLines = headerLines;
+      if (headerLines != null)
+         myHeaderLines = headerLines;
 
       // is specified contentType set it (replacing any existing!)
       //
@@ -114,7 +115,7 @@ public class httpResponseData
          }
          catch (Exception e) {}
       }
-      
+
       //try {
       //   NavigableMap<String, String> desc = myHeaderLines.descendingMap ();
       //

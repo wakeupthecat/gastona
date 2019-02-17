@@ -1,0 +1,245 @@
+/*
+   //(o) gastonaDoc_source jsLibraries
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    jGastona_jsLibraries
+   <name>       "Libraries js included in Gastona"
+   <groupInfo>
+   <javaClass>
+   <importance> 4
+   <desc>       //Some js libraries out of the box
+
+
+   <help>
+      //Libraries js
+      //-------------------
+      //There is some funny stuff here, take a look at the samples
+      //
+
+   <examples>
+      gastSample
+
+      conSecuencioGraffiti
+      javascriptExecutorBrowser
+      marketesPublisher
+      simple appHelp
+
+
+   <conSecuencioGraffiti>
+      //#data#
+      //
+      //   <diagData>
+      //      //var diagData = {
+      //      //     sequenceTable : [
+      //      //                ["time", "source", "target", "message" ],
+      //      //                [ 0.122, "USER"  , "INTERFACE", "doThisAction" ],
+      //      //                [ 2.234, "INTERFACE", "SERVER", "theAction" ],
+      //      //                [ 3.543, "SERVER", "INTERFACE", "What action?" ],
+      //      //                [ 8.558, "INTERFACE", "USER", "done!" ],
+      //      //            ],
+      //      //      // distanceAgents   : 40,
+      //      //      distanceTimeUnit : 1,
+      //      //      // maxGapTime       : 2,
+      //      //      // autoElapsed      : false,
+      //      //  };
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="1100" height="300" id="Diagrama"></canvas>
+      //      //      <svg width="1100" height="300" id="Diagrama"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trazos2D-min.js>
+      //      //@<:infile META-GASTONA/js/conSecuencioGraffiti.js>
+      //      //
+      //      //@<diagData>
+      //      //
+      //      // var vdata = {
+      //      //      "Diagrama graffiti": conSecuencioGraffiti (diagData)
+      //      // };
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      trazos2D ().renderSvgGraffitis (vdata);
+      //      //      trazos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+
+   <javascriptExecutorBrowser>
+      //#javaj#
+      //
+      //   <frames> main, Javascript Executor
+      //
+      //   <layout of main>
+      //      EVA, 3, 3, 2, 2
+      //
+      //         , X
+      //         , lEnter your javascript code
+      //       X , xCodeArea
+      //         , bEjecute
+      //         , lSalida
+      //       X , xBodyResponse
+      //      <! X , oSalar
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //   <xCodeArea>
+      //      //
+      //      //function encript (t1, t2)
+      //      //{
+      //      //   return t2 + t1;
+      //      //}
+      //      //
+      //      //out ("output of this function is ... " + encript ("TheCat", "WakeUp"));
+      //      //
+      //
+      //#listix#
+      //
+      //   <-- bEjecute>
+      //      MSG, lSalida data!,, Opening browser ...
+      //      MICO, start, Servako
+      //
+      //   <elapsed>
+      //      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
+      //
+      //   <GET />
+      //      VAR=, USER CODE, LSX, xCodeArea
+      //      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
+      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
+      //
+      //   <POST /JSresponse>
+      //      MICO, stop, Servako
+      //      MSG, lSalida data!,, //done, it took @<elapsed> seconds
+      //      -->, xBodyResponse load, @<_bodyMemFileName>
+
+   <marketesPublisher>
+      //#javaj#
+      //
+      //   <frames> main, Marketes editor
+      //
+      //   <layout of main>
+      //      EVA, 4, 4, 3, 3
+      //
+      //          , X
+      //          , lArticle in marketes format
+      //        X , xArticle
+      //          , bPublish
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //   <theTitle> ARTICLE'S TITLE
+      //
+      //   <xArticle>
+      //      //#h Article header
+      //      //-- First chapter
+      //      //
+      //      //Here you can start the writing text
+      //      //
+      //      //New paragraphs are also possible. Now some code
+      //      //
+      //      //      function () {
+      //      //          return null;
+      //      //      }
+      //      //
+      //      //Finally in paragraphs you can use <b><i>html tags</i></b>.
+      //
+      //
+      //#listix#
+      //
+      //   <-- bPublish>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<!DOCTYPE html>
+      //      //<html> <head>
+      //      //      <title>@<theTitle></title>
+      //      //   <style type="text/css">
+      //      //
+      //      @<:infile META-GASTONA/js/marketes.css>
+      //      //
+      //      //   </style></head>
+      //      //<body>
+      //      //
+      //      //   <div id="sitio">  </div>
+      //      //
+      //      //   <script>
+      //      //
+      //      //@<:infile META-GASTONA/js/marketes.js>
+      //      //
+      //      //   var miDoc = "@<:encode-utf8 xArticle>".replace (/\+/g, "%20");
+      //      //
+      //      //   document.getElementById('sitio').innerHTML = marketes (decodeURIComponent (miDoc));
+      //      //
+      //      //</script>
+      //      //
+      //      //</body>
+      //      //</html>
+      //
+      //
+
+   <simple appHelp>
+      //#javaj#
+      //
+      //   <frames> main, Sample of simple help
+      //
+      //   <layout of main>
+      //      EVA, 4, 4, 3, 3
+      //
+      //          , X
+      //          , lArticle in marketes format
+      //          , bHelp me!
+      //
+      //#data#
+      //
+      //   <HELP_VAR>
+      //      '#h Mitool Help
+      //      '-- How to get help
+      //      '
+      //      'Yo can get help by pressing the button "Help me!"
+      //      '
+      //      'See this nice function
+      //      '
+      //      '      function () {
+      //      '          return "Help me!";
+      //      '      }
+      //      '
+      //      'If all this together does not help you always can try to sign
+      //      '
+      //      '      Help! I need somebody,
+      //      '      Help! not just anybody
+      //      '      Help! you know I need someone
+      //      '      ...
+      //
+      //#listix#
+      //
+      //   <-- bHelp me!>
+      //      mico, once
+      //
+      //   <GET />
+      //      //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
+
+
+#**FIN_EVA#
+
+*/

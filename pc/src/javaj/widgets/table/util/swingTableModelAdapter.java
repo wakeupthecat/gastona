@@ -179,10 +179,10 @@ public class swingTableModelAdapter extends AbstractTableModel
       // Now the data of row 'row' is in EBS
 
       // reindex the column index
-      col = tabletaVisible.getColumnIndex (visibleColArray[col]);
+      col = tabletaReal.getColumnIndex (visibleColArray[col]); // <<-- tabletaReal instead of tabletaVisible
       if (col >= 0)
       {
-         String val = tabletaVisible.getValue (row, col);
+         String val = tabletaReal.getValue (row, col); // <<-- tabletaReal instead of tabletaVisible
 
          if (INTENTA_COLUMNAS_NUMERICAS_ATONT)
          {
@@ -194,20 +194,6 @@ public class swingTableModelAdapter extends AbstractTableModel
          }
          return val;
       }
-
-      /*
-         NOTE:
-         This would also currently work:
-
-               // reindex the column index
-               col = tabletaReal.getColumnIndex (visibleColArray[col]);
-               if (col >= 0)
-                  return tabletaReal.getValue (row, col);
-
-         and without the first tabletaReal.getValue (row, 0);
-         but it is preferible to separate the roles clearly
-         for possible future changes in tabletaVisible functionality
-      */
 
       return "";
    }

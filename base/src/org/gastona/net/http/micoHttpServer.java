@@ -1,6 +1,6 @@
 /*
 package org.gastona.net.http
-(c) Copyright 2014 Alejandro Xalabarder Aulet
+(c) Copyright 2014-2018 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -51,6 +51,8 @@ import de.elxala.db.utilEscapeStr;
 */
 public class micoHttpServer extends Thread
 {
+   //:SCENE HTTP_Request | net/micohttp | Describes how MicoHttp process the http requests from clients
+
    private static logger log = new logger (null, "org.gastona.net.http.micoHttpServer", null);
 
    public static int monoInstanceCounter = 0;
@@ -209,11 +211,17 @@ public class micoHttpServer extends Thread
       return theServer != null ? theServer.getLocalPort (): -1;
    }
 
-   public String getCurrentClietnIP ()
+   public String getCurrentClientIP ()
    {
       if (currentClient == null) return null;
       InetAddress iadd = ((InetSocketAddress) currentClient.getRemoteSocketAddress ()).getAddress ();
-      return iadd.getHostAddress ();
+
+      String addIP = iadd.getHostAddress ();
+      // avoid the error
+      // micoHttp: 1510782719940: theOnlyLBINY [0:0:0:0:0:0:0:1]
+      // micoHttp: 1510782719941: currentIP    [127.0.0.1]
+
+      return addIP.equals ("0:0:0:0:0:0:0:1") ? "127.0.0.1": addIP;
    }
 
    public void setResponseHeader (String name, String value)
@@ -298,6 +306,14 @@ public class micoHttpServer extends Thread
          return req.isMethodGET () ? defaultHTML ("with no response for [" + lsxFormat + "]!"): "";
       }
 
+      //:SEQ HTTP_Request | micoHTTP -> 7:PrepareParametersRequest -> buildResponseMethod | Prepare variables with information of the request (e.g. _requestIP etc) for the listix format that will process it
+      //
+      //
+      //    extra variables: _myMicoName, _bodyMemFileName, _requestIP, _uploadedFilesCount and _uploadedFile
+      //    all uri parameters, if any, as variables
+      //    all headers as variables
+      //
+
       // basically we make a listix LOOP where the table is a table of 1 row
       // containing all the parameters and its values and the listix format is given
       // by the uri of the request
@@ -315,7 +331,7 @@ public class micoHttpServer extends Thread
       eparams.setValue (getMemFileName4ReqBody (), 1, col++);
 
       eparams.setValue ("_requestIP", 0, col);
-      eparams.setValue (getCurrentClietnIP (), 1, col++);
+      eparams.setValue (getCurrentClientIP (), 1, col++);
 
       eparams.setValue ("_uploadedFilesCount", 0, col);
       eparams.setValue ("" + req.getUploadedFileCount (), 1, col ++);
@@ -350,6 +366,8 @@ public class micoHttpServer extends Thread
       tableCursorStack tabstack = new tableCursorStack ();
       tabstack.pushTableCursor (new tableCursor (tablePars));
 
+      //:SEQ HTTP_Request | buildResponseMethod -> 8:call_listix_for_response -> micoHTTP | Finally call the listix format to generate the response
+      //
       String MEM_RESP_FILE = ":mem httResponse mono" + monoInstanceNr; // this memory file is used only internally ...
 
       theListixLogic.setNewLineString ("\r\n"); // required for HTTP!
@@ -435,6 +453,14 @@ public class micoHttpServer extends Thread
          {
             out ("closing server ");
             close ();
+
+            // we have to finish the timer, if not it hangs in the timer loop
+            if (closeTimer != null) // it has to
+            {
+               closeTimer.cancel();
+               // need this ?
+               //closeTimer.purge();
+            }
          }
       };
 
@@ -461,6 +487,7 @@ public class micoHttpServer extends Thread
             InputStream inputStream = null;
             OutputStream outputStream = null;
 
+            //:SEQ HTTP_Request | clientHTTP -> 1:requestHTTP -> micoHTTP | Server accepts an http request from a client
             Socket client = theServer.accept ();
             // if any previous close timer was set, cancel it since now we start serving again
             if (closeTimer != null) closeTimer.cancel();
@@ -488,20 +515,21 @@ public class micoHttpServer extends Thread
                if (theOnlyLivingBoyInNY.length () == 0)
                {
                   // very first request => get IP of MONO CLIENT and process the request
-                  theOnlyLivingBoyInNY = getCurrentClietnIP ();
+                  theOnlyLivingBoyInNY = getCurrentClientIP ();
                   out (2, "theOnlyLBINY [" + theOnlyLivingBoyInNY + "]");
                }
-               else if (theOnlyLivingBoyInNY.equals (getCurrentClietnIP ()))
+               else if (theOnlyLivingBoyInNY.equals (getCurrentClientIP ()))
                {
                   // request from the "only client" ... process the request
                }
                else
                {
+                  //:SEQ HTTP_Request | micoHTTP -> 2:caseMonoClient_response -> clientHTTP | We are in mode MONO client and the request does not come from the "ONLY client", therefore empty response
                   // not very first request and not the "only client" so
                   // send reject response and not process the request further
                   out (2, "theOnlyLBINY [" + theOnlyLivingBoyInNY + "]");
-                  out (2, "currentIP    [" + getCurrentClietnIP () + "]");
-                  httpResponseData respa = new httpResponseData (outputStream, PAGE_MONOCLIENT, null, null);
+                  out (2, "currentIP    [" + getCurrentClientIP () + "]");
+                  httpResponseData respa = new httpResponseData (outputStream, reke.isMethodGET () ? PAGE_MONOCLIENT: "", null, null);
                   respa.send ();
                   try { client.close (); } catch (Exception e) {};
                   currentClient = null;
@@ -509,7 +537,7 @@ public class micoHttpServer extends Thread
                }
             }
 
-            out (2, "request accepted from " + getCurrentClietnIP ());
+            out (2, "request accepted from " + getCurrentClientIP ());
 
             httpStreamReader reqReader = new httpStreamReader (inputStream);
             reke.processRequest (reqReader, getResposeStrID (), client, uploadSocketTimeout);
@@ -519,6 +547,7 @@ public class micoHttpServer extends Thread
             //
             if (killable && reke.theUriParameters.get (ACABA_KEY) != null)
             {
+               //:SEQ HTTP_Request | micoHTTP -> 3:caseKillConnecion_response -> clientHTTP | Key request to kill the HTTP session (the server actually)
                httpResponseData respa = new httpResponseData (outputStream, PAGE_ACABADO, null, null);
                respa.send ();
                try { client.close (); } catch (Exception e) {};
@@ -571,6 +600,8 @@ public class micoHttpServer extends Thread
                   }
 
                   out ("want to serve the file [" + file2serve + "]");
+
+                  //:SEQ HTTP_Request | micoHTTP -> 4:caseServeAFile_response -> clientHTTP | Found that it is a GET request and the url corresponds with a given file so serve the file
                   // serving a file
                   respa = new httpResponseData (outputStream,
                                                 file2serve,
@@ -592,6 +623,7 @@ public class micoHttpServer extends Thread
                   }
                   if (zie != null && !zie.isDirectory ())
                   {
+                     //:SEQ HTTP_Request | micoHTTP -> 5:caseFileFromAZip_response -> clientHTTP | Found that it is a GET request and the url corresponds to a zipped file from the configured zip archives
                      out ("want to serve from zip [" + fileNameDecode + "]");
                      // respa = new httpResponseData (outputStream, myZipped2Serve.getInputStream (zie), zie.getSize (), getContentType (reke), responseHeaders);
                      respa = new httpResponseData (outputStream,
@@ -613,12 +645,15 @@ public class micoHttpServer extends Thread
                //      <GET /myreq>
                //         // hello @<name>!
                //
+
+               //:SEQ HTTP_Request | micoHTTP -> 6:ListixBuiltResponse -> buildResponseMethod | The http response will be built dynamically through a listix format
                out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
                // build response using listix
                //
                respa = new httpResponseData (outputStream, buildResponse (reke), null, responseHeaders);
             }
 
+            //:SEQ HTTP_Request | micoHTTP -> 9:sendResponseToClient -> clientHTTP | Send the http response
             out ("sending response");
             respa.send ();
             out ("response sent");

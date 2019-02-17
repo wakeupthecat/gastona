@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005-2015  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2018  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -49,27 +49,46 @@ public class uniFileUtil
    private static String tempDirBase = null;
    public static String getTemporalDirInitial ()
    {
-      // temporal directories with accents (e.g. spanish ...Configuración Local...)
-      // DOES NOT work with sqlite !!!
       // Therefore, temp dir criteria:
       //
-      //    1) if tmp exists then IT IS THE BASE TEMP DIR
-      //    2) if \tmp exists then IT IS THE BASE TEMP DIR !!!
-      //    3) take it from java.io.tmpdir property
       //
       //    after that ALWAYS getCanonical Path and set java.io.tmpdir to the
       //    new path
       //
+      // * In windows we use "\gastona" instead of "\tmp" due to the issues with
+      //   antiviruses willing to check executables in temp directories even if they has been
+      //   scanned once!
+      //
 
       if (tempDirBase != null) return tempDirBase;
-      File fi = new File ("tmp");
-      if (!fi.exists () || !fi.isDirectory ())
-         fi = new File ("/tmp");
-      if (!fi.exists () || !fi.isDirectory ())
-         fi = new File (System.getProperty("java.io.tmpdir", "."));
 
-      try { tempDirBase = fi.getCanonicalPath (); } catch (Exception e) {}
+      File tmpDir = null;
 
+      String explicitTmpDir = System.getProperty(org.gastona.gastonaCtes.PROP_TMP_DIR, null);
+      if (explicitTmpDir != null)
+      {
+         //    1) explicit given temp dir (property gastona.tmp.dir)
+         tmpDir = new File (explicitTmpDir);
+      }
+      else
+      {
+         //    2) if relative ./tmp folder exists then IT IS THE BASE TEMP DIR
+         //    3) if absolute /tmp (or \gastona in windows *) folder exists then IT IS THE BASE TEMP DIR !!!
+         //    4) take it from java.io.tmpdir property
+         tmpDir = new File ("tmp");
+         if (!tmpDir.exists () || !tmpDir.isDirectory ())
+            tmpDir = utilSys.isSysUnix ? new File ("/tmp"): new File ("/gastona");
+         if (!tmpDir.exists () || !tmpDir.isDirectory ())
+            tmpDir = new File (System.getProperty("java.io.tmpdir", "."));
+      }
+
+      try { tempDirBase = tmpDir.getCanonicalPath (); } catch (Exception e) {}
+
+      // check accents and rare characters in temp dir name
+      //
+      // temporal directories with accents (e.g. spanish ...Configuración Local...)
+      // DOES NOT work with sqlite !!!
+      //
       boolean avis = false;
       for (int ii = 0; ii < tempDirBase.length (); ii++)
          if (tempDirBase.charAt (ii) > '~')

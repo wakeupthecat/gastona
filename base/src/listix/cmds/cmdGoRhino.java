@@ -18,7 +18,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
 /*
-   //(o) WelcomeGastona_source_listix_command CGATE
+   //(o) WelcomeGastona_source_listix_command GORHINO
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -159,10 +159,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //var diagData = {
       //      //     sequenceTable : [
       //      //                ["time", "source", "target", "message" ],
-      //      //                [ 0.122, "USER"  , "INTERFACE", "doThisAction" ],
-      //      //                [ 2.234, "INTERFACE", "SERVER", "theAction" ],
-      //      //                [ 3.543, "SERVER", "INTERFACE", "What action?" ],
-      //      //                [ 8.558, "INTERFACE", "USER", "done!" ],
+      //      //                [      , "A=USER", "", ""],
+      //      //                [      , "B=INTERFACE", "", ""],
+      //      //                [      , "C=SERVER", "", ""],
+      //      //                [ 0.122, "A", "B", "doThisAction" ],
+      //      //                [ 2.234, "B", "C", "theAction" ],
+      //      //                [ 3.543, "C", "B", "What action?" ],
+      //      //                [ 8.558, "B", "A", "done!" ],
       //      //            ],
       //      //      // distanceAgents   : 40,
       //      //      distanceTimeUnit : 1,
@@ -346,7 +349,7 @@ public class cmdGoRhino implements commandable
       if (script != null)
       {
          cmd.getLog().dbg (2, "GORHINO", "calling goRhino");
-         result = callSingle (script, cmd.getLog());
+         result = callSingle (script, cmd.getLog(), that);
          cmd.getLog().dbg (2, "GORHINO", "return from calling goRhino, result length = " + result.length ());
       }
       else cmd.getLog().dbg (2, "GORHINO", "no script given, nothing to do");
@@ -375,7 +378,7 @@ public class cmdGoRhino implements commandable
       StringBuffer sal = new StringBuffer ();
 
       for (int ii = 0; ii < jsSource.length; ii ++)
-         sal.append (callSingle (jsSource[ii], org.gastona.commonGastona.log ));
+         sal.append (callSingle (jsSource[ii], org.gastona.commonGastona.log, null ));
 
       return sal.toString ();
    }
@@ -389,7 +392,7 @@ public class cmdGoRhino implements commandable
 
    }
 
-   public static String callSingle (String jsSource, logger log)
+   public static String callSingle (String jsSource, logger log, listix me)
    {
       Context cx = Context.enter ();
       String sal = "";
@@ -403,6 +406,17 @@ public class cmdGoRhino implements commandable
          ScriptableObject.defineClass(scope, de.elxala.langutil.filedir.goFile.class);
          ScriptableObject.defineClass(scope, de.elxala.db.sqlite.goSqlSelect.class);
          ScriptableObject.defineClass(scope, de.elxala.db.sqlite.goSqlRunner.class);
+         //ScriptableObject.defineClass(scope, java.lang.System.class);
+
+         // the power of passing java objects directly!!
+         // a js rhino script can call all java methods of them!
+         // so for example to generate directly listix output can call
+         //    listix.printTextLsx ("blabla");
+         // without having to accumulate the whole string and return it at the end
+         //
+         //scope.put("System", scope, java.lang.System);
+         scope.put("log", scope, me.log());
+         scope.put("listix", scope, me);
 
          Object result = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
          sal = Context.toString(result);
@@ -432,5 +446,100 @@ public class cmdGoRhino implements commandable
          , file error , filename
          , body       , js code
 
+
+
+----- ver ejemplo 3 y 4
+   https://javaranch.com/journal/200607/Scripting.html
+
+   con scope.put le pasamos CUALQUIER objecto java y en js podemos manejarlo, llamar a sus metodos etc!!
+
+
+   === JAVA
+         import java.io.*;
+         import org.mozilla.javascript.*;
+
+         public class Example3 {
+
+             public static void main (String args[]) throws Exception {
+                 try {
+                  // create context
+                  Context cx = Context.enter();
+
+                  // Scriptable represents the script environment
+                     Scriptable scope = cx.initStandardObjects(null);
+
+                  // put a few Java objects into the JavaScript namespace
+                  scope.put("javaNumber", scope, new Integer(42));
+                  scope.put("javaString", scope, "a Java String");
+                  scope.put("systemOut", scope, System.out);
+
+                  // evaluate the script
+                  cx.evaluateReader(scope, new FileReader("scripts"+File.separator+"example3.js"), "example3.js", -1, null);
+
+                  // retrieve the value of 'result'
+                  System.out.println("result = "+scope.get("result", scope));
+               } finally {
+                     // Exit from the context
+                     Context.exit();
+                 }
+             }
+         }
+
+   === JS
+
+      // 'javaNumber', 'javaString' and 'systemOut' are passed in from Java
+
+      systemOut.println(javaString);
+
+      function example3 (x) {
+         return 3 * x + 1;
+      }
+
+      result = example3(javaNumber);
+
+
+----- compilar function
+
+			// a Function is something that can be evaluated with respect to some parameters
+			Function func = cx.compileFunction(scope, functionStr, "example2.js", 0, null);
+         Object result = func.call(cx, scope, null, new Object[] { new Integer(55), new Integer(7) } );
+         double dbl = cx.toNumber(result);
+
+
+   === JS
+
+      function example2 (x, y) {
+         return 3 * x + y;
+      }
+
+
+----- ver ejemplo
+   https://github.com/ianwalter/rhino-stock-example
+
+   Notar el uso de
+      Context.javaToJS(stock, scope);
+      ScriptableObject.putProperty(scope, "stock", wrappedStock);
+
+          Context cx = Context.enter();
+          try {
+              // Initialize the standard objects (Object, Function, etc.). This must be done before scripts can be
+              // executed. The null parameter tells initStandardObjects
+              // to create and return a scope object that we use
+              // in later calls.
+              Scriptable scope = cx.initStandardObjects();
+
+              // Pass the Stock Java object to the JavaScript context
+              Object wrappedStock = Context.javaToJS(stock, scope);
+              ScriptableObject.putProperty(scope, "stock", wrappedStock);
+
+              // Execute the script
+              cx.evaluateString(scope, evaluationScript, "EvaluationScript", 1, null);
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              // Exit the Context. This removes the association between the Context and the current thread and is an
+              // essential cleanup action. There should be a call to exit for every call to enter.
+              Context.exit();
+          }
 
 */

@@ -1,34 +1,36 @@
 /**
  * marketes - a marketes format parser
- * Copyright (c) 2015, Alejandro Xalabarder (MIT Licensed)
+ * Copyright (c) 2015-2018 Alejandro Xalabarder (MIT Licensed)
  */
-
-// uses fileStr (file)
+ 
+//   Convert a marketes text into formated html
+// 
+//   Example to convert a text given in the text area 'myTextArea'
+// 
+//   var str = document.getElementById('myTextArea').value;
+//   var productoHtml = marketes(str);
+//   document.getElementById('myDiv').innerHTML = productoHtml;
 //
 
 function marketes (filo)
 {
    "use strict";
-   var fileOb,
-       textHtml = "",
-       linstr = "",
-       openedTag = "",
-       isemptyLine = false,
-       acumRt = ""
-       ;
+   var textHtml = "";
+   var out = [];
+   var openedTag = "";
+   var acumRt = "";
 
-   // trim for IE8
-   if (typeof String.prototype.trim !== 'function') {
-      String.prototype.trim = function() {
-         return this.replace(/^\s+|\s+$/g, '');
-      }
-   }
 
-   fileOb = fileStr (filo);
+   // trim also for IE8
+   function trimStr (str) { return str.replace(/^\s+|\s+$/g, ''); }
+   
+   function str2lineArray (str) { return str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); }
 
-   while (! fileOb.eof ())
+   var fileArr = (typeof filo == "string" ? str2lineArray (filo): filo);
+
+   for (var ii in fileArr)
    {
-      linstr = fileOb.getLine ();
+      var linstr = fileArr[ii];
 
       if (checkSpecial ("#h ", "header")) continue;
       if (checkHeader (1)) continue;
@@ -36,31 +38,34 @@ function marketes (filo)
       if (checkHeader (3)) continue;
       if (checkHeader (4)) continue;
 
-      isemptyLine = (linstr.trim ().length === 0);
-      if (isemptyLine)
+      if (! trimStr (linstr))
       {
+         // empty line
          if (openedTag === "code")
+         {
+            // if after all empty lines we continue with code we have to accumulate returns
             acumRt += "\n";
-         else
-            openTag ();
+         }
+         else openTag ();
       }
       else
       {
          if (linstr.indexOf ("    ") == 0)
          {
             openTag ("code");
-            textHtml += acumRt + escapeHtml (linstr.substr (4)) + "\n";
+            out.push (textHtml + acumRt + escapeHtml (linstr.substr (4)));
             acumRt = "";
          }
          else
          {
             openTag ("p");
-            textHtml += linstr + "\n";;
+            out.push (textHtml + linstr);
          }
+         textHtml = "";
       }
    }
 
-   return textHtml;
+   return out.join ("\n") + textHtml;
    // ........................ return
 
 
@@ -127,52 +132,5 @@ function marketes (filo)
          return true;
       }
       return false;
-   }
-}
-
-
-/**
- * fileStr - split lines from a text file given as string handling all possible combinations of CR and LF characters
- * Copyright (c) 2015, Alejandro Xalabarder (MIT Licensed)
- */
-
-//// use
-// var textal = fileStr (strfilo);
-// while (! textal.eof ())
-//    out (textal.getLine ());
-//
-function fileStr (strcontent)
-{
-   var textArr = strcontent.split("\n");
-   var indx = 0, restales = "", au, resp;
-
-   return {
-      eof : eof,
-      getLine : getLine,
-      rewind : indx = 0,
-      getCountLines : function () { return textArr.length; }
-   };
-
-   function eof ()
-   {
-      return indx >= textArr.length && restales.length == 0;
-   }
-
-   function getLine ()
-   {
-      if (eof ()) return;
-      if (restales.length == "")
-         restales = textArr[indx ++];
-
-      au = restales.indexOf("\r");
-      if (au >= 0)
-      {
-         resp = restales.substr(0,au);
-         restales = restales.substr(au+1);
-         return resp;
-      }
-      resp = restales;
-      restales = "";
-      return resp;
    }
 }

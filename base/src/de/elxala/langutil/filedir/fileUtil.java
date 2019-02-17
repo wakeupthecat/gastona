@@ -590,36 +590,126 @@ public class fileUtil
       return fileName.indexOf ("://") >= 0;
    }
 
-   public static void main (String [] aa)
+   public static boolean moveFile (String fromFullPath, String toFullPath)
    {
-      //java -cp C:\Xcachito\celtabuild de.elxala.langutil.filedir.fileUtil
-      if (aa.length > 0)
-      {
-         System.out.println (resolveRelativePointsInPath (aa[0]));
-         return;
-      }
-      System.out.println (resolveRelativePointsInPath ("."));
-      System.out.println (resolveRelativePointsInPath ("./"));
-      System.out.println (resolveRelativePointsInPath ("./a"));
-      System.out.println (resolveRelativePointsInPath ("./aa"));
-      System.out.println (resolveRelativePointsInPath ("/."));
-      System.out.println (resolveRelativePointsInPath ("/./a"));
-      System.out.println (resolveRelativePointsInPath ("/./aa"));
-      System.out.println (resolveRelativePointsInPath ("/a/."));
-      System.out.println (resolveRelativePointsInPath ("/aa/."));
-      System.out.println (resolveRelativePointsInPath ("/aa/./bb"));
+      log.dbg (4, "moveFile", "from \"" + fromFullPath + "\" to \"" + toFullPath + "\"");
 
-      System.out.println (resolveRelativePointsInPath (".."));
-      System.out.println (resolveRelativePointsInPath ("../"));
-      System.out.println (resolveRelativePointsInPath ("../a"));
-      System.out.println (resolveRelativePointsInPath ("../aa"));
-      System.out.println (resolveRelativePointsInPath ("/.."));
-      System.out.println (resolveRelativePointsInPath ("/../a"));
-      System.out.println (resolveRelativePointsInPath ("/../aa"));
-      System.out.println (resolveRelativePointsInPath ("/a/.."));
-      System.out.println (resolveRelativePointsInPath ("/aa/.."));
-      System.out.println (resolveRelativePointsInPath ("/aa/../bb"));
-      System.out.println (resolveRelativePointsInPath ("/aa/.bb/../..cc/dd"));
-      System.out.println (resolveRelativePointsInPath ("/o/.si/./nooooo/no2no2/../.././vale/./ok/NO/.."));
+      if (copyFile (fromFullPath, toFullPath, false))
+      {
+         File src = new File (fromFullPath);
+         File tgt = new File (toFullPath);
+
+         if (src != null && src.exists() && src.isFile() &&
+             tgt != null && tgt.exists() && tgt.isFile() &&
+             (tgt.compareTo (src) != 0) &&     // not referencing the same path
+             tgt.length () == src.length ()      // file length are identical
+            )
+            return src.delete ();
+
+         log.err ("moveFile", "could not remove source file successfully " + 
+                              "comp:" + tgt.compareTo (src) + 
+                              " srcLen: " + src.length () + 
+                              " tgtLen: " + tgt.length ());
+         // log.err ("moveFile", "could not remove source file successfully");
+      }
+      else
+      {
+         log.err ("moveFile", "could not copy successfully \"" + fromFullPath + "\" to \"" + toFullPath + "\"");
+      }
+      return false;
    }
+
+   public static boolean copyFile (String fromFullPath, String toFullPath)
+   {
+      return copyFile (fromFullPath, toFullPath, false);
+   }
+
+   // copy source file into target path
+   //    the source file will be search in
+   //      - the file system
+   //      - as java resource (e.g. typically within the jar)
+   //      - as url
+   // in this order
+   //
+   public static boolean copyFile (String fromFullPath, String toFullPath, boolean targetIsTemporary)
+   {
+      log.dbg (4, "copyFile", "from \"" + fromFullPath + "\" to \"" + toFullPath + "\"");
+
+      // TODO: check if fromFullPath and toFullPath refer to the same actual file and return false if so
+
+      // open for read
+      //
+      TextFile srcFile = new TextFile ();
+      if (! srcFile.fopen (fromFullPath, "rb"))
+      {
+         log.err ("copyFile", "Source file \"" + fromFullPath + "\" not found!");
+         return false;
+      }
+
+      // ensure target directories
+      //
+      fileUtil.mkdirsForFile ("", toFullPath, targetIsTemporary);
+
+      // open for write
+      //
+      TextFile vuelca = new TextFile ();
+      if (! vuelca.fopen (toFullPath, "wb"))
+      {
+         log.err ("copyFile", "target file \"" + toFullPath + "\" could not be opened!");
+         return false;
+      }
+
+      // loop to copy the file
+      //
+      int nn = 0;
+      boolean ok = true; // a file of length 0 could also be copied
+      
+      byte [] puffer = new byte [1024];
+      do
+      {
+         nn = srcFile.readBytes (puffer);
+         if (nn > 0)
+            ok = vuelca.writeBytes (puffer, nn);
+      }
+      while (ok && nn > 0 && ! srcFile.feof ());
+
+      vuelca.fclose ();
+      srcFile.fclose ();
+
+      log.dbg (4, "copyFile", "done");
+      return ok;
+   }
+
+   // public static void main (String [] aa)
+   // {
+   //    //java -cp C:\Xcachito\celtabuild de.elxala.langutil.filedir.fileUtil
+   //    if (aa.length > 0)
+   //    {
+   //       System.out.println (resolveRelativePointsInPath (aa[0]));
+   //       return;
+   //    }
+   //    System.out.println (resolveRelativePointsInPath ("."));
+   //    System.out.println (resolveRelativePointsInPath ("./"));
+   //    System.out.println (resolveRelativePointsInPath ("./a"));
+   //    System.out.println (resolveRelativePointsInPath ("./aa"));
+   //    System.out.println (resolveRelativePointsInPath ("/."));
+   //    System.out.println (resolveRelativePointsInPath ("/./a"));
+   //    System.out.println (resolveRelativePointsInPath ("/./aa"));
+   //    System.out.println (resolveRelativePointsInPath ("/a/."));
+   //    System.out.println (resolveRelativePointsInPath ("/aa/."));
+   //    System.out.println (resolveRelativePointsInPath ("/aa/./bb"));
+   //
+   //    System.out.println (resolveRelativePointsInPath (".."));
+   //    System.out.println (resolveRelativePointsInPath ("../"));
+   //    System.out.println (resolveRelativePointsInPath ("../a"));
+   //    System.out.println (resolveRelativePointsInPath ("../aa"));
+   //    System.out.println (resolveRelativePointsInPath ("/.."));
+   //    System.out.println (resolveRelativePointsInPath ("/../a"));
+   //    System.out.println (resolveRelativePointsInPath ("/../aa"));
+   //    System.out.println (resolveRelativePointsInPath ("/a/.."));
+   //    System.out.println (resolveRelativePointsInPath ("/aa/.."));
+   //    System.out.println (resolveRelativePointsInPath ("/aa/../bb"));
+   //    System.out.println (resolveRelativePointsInPath ("/aa/.bb/../..cc/dd"));
+   //    System.out.println (resolveRelativePointsInPath ("/o/.si/./nooooo/no2no2/../.././vale/./ok/NO/.."));
+   // }
 }

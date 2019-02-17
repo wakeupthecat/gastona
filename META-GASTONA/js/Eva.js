@@ -131,16 +131,21 @@ function evaFileUTF82obj (fileStrUtf8)
    return evaFileStr2obj (decodeURIComponent (fileStrUtf8.replace (/\+/g, "%20")));
 }
 
-function evaFileStr2obj (fileStr)
+// converts a file formated as EVA into a javascript object
+// where the the first layer of properties are units, the second evas and each eva
+// is an array of string arrays
+//
+// the input parameter is either a file given as string array or as string containing the whole text
+// including line ends.
+//
+function evaFileStr2obj (evaFileAsArrOrStr)
 {
-   // trim for IE8
-   if (typeof String.prototype.trim !== 'function') {
-      String.prototype.trim = function() {
-         return this.replace(/^\s+|\s+$/g, '');
-      }
-   }
+   // trim also for IE8
+   function trimStr (str) { return str.replace(/^\s+|\s+$/g, ''); }
 
-   return parseFileStr (fileStr);
+   function str2lineArray (str) { return str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); }
+
+   return parseFileStr (evaFileAsArrOrStr);
 
    /*
       Example of use:
@@ -157,7 +162,7 @@ function evaFileStr2obj (fileStr)
       if (indx > 0)
          return {
             name: line.substr (1, indx-1),      // do not trim names
-            rest: line.substr (indx+1).trim ()
+            rest: trimStr (line.substr (indx+1))
          }
    }
 
@@ -278,12 +283,12 @@ function evaFileStr2obj (fileStr)
       var textArr = filetext;
       if (typeof filetext === "string")
       {
-         textArr = filetext.split('\n');
+         textArr = str2lineArray (filetext);
       }
 
       for (lindx in textArr)
       {
-         linStr = textArr[lindx].trim ();
+         linStr = trimStr (textArr[lindx]);
 
          // check if comment, then ignore line
          if (linStr.charAt (0) === '<' && linStr.charAt (1) === '!') continue;
@@ -337,7 +342,7 @@ function evaFileStr2obj (fileStr)
    function parseSingleEva (textStr)
    {
       var eva = [], lines, indx, linArr;
-      lines = textStr.split('\n');
+      lines = str2lineArray (textStr);
       for (indx in lines)
       {
          linArr = eva_parseEvaLine (lines[indx]);

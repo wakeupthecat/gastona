@@ -202,8 +202,8 @@ import de.elxala.zServices.*;
       //   <laData>
       //      // var vdata = {
       //      //      "Caballo graffiti": [
-      //      //    [ "defstyle", "piel", "#ff7f27" ],
-      //      //    [ "defstyle", "pelo", "#eaeaea"],
+      //      //    [ "defstyle", "piel", "fc:#ff7f27" ],
+      //      //    [ "defstyle", "pelo", "fc:#eaeaea"],
       //      //    [ "z" ,238, 121, "piel",  "jau",84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81 ],
       //      //    [ "z" ,196, 223, "piel",  "jau",-43,-81,-10,-36,9,-19,39,8,64,37 ],
       //      //    [ "z" ,155, 84,  "piel",  "jau",-47,7,-34,48,-16,29,20,19,36,-29,40,-15 ],

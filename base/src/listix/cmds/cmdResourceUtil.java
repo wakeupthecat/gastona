@@ -70,12 +70,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Checks the existence of a resource file within the java class path. Return 1 if found 0 if not found
-         2   ,    2      , //Checks the existence of a resource file as url. Return 1 if found 0 if not found
-         3   ,    2      , //Return the fullpath of the executable program related with the micro tool 'microToolName'. If the micro tool is not yet installed then it will be previously installed
-         4   ,    2      , //Assigns a call path for the microtool, as a result the micro tool is suposed to be installed and therefore the auto installation of the micro tool will not take place when the micro tool is invoqued
-         5   ,    2      , //Copies an existent resource file or url into the directory 'basepath'
-         6   ,    1      , //Copies an stream url into files
+         1   ,    5       , //Checks the existence of a resource file within the java class path. Return 1 if found 0 if not found
+         2   ,    5      , //Checks the existence of a resource file as url. Return 1 if found 0 if not found
+         3   ,    5      , //Return the fullpath of the executable program related with the micro tool 'microToolName'. If the micro tool is not yet installed then it will be previously installed
+         4   ,    5      , //Assigns a call path for the microtool, as a result the micro tool is suposed to be installed and therefore the auto installation of the micro tool will not take place when the micro tool is invoqued
+         5   ,    5      , //Copies an existent resource file or url into the directory 'basepath'
+         6   ,    5      , //Copies an stream url into files
+         7   ,    5      , //Moves a file to another path
 
    <syntaxParams>
       synIndx, name     , defVal        , desc
@@ -101,6 +102,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          6   , COPY URL  ,              , //
          6   , resourceName,            , //URL name to be copied
          6   , toDirName  ,             , //Directory name where the file is to be copied
+
+         7   , MOVE    ,                , //
+         7   , sourceName ,             , //Path of the file or resource to be moved
+         7   , targetName ,             , //?File name target or directory name if the option AUTOSUBPATH?NEWNAME is given
 
    <examples>
       gastSample
@@ -165,6 +170,7 @@ import listix.table.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.javaLoad;
 import de.elxala.langutil.filedir.urlUtil;
+import de.elxala.langutil.filedir.fileUtil;
 import de.elxala.zServices.*;
 
 public class cmdResourceUtil implements commandable
@@ -196,31 +202,23 @@ public class cmdResourceUtil implements commandable
 
       String subCmd = cmd.getArg(0);
 
-      //  RESUTIL, EXISTS, resourceName
-      //
       if (cmd.meantConstantString (subCmd, new String [] { "EXISTS" } ))
       {
+         //  RESUTIL, EXISTS, resourceName
+         //
          String resName = cmd.getArg(1);
          that.printTextLsx (javaLoad.existsResource (resName) ? "1": "0");
-
-         cmd.checkRemainingOptions ();
-         return 1;
       }
-
-      //  RESUTIL, EXISTS URL, urlName
-      //
-      if (subCmd.equals("EXISTS URL"))
+      else if (cmd.meantConstantString (subCmd, new String [] { "EXISTSURL", "URLEXISTS" } ))
       {
+         //  RESUTIL, EXISTS URL, urlName
+         //
          that.printTextLsx (urlUtil.urlExists (cmd.getArg(1)) ? "1": "0");
-
-         cmd.checkRemainingOptions ();
-         return 1;
       }
-
-      // RESUTIL, MINI TOOL, miniToolName, tool sqlite
-      //
-      if (cmd.meantConstantString (subCmd, new String [] { "MINITOOL", "MICROTOOL", "MICRO", "MUTOOL" } ))
+      else if (cmd.meantConstantString (subCmd, new String [] { "MINITOOL", "MICROTOOL", "MICRO", "MUTOOL" } ))
       {
+         // RESUTIL, MINI TOOL, miniToolName, tool sqlite
+         //
          String miniToolName = cmd.getArg(1);
          String evaName = cmd.getArg(2);
 
@@ -233,48 +231,31 @@ public class cmdResourceUtil implements commandable
          else
             that.printTextLsx (microToolInstaller.getExeToolPath (miniToolName));
 
-         cmd.checkRemainingOptions ();
-         return 1;
       }
-
-      if (cmd.meantConstantString (subCmd, new String [] { "SETMICROTOOL", "SETMICROTOOLPATH", "SETTOOLPATH", "SETTOOL", "SETMUTOOL" , "SETMUTOOLPATH" } ))
+      else if (cmd.meantConstantString (subCmd, new String [] { "SETMICROTOOL", "SETMICROTOOLPATH", "SETTOOLPATH", "SETTOOL", "SETMUTOOL" , "SETMUTOOLPATH" } ))
       {
          String miniToolName = cmd.getArg(1);
          String newpath = cmd.getArg(2);
 
          microToolInstaller.assignPath4MuTool (miniToolName, newpath);
-
-         cmd.checkRemainingOptions ();
-         return 1;
       }
-
-      //(o) TODO_listix_cmd idea RESUTIL COPY
-      //  RESUTIL, COPY       , resourceName, toFileName
-      //         , NEWNAME    , borica.gif
-      //         , AUTOSUBPATH, 1
-      //         , ALGORITHM  , 1
-      //
-      if (cmd.meantConstantString (subCmd, new String [] { "COPY" } ))
+      else if (cmd.meantConstantString (subCmd, new String [] { "COPY", "COPIA" } ))
       {
          String resourceName = cmd.getArg(1);
          String toFileName = cmd.getArg(2);
 
-         if (!microToolInstaller.copyFileFromJar (that.log(), resourceName, toFileName))
-         {
+         if (!fileUtil.copyFile (resourceName, toFileName))
             that.log ().err ("RESUTIL", "Copy from [" + resourceName + "] to [" + toFileName + "] failed!");
-         }
-
-         cmd.checkRemainingOptions ();
-         return 1;
       }
+      else if (cmd.meantConstantString (subCmd, new String [] { "MOVE", "MUEVE", "MOU" } ))
+      {
+         String resourceName = cmd.getArg(1);
+         String toFileName = cmd.getArg(2);
 
-      //(o) TODO_listix_cmd idea RESUTIL COPY URL
-      //  RESUTIL, COPY URL   , urlName, toFileName
-      //           , NEWNAME    , borica.gif
-      //           , AUTOSUBPATH, 1
-      //           , ALGORITHM  , 1
-      //
-      if (cmd.meantConstantString (subCmd, new String [] { "COPYURL" } ))
+         if (!fileUtil.moveFile (resourceName, toFileName))
+            that.log ().err ("RESUTIL", "Move from [" + resourceName + "] to [" + toFileName + "] failed!");
+      }
+      else if (cmd.meantConstantString (subCmd, new String [] { "COPYURL", "URLCOPY" } ))
       {
          String resourceName = cmd.getArg(1);
          String toFileName = cmd.getArg(2);
@@ -283,9 +264,6 @@ public class cmdResourceUtil implements commandable
          {
             that.log ().err ("RESUTIL", "URL copy from [" + resourceName + "] to [" + toFileName + "] failed!");
          }
-
-         cmd.checkRemainingOptions ();
-         return 1;
       }
 
       cmd.checkRemainingOptions ();

@@ -175,6 +175,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           3  , FROM FILE             , fileNameWithSQLScript, "", If specified a filename this will be used by sqlite instead of any given query. Note that the file should contain the sqlite commands BEGIN TRANSACTION; END; for a fast execution
           3  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
           3  , ERRORS TO FILE        , errOutputFile        , "", File to print out the error output of the execute command (sqlite errors). Note: it is still possible that some errors are printed out into the output file instead of the error file (due to the use of sqlite of the stdout and stderr streams)
+          <!3  , ALIAS                 , "alias, db"          , "", Alias databases to be applied in execute queries
 
           5  , OUTPUT TO FILE        , outputFile           , "", File to print out the output of the execute command (sqlite output)
           5  , ERRORS TO FILE        , errOutputFile        , "", File to print out the error output of the execute command (sqlite errors). Note: it is still possible that some errors are printed out into the output file instead of the error file (due to the use of sqlite of the stdout and stderr streams)
@@ -238,6 +239,7 @@ import de.elxala.Eva.*;
 import java.io.File;
 import de.elxala.langutil.filedir.*;
 import de.elxala.db.sqlite.*;
+import de.elxala.db.dbMore.*;
 
 
 public class cmdDatabase implements commandable
@@ -395,13 +397,13 @@ public class cmdDatabase implements commandable
          cmd.checkRemainingOptions ();
          return 1;
       }
-      
+
       if (optDropAll)
       {
          // DATABASE, dbName, DROP ALL
          if (!cmd.checkParamSize (2, 2)) return 1;
 
-         // sql commands for drop all 
+         // sql commands for drop all
          // trick taken from http://stackoverflow.com/questions/525512/drop-all-tables-command
          //
          cliDB.openScript (false);
@@ -495,8 +497,8 @@ public class cmdDatabase implements commandable
       StringBuffer columNameList = new StringBuffer ();
       for (int cc = 0; cc < eva.cols (0); cc ++)
       {
-         columNameList.append (((cc > 0) ? ", ":"") + eva.getValue (0, cc));
-         columNameTextList.append (((cc > 0) ? ", ":"") + eva.getValue (0, cc) + " text");
+         columNameList.append (((cc > 0) ? ", " : "") + fieldConnector1.decoColumName (eva.getValue (0, cc)));
+         columNameTextList.append (((cc > 0) ? ", " : "") + fieldConnector1.decoColumName (eva.getValue (0, cc)) + " text");
       }
 
       if (optCreate)

@@ -97,7 +97,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- radioG>
-      //       //A radio has been selected (Mute is @<rMute selected>)
+      //       //The radio @<radioG selected> has been selected (Mute is @<rMute selected>)
       //       //
       //
       //   <-- rRock>

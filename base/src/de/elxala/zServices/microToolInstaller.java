@@ -434,48 +434,8 @@ public class microToolInstaller
          log.dbg (4, "installFileFromJar", "file \"" + toFullPath + "\" alredy exists, it will not be overwritten!");
          return true;
       }
-
-      // System.out.println ("installing " + fromFullPath);
-
-      // open for read
-      //
-      TextFile jarFile = new TextFile ();
-      if (! jarFile.fopen (fromFullPath, "rb"))
-      {
-         log.severe ("installFileFromJar", "File \"" + fromFullPath + "\" should be installed but it cannot be found!");
-         return false;
-      }
-
-      // ensure target directories
-      //
-      fileUtil.mkdirsForFile ("", toFullPath, deleteOnExit);
-
-      // open for write
-      //
-      TextFile vuelca = new TextFile ();
-      if (! vuelca.fopen (toFullPath, "wb"))
-      {
-         log.fatal ("installFileFromJar", "File \"" + fromFullPath + "\" should be installed in \"" + toFullPath + "\" but it couldn't be open for write!");
-         return false;
-      }
-
-      // loop to copy the file
-      //
-      int nn = 0;
-      byte [] puffer = new byte [1024];
-      do
-      {
-         nn = jarFile.readBytes (puffer);
-         // System.out.println (nn + " bytes");
-         vuelca.writeBytes (puffer, nn);
-      }
-      while (nn > 0 && ! jarFile.feof ());
-
-      vuelca.fclose ();
-      jarFile.fclose ();
-
-      log.dbg (4, "installFileFromJar", "done");
-      return true;
+      
+      return fileUtil.copyFile (fromFullPath, toFullPath, deleteOnExit);
    }
 
    // utility for other classes, is different from installFileFromJar in
@@ -487,48 +447,7 @@ public class microToolInstaller
       if (log != null)
          log.dbg (4, "copyFileFromJar", "from \"" + fromFullPath + "\" to \"" + toFullPath + "\"");
 
-      // open for read
-      //
-      TextFile jarFile = new TextFile ();
-      if (! jarFile.fopen (fromFullPath, "rb"))
-      {
-         if (log != null)
-            log.err ("copyFileFromJar", "Source file \"" + fromFullPath + "\" not found!");
-         return false;
-      }
-
-      // ensure target directories
-      //
-      fileUtil.mkdirsForFile ("", toFullPath, false);
-
-      // open for write
-      //
-      TextFile vuelca = new TextFile ();
-      if (! vuelca.fopen (toFullPath, "wb"))
-      {
-         if (log != null)
-            log.err ("copyFileFromJar", "target file \"" + toFullPath + "\" could not be opened!");
-         return false;
-      }
-
-      // loop to copy the file
-      //
-      int nn = 0;
-      byte [] puffer = new byte [1024];
-      do
-      {
-         nn = jarFile.readBytes (puffer);
-         // System.out.println (nn + " bytes");
-         vuelca.writeBytes (puffer, nn);
-      }
-      while (nn > 0 && ! jarFile.feof ());
-
-      vuelca.fclose ();
-      jarFile.fclose ();
-
-      if (log != null)
-         log.dbg (4, "copyFileFromJar", "done");
-      return true;
+      return fileUtil.copyFile (fromFullPath, toFullPath);
    }
 }
 

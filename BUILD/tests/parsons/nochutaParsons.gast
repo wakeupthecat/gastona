@@ -1,0 +1,19 @@
+#javaj#
+
+   <frames> omain
+
+#listix#
+
+   <clas>
+      //id:pancio num:567 desc:restos
+
+   <main0>
+      PARSONS, EVAVAR, clas
+             , VAR, id, namber, //id:([^\s]*) num:([^\s]*)
+             , EVATABLE, cabesi
+             ,         , desca, //desc:(.*)
+      PARSONS, EVAVAR, clas
+             , VAR, id, namber, //id:([^\s]*) num:([^\s]*)
+             , EVATABLE, cabesi2
+             ,         , i2, namber, desca, //id:([^\s]*) num:([^\s]*) desc:([^\s]*)
+      DUMP, data

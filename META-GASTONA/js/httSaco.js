@@ -222,7 +222,7 @@ function httPack (parconfig, unidata)
 //
 //    returns : object with the properties obj-params, obj-headers, obj-body
 //
-//          load the response body as specified in Content-type (eva or json format) into obj-body 
+//          load the response body as specified in Content-type (eva or json format) into obj-body
 //          extract parameters from the header XParamsInOneLine and set them in obj-params as properties
 //          set all headers and set them in obj-headers
 //
@@ -268,7 +268,7 @@ function httUnpack (bodytxt, httresp)
    var str = httresp.getResponseHeader ("Content-Type");
    if (str)
    {
-      subobj = {}
+      subobj = null;
       splitArr = str.split (";");
       if (splitArr.indexOf ("text/eva") !== -1)
       {
@@ -286,16 +286,15 @@ function httUnpack (bodytxt, httresp)
          subobj = JSON.parse(bodytxt);
       }
    }
-   if (subobj.length === 0)
+   if (subobj == null)
    {
       // don't know how to process the body, deliver it as it is
       //
-      subobj["rawBody"] = bodytxt;
-
+      subobj = { rawBody: bodytxt };
    }
    // >>> obj-body
    respObj["obj-body"] = subobj;
-   
+
 
    // check XParamsInOneLine and set individual variables
    //
@@ -319,7 +318,7 @@ function httUnpack (bodytxt, httresp)
    // add all headers into "obj-headers", Note: getAllResponseHeaders () returns a literal string with all headers
    //
    subobj = {};
-   var respArr = httresp.getAllResponseHeaders ().split ("\n");   
+   var respArr = httresp.getAllResponseHeaders ().split ("\n");
    for (var hh in respArr)
    {
       var hname = respArr[hh].split(":", 1);

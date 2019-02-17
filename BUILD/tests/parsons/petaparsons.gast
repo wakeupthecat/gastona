@@ -1,0 +1,14 @@
+#javaj#
+
+   <frames> o
+
+#listix#
+
+   <main0>
+         PARSONS, FILE2DB, fallo.js
+               , CLEAN, 1
+               , EVATABLE , tmpResults
+               ,        , lineStr, //type of
+               , LIMIT RECORDS, 1
+        DUMP, data
+        yata!

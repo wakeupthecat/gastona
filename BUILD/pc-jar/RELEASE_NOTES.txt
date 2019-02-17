@@ -7,10 +7,34 @@
 
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
+      2019-02-17 17:08:19	fix broken parsons: (fix done in 12691)
+      2019-02-16 14:48:43	fix issue : PARSONS using VAR get a line not consumed properly
+
+      2018-12-13 01:50:58	new property gastona.tmp.dir explicit temp dir
+      2018-12-11 23:27:35	small changes in gasts utilities
+      2018-06-29 01:26:10	Fix in new jGastonaLit approach
+      2018-05-29 23:25:34	jGastonaLit.js zWidgetsHtml.js separación
+      2018-04-09 23:05:00   FIX jGastona layout issues with check and radio box groups
+      2018-03-31 23:09:00   FIX issue in tables and lists in some special scenario (error message "wrong use of a tableWidgetBaseEBS")
+      2018-02-01            Several fixes in jGastona, consecuencio and js stuff
+      2018-01-04 01:16:00   use \gastona instead of \tmp when seeking for tmp folder in windows file systems due to antivirus "obsession" checking sqlite executable
+
+      2017-12-11 00:01:00   add new sqlite version 3.21 (from 3.17) hacked for adding samefilecontent function
+      2017-12-05 00:01:00   goRhino add the java objects System.out (systemOut), System.err (SystemErr), listix and log to the scripting engine
+      2017-11-23 23:32:07   trazos2D.js improve path styles for svg and some canvas
+      2017-11-18 15:52:13   FIX small documentation issue, minimize last trazos2D
+      2017-11-17 00:17:05   trazos2D.js support images "img" for canvas and svg
+      2017-11-16 00:49:00   FIX excepcion MICO http using theOnlyLivingBoyInNY
+      2017-11-11 00:52:21   FIX regression 2017.10.03 replacing filename with _
+      2017-11-07 00:33:56   FIX MicoHttp close timer when ONCE syntax
+      2017-11-06 23:02:15   fix micohttp schedule close
+      2017-11-05 17:02:15   improve widget messages in jGastona
+      2017-11-04 03:04:23   Fix empty set condition in httSaco
+      2017-10-21 00:01:11   trazos.js introduce element text
 
    date   : 02.07.2017
    version: v1.2.170702
-   
+
       - jGastona improve selection in lists, checkbox and radio groups
       - MICOHTTP Don't lowercase headers
       - Welcome gastona add fast search button
@@ -23,20 +47,20 @@
       - New analysis script  listix2Dot.gast in sessionLog dir
       - FIX saving generated_linked.gast
       - removing Cadena.java
-   
+
    date   : 18.04.2017
    version: v1.2.170418
-   
+
       - faster EvaLine parser, new EvaFile methods
       - jGastona new pack and unpack utilities for requests and respopnses
-      - js libraries, several improvements and fixes 
-      - Eva.js parser support now all features: quotes, rest of line marker, comments etc 
+      - js libraries, several improvements and fixes
+      - Eva.js parser support now all features: quotes, rest of line marker, comments etc
       - MICO new commands RESP_HEADER=, RESP_VAR= and improve header settings
       - zWidget mImagen new opacity and backcolor
       - FIX issue with filenames with quotes in parsers in Parsons and xmelon
       - jGastona new handle of "main" in listix JAST
       - FIX Micohttp served files were not closed
-      
+
    date   : 18.03.2017
    version: v1.1.170318
 

@@ -20,7 +20,7 @@ package de.elxala.db.dbMore;
 
 import java.util.*;
 import de.elxala.Eva.*;
-import de.elxala.langutil.Cadena;
+// import de.elxala.langutil.Cadena;
 import de.elxala.zServices.*;
 
 //import de.elxala.db.sqlite.*;
@@ -195,6 +195,17 @@ public class fieldConnector1
       return (alias.startsWith (mainTable + "_")) ? alias.substring (mainTable.length()+1): alias;
    }
 
+   public static String decoColumName (String columnName)
+   {
+      if (columnName.length () > 0 && columnName.charAt(0) == '\"') return columnName;
+      
+      // deco needed to accept column names like "count", "cou nt", "#count"
+      //  in general SQL key words (count, as, index etc), names with spaces or special characters
+      //  this makes the query a little pedantic but I see no other solution
+      //
+      return "\"" + columnName + "\"";
+   }
+   
    /*
       Solve a list of columns (deep columns) using for that the given connection
       array in the constructor. The result of the method is reflected in the
@@ -312,7 +323,7 @@ public class fieldConnector1
                String targetTable = tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_TARGETTABLE); // targetTable
                log.dbg (4, "resolveConnections", "connection found, targetTable [" + targetTable + "]");
 
-               String elemeFrom = targetTable + " AS " + shortAlias (firstTable, currResiduo);
+               String elemeFrom = targetTable + " AS " + decoColumName (shortAlias (firstTable, currResiduo));
                if (!resultListFROM.contains (elemeFrom))
                {
                   //connection still not there, build condition
@@ -321,9 +332,9 @@ public class fieldConnector1
                   do
                   {
                      if (condition.length () > 0) condition = condition + " AND ";
-                     condition += shortAlias(firstTable, previaTable) + "." + tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_SOURCEKEY) + // srcField
+                     condition += shortAlias(firstTable, previaTable) + "." + decoColumName (tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_SOURCEKEY)) + // srcField
                                  " == " +
-                                 shortAlias(firstTable, currResiduo) + "." + tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_TARGETKEY); // targetField
+                                 shortAlias(firstTable, currResiduo) + "." + decoColumName (tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_TARGETKEY)); // targetField
                      indx ++;
                   } while (tableConnections.rows () > indx &&
                            tableConnections.getValue (indx, deepSqlUtil.CONN_INDX_SOURCETABLE).equals (tableConnections.getValue (indx-1, deepSqlUtil.CONN_INDX_SOURCETABLE)) &&
@@ -373,7 +384,7 @@ public class fieldConnector1
 
          String tab = (currResiduo != null && currResiduo.length () > 0) ? currResiduo: currConnArray[0];
          String colName = currConnArray[1 + shiftConn]; // e.g. "nombre"
-         String nameQuali = tab + "." + colName;         // e.g. "persona_pare.nombre"
+         String nameQuali = tab + "." + decoColumName (colName);         // e.g. persona_pare."nombre"
 
          //System.out.println ("GARGOS [" + nameQuali + "]");
 
@@ -388,7 +399,7 @@ public class fieldConnector1
          {
             // group candidate
             if (resultStringGroupBy.length () > 0) resultStringGroupBy += ", ";
-            resultStringGroupBy += shortAlias (firstTable, columnAlias);
+            resultStringGroupBy += decoColumName (shortAlias (firstTable, columnAlias));
          }
          else
          {
@@ -398,13 +409,13 @@ public class fieldConnector1
             if (groupHaving.length () > 0)
             {
                if (resultStringHaving.length () > 0) resultStringHaving += " AND ";
-               resultStringHaving += columnAlias + " " + groupHaving;
+               resultStringHaving += decoColumName (columnAlias) + " " + groupHaving;
             }
          }
 
          // form final column name and register it
          //
-         colName = shortAlias (firstTable, nameQuali) + " AS " + shortAlias (firstTable, columnAlias);
+         colName = shortAlias (firstTable, nameQuali) + " AS " + decoColumName (shortAlias (firstTable, columnAlias));
          if (!resultListSELECT.contains (colName))
          {
             log.dbg (4, "resolveConnections", "add to list SELECT  [" + colName + "]");

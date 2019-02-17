@@ -76,7 +76,7 @@
       //@<:lsx CLOCK>
       //
       //scanning sources for documentation ...
-      SCAN, ADD,, @<eSource base directory>, +E, java, +E, gastDoc, -D, META-GASTONA, -D, srcPARKING, -D, tests, -D, NOPRODUCT, -D, nopublic
+      SCAN, ADD,, @<eSource base directory>, +E, java, +E, gastDoc, -D, META-GASTONA-EXPAND, -D, srcPARKING, -D, tests, -D, NOPRODUCT, -D, nopublic
       //
       //@<:lsx CLOCK>
       //

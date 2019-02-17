@@ -187,7 +187,8 @@ and load the main jGastona script from the variable MAIN_JGAST.
         //
         @<:infile META-GASTONA/js/jGastonaEva-min.js>
         //
-        //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+        //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+        //   jgas.start ();
         //
         //</script></body></html>
 
@@ -345,7 +346,8 @@ On each event we insert a delete button with the special command AJAXgetIdConten
            //
            @<:infile META-GASTONA/js/jGastonaEva-min.js>
            //
-           //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"));
+           //   var jgas = jGastona (evaFileUTF82obj ("@<:encode-utf-8 MAIN_JGAST>"))
+           //   jgas.start ();
            //
            //</script></body></html>
 
@@ -378,10 +380,10 @@ On each event we insert a delete button with the special command AJAXgetIdConten
             //#listix#
             //
             //  <-- bSave>
-            //     //jgas.AJAXSendBody ("insertEvent");
+            //     //AJAXSendBody ("insertEvent");
             //
             //  <-- ajaxResponse insertEvent>
-            //     //jgas.AJAXgetIdContent ("dBoletin", "all");
+            //     //AJAXgetIdContent ("dBoletin", "all");
             //
 
 

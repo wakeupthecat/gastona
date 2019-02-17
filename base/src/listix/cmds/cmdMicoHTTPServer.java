@@ -128,6 +128,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          6   ,    3      , //Start a mico http server and close it after a timeout with no request (default 6 s)
          7   ,    3      , //Set the maximum size for a file to be uploaded
          8   ,    3      , //Set the maximum timeout when uploading
+<! ---- option planed but not implemented
+<!       switching dynamically base directory has few applications, also in any of them
+<!       the problem with browser cached files cannot be avoided! (start server in dir1 and serve image.png then
+<!       switch to dir2 which has a different image.png, since the browser has image.png cached it will not request the second one!)
+<!       the use as option of START could make more sense but this can be achieved by changing the current directory directly
+<!
+<!         9   ,    3      , //Set path of directory or directories where the files can be served from
 
    <syntaxParams>
       synIndx, name         , defVal    , desc
@@ -166,6 +173,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          8   , serverName         ,          , //Server name
          8   , maxSizeInBytes     , 40000    , //Max socket timeout in milliseconds, time between partial reads, default is 40 s
 
+<! ---- option planed but not implemented
+<!
+<!         9   , SET BASE DIR,    ,
+<!         9   , directoryPath    ,            , //Path to be set as base directory for serving files. Empty string is current directory also relative paths to it are allowed
+<!         9   , additionalDir    ,            , //Path for additional directory
+<!         9   , ...              ,            , //Further additional directory
+
    <options>
       synIndx, optionName  , parameters, defVal, desc
 
@@ -184,10 +198,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       micoHttpExample1
       micoAjaxWithForm
-      javascriptExecutorBrowser
-      marketesPublisher
       whoareyou
-      simple appHelp
       simple file server
 
 
@@ -295,176 +306,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //
       //
       //
-
-   <javascriptExecutorBrowser>
-      //#javaj#
-      //
-      //   <frames> main, Javascript Executor
-      //
-      //   <layout of main>
-      //      EVA, 3, 3, 2, 2
-      //
-      //         , X
-      //         , lEnter your javascript code
-      //       X , xCodeArea
-      //         , bEjecute
-      //         , lSalida
-      //       X , xBodyResponse
-      //      <! X , oSalar
-      //
-      //   <sysDefaultFonts>
-      //      Consolas, 14, 0, TextArea.font
-      //
-      //#data#
-      //
-      //   <xCodeArea>
-      //      //
-      //      //function encript (t1, t2)
-      //      //{
-      //      //   return t2 + t1;
-      //      //}
-      //      //
-      //      //out ("output of this function is ... " + encript ("TheCat", "WakeUp"));
-      //      //
-      //
-      //#listix#
-      //
-      //   <-- bEjecute>
-      //      MSG, lSalida data!,, Opening browser ...
-      //      micohttp, start, Servako
-      //
-      //   <elapsed>
-      //      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
-      //
-      //   <GET />
-      //      VAR=, USER CODE, LSX, xCodeArea
-      //      @<:solve-infile META-GASTONA/js/executorJS.lsx.js>
-      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
-      //
-      //   <POST /JSresponse>
-      //      micohttp, stop, Servako
-      //      MSG, lSalida data!,, //done, it took @<elapsed> seconds
-      //      -->, xBodyResponse load, @<_bodyMemFileName>
-
-   <marketesPublisher>
-      //#javaj#
-      //
-      //   <frames> main, Marketes editor
-      //
-      //   <layout of main>
-      //      EVA, 4, 4, 3, 3
-      //
-      //          , X
-      //          , lArticle in marketes format
-      //        X , xArticle
-      //          , bPublish
-      //
-      //   <sysDefaultFonts>
-      //      Consolas, 14, 0, TextArea.font
-      //
-      //#data#
-      //
-      //   <theTitle> ARTICLE'S TITLE
-      //
-      //   <xArticle>
-      //      //#h Article header
-      //      //-- First chapter
-      //      //
-      //      //Here you can start the writing text
-      //      //
-      //      //New paragraphs are also possible. Now some code
-      //      //
-      //      //      function () {
-      //      //          return null;
-      //      //      }
-      //      //
-      //      //Finally in paragraphs you can use <b><i>html tags</i></b>.
-      //
-      //
-      //#listix#
-      //
-      //   <main0>
-      //      mico, start, esso
-      //      VAR=, serverPort, @<GET SERVER PORT>
-      //
-      //   <GET SERVER PORT> mico, GET PORT, esso
-      //
-      //   <-- bPublish>
-      //      BROWSER, http://localhost:@<serverPort>
-      //
-      //   <GET />
-      //      LSX, template generaDoc
-      //
-      //   <template generaDoc>
-      //      //<!DOCTYPE html>
-      //      //<html> <head>
-      //      //      <title>@<theTitle></title>
-      //      //   <style type="text/css">
-      //      //
-      //      @<:infile META-GASTONA/js/marketes.css>
-      //      //
-      //      //   </style></head>
-      //      //<body>
-      //      //
-      //      //   <div id="sitio">  </div>
-      //      //
-      //      //   <script>
-      //      //
-      //      @<:infile META-GASTONA/js/marketes.js>
-      //      //
-      //      //   var miDoc = "@<:encode-utf8 xArticle>".replace (/\+/g, "%20");
-      //      //
-      //      //   document.getElementById('sitio').innerHTML = marketes (decodeURIComponent (miDoc));
-      //      //
-      //      //</script>
-      //      //
-      //      //</body>
-      //      //</html>
-      //
-      //
-
-   <simple appHelp>
-      //#javaj#
-      //
-      //   <frames> main, Sample of simple help
-      //
-      //   <layout of main>
-      //      EVA, 4, 4, 3, 3
-      //
-      //          , X
-      //          , lArticle in marketes format
-      //          , bHelp me!
-      //
-      //#data#
-      //
-      //   <HELP_VAR>
-      //      '#h Mitool Help
-      //      '-- How to get help
-      //      '
-      //      'Yo can get help by pressing the button "Help me!"
-      //      '
-      //      'See this nice function
-      //      '
-      //      '      function () {
-      //      '          return "Help me!";
-      //      '      }
-      //      '
-      //      'If all this together does not help you always can try to sign
-      //      '
-      //      '      Help! I need somebody,
-      //      '      Help! not just anybody
-      //      '      Help! you know I need someone
-      //      '      ...
-      //
-      //#listix#
-      //
-      //   <-- bHelp me!>
-      //      mico, stop, micoHelp
-      //      mico, start, micoHelp
-      //
-      //   <GET />
-      //      //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
-
 
    <whoareyou>
       //#javaj#
@@ -722,7 +563,7 @@ public class cmdMicoHTTPServer implements commandable
       {
          micoHttpServer serv = getServerByName (cmd, cmd.getArg (1));
          if (serv != null)
-            that.printTextLsx ((serv == null) ? "0": serv.getCurrentClietnIP () + "");
+            that.printTextLsx ((serv == null) ? "0": serv.getCurrentClientIP () + "");
       }
       else if (optGetPort)
       {

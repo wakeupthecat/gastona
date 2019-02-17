@@ -50,10 +50,10 @@
    <layout of laySamples>
       EVA, 10, 10, 5, 5
 
-      ----, 60     , , X
+      ----, 60     , , X, 
           , iSamples, - , lSampleTitle
-       X  ,    +    ,   , xSample
-          , eSearchSample, bSearchInSamples, bRun Sample
+       X  ,    +    ,   , xSample, -
+          , eSearchSample, bSearchInSamples, bRun Sample, bGraph listix
 
    <layout of consoles>
       EVA, 6, 6, 4, 4
@@ -111,6 +111,7 @@
    <xHelp fileName> :mem helpText
 
    <sFastDoc visibleColumns> structType, groupInfo, name, desc
+   <sFastDoc sqlSelect> //SELECT "" AS vacio
 
 #listix#
 
@@ -313,7 +314,11 @@
       @<-- bClearConsole1>
       @<-- bClearConsole2>
       GAST, :mem gastScript
-
+      
+   <-- bGraph listix>
+      GEN, :mem odoto, runJsRunGlassDot
+      MICO, ONCE
+      
    <-- menuAbout>
       JAVA STATIC, gastona.gastona, showAboutGastona
 
@@ -342,5 +347,33 @@
       // FROM  (@<SQL_DOC_EXT>)
       // WHERE node @<rgDoctype selected.cond>
       // ORDER BY node, name
+
+   <!---
+   <!--- xSample to dot and show it using viz.js (online)
+   <!---
+      
+   <runJsRunGlassDot> JS, @<JsRunGlassDot>
+
+   <JsRunGlassDot>
+     //@<:infile META-GASTONA/js/Eva.js>
+     //@<:infile META-GASTONA/utilApp/gastAnalyzer/gastGlass2dot.js>
+     //
+     //gastGlass2dot (evaFileUTF82obj ("@<:solve-encode-utf8 xSample>"));
+      
+   <dotMemFile>
+      @<:infile :mem odoto>
+   
+   <GET />
+     //<html>
+     //<head>
+     //</head><body>
+     //<script src="http://www.webgraphviz.com/viz.js"></script>
+     //<script>
+     //
+     //   var miData = "@<:solve-encode-utf8 dotMemFile>".replace (/\+/g, "%20");
+     //   document.body.innerHTML = "<hr>"  + Viz(decodeURIComponent (miData), "svg");
+     //
+     //</script></body></html>
+      
 
 #**#

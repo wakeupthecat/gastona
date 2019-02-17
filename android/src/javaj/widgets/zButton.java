@@ -44,8 +44,8 @@ public class zButton extends Button implements MensakaTarget, izWidget
    private String currentIconName = null;
 
    private Drawable dra = null;
-   private graphicObjectLoader elGrafitti = null;
-   private graphicObjectLoader elGrafittiPress = null;
+   private graphicObjectLoader elGraffiti = null;
+   private graphicObjectLoader elGraffitiPress = null;
    private boolean graffitiFormat = false;
    private float calcScaleX = 1.f;
    private float calcScaleY = 1.f;
@@ -143,8 +143,8 @@ public class zButton extends Button implements MensakaTarget, izWidget
                   dra.setAlpha (0); // NOT INTERESTED REALLY IN THE PICTURE BUT JUST IN ITS PLACEMENT AND SIZE!
                   setCompoundDrawablesWithIntrinsicBounds (dra, null, null, null);
                }
-               elGrafitti = null;
-               elGrafittiPress = null;
+               elGraffiti = null;
+               elGraffitiPress = null;
             }
             break;
 
@@ -179,7 +179,7 @@ public class zButton extends Button implements MensakaTarget, izWidget
       //
       if (helper.ebs().getGraffiti () != null)
       {
-         doGrafitti (new uniCanvas (ca, getLeft (), getTop (), getWidth (), getHeight ()),
+         doGraffiti (new uniCanvas (ca, getLeft (), getTop (), getWidth (), getHeight ()),
                      helper.ebs().getGraffiti (),
                      helper.ebs().getGraffitiPress (),
                      helper.ebs().isGraffitiFormatTrazos ()
@@ -221,23 +221,23 @@ public class zButton extends Button implements MensakaTarget, izWidget
    }
 
 
-   public void doGrafitti (uniCanvas uCan, Eva evaPainting, Eva evaPaintingPress, boolean isTrazosFormat)
+   public void doGraffiti (uniCanvas uCan, Eva evaPainting, Eva evaPaintingPress, boolean isTrazosFormat)
    {
-      if (elGrafitti == null)
+      if (elGraffiti == null)
       {
-         elGrafitti = new graphicObjectLoader ();
+         elGraffiti = new graphicObjectLoader ();
 
          if (isTrazosFormat)
-              elGrafitti.loadObjectFromEvaTrazos ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
-         else elGrafitti.loadObjectFromEva       ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
+              elGraffiti.loadObjectFromEvaTrazos ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
+         else elGraffiti.loadObjectFromEva       ("namoso", evaPainting, null /** note **/ , "111", new offsetAndScale ());
          // ** Note: we actually do not press the graphical object but the button, so we cannot use the press semantic of the object
 
          if (evaPaintingPress != null)
          {
-            elGrafittiPress = new graphicObjectLoader ();
+            elGraffitiPress = new graphicObjectLoader ();
             if (isTrazosFormat)
-                 elGrafittiPress.loadObjectFromEvaTrazos ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
-            else elGrafittiPress.loadObjectFromEva       ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
+                 elGraffitiPress.loadObjectFromEvaTrazos ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
+            else elGraffitiPress.loadObjectFromEva       ("namoso2", evaPaintingPress, null, "111", new offsetAndScale ());
          }
 
          calcScaleX = 1.f;
@@ -272,15 +272,15 @@ public class zButton extends Button implements MensakaTarget, izWidget
 //            uCan.drawRect (new uniRect (left-1, tops-1, right+1, boto+1), upa);
          }
 
-         calcScaleX = calcScaleY = elGrafitti.getScaleToFit (tela_dx, tela_dy);
+         calcScaleX = calcScaleY = elGraffiti.getScaleToFit (tela_dx, tela_dy);
 
          //System.out.println ("ese peazo graffiti " + getName ()  + "! (" + bounder.width () + " x " + bounder.height () + ")");
 
          calcOffsetX /= calcScaleX;
          calcOffsetY /= calcScaleY;
 
-         calcOffsetX += elGrafitti.getOffsetXtoFit ();
-         calcOffsetY += elGrafitti.getOffsetYtoFit ();
+         calcOffsetX += elGraffiti.getOffsetXtoFit ();
+         calcOffsetY += elGraffiti.getOffsetYtoFit ();
       }
 
       // decide which painting depending on button state press / release
@@ -289,18 +289,18 @@ public class zButton extends Button implements MensakaTarget, izWidget
       float lastScaleX = calcScaleX;
       float lastScaleY = calcScaleY;
 
-      graphicObjectLoader obj = elGrafitti;
+      graphicObjectLoader obj = elGraffiti;
 
       if (isPressed ())
       {
-         if (elGrafittiPress == null)
+         if (elGraffitiPress == null)
          {
             // default behaviour for pressed button
             lastScaleX *= 1.2f;
             lastScaleY *= 1.2f;
          }
          else
-            obj = elGrafittiPress;
+            obj = elGraffitiPress;
       }
 
       uCan.scale (lastScaleX, lastScaleY);

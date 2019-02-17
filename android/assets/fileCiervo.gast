@@ -164,7 +164,8 @@
    <JS_uploadStuff>
      //@<:infile META-GASTONA/js/jGastona.js>
      //
-     //     var luix = jGastona (); // for using AJAXUploadFile
+     //     var jast = jGastona (); // for using AJAXUploadFile
+     //     //jast.start (); // not needed
      //
      //     function setUploadingFeedback (isUploading)
      //     {
@@ -183,7 +184,7 @@
      //            return;
      //        }
      //        setUploadingFeedback (true);
-     //        luix.AJAXUploadFile ("upInput", "uploadFile", null, function (bodyTxt) { setUploadingFeedback (false); } );
+     //        jast.AJAXUploadFile ("upInput", "uploadFile", null, function (bodyTxt) { setUploadingFeedback (false); } );
      //    }
 
 

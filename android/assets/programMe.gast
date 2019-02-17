@@ -185,6 +185,8 @@
       //@<graffiti data>
       //
       //   var luix = jGastona (evaFileUTF82obj ("@<:encode-utf8 programMe_jast>"));
+      //   luix.start ();
+      //
       //   var isFileContentDirty = false;
       //
       //   function setToDirty (dirty) {

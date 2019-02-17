@@ -39,7 +39,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    Example:
       //       storing a memory file into a physical file
-      //    
+      //
       //       FILEUTIL, COPY, :mem myfile, MyFile.txt
       //
 
@@ -52,6 +52,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <syntaxHeader>
       synIndx, importance, desc
          1   ,   3       , //Copies one file into another creating target directories as needed
+         2   ,   3       , //Copies one file into another creating target directories as needed
+         3   ,   3       , //Ensure directories are created for a given file path
 
    <syntaxParams>
       synIndx, name         , defVal, desc
@@ -59,8 +61,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , sourceFileName,       , //Source file name
       1      , targetFileName,       , //Target file name
 
-      2      , ENSURE DIR 4 FILE,   , //
-      2      , filePath     ,       , //File path whose directory path has to be ensured. Note that the file name is not relevant since it will not be created or changed.
+      2      , MOVE          ,       , //
+      2      , sourceFileName,       , //Source file name
+      2      , targetFileName,       , //Target file name
+
+      3      , ENSURE DIR 4 FILE,   , //
+      3      , filePath     ,       , //File path whose directory path has to be ensured. Note that the file name is not relevant since it will not be created or changed.
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -82,15 +88,12 @@ import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 import de.elxala.langutil.DateFormat;
 import de.elxala.db.*;
-import de.elxala.mensaka.*;   // for messages start, progress, end
+//import de.elxala.mensaka.*;   // for messages start, progress, end
 import de.elxala.zServices.*;
 
 
 public class cmdFileutil implements commandable
 {
-   private static MessageHandle LIGHT_MSG_START     = null;
-   private static MessageHandle LIGHT_MSG_END       = null;
-
    /**
       get all the different names that the command can have
    */
@@ -115,72 +118,33 @@ public class cmdFileutil implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      if (LIGHT_MSG_START == null)
-      {
-         LIGHT_MSG_START     = new MessageHandle ();
-         LIGHT_MSG_END       = new MessageHandle ();
-
-         //(o) TODO_parsons Unify ledMsg parsing_start etc for PARSONS and XMELON
-
-         // this messages are not mandatory to be subscribed, the are provided just as internal information of parser command
-         Mensaka.declare (null, LIGHT_MSG_START    , "ledMsg parsing_start"      , logServer.LOG_DEBUG_0);
-         Mensaka.declare (null, LIGHT_MSG_END      , "ledMsg parsing_end"        , logServer.LOG_DEBUG_0);
-      }
-
-      String oper = cmd.getArg(0).toUpperCase ();
-      //String p3   = cmd.getArg(3);
-      //String strResult = "";
+      String oper = cmd.getArg(0);
 
       boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
                             ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
 
-      if (oper.equals ("COPY"))
+      if (cmd.meantConstantString (oper, new String [] { "COPY", "COPIA" } ))
       {
          String sourceFile = cmd.getArg(1);
          String targetFile = cmd.getArg(2);
-         
-         TextFile src = new TextFile();
-         if (! src.fopen (sourceFile, "rb"))
-         {
-            cmd.getLog ().err ("FILEUTIL", "cannot open source file " + sourceFile + "!");
-            return 1;
-         }
 
-         fileUtil.ensureDirsForFile (targetFile);
-         TextFile trg = new TextFile ();         
-         if (! trg.fopen (targetFile, "wb"))
-         {
-            cmd.getLog ().err ("FILEUTIL", "cannot open target file " + targetFile + "!");
-            return 1;
-         }
-         
-         Mensaka.sendPacket (LIGHT_MSG_START, null);
-         int rr = 0;
-         int nread = 0;
-         byte [] puffer = new byte [1024];
-         do
-         {
-            Mensaka.sendPacket ((rr % 2) == 0 ? LIGHT_MSG_END:LIGHT_MSG_START, null);
-            nread = src.readBytes (puffer);
-            // System.out.println (nread + " bytes");
-            trg.writeBytes (puffer, nread);
-         }
-         while (nread > 0 && ! src.feof ());
-         
-         src.fclose ();
-         trg.fclose ();
-         Mensaka.sendPacket (LIGHT_MSG_END, null);
+         if (!fileUtil.copyFile (sourceFile, targetFile))
+            that.log ().err ("FILEUTIL", "Copy from [" + sourceFile + "] to [" + targetFile + "] failed!");
+      }
+      else if (cmd.meantConstantString (oper, new String [] { "MOVE", "MUEVE", "MOU" } ))
+      {
+         String sourceFile = cmd.getArg(1);
+         String targetFile = cmd.getArg(2);
+
+         if (!fileUtil.moveFile (sourceFile, targetFile))
+            that.log ().err ("FILEUTIL", "Move from [" + sourceFile + "] to [" + targetFile + "] failed!");
       }
       else if (cmd.meantConstantString (oper, new String [] {"ENSUREDIR4FILE", "ENSUREDIRFORFILE"}))
       {
-         Mensaka.sendPacket (LIGHT_MSG_START, null);
          fileUtil.ensureDirsForFile (cmd.getArg(1));
-         Mensaka.sendPacket (LIGHT_MSG_END, null);
       }
-      else 
-      {
+      else
          cmd.getLog ().err ("FILEUTIL", "syntax [" + oper + "] not recognized!");
-      }
 
       cmd.checkRemainingOptions ();
       return 1;

@@ -44,7 +44,7 @@ import java.io.File;
 */
 public class gastona
 {
-   public static final String GASTONA_VERSION = "ERipley v0.99 20160827 sueka";
+   public static final String GASTONA_VERSION = "Darkmatter v1.02 20180217 limblamb";
 
    public static final String NAME_LINKED_GAST = "generated_linked.gast";
    public static final String MAINGAST_MEMORYFILE = ":mem _mainGast_";
