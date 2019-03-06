@@ -6,11 +6,11 @@
 
    <main>
       ///*
-      //jGastonaEva-min.js version 0.20180628 / decoplax
+      //jGastonaEva-min.js version 0.201906 / fixjreg
       //composed by Eva.js + EvaLayout.js + LayoutManager.js + httSaco.js + zWidgetsHtml.js + jGastona.js minified
       //is part of the open source project https://github.com/wakeupthecat/gastona
       //
-      //Copyright (C) 2015,2016,2017,2018 Alejandro Xalabarder Aulet
+      //Copyright (C) 2015-2019 Alejandro Xalabarder Aulet
       //@license : GNU General Public License (GPL) version 3
       //
       //This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -24,5 +24,5 @@
       @<:infile zWidgetsHtml.js>
       @<:infile jGastonaLit.js>
 
-      BROWSER, https://skalman.github.io/UglifyJS-online/   
+      BROWSER, https://skalman.github.io/UglifyJS-online/
 

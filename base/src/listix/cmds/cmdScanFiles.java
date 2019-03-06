@@ -78,22 +78,22 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       // Pre-filtering the scan
       //
       //    For big directories or just because we are only interesting in some kind of files the
-      //    entries in the database might be reduced using multiple pairs of : optFilter, textFilter
+      //    entries in the database might be reduced using multiple pairs of : optFilter, regexp
       //
       //    optFilter might be
       //
-      //      +E  the extension 'textFilter' will be included (excluding all those not included)
-      //      -E  the extension 'textFilter' will be excluded (including all those not excluded)
-      //      +D  the relative directory 'textFilter' will be included (excluding all ...)
-      //      -D  the relative directory 'textFilter' will be excluded (including all ...)
-      //      +F  the file 'textFilter' will be included (excluding all ...)
-      //      -F  the file 'textFilter' will be excluded (including all ...)
+      //      +E  the extension matching 'regexp' will be included (excluding all those not included)
+      //      -E  the extension matching 'regexp' will be excluded (including all those not excluded)
+      //      +D  the relative directory matching 'regexp' will be included (excluding all ...)
+      //      -D  the relative directory matching 'regexp' will be excluded (including all ...)
+      //      +F  the file matching 'regexp' will be included (excluding all ...)
+      //      -F  the file matching 'regexp' will be excluded (including all ...)
       //
       //      Java Regular expresions are accepted as 'textFilter'
       //         Examples:
       //
       //            -E, "obj"      exclude extensions obj
-      //            -F, ".obj$"    exclude extensions obj
+      //            -F, "\.obj$"    exclude extensions obj
       //            -D, "lint"     exclude the directory "/lint/" and its subdirectories
       //            +F, "Proxy",   add the files which name includes "Proxy"
       //
@@ -433,7 +433,7 @@ public class cmdScanFiles implements commandable
          //sub-option RECURSIVE
          //
          currentIsRecursive = -1 != "1yYSs".indexOf (cmd.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1").substring(0,1));
-         
+
          //sub-option FILTERS
          //
          String [] optArr = cmd.takeOptionParameters("FILTERS");

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015,2016,2017,2018 Alejandro Xalabarder Aulet
+Copyright (C) 2015..2019 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -39,9 +39,9 @@ function jGastona (evaConfig, existingPlaceId)
    var getData            = function (name)           { return laData.getData (name); }
    var getDataAsTextArray = function (name)           { return laData.getDataAsTextArray (name); }
    var getDataCell        = function (name, row, col) { return laData.getDataCell (name, row, col); }
-   var setData            = function (name)           { return laData.setData; (name); }
+   var setData            = function (name, value)    { return laData.setData (name, value); }
    var setDataCell        = function (name, row, col) { return laData.setDataCell (name, row, col); }
-   var setVarTable_DimVal = function (name)           { return laData.setVarTable_DimVal (arrVarNames); }
+   var setVarTable_DimVal = function (arrVarNames)    { return laData.setVarTable_DimVal (arrVarNames); }
    var getCellEvaUnit     = function (unit, eva, row, col) { return laData.getCellEvaUnit (unit, eva, row, col); }
 
    var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)

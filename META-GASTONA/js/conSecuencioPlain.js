@@ -1,6 +1,6 @@
 /**
  * conSecuencioPlain - simple and plain sequence diagram
- * Copyright (c) 2016-2018, Alejandro Xalabarder
+ * Copyright (c) 2016-2019, Alejandro Xalabarder
  */
 
 function conSecuencioPlain (diagData)
@@ -10,6 +10,21 @@ function conSecuencioPlain (diagData)
       if (!obj) return defval;
       if (typeof obj === "number") return parseInt(obj);
       return parseInt (obj[0][0]);
+   }
+
+
+   // getIndexOfAny (["blabla", "na", "old", "one"], ["one", "two", "three"]);
+   //                   0         1      2     3
+   //    returns 3
+   //
+   function getIndexOfAny (strArr, arrPos)
+   {
+      for (var ele in arrPos)
+      {
+         var pos = strArr.indexOf (arrPos[ele]);
+         if (pos != -1) return pos;
+      }
+      return -1;
    }
 
    var arr = diagData["sequenceTable"];
@@ -23,13 +38,15 @@ function conSecuencioPlain (diagData)
 
    // expected schema of sequenceTable (columns):  time, source, target, message
    //
-   var iTimeStamp = arr[0].indexOf ("time");
-   var iAgentTx   = arr[0].indexOf ("source");
-   var iAgentRx   = arr[0].indexOf ("target");
-   var iMessage   = arr[0].indexOf ("message");
+   var iTimeStamp = getIndexOfAny (arr[0], ["time", "tstamp", "stamp"]);
+   var iAgent1    = getIndexOfAny (arr[0], ["source", "src", "tx", "ag1", "agent1"]);
+   var iAgent2    = getIndexOfAny (arr[0], ["target", "tgt", "rx", "ag2", "agent2"]);
+   var iDir       = getIndexOfAny (arr[0], ["dir", "arrow"]);
+   var iMessage   = getIndexOfAny (arr[0], ["message", "msg" ]);
+   var iExtra     = getIndexOfAny (arr[0], ["extrainfo", "extra", "info"]);
 
    var agentsAlias = {};
-   var agents = getAgents(arr, iAgentTx, iAgentRx);
+   var agents = getAgents(arr, iAgent1, iAgent2);
    var timesIda = {}; // track elapsed times (or try to)
 
    function hasTime ()
@@ -37,16 +54,30 @@ function conSecuencioPlain (diagData)
       return iTimeStamp != -1;
    }
 
+   function finalName (name)
+   {
+      return agentsAlias[name]||name;
+   }
+
    function getAgents (mats, tx, rx)
    {
       function pushAgent (agname)
       {
+         if (agname === undefined || agname.length == 0) return;
+
          // name and alias if any
          var namalia = agname.split("=");
+         var valo = agname;
 
-         agArr.push (namalia[0]);
          if (namalia[1])
-            agentsAlias[namalia[0]] = namalia[1];
+         {
+            valo = finalName (namalia[1]);
+            agentsAlias[namalia[0]] = valo;
+         }
+         if (agArr.indexOf (valo) == -1 && !agentsAlias[valo])
+         {
+            agArr.push (valo);
+         }
       }
 
       agentsAlias = {};
@@ -60,11 +91,23 @@ function conSecuencioPlain (diagData)
       {
          if (ii === "0") continue;
 
-         if (tx != -1 && mats[ii][tx] && agArr.indexOf (mats[ii][tx]) == -1)
+         if (tx != -1 && mats[ii][tx])
             pushAgent (mats[ii][tx]);
-         if (rx != -1 && mats[ii][rx] && agArr.indexOf (mats[ii][rx]) == -1)
+         if (rx != -1 && mats[ii][rx])
             pushAgent (mats[ii][rx]);
       }
+
+      // reduce columns if some alias present
+      //
+      for (var ii = agArr.length - 1; ii >= 0; ii --)
+         if (agentsAlias[agArr[ii]])
+            agArr.splice (ii, 1);
+
+      // resolve all alias (alias of alias etc)
+      // twice ensure all combinations (?)
+      for (var tt = 0; tt < 2; tt ++)
+         for (var ii in agentsAlias)
+            agentsAlias[ii] = finalName (agentsAlias[ii]);
 
       return agArr;
    }
@@ -249,8 +292,7 @@ function conSecuencioPlain (diagData)
       if (aa === "0") continue;
 
       var ti = hasTime () ? arr[aa][iTimeStamp]: parseInt (aa);
-      var a1 = agents.indexOf (arr[aa][iAgentTx]);
-      var a2 = agents.indexOf (arr[aa][iAgentRx]);
+
       var tx = arr[aa][iMessage];
 
       if (tx === undefined) {
@@ -274,7 +316,16 @@ function conSecuencioPlain (diagData)
       }
       lastTim = ti;
 
-      putLabel (ti, a1, a2, tx);
+      // get source and target agents (index of agents array)
+      var agenIndxAg1 = agents.indexOf (finalName (arr[aa][iAgent1]));
+      var agenIndxAg2 = agents.indexOf (finalName (arr[aa][iAgent2]));
+
+      // decide which agentindex is "from" and which is "to"
+      //
+      if (iDir == -1 || ["RQ", "REQ", "EV", "TX", ">>"].indexOf ((arr[aa][iDir]).toUpperCase()) >= 0)
+         putLabel (ti, agenIndxAg1, agenIndxAg2, tx);
+      else
+         putLabel (ti, agenIndxAg2, agenIndxAg1, tx);
    }
    out (sCont);
    out (sAgeRay);

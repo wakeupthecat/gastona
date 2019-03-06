@@ -117,7 +117,7 @@ public class tableAccessPathFiles extends tableAccessBase
          filtrum.addCriteria ("+", extext.length == 1 ? extext[ee]: extext[ee].trim ());
    }
 
-   //    SET TABLE, FILES, path, extension, extension
+   //    LOOP, FILES, path, extension, extension
    //
    public boolean setCommand (listixCmdStruct cmdData)
    {
@@ -151,9 +151,10 @@ public class tableAccessPathFiles extends tableAccessBase
             addExtensions (filtrum, extList[oe]);
          }
 
-      // get option FILTERS, opt, exp, opt, exp ...
+      // get option PATHFILTERS, opt, regexp, opt, regexp ...
+      // i.e.       PATHFILTERS, -D, \.git, -D, lint
       //
-      String [] optArr = cmdData.takeOptionParameters("FILTERS");
+      String [] optArr = cmdData.takeOptionParameters(new String [] { "FILTERS", "PATHFILTER", "PATHFILTERS" });
       if (optArr != null)
       {
          for (int ff = 0; ff+1 < optArr.length; ff += 2)
