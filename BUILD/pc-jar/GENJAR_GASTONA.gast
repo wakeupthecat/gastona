@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190306 \"jGastfixada\"
+   <gastonaVersion>  //1.2.190317 \"moreJAST samples\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

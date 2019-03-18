@@ -1,0 +1,74 @@
+#server#
+
+   <extraSTYLE>
+      <! NO!!! si ponemos Consolas para todos entonces codifinestreta NO cambiará la font
+      <!// * { font-family: Consolas }
+      //
+
+   <extraJS>
+      //
+      //</script>
+      //<script id="sampleText" type="esperant">
+      //// This is a text to enjoy much
+      //// you can find some findings here
+      //
+      //function methodSomeFind(int same, float tos=-4.32) {
+      //   return "baste!";
+      //}
+      //# end of files
+      //
+      //</script>
+      //
+      //<script>
+      //
+      //@<:infile META-GASTONA/js/codiFinestreta.js>
+      //
+      //   var divo;
+      //   var colifi;
+      //
+      //   function someColorChanged ()
+      //   {
+      //      setTheme ("anonymus", 
+      //          jast.getDataCell("eBack").substr(1) +
+      //          jast.getDataCell("eNormal").substr(1) +
+      //          jast.getDataCell("eKey").substr(1) +
+      //          jast.getDataCell("eLiteral").substr(1) +
+      //          jast.getDataCell("eComment").substr(1) +
+      //          jast.getDataCell("eMark").substr(1) +
+      //          jast.getDataCell("ePunkt").substr(1) +
+      //          jast.getDataCell("eNum").substr(1) +
+      //          jast.getDataCell("eLinenum").substr(1)
+      //          );
+      //   }
+      //
+      //   function setTheme (name, colors)
+      //   {
+      //       jast.setData ("eBack", "#" + colors.substr( 0, 6));
+      //       jast.setData ("eNormal", "#" + colors.substr( 6, 6));
+      //       jast.setData ("eKey", "#" + colors.substr(12, 6));
+      //       jast.setData ("eLiteral", "#" + colors.substr(18, 6));
+      //       jast.setData ("eComment", "#" + colors.substr(24, 6));
+      //       jast.setData ("eMark", "#" + colors.substr(30, 6));
+      //       jast.setData ("ePunkt", "#" + colors.substr(36, 6));
+      //       jast.setData ("eNum", "#" + colors.substr(42, 6));
+      //       jast.setData ("eLinenum", "#" + colors.substr(48, 6));
+      //       jast.setData ("eCadena", colors);
+      //       colifi.changeTheme (colors);
+      //   }
+      //
+      //   function setFont (lafont)
+      //   {
+      //      colifi.changeFont(lafont);
+      //   }
+      //
+      //   //Note: getting this element later (e.g. initializaThorthas does not work!)
+      //   var sample = document.getElementById ("sampleText");
+      //
+      //   function initializaThorthas ()
+      //   {
+      //      colifi = codiFinestreta (sample.text.split ("\n"), 1, /find/g);
+      //      divo = document.getElementById ("dSample");
+      //      colifi.attachTo (divo);
+      //      colifi.gotoLine (1);
+      //   }
+      //

@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Marketes editour</title>
+		<style type="text/css">
+         html
+         {
+           -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+           box-sizing: border-box;
+         }
+         
+         
+         #dHtmlOut, textarea 
+         {
+            font-family: monospace;
+         }
+* 
+{
+   font-family: Ubuntu, Tahoma, sans-serif;
+   margin-left: 0px;
+   margin-right: 0px;
+}
+
+p, h1, h2, h3, h4, code
+{
+   margin-left: 15px;
+   margin-right: 15px;
+}
+
+header {
+    background: linear-gradient(to right, rgb(242, 110, 41), rgb(188, 56, 6));
+    
+    color:white;
+    font-size: 20px;
+    height: 36px;
+    font-weight: normal;
+    padding:16px; 
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+p
+{
+   color: rgb(51, 51, 51);
+   display: block;
+   font-size: 15px;
+   line-height: 22.5px;
+   margin-bottom: 10px;
+   margin-top: 0px;
+}
+
+h1
+{
+   color: rgb(51, 51, 51);
+   display: block;
+   font-size: 36px;
+   font-weight: bold;
+   line-height: 40px;
+   margin-bottom: 15px;
+   margin-top: 15px;
+   text-rendering: optimizeLegibility;
+}
+
+h2
+{
+   color: rgb(51, 51, 51);
+   display: block;
+   font-size: 30px;
+   font-weight: bold;
+   line-height: 40px;
+   margin-bottom: 15px;
+   margin-top: 15px;
+   text-rendering: optimizeLegibility;
+}
+
+h3
+{
+   color: rgb(51, 51, 51);
+   display: block;
+   font-family: Ubuntu, Tahoma, sans-serif;
+   font-size: 18px;
+   font-weight: bold;
+   line-height: 20px;
+   margin-bottom: 15px;
+   margin-top: 15px;
+   text-rendering: optimizeLegibility;
+}
+
+h4
+{
+   color: rgb(51, 51, 51);
+   display: block;
+   font-family: Ubuntu, Tahoma, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   line-height: 20px;
+   margin-bottom: 15px;
+   margin-top: 15px;
+   text-rendering: optimizeLegibility;
+}
+
+code {
+   background-color: rgb(241, 241, 241);
+   border-bottom-color: rgb(221, 221, 221);
+   border-bottom-left-radius: 8px;
+   border-bottom-right-radius: 8px;
+   border-bottom-style: solid;
+   border-bottom-width: 1px;
+   border-image-outset: 0px;
+   border-image-repeat: stretch;
+   border-image-slice: 100%;
+   border-image-source: none;
+   border-image-width: 1;
+   border-left-color: rgb(221, 221, 221);
+   border-left-style: solid;
+   border-left-width: 1px;
+   border-right-color: rgb(221, 221, 221);
+   border-right-style: solid;
+   border-right-width: 1px;
+   border-top-color: rgb(221, 221, 221);
+   border-top-left-radius: 8px;
+   border-top-right-radius: 8px;
+   border-top-style: solid;
+   border-top-width: 1px;
+   color: rgb(51, 51, 51);
+   display: block;
+   font-family: monospace;
+   font-size: 14px;
+   font-style: normal;
+   font-variant: normal;
+   font-weight: normal;
+   line-height: 18.4px;
+   margin-bottom: 7px;
+   margin-top: 7px;
+   padding-bottom: 10px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 10px;
+   white-space: pre;
+}
+         
+		</style>
+	</head>
+<body>
+
+   <div id="corpinyo">
+   </div>
+
+   <script>
+
+/*
+Copyright (C) 2015 Alejandro Xalabarder Aulet
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
+/**
+   @author Alejandro Xalabarder
+   @date   2015.07.26
+
+   @file   Luix.js
+
+   @desc
+      Logic in javascript emulating as close as possible the one
+      used in gastona + javaj + listix + mensaka in gastona java project
+
+      It is in its very first development phase ...
+
+      what is implemented for now is
+
+         - automatic generation of html widgets based on the layout component's first character
+           including binding with data model (eva unit data)
+
+         - handling of messages : msg to widgets, msg from widgets, msg responseAjax
+
+         - AJAX facility methods : AJAXFormatBody and AJAXSend
+
+
+*/
+
+"use strict";
+
+function Luix (evaConfig, mymensaka)
+{
+   "use strict";
+   var evaConfig,
+       dataUnit,
+       responseAjaxUnit,
+       listixUnit,
+       javajzWidgets = {},
+       layMan,
+       panelStr = "",
+       corpiny
+       ;
+
+   dataUnit = evaConfig["data"] || {};
+   listixUnit = evaConfig["listix"] || {};
+
+   corpiny = document.getElementById("corpinyo");
+   layMan = layoutManager (evaConfig, onAddWidget);
+
+   return {
+      // public functions to export
+      doShowLayout   : layMan.doShowLayout,
+      setLayout      : layMan.setLayout,
+      doLayout       : layMan.doLayout,
+      mensaka        : mensaka2,
+      getData        : getDataCell,
+      setData        : setDataCell,
+      getRespAjax    : responseAjaxUnit,
+      mask           : layMan.maskLayoutId,
+      unmask         : layMan.unmaskLayoutId,
+      AJAXSend       : AJAXSend
+   };
+
+   function getDataCell(name, row, col)
+   {
+      return dataUnit[name] ? dataUnit[name][row||"0"][col||"0"]||"": "";
+   }
+
+   function setDataCell (name, row, col, value)
+   {
+      // create variable if needed
+      if (!dataUnit[name])
+         dataUnit[name] = [[""]];
+
+      // create row if needed
+      if (!dataUnit[name][row||"0"])
+         dataUnit[name][row||"0"] = [ "" ];
+
+      dataUnit[name][row||"0"][col||"0"] = value||"";
+   }
+
+   function mensaka2 (msg)
+   {
+      // handling messages for widgets i.e. "zwidget data!" (update data of zwidget)
+      // (javaj task)
+      var ii = msg.indexOf (" ");
+      if (ii > 0)
+      {
+         var wnam = msg.substr (0,ii); // widget name i.e. "bBoton"
+         var wmet = msg.substr (ii+1); // method      i.e. "data!"
+         if (javajzWidgets[wnam])
+         {
+            // widget found, so we will return
+            if (javajzWidgets[wnam][wmet])
+                 javajzWidgets[wnam][wmet] ();
+            else console.log ("Error: widget " + wnam  + " has no method '" + wmet + "'");
+            return;
+         }
+      }
+
+      // look for the variable <-- message>, first in data else in listix
+      // (listix task)
+      // Note : here it is done in an "interpreter fashion",
+      //        another approach is to generate proper functions and listeners previosly
+      //
+      var fbody = dataUnit["-- " + msg] || listixUnit["-- " + msg];
+      if (! fbody)
+      {
+         // message not subscribed! ignore it
+         console.log ("ignoring mensaka \"" + msg  + "\"");
+         return;
+      }
+
+      executeListixFormat (fbody);
+   }
+
+   function executeListixFormat (fbody)
+   {
+      var strBody = ""
+      for (var ii in fbody)
+         strBody += fbody[ii] + "\n";
+
+      eval (strBody);
+   }
+
+
+   function onAddWidget (name)
+   {
+      if (! name || name.length == 0) return;
+
+      var zwid;
+
+      var singleValue = function () { this.innerHTML = dataUnit[this.id]||this.id.substr(1); }
+      var assignValue = function () { dataUnit[name][0] = this.value||"?"; };
+      var assignText = function () 
+                       { 
+                           dataUnit[name] = [ ];
+                           var text = this.value||"?";
+                           var rows = text.split("\n");
+                           for (var rr in rows)
+                              dataUnit[name][rr] = [ rows[rr] ];
+                       };
+
+      var message = function () { mensaka(name); }
+      var hayClassOf = dataUnit["class of " + name];
+      var widgetclass = hayClassOf ? hayClassOf[0][0] : name;
+
+      switch (widgetclass.charAt (0))
+      {
+         case 'd':
+            zwid = fabricaStandard ("div", name, { "data!": singleValue  } );
+            break;
+         case 'n':
+            zwid = fabricaStandard ("a", name, { href: "login", "data!": singleValue } );
+            break;
+         case 'b':
+            zwid = fabricaStandard ("button", name, { onclick: message, "data!": singleValue } );
+            break;
+         case 'e':
+            zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, "data!": function () { this.value = dataUnit[this.id]||""; } } );
+            break;
+         case 'p':
+            zwid = fabricaStandard ("input", name, { type: "password", onchange: assignValue, "data!": function () { this.value = ""; } } );
+            break;
+         case 'l':
+            zwid = fabricaStandard ("label", name, { "data!": singleValue } );
+            break;
+         case 'x':
+            {
+               var updata = function () {
+                     var tex = "", row;
+                     for (row in dataUnit[this.id])
+                        tex += dataUnit[this.id][row] + "&#13;";
+                     this.innerHTML = tex;
+                  }
+               zwid = fabricaStandard ("textarea", name, { "data!": updata, onchange: assignText } );
+            }
+            break;
+
+         // image
+         case 'm':
+            zwid = fabricaStandard ("img", name, { "data!": function () { this.src = dataUnit[this.id]||""; } } );
+            break;
+
+
+         case 'c':	// combo
+         case 'r':	// radio group
+         case 'k':  // checkbox group
+         case 'i':  // list
+            {
+               var labels = [], values = [];
+               // Now assume list of "value, label" for the data (with column names in the first row!)
+               //
+               for (var row in dataUnit[name])
+               {
+                  if (row !== "0")
+                  {
+                     values.push (dataUnit[name][row][0]||"?");
+                     labels.push (dataUnit[name][row][1]||"?");
+                  }
+               }
+               var orient = dataUnit[name + " orientation"]||"X";
+
+               if (name.charAt (0) == 'c')
+                  corpiny.appendChild (fabricaSelect (name, values, labels, false));
+               if (name.charAt (0) == 'i')
+                  corpiny.appendChild (fabricaSelect (name, values, labels, true));
+               if (name.charAt (0) == 'r')
+                  corpiny.appendChild (fabricaGrupo ("radio", orient, name, values, labels));
+               if (name.charAt (0) == 'k')
+                  corpiny.appendChild (fabricaGrupo ("checkbox", orient, name, values, labels));
+            }
+            break;
+      }
+
+      if (zwid)
+      {
+         // collect it
+         javajzWidgets[name] = zwid;
+         corpiny.appendChild (zwid);
+         if (zwid["data!"])
+            zwid["data!"] (); // update data
+         else
+            alert ("este peazo winchets /" + zwid.id + "/ nos tienes usdastas!");
+      }
+   }
+
+   function fabricaStandard (typestr, name, atts)
+   {
+      var ele = document.createElement (typestr);   // "label" "button" etc
+      ele["id"] = name;
+      for (var aa in atts)
+      {
+         ele[aa] = atts[aa];
+      }
+      // if (text)
+      //   ele.appendChild (document.createTextNode(text));
+
+      return ele;
+   }
+
+   function fabricaCombo (name, arrOp, arrLab)
+   {
+      return fabricaSelect (name, arrOp, arrLab, false);
+   }
+
+   function fabricaList (name, arrOp, arrLab)
+   {
+      return fabricaSelect (name, arrOp, arrLab, true);
+   }
+
+   function fabricaSelect (name, arrOp, arrLab, ismultiple)
+   {
+      var ele = document.createElement ("select");
+      if (ismultiple)
+         ele["multiple"] = "si";
+
+      ele["id"] = name;
+      ele["onchange"] = function () { mensaka(name) };
+      for (var ite in arrOp)
+      {
+         var subele = document.createElement ("option");
+         subele["value"] = arrOp[ite];
+         subele["data!"] = function () { };
+         subele.appendChild (document.createTextNode(arrLab[ite]));
+         ele.appendChild (subele);
+      }
+
+      return ele;
+   }
+
+   function fabricaGrupo (tipo, orient, name, arrOp, arrLab)
+   {
+      var ele = document.createElement ("div");
+      ele["id"] = name;
+      ele["onchange"] = function () {  mensaka (name); }; // alert ("elegido = " + dataUnit[name + " selected.value"]);
+      for (var ite in arrOp)
+      {
+         var subele = document.createElement ("input");
+         subele["type"] = tipo;
+         subele["name"] = name;
+         subele["value"] = arrOp[ite];
+         subele["label"] = arrLab[ite];
+         subele["data!"] = function () { };
+         subele["onchange"] = function () {
+                   dataUnit[name + " selected.value"] = [[ this.value||"?" ]];
+                   dataUnit[name + " selected.label"] = [[ this.label||"?" ]];
+                   };
+         if (ite !== "0" && (orient == "Y" || orient == "V"))
+            ele.appendChild (document.createElement ("br"));
+         ele.appendChild (subele);
+         ele.appendChild (document.createTextNode(arrLab[ite]));
+      }
+
+      return ele;
+  }
+
+   // ============ AJAX stuff (AJAX approach V1)
+   //
+   //    Uses Eva.js for the body request and the response !!
+   //
+   //       USE : for example
+   //             AJAXSend ("addAppGastona", ["title", "source", "code" ]);
+   //       on success the message responseAjax is sent
+   //       and the response body is placed on responseAjaxUnit
+   //
+
+   var httpero;
+
+   function AJAXnotSupported ()
+   {
+      alert("Your browser does not support httpero!");
+   }
+
+   function ErrorHttpResponse ()
+   {
+      alert("Error en servidor, readyState = " + httpero.readyState + " Status = " +  httpero.status);
+   }
+
+   function AJAXInit ()
+   {
+      if (!httpero)
+      {
+         if (window.XMLHttpRequest)
+            httpero = new XMLHttpRequest();
+         else if (window.ActiveXObject)
+            httpero = new ActiveXObject("Microsoft.XMLHTTP");
+         else
+         {
+            AJAXnotSupported ();
+            return;
+         }
+
+         // add callback
+         httpero.onreadystatechange = function ()
+         {
+            if (httpero.readyState == 4 && httpero.status == 200)
+            {
+               // "#ajax# <var1> etc ..." it should be enough one unit for any ajax response
+               responseAjaxUnit = evaFile (httpero.responseText)["ajax"] || { };
+               mensaka ('luix AjaxResponse');
+            }
+            else
+            {
+               //ErrorHttpResponse ();
+            }
+         }
+      }
+   }
+
+   function AJAXFormatBody (postString, bodyVariables, format)
+   {
+      if (format && format != "eva")
+         alert ("AJAXFormatBody: only format eva is supported for now!");
+
+      // prepare the body
+      //
+      var evaObj = evaFileObj (
+                    "#luixAjaxRequest#"    + "\n" +
+                    "   <_luixVersion> 1.0" + "\n" +
+                    "   <_luixAjaxMessage> //" + postString
+                    );
+      var bodyUnit = evaObj.obj["luixAjaxRequest"];
+
+      if (! bodyVariables)
+      {
+         // all variables, if don't want this then set bodyVariables to []
+         bodyVariables = [];
+         for (var ii in dataUnit)
+            bodyVariables.push (ii);
+      }
+      for (var vv in bodyVariables)
+         bodyUnit[bodyVariables[vv]] = dataUnit[bodyVariables[vv]];
+
+      return evaObj.toText ();
+   }
+
+
+   // function AJAXSend (postString, message, bodyVariables)
+   function AJAXSend (postString, bodyText)
+   {
+
+      AJAXInit ();
+      // have http
+
+      responseAjaxUnit = {};
+
+      // send the http request
+      //
+      httpero.open ("POST", postString, true);
+      httpero.send (bodyText);
+   }
+}
+
+/*
+Copyright (C) 2015 Alejandro Xalabarder Aulet
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
+/**
+   @author Alejandro Xalabarder
+   @date   2015.05.21
+   
+   @file   LayoutManager.js
+
+   @desc   Load a set of eva layouts (Eva File format with one unit called "layouts")
+           Handles the visibility of the widgets keeping only visible those whose layout is being rendered
+           Enables the masking mechanism
+
+   @requires EvaLayout.js
+             Eva.js only necessary if want to parse eva format (method evaFile)
+   
+   ---------- Example of tipical use:
+   
+   // load a complete set of layouts to be composed or switched
+   //
+   var managr = layoutManager (evaFile ("#layouts#\n <layout1> Evalayout...."));
+   
+   // select a specific layout, if the function is not called the name "main" is assumed
+   managr.setLayout ("layout3"); 
+   
+   // place the components according to the current layout and using the sizes
+   // tipically this can be called when the window size changes
+   managr.doLayout (dx, dy);     
+   
+   // an example of masking, it replaces the widget button1 with the one called combo4
+   //
+   managr.maskLayoutId ("button1", "combo4");
+
+*/
+function layoutManager (evaObj, callbackAddWidget)
+{
+   "use strict";
+   var guiUnit,
+       changeInWidgets,
+       callbAddWidget = callbackAddWidget || function (ele) { console.log ("adding widget id [" + ele + "]"); },
+       maskMap,
+       layoutStack = [],
+       layoutElemBag,
+       layoutList = [],
+       currentLayoutName,
+       HEADER_ADAPT      = "A",
+       HEADER_EXPAND     = "X",
+       EXPAND_HORIZONTAL = "-",
+       EXPAND_VERTICAL   = "+"
+       ;
+
+   reloadAllLayouts (evaObj);
+
+   return {
+      // public functions to export
+      loadConfig     : function (evaObject) { evaObj = evaObject; reloadAllLayouts (evaObj); },
+      maskLayoutId   : maskElement,
+      unmaskLayoutId : unmaskElement,
+      doShowLayout   : function (layName, dx, dy) { doShowByNameAt (layName, 0, 0, dx, dy); },
+      setLayout      : function (name) { setCurrentLayoutName (name); },
+      doLayout       : function (dx, dy) { doShowByNameAt (currentLayoutName, 0, 0, dx, dy); }
+   };
+
+   // function to check unique values
+   //
+   function checkPushable (stack, layelem, /**/ indx)
+   {
+      for (indx in stack)
+         if (stack[indx] === layelem)
+         {
+            console.log ("ERROR: layout element " + layelem + " already exists, it cannot be stacked!");
+            return false;
+         }
+      return true;
+   }
+
+   function setCurrentLayoutName (name)
+   {
+      if (!currentLayoutName || currentLayoutName !== name)
+      {
+         // hide all elements ?
+         invalidateAll ();
+      }
+
+      currentLayoutName = name;
+   }
+
+   function invalidateAll (/*var*/ layo, layname)
+   {
+      for (layname in layoutElemBag)
+      {
+         layo = layoutElemBag[layname];
+         if (!layo.isWidget)
+            layo.invalidate ();
+         else
+            layo.doShow (false);
+      }
+   }
+
+   // constructor for a layout or widget
+   //
+   function createLayableWidget (wname, oRect)
+   {
+      return {
+         // general layable info (it could be a basis prototype)
+         //
+         wName     : wname,      // name of the component in the layout array
+         isLaidOut : false,      // flag is true if has been found in the layout array
+
+         // initial position and size rectangle of the component
+         //
+         iniRect   : oRect || { left : 0, right : 200, top : 0, bottom : 20},
+
+         // indxPos : place in the layout array measured in array indices
+         //
+         indxPos   : {ileft : 0, iright : 0, itop : 0, ibottom : 0},
+
+         // specific for widget (html widget)
+         //
+         isWidget  : true,
+         doMove : function (x, y, dx, dy) 
+         {
+            var ele = document.getElementById(wname);
+            ele.style.position = "absolute";
+            ele.style.left   = Math.round(x) + "px";            
+            ele.style.top    = Math.round(y) + "px";
+            ele.style.width  = Math.round(dx) + "px";
+            ele.style.height = Math.round(dy) + "px";
+         },
+
+         doShow : function (bShow) {
+               var elm = document.getElementById(wname);
+               if(elm)
+               {
+                  elm.style.display = bShow ? "initial" : "none";
+               }
+            }
+      };
+   }
+
+   function getLayableByName (oname)
+   {
+      var layable = layoutElemBag [doYouMean (oname)];
+
+      if (! layable)
+      {
+         console.log ("ERROR: don't know how to find " + oname + " or " + doYouMean (oname));
+         return createLayableWidget ("bDummy");
+      }
+
+      // Note : getLayableByName is called in doShowAt
+      //        so is a candidate for endless recursion
+      //        here we just prevent calling precalculateAll
+      if (checkPushable (layoutStack, layable.wName))
+      {
+         if (!layable.isWidget)
+            layable.precalculateLayout ();
+      }
+
+      return layable;
+   }
+
+
+
+   function maskElement (masked, masker)
+   {
+      maskMap[masked] = masker;
+      changeInWidgets = true;
+      invalidateAll ();
+   }
+
+   function unmaskElement (masked)
+   {
+      maskMap[masked] = undefined;
+      changeInWidgets = true;
+      invalidateAll ();
+   }
+
+   // basically return the proper name according to the mask state
+   //
+   function doYouMean (namewanted)
+   {
+      var masker;
+      var antiRecList = [];
+
+      do
+      {
+         masker = maskMap [namewanted];
+         if (! masker) return namewanted; // normal exit
+
+         for (indx in antiRecList)
+            if (antiRecList[indx] === masker)
+            {
+               console.log ("ERROR: masks for " + namewanted + " found circular!");
+               return namewanted;
+            }
+         namewanted = masker;
+      } while (antiRecList.length < 200); // a limit of 10 would be enough as well ..
+
+      console.log ("ERROR: masks for " + namewanted + " too deep!");
+      return namewanted;
+   }
+
+   function cellElementIsAnId (ele)
+   {
+      return ele && ele.length > 0 && ele.indexOf(EXPAND_VERTICAL) != 0 && ele.indexOf(EXPAND_HORIZONTAL) != 0;
+   }
+
+   function exportThisManager ()
+   {
+      return {
+         EXPAND_HORIZONTAL: EXPAND_HORIZONTAL,
+         EXPAND_VERTICAL: EXPAND_VERTICAL,
+         guiUnit: guiUnit,
+         getLayableByName: getLayableByName,
+         cellElementIsAnId: cellElementIsAnId
+      };
+   }
+
+   function reloadAllLayouts (evaObj)
+   {
+      // either find unit #layouts#
+      //
+      guiUnit = evaObj["layouts"];
+      if (! guiUnit)
+      {
+         guiUnit = {};
+         // or unit #javaj# to be compatible with gast
+         //
+         var javajUnit = evaObj["javaj"];
+         if (! javajUnit)
+         {
+            console.log ("Error: unit layouts not found!");
+            return;
+         }
+
+         // collect only layouts
+         for (var eva in javajUnit)
+         {
+            if (eva.indexOf ("layout of ") == 0)
+            {
+               // remove "layout of " from the name
+               guiUnit[eva.substr(10)] = javajUnit[eva];
+            }
+         }
+      }
+
+      changeInWidgets = true;
+      maskMap = {};
+      layoutStack = [];
+      //... layoutList = [];  // we have or collect only layouts...
+      layoutElemBag = {};
+
+      // now fill layoutElemBag with all layout and widget ids and its
+      // "layable" data
+
+      // find out all widgets and layouts
+      //
+      for (var lay in guiUnit)
+      {
+         var ela = EvaLayout (exportThisManager (), lay);
+         if (ela)
+         {
+            // +++ collect "layeables" layouts ids
+            layoutElemBag[lay] = ela;
+         console.log ("adding layout id [" + lay + "]");
+            //... layoutList.push (lay);
+         }
+      }
+      // now that we have collect all layout names
+      // go again through all layouts and find the inner elements (widgets or layout references)
+      //
+      var eva, rr, maxrr, cc, maxcc, ele;
+      //... for (lay in layoutList)
+      for (lay in guiUnit)
+      {
+         eva = guiUnit[lay];
+         maxrr = eva.length;
+         for (var rr = 2; rr < maxrr; rr ++)
+         {
+            maxcc = eva[rr].length;
+            for (var cc = 1; cc < maxcc; cc ++)
+            {
+               ele = eva[rr][cc];
+               if (cellElementIsAnId (ele))
+               {
+                  // widget id candidate .. check if it is not a layout id
+                  if (! layoutElemBag[ele])
+                  {
+                     callbAddWidget (ele);
+                     layoutElemBag[ele] = createLayableWidget (ele);  // +++ collect "layeables" widget ids
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   function doShowByNameAt (oname, x0, y0, dx, dy)
+   {
+      oname = oname || "main";
+      setCurrentLayoutName (oname);
+      var layo = getLayableByName (oname);
+
+      // push name
+      layoutStack.push (layo.wName);
+
+      layo.doMove (x0, y0, dx, dy);
+
+      // pop name
+      layoutStack.pop ();
+   }
+}
+   
+/*
+ EvaLayoutManager originally derived from "EvaLayout, Lay it be!"
+ (http://www.codeproject.com/Articles/13891/EvaLayout-Lay-it-be)
+ Copyright (c) 2014, 2015 Domingo Alvarez Duarte (mingodad[at]gmail[dot]com), Alejandro Xalabarder (appdev101[at]wakeupthecat[dot]com)
+ 
+ Released under the MIT LICENSE or GNU LESSER GENERAL PUBLIC LICENSE  Version 3 at your choice
+*/
+
+/**
+   @author Alejandro Xalabarder
+   @date   2015.05.21
+   
+   @file   EvaLayout.js
+
+   @desc   This class (function) is responsible for a single evalayout. Due to the composition and masking features
+           it needs from a reference to the layoutManager to be capable of rendering other layouts and handling
+           properly the masking
+
+   @requires LayoutManager.js
+   
+   ---------- Example of tipical use:
+   
+   typically handled by a LayoutManager
+
+*/
+function EvaLayout (mangr, layName)
+{
+   "use strict";
+   var headColumns, headRows, isPrecalculated = false;
+   var layInfo = mangr.guiUnit[layName];
+   var iniRect = { left : 0, right : 200, top : 0, bottom : 20};
+   var indxPos = {ileft : 0, iright : 0, itop : 0, ibottom : 0};
+   //var COMPENSATE_BROWSER = 15;
+   
+   if (!layInfo)
+   {
+      console.log ("ERROR: no eva found with name \"" + layName + "\"");
+      return;
+   }
+   if (!layInfo[0][0].match (/^eva$|^evalayout$/i))
+   {
+      // not an error, but no evalayout found
+      return;
+   }
+   
+   return {
+      precalculateLayout: precalculateLayout,
+      
+      // general layable info (it could be a basis prototype)
+      //         
+      wName     : layName,    // name of the component in the layout array
+      isLaidOut : false,      // flag is true if has been found in the layout array
+      iniRect   : iniRect,
+      indxPos   : indxPos,
+      invalidate : function () { isPrecalculated = false; },
+
+      // specific for widget (html widget)
+      //         
+      isWidget  : false,
+      doMove    : doMove,
+      doShow    : doShow
+   }
+   
+   // sub-sub "class" HeaderLine to hold and compute all column or row information
+   //
+   function HeaderLine (margin, gap)
+   {
+      var FIXLEN = 0,      // type when pixels width or hight are given
+          MAXMIN = 1,      // adaptable, max of min sizes of all elements in the column or row has to be computed
+          EXPAND = 2,      // expandable, expansion percentage has to be 
+          totalExtra = 0,  // for intern calculation
+          fixLineSize = 0, // exported (see return)
+          regla = [];        // exported (see return)
+          
+      // return object representing a HeaderLine = margin, gap .. and [ HeaderItem, HeaderItem ... ]
+      //
+      return {
+         // exported members
+         margin      : margin,      // symmetric margin in pixels of the header (left-right or top-bottom)
+         gap         : gap,         // gap between header elements (columns or rows)
+         fixedSize   : function () { return fixLineSize; }, // computed fixed size of the header (width if columns, height if rows)
+         regla       : regla,       // array of HeaderItem representing column or row attributes
+
+         // exported methods
+         addItem           : addItem,           // add a HeaderItem (colum or row) to the header
+         setLengthOfItemAt : setLengthOfItemAt, // (index, len) to inform about the minimal size of a layable object at the header index
+         endItems          : endItems,          // call it once finished all input data of headerItems
+         getLengthInRange  : getLengthInRange,   // (totalExtra, indexfrom, indexto) returns the length of the items ín the range
+         countItems        : function () { return regla.length; } // number of items of the header
+      }
+      
+      function HeaderItem (headT)
+      {
+         var type = MAXMIN, extraPercent = 0., len = 0;
+
+         headT = headT + ""; // to accept numbers as well as strings
+
+         if (headT.length == 0 || headT.indexOf ("A") == 0)
+         {
+            type = MAXMIN;
+         }
+         else if (headT.indexOf ("X") == 0)
+         {
+            type = EXPAND;
+            // percentage will calculated afterwards
+            extraPercent = (headT.length < 2) ? 1: parseInt (headT.substr (1));
+         }
+         else
+         {
+            type = FIXLEN; // explicit size
+            len = parseInt (headT);
+         }
+
+         return {
+            type: type,
+            len: len,
+            extraPercent: extraPercent
+         }
+      }
+
+      function addItem (headType, /**/ ite)
+      {
+         ite = HeaderItem(headType || "");
+         regla.push (ite);
+         totalExtra += ite.extraPercent;
+      }
+
+      function setLengthOfItemAt (index, len)
+      {
+         // take into account the information only if column (or row) is of type MAXMIN
+         //
+         if (regla[index] && regla[index].type == MAXMIN)
+            regla[index].len = Math.max(regla[index].len, len);
+      }
+
+      function endItems (/**/ ii, ele)
+      {
+         // compute final fixed size and the extraPercent if needed
+         //
+         fixLineSize = margin + margin + /*COMPENSATE_BROWSER + */ gap * (regla.length - 1);
+         for (ii in regla)
+         {
+            ele = regla[ii]
+            fixLineSize += ele.len;
+            if (totalExtra > 0)
+               ele.extraPercent = (ele.extraPercent / totalExtra);
+         }
+      }
+
+      function getLengthInRange (totalExtra, index, toIndx, /*var*/ suma)
+      {
+         suma = 0;
+         toIndx = toIndx || index; // per default range = index, index
+         
+         // toIndx -1 means : until the end
+         for (; (index <= toIndx || toIndx == -1) && index < regla.length; index ++)
+            suma += gap + regla[index].len + regla[index].extraPercent * totalExtra;
+         return suma;
+      }
+   }
+
+   // example of layInfo structure with real indexes
+   //          0        1   2    3   4
+   //  0    EvaLayout, Mx , My , Gx, Gy     
+   //  1    grid     , X  ,  A , X3
+   //  2           A , wi1, -  , wi2
+   //  3           X , +  , wi3, -
+   //
+   // note that row 0 does not belong to the grid
+   
+   // functions to see the grid as 0,0 based array
+   //
+   function columnHeader (ncol)  {  return layInfo[1][ncol + 1];  }
+   function rowHeader    (nrow)  {  return layInfo[2 + nrow][0];  }
+   function gridRows     ()      {  return layInfo.length - 2;           }
+   function gridCols     (nrow)  {  return layInfo[2 + nrow].length - 1; }
+
+   function getGridCell (rr, cc)
+   {
+      rr += 2;
+      cc += 1;
+      if (rr >= 0 && rr < layInfo.length && 
+          cc >= 0 && cc < layInfo[rr].length)
+            return layInfo[rr][cc];
+   }
+
+   function precalculateLayout ()
+   {
+      if (isPrecalculated) return;
+
+      // from .. marginX, marginY, gapX, gapY
+      //      
+      headColumns = HeaderLine (parseInt (layInfo [0][1]) || 0,  // margin X
+                                parseInt (layInfo [0][3]) || 0)  // gap X
+      headRows    = HeaderLine (parseInt (layInfo [0][2]) || 0,  // margin Y
+                                parseInt (layInfo [0][4]) || 0)  // gap Y
+
+      var nCols = 0; 
+      var nRows = gridRows ();
+
+      for (var rr = 0; rr < nRows; rr ++)
+      {
+         nCols = gridCols (rr);
+         headRows.addItem (rowHeader (rr));
+
+         for (var cc = 0; cc < nCols; cc ++)
+         {
+            if (cc >= headColumns.countItems ()) // add just once per column!
+            {
+               headColumns.addItem (columnHeader (cc));
+            }
+
+            var wname = getGridCell(rr, cc);
+            if (! wname || ! mangr.cellElementIsAnId (wname)) continue;
+            //... console.log ("precalc " + wname);
+            var laya = mangr.getLayableByName (wname);
+            if (! laya) continue;
+
+            // set position x1,y1
+            //
+            laya.indxPos.ileft = cc;
+            laya.indxPos.itop  = rr;
+
+            // set position x2 checking cells with horizontal expansion 
+            //
+            var ava = cc;
+            while (ava+1 < nCols && getGridCell(rr, ava+1) === mangr.EXPAND_HORIZONTAL) ava ++;
+            if (ava+1 < nCols && getGridCell(rr, ava+1) === mangr.EXPAND_HORIZONTAL + mangr.EXPAND_HORIZONTAL) ava = -1;
+            laya.indxPos.iright = ava;
+            if (ava == cc)
+            {
+               // add contribution of the cell rr, cc to the MAXMIN computation of rows
+               // only if this widget does not expand horinzontally!
+               //        
+               headColumns.setLengthOfItemAt (cc, laya.iniRect.right - laya.iniRect.left);
+            }
+
+            // set position y2 checking cells with vertical expansion 
+            //
+            ava = rr;
+            while (ava+1 < nRows && getGridCell(ava+1, cc) === mangr.EXPAND_VERTICAL) ava ++;
+            if (ava+1 < nRows && getGridCell(ava+1, cc) === mangr.EXPAND_VERTICAL + mangr.EXPAND_VERTICAL) ava = -1;
+            laya.indxPos.ibottom = ava;
+            if (ava == rr)
+            {
+               // add contribution of the cell rr, cc to the MAXMIN computation of rows
+               // only if this widget does not expand horinzontally!
+               //        
+               headRows.setLengthOfItemAt (rr, laya.iniRect.bottom - laya.iniRect.top);
+            }
+            //... console.log ("precalc set " + wname + " at " + laya.indxPos);
+
+            laya.isLaidOut = true;
+         }
+      }
+
+      // last calculations
+      //
+      headColumns.endItems ();
+      headRows.endItems ();
+      
+      iniRect.top = 0;
+      iniRect.bottom = headRows.fixedSize ();
+      iniRect.left = 0;
+      iniRect.right = headColumns.fixedSize ();
+      
+      isPrecalculated = true;
+   }
+
+   function doMove (x0, y0, totWidth, totHeight)
+   {
+      precalculateLayout ();
+
+      var extraVertical   = (totHeight - headRows.fixedSize ());
+      var extraHorizontal = (totWidth  - headColumns.fixedSize ());
+      
+      var posX = x0 + headColumns.margin;
+      for (var cc = 0; cc < headColumns.countItems (); cc ++)
+      {
+         // add the size of the previous column
+         if (cc > 0)
+            posX += headColumns.getLengthInRange (extraHorizontal, cc-1);
+ 
+         var posY = y0 + headRows.margin;
+         for (var rr = 0; rr < headRows.countItems (); rr ++)
+         {
+            // add the size of the previous row
+            if (rr > 0)
+               posY += headRows.getLengthInRange (extraVertical, rr-1);
+
+            var wname = getGridCell(rr, cc);
+            if (! wname ) continue;
+            var laya = mangr.getLayableByName (wname);
+            if (! laya) continue;
+
+            if (laya.isLaidOut)
+            {            
+               var dx = -headColumns.gap; // we will add one too many
+               var dy = -headRows.gap;    // we will add one too many
+
+               dx += headColumns.getLengthInRange (extraHorizontal, laya.indxPos.ileft, laya.indxPos.iright);
+               dy += headRows.getLengthInRange (extraVertical, laya.indxPos.itop, laya.indxPos.ibottom);
+
+               if (posX < 0 || posY < 0 || dx < 0 || dy < 0) 
+               {
+                  //... console.log ("esto " + wname + " no se ve na de na " + posX + ", " + posY + ", " + dx + ", " + dy);
+                  continue;
+               }
+               //... console.log ("widget " + wname + " set at " + posX + ", " + posY + " dim " + dx + " x " + dy);
+               laya.doMove (posX, posY, dx, dy);
+               laya.doShow (true);
+            }
+            else 
+            {
+               //... console.log ("esto " + wname + " lo oculto ");
+               laya.doShow (false);
+            }
+         }
+      }
+   }
+
+   function doShow (bShow)
+   {
+      precalculateLayout ();
+      for (var cc = 0; cc < headColumns.countItems (); cc ++)
+      {
+         for (var rr = 0; rr < headRows.countItems (); rr ++)
+         {
+            var laya = mangr.getLayableByName (getGridCell(rr, cc));
+            if (laya)
+               laya.doShow (bShow);
+         }
+      }
+   }
+}
+
+/*
+Copyright (C) 2015 Alejandro Xalabarder Aulet
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
+/**
+   @author Alejandro Xalabarder
+   @date   2015.05.21
+   
+   @file   Eva.js
+
+   @desc   
+      Conversion from string to eva file object plus methods to convert again into string 
+      the whole object, a single unit or a single eva.
+
+      Note : EVA (Estructura Variable de Archivos) is an open and free format
+          
+   ---------- Example of use:
+
+   // TEST EVA
+
+   wes = "#unit primera#                " + "\n" +
+         "                              " + "\n" +
+         "  <info> first eva, etc, etc  " + "\n" +
+         "      second, line, and more  " + "\n" +
+         "                              " + "\n" +
+         "  <milist> id, name           " + "\n" +
+         "    5612, Goettingen          " + "\n" +
+         "    1742, Plasencia           " + "\n" +
+         "    09211, Ordunya            " + "\n" +
+         "                              " + "\n" +
+         "#ultima#                      " + "\n" +
+         "   no en eva, no cuenta       " + "\n" +
+         " <sano>                       " + "\n" +
+         "   bla, blah                  " + "\n" +
+         "   blax, 77, blah             " + "\n" +
+         "" ;
+
+   var comol = evaFileObj (wes);
+   console.log (comol);
+   console.log ("Gauss lived in " + comol.obj["unit primera"]["milist"][1][1]);
+
+
+  jsEva v0.20
+  
+  differences respect eva parser in C++ and java
+
+   - implemented "rest of line" (chat ' or //) only for the first column!
+   - double quotation is not handled! the rows are splited simply by comma (,)
+   - final cells are processed with the function decodeURIComponent ()
+     this allow the inclusion of any unicode character, returns (%0A) and commas (%2C)!
+   - to allow content with commas, either use "rest of the line" (//) if the row has only
+     one column or use %2C
+   
+*/
+
+"use strict";
+
+function evaFileObj (obj)
+{
+   // parse eva file if the object is not given directly
+   //
+   if (typeof obj === "string")
+      obj = evaFile (obj);
+
+   return {
+      obj             : obj,
+      toText          : function () { return evaFileObj2Text (obj); },
+      toString        : function () { return evaFileObj2Text (obj); },
+      evaFileObj2Text : evaFileObj2Text,
+      evaUnitObj2Text : evaUnitObj2Text,
+      evaObj2Text     : evaObj2Text
+   };
+
+   function evaFileObj2Text (evafileObj)
+   {
+      var str = "", uni;
+      for (uni in evafileObj)
+      {
+         str += "\n#" + uni + "#\n";
+         str += evaUnitObj2Text (evafileObj[uni]);
+      }
+      return str;
+   }
+
+   function evaUnitObj2Text (obj)
+   {
+      var str = "", eva;
+      for (eva in obj)
+      {
+         str += "\n   <" + eva + ">\n";
+         str += evaObj2Text (obj[eva]);
+      }
+      return str;
+   }
+
+   function evaObj2Text (obj)
+   {
+      var str = "", lin;
+      for (var row in obj)
+      {
+         str += "      ";
+         for (var col in obj[row])
+         {
+            if (col > 0)
+               str += ", ";
+            if (col == obj[row].length - 1)
+               str += "//";
+            str += obj[row][col];
+         }
+         str += "\n";
+      }
+      return str;
+   }
+}
+
+function evaFile (fileStr)
+{
+
+   return parseFileStr (fileStr);
+
+   /*
+      Example of use:
+      var sal = isname ("< isThis aName?> yes it is   ", "<", ">")
+      out ("name = /" + sal.name + "/");
+      out ("rest = /" + sal.rest + "/");
+      // name = / isThis aName?/
+      // rest = /yes it is/
+   */
+   function isname (line, charStart, charEnd, /*var*/ indx)
+   {
+      if (line.indexOf (charStart) != 0) return;
+      indx = line.indexOf (charEnd, 1);
+      if (indx > 0)
+         return {
+            name: line.substr (1, indx-1),      // do not trim names
+            rest: line.substr (indx+1).trim ()
+         }
+   }
+
+   /*
+      Example of use:
+      out (parseEvaLine ("    one    , two,     three ... etc   "));
+      // => [ "one", "two", "three ... etc" ]
+   */
+   function parseEvaLine (evalineStr, /*var*/ le, arr, indx)
+   {
+      evalineStr = evalineStr.trim ();
+      le = evalineStr.length;
+      if (le == 0) return;
+
+      // implement basic rest of line escape either with ' or // but ONLY for the first column!
+      if (evalineStr.indexOf("'") == 0)
+      {
+         return [ evalineStr.substr(1) ];
+      }
+      if (evalineStr.indexOf("//") == 0)
+      {
+         return [ evalineStr.substr(2) ];
+      }
+      
+      // remove last trailing "," if last character
+      //
+      //       ","  => 1 element
+      //       ",," => 2 element
+      //       etc..
+      //
+      if (evalineStr.lastIndexOf (",") == le - 1)
+         evalineStr = evalineStr.substring (0, le - 1);
+
+      arr = evalineStr.split(',');
+      for (indx in arr)
+      {
+         arr[indx] = decodeURIComponent (arr[indx].trim ());
+      }
+
+      return arr;
+   }
+
+   function parseFileStr (filetext)
+   {
+      var nameUnit, nameEva, novoName, linStr, textArr, lineArr, lindx;
+      var currFile = {}, currUnit = {}, currEva = [];
+
+      function setCurrent (finishUnit)
+      {
+         if (nameEva)
+            currUnit[nameEva] = currEva;
+         nameEva = undefined;
+         currEva = [];
+
+         if (finishUnit)
+         {
+            if (nameUnit)
+               currFile[nameUnit] = currUnit;
+            nameUnit = undefined;
+            currUnit = [];
+         }
+      }
+
+      // get array of lines
+      //
+      var textArr = filetext;
+      if (typeof filetext === "string")
+      {
+         textArr = filetext.split('\n');
+      }
+
+      for (lindx in textArr)
+      {
+         linStr = textArr[lindx].trim ();
+
+         // check if start of unit
+         //
+         novoName = isname (linStr, "#", "#");
+         if (novoName)
+         {
+            setCurrent (true);
+            nameUnit = novoName.name;
+            console.log ("ignoring " + novoName.rest);
+            continue;
+         }
+
+         // check if start of eva
+         //
+         novoName = isname (linStr, "<", ">");
+         if (novoName)
+         {
+            setCurrent (false);
+            nameEva = novoName.name;
+            linStr = novoName.rest;
+            if (linStr.length == 0) continue;
+         }
+
+         // it is a eva line or something to ignore like
+         // something before first unit or first eva of the current unit
+         //
+         if (nameUnit && nameEva)
+         {
+            lineArr = parseEvaLine (linStr);
+            if (lineArr)
+               currEva.push (lineArr);
+         }
+         else
+         {
+            console.log ("ignoring " + linStr);
+         }
+      }
+      setCurrent (true);
+      return currFile;
+   }
+
+   //
+   // parseSingleEva ("  one , two, three ... etc \n 1002, theEnd");
+   //
+   // => [ [ "one", "two", "three ... etc" ], [ "1002", "theEnd" ] ]
+   //
+   function parseSingleEva (textStr)
+   {
+      var eva = [], lines, indx, linArr;
+      lines = textStr.split('\n');
+      for (indx in lines)
+      {
+         linArr = eva_parseEvaLine (lines[indx]);
+         if (linArr.length == 0) continue; //ignore blank lines
+         eva.push(linArr);
+      }
+
+      return eva;
+   }
+}
+   
+var pograma = function () {
+/*
+#layouts#
+
+   <main>
+      Evalayout, 30, 30, 20, 20
+         --- , X          , X2
+           X , xMarketesIn, dMarketesOut
+           X , xHtmlOut   , +
+
+#data#
+
+   <xMarketesIn>
+      //#h Cabecera
+      //-- Titulo
+      // Hola! escribe algo en marketes!
+      //
+
+#**#
+
+*/
+}.toString ();
+
+   var luix = Luix (evaFile (pograma));
+
+   function adapta ()
+   {
+      luix.doLayout(window.innerWidth-15, window.innerHeight-15);
+      
+      //document.getElementById('xMarketesIn').addEventListener ("keyup", maka );
+      document.getElementById('xMarketesIn').onkeyup = maka;
+      maka ();      
+   }
+
+   window.addEventListener("load", adapta);
+   window.addEventListener("resize", adapta);
+
+   function mensaka (na)
+   {
+      luix.mensaka (na)
+   }
+
+   maka ();
+
+function maka ()
+{
+   var str = document.getElementById('xMarketesIn').value;
+   var productoHtml = marketes(str);
+
+   //var sal = "<pre>";
+   var sal = "";
+   
+   sal += escapeHtml ("<html><head>") + "\n";
+   sal += escapeHtml ("   <!-- <link rel='stylesheet' type='text/css' href='REMEMBER INCLUDE YOUR STYLE.css'> -->") + "\n";
+   sal += escapeHtml ("<style>") + "\n";
+   sal += escapeHtml ("   <!--  or paste it here -->") + "\n";
+   sal += escapeHtml ("</style>") + "\n";
+   sal += escapeHtml ("</head><body>") + "\n";
+   sal += escapeHtml (productoHtml) + "\n";
+   sal += escapeHtml ("</body></html>") + "\n";
+   //sal += "</pre>";
+   
+   document.getElementById("xHtmlOut").innerHTML = sal;
+
+   document.getElementById('dMarketesOut').innerHTML = productoHtml;
+}
+
+
+function escapeHtml(str)
+{
+   return String(str).replace(/&/g, '&amp;')
+                     .replace(/"/g, '&quot;')
+                     .replace(/'/g, '&#39;')
+                     .replace(/</g, '&lt;')
+                     .replace(/>/g, '&gt;');
+}
+
+
+/**
+ * marketes - a marketes format parser
+ * Copyright (c) 2015, Alejandro Xalabarder (MIT Licensed)
+ */
+
+// uses fileStr (file),  escapeHtml (s)
+//
+
+function marketes (filo)
+{
+   "use strict";
+   var fileOb,
+       textHtml = "",
+       linstr = "",
+       openedTag = "",
+       isemptyLine = false,
+       acumRt = ""
+       ;
+
+   fileOb = fileStr (filo);
+
+   while (! fileOb.eof ())
+   {
+      linstr = fileOb.getLine ();
+
+      if (checkSpecial ("#h ", "header")) continue;
+      if (checkHeader (1)) continue;
+      if (checkHeader (2)) continue;
+      if (checkHeader (3)) continue;
+      if (checkHeader (4)) continue;
+
+      isemptyLine = (linstr.trim ().length === 0);
+      if (isemptyLine)
+      {
+         if (openedTag === "code")
+            acumRt += "\n";
+         else
+            openTag ();
+      }
+      else
+      {
+         if (linstr.indexOf ("    ") == 0)
+         {
+            openTag ("code");
+            textHtml += acumRt + escapeHtml (linstr.substr (4)) + "\n";
+            acumRt = "";
+         }
+         else
+         {
+            openTag ("p");
+            textHtml += linstr + "\n";;
+         }
+      }
+   }
+
+   return textHtml;
+   // ........................ return
+
+
+   // ===============================
+   // === functions
+
+   function closeCurrentTag ()
+   {
+      // Note: for </code> we need </code></pre>
+      if (openedTag.length > 0)
+         return "</" + openedTag + ">" + ((openedTag === "code") ? "</pre>\n" : "\n");
+      return "";
+   }
+
+   function openCurrentTag ()
+   {
+      // Note: for <code> we need <pre><code>
+      if (openedTag.length > 0)
+         return ((openedTag === "code") ? "<pre>" : "") + "<" + openedTag + ">";
+      return "";
+   }
+
+   function openTag (tagS)
+   {
+      if (!tagS || tagS !== openedTag)
+      {
+         textHtml += closeCurrentTag ();
+         openedTag = tagS || "";
+         textHtml += openCurrentTag ();
+         acumRt = "";
+      }
+   }
+
+   function checkHeader(levh)
+   {
+      var ca1 = "####".substr(0,levh),
+          ca2 = "----".substr(0,levh);
+
+      if (linstr.indexOf (ca1 + " ") == 0 || linstr.indexOf (ca2 + " ") == 0)
+      {
+         openTag ("h" + levh);
+         textHtml += escapeHtml (linstr.substr (levh+1));
+         openTag ();
+         return true;
+      }
+      return false;
+   }
+
+   function checkSpecial(str, attval)
+   {
+      var c1 = linstr.indexOf (str);
+      if (c1 == 0)
+      {
+         textHtml += "<" + attval + ">" + escapeHtml (linstr.substr (str.length)) + "</" + attval + ">";
+         return true;
+      }
+      return false;
+   }
+}
+
+
+/**
+ * fileStr - split lines from a text file given as string handling all possible combinations of CR and LF characters
+ * Copyright (c) 2015, Alejandro Xalabarder (MIT Licensed)
+ */
+
+//  texto mixto con \r\n, \r sueltas y \n sueltas
+//
+//
+//
+
+//// use
+// var textal = fileStr (strfilo);
+// while (! textal.eof ())
+//    out (textal.getLine ());
+//
+function fileStr (strcontent)
+{
+   var textArr = strcontent.split("\n");
+   var indx = 0, restales = "", au, resp;
+
+   return {
+      eof : eof,
+      getLine : getLine,
+      rewind : indx = 0,
+      getCountLines : function () { return textArr.length; }
+   };
+
+   function eof ()
+   {
+      return indx >= textArr.length && restales.length == 0;
+   }
+
+   function getLine ()
+   {
+      if (eof ()) return;
+      if (restales.length == "")
+         restales = textArr[indx ++];
+
+      au = restales.indexOf("\r");
+      if (au >= 0)
+      {
+         resp = restales.substr(0,au);
+         restales = restales.substr(au+1);
+         return resp;
+      }
+      resp = restales;
+      restales = "";
+      return resp;
+   }
+}
+
+</script>
+
+</body>
+</html>

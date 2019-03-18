@@ -39,6 +39,11 @@
       using jGatonaAJAXPost I
       using jGatonaAJAXPost II
       sample jGastona Boletin
+      OnTheFly JAST Secuenci Editor
+      OnTheFly JAST JAST Editor
+      simple CodiFinestreta
+      simple CodiFinestreta II
+      js Visor
 
 
    <jGatona & Evalayout>
@@ -310,6 +315,349 @@
       //      CHECK, VAR, removeId
       //      DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<removeId> ;
 
+
+   <OnTheFly JAST Secuenci Editor>
+      //   <!  We serve an embedded JAST that is an "on the fly" Editor of Sequenci diagrams with a couple of samples
+      //
+      //#data#
+      //
+      //    <JAST_script>
+      //       //#javaj#
+      //       //
+      //       //   <layout of main>
+      //       //      EVALAYOUT, 20, 20, 15, 15
+      //       //
+      //       //         , X           ,    X2
+      //       //         , lSequenciInput, lDiagram output on the fly
+      //       //       X , xScript  , xOnFlyOutput
+      //       //
+      //       //#data#
+      //       //
+      //       //   <xScript onkeyup>
+      //       //      //mensaka ("reflexa");
+      //       //
+      //       //   <xScript>
+      //       //      //  A=User
+      //       //      //  B=Interface
+      //       //      //  C=Server
+      //       //      //
+      //       //      //  A   >>   B   doThisAction
+      //       //      //  B   >>   C   theAction
+      //       //      //  B   <<   C   What_action?
+      //       //      //  A   <<   B   done!
+      //       //
+      //       //#listix#
+      //       //
+      //       //   <main>
+      //       //      //mensaka ("reflexa");
+      //       //
+      //       //   <-- reflexa>
+      //       //      //var arr = getDataAsTextArray("xScript");
+      //       //      //for (var ii = 0; ii < arr.length; ii ++) arr[ii] = arr[ii].replace(/^\s*/, "").replace(/ +/g, ',');
+      //       //      //setData("xOnFlyOutput", conSecuencioPlain (
+      //       //      //        evaFileStr2obj ("#data#\n<sequenceTable> agent1, dir, agent2, message\n" + arr.join ("\n"))["data"]));
+      //       //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //     //<!DOCTYPE html>
+      //     //<html>
+      //     //<style>
+      //     //
+      //     // * { font-family : Consolas; }
+      //     //
+      //     //</style>
+      //     //<body>
+      //     //
+      //     //<script id="mainJast" type="jast">
+      //     //
+      //     LSX, JAST_script
+      //     //
+      //     //</script>
+      //     //
+      //     //<script>
+      //     //
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //
+      //     //@<:infile META-GASTONA/js/conSecuencioPlain.js>
+      //     //
+      //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //     //   jast.run ();
+      //     //</script>
+      //     //</body></html>
+      //
+      //#**#
+
+   <OnTheFly JAST JAST Editor>
+      //   <!  We serve an embedded JAST file that is an "on the fly" JAST editor and have itself a JAST sample embedded!!
+      //
+      //#data#
+      //
+      //    <JAST_script>
+      //       //#javaj#
+      //       //
+      //       //   <layout of main>
+      //       //      EVALAYOUT, 20, 20, 15, 15
+      //       //
+      //       //         , X           ,    X
+      //       //         , lJAST Script, lGUI on the fly
+      //       //       X , xScript     , dOnFlyOutput
+      //       //
+      //       //#data#
+      //       //
+      //       //   <xScript onkeyup>
+      //       //      //mensaka ("reflexa");
+      //       //
+      //       //   <xScript>
+      //       //      //#javaj#
+      //       //      //
+      //       //      //   <layout of main>
+      //       //      //      EVA, 50, 50, 14, 14
+      //       //      //
+      //       //      //         ,       , X
+      //       //      //         , lLabel, eEntry
+      //       //      //         , bButton, -
+      //       //      //       X , xText, -
+      //       //      //
+      //       //      //#data#
+      //       //      //
+      //       //      //   <lLabel> Enter some text
+      //       //      //
+      //       //      //#listix#
+      //       //      //
+      //       //      //   <-- bButton>
+      //       //      //      //alert ("you entered " + getData("eEntry") + ", isn't it ?");
+      //       //
+      //       //
+      //       //#listix#
+      //       //
+      //       //   <main>
+      //       //      //mensaka ("reflexa");
+      //       //
+      //       //   <-- reflexa>
+      //       //      //jGastona (evaFileStr2obj (getDataAsTextArray("xScript").join ("\n")), "dOnFlyOutput").start ();
+      //       //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //     //<!DOCTYPE html>
+      //     //<html>
+      //     //<style>
+      //     //
+      //     // * { font-family : Consolas; }
+      //     //
+      //     //</style>
+      //     //<body>
+      //     //
+      //     //<script id="mainJast" type="jast">
+      //     //
+      //     LSX, JAST_script
+      //     //
+      //     //</script>
+      //     //
+      //     //<script>
+      //     //
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //
+      //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //     //   jast.run ();
+      //     //
+      //     //</script>
+      //     //</body></html>
+      //
+      //#**#
+
+   <simple CodiFinestreta>
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <div id="place" style="width:400 height: 400"></div>
+      //      //
+      //      //<script id="laData" type="notKnown"> // This is a text to enjoy much
+      //      // // aha ha trobo
+      //      //
+      //      // function Merlon(int same, float trobo=-4.32) {
+      //      //    return "trobo baste!";
+      //      // }
+      //      // # end of files</script>
+      //      //
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/codiFinestreta.js>
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //       var psin = codiFinestreta (document.getElementById("laData").text.split ("\n"), 1, /trobo/g);
+      //      //       var edi = document.getElementById ("place");
+      //      //       psin.setFont("Consolas");
+      //      //       psin.changeTheme ("fusta");
+      //      //       psin.attachTo (edi);
+      //      //       psin.gotoLine (4);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+
+   <simple CodiFinestreta II>
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //
+      //      //   <!-- some settings -->
+      //      //   <button onclick="colifi.changeTheme('fusta')">Fusta</button>
+      //      //   <button onclick="colifi.changeTheme('clar')">Clar</button>
+      //      //   <button onclick="colifi.changeTheme('sang')">Sang</button>
+      //      //   <button onclick="colifi.changeTheme('fefbec 6684e1 b854d4 60ac39 999580 1fad83 20201d d73737')">Atelier Dune Light</button>
+      //      //
+      //      //   <button onclick="colifi.changeFont('monospace')">monospace</button>
+      //      //   <button onclick="colifi.changeFont('Consolas')">Consolas</button>
+      //      //   <button onclick="colifi.changeFont('Courier New')">Courier New</button>
+      //      //   <br><br>
+      //      //
+      //      //   <!-- the container -->
+      //      //   <div id="container" style="width: 600px; height: 300px"></div>
+      //      //
+      //      //   <!-- the code sample -->
+      //      //   <script id="codeSample" type="other">...
+      //      ////Here comes the sample code
+      //      ////in the call to codiFinestreta you give the code text,
+      //      ////the line number to start with and the element to mark
+      //      ////as regular expression
+      //      //
+      //      //if (id == 3) {
+      //      //   callMyFunction ("literal", .393f, false);
+      //      //}
+      //      //   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.   te pases tipus es (que) te pases public tipus int 0123456789-123456789.
+      //      //...</script>
+      //      //
+      //      //
+      //      //   <!-- highlighting with codiFinestreta -->
+      //      //   <script>
+      //      //
+      //      //@<:infile META-GASTONA/js/codiFinestreta.js>
+      //      //
+      //      //      var colifi; // need to be global for the buttons
+      //      //      document.body.onload = function () {
+      //      //         colifi = codiFinestreta (document.getElementById ("codeSample").text.split ("\n"), 142, /element to mark/g);
+      //      //         colifi.attachTo (document.getElementById ("container"));
+      //      //         colifi.gotoLine (1);
+      //      //      }
+      //      //   </script>
+      //      //
+      //      //</body>
+      //      //</html>
+
+   <js Visor>
+      //#javaj#
+      //
+      //   <frames> o
+      //#data#
+      //
+      //    <JAST_script>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //      EVA, 20, 20, 15, 15
+      //      //
+      //      //         , 300      ,   X
+      //      //         , ljs Files, dEdi
+      //      //       X , iFiles   , +
+      //      //
+      //      //#data#
+      //      //
+      //      //   <iFiles>
+      //      //     name
+      //      //
+      //      //     Eva.js
+      //      //     EvaLayout.js
+      //      //     executorJS.lsx.js
+      //      //
+      //      //     httSaco.js
+      //      //     jGastonaEva-dbg.js
+      //      //     jGastonaEva-dbg2.js
+      //      //     jGastonaEva-min.js
+      //      //     jGastonaLit.js
+      //      //     LayoutManager.js
+      //      //     zWidgetsHtml.js
+      //      //
+      //      //     marketes.js
+      //      //     trazos2D.js
+      //      //     codiFinestreta.js
+      //      //
+      //      //     conSecuencioCanvas.js
+      //      //     conSecuencioGraffiti.js
+      //      //     conSecuencioGraffitiNoCanvas.js
+      //      //     conSecuencioPlain.js
+      //      //     conSecuencioPlainExt.js
+      //      //
+      //      //
+      //      //#listix#
+      //      //
+      //      //   <-- iFiles>
+      //      //      //AJAXSend ("getEditorContent",
+      //      //      //           "filename=" + getDataCell("iFiles selected.name"),
+      //      //      //           function contenta (content) { psin.loadText (content.split ("\n")); });
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, START
+      //
+      //   <GET />
+      //     //<!DOCTYPE html>
+      //     //<html>
+      //     //<body>
+      //     //
+      //     //<script id="mainJast" type="jast">
+      //     //
+      //     LSX, JAST_script
+      //     //
+      //     //</script>
+      //     //
+      //     //<script>
+      //     //
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //@<:infile META-GASTONA/js/codiFinestreta.js>
+      //     //
+      //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //     //   jast.run ();
+      //     //   var psin = codiFinestreta ("", 1, /function/g);
+      //     //   var edi = document.getElementById ("dEdi");
+      //     //   psin.attachTo (edi);
+      //     //
+      //     //</script>
+      //     //</body></html>
+      //
+      //   <POST /getEditorContent>
+      //      IN FILE, META-GASTONA/js/@<filename>
+      //             , SOLVE, 0
+      //
+      //#**#
+
+
+
 #**FIN_EVA#
 
 */
+
+
+

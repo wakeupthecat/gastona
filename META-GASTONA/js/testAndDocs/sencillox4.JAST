@@ -1,0 +1,25 @@
+#javaj#
+
+   <layout of main>
+      EVA, 10, 10, 10,10
+
+         , X
+         , lDesc
+       X , dEdi
+
+#data#
+
+   <lDesc> //A server send plain text we format it
+
+#listix#
+
+   <main>
+      //AJAXSend ("getEditorContent", "", 
+      //           function contenta (content) {
+      //                var psin = codiFinestreta (content.split ("\n"), 1, /he/g);
+      //                var edi = document.getElementById ("dEdi");
+      //                psin.setFont("Consoles");
+      //                psin.attachTo (edi);
+      //                psin.gotoLine (4);
+      //           }
+      //         );
