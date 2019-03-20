@@ -10,7 +10,7 @@ features it has out of the box things like
 - communications using UDP and an amazing HTTP server integrated
 
 All these are quite powerful tools for building application and using
-them with Gastona is really straighforward.
+them with Gastona is really straightforward.
 
 It is a GPLv3 open source project implemented in java in two variants
 
@@ -22,7 +22,7 @@ application and run it in all of these systems.
 
 ## Is Gastona different ?
 
-Yes, it is. It has no similarity to any programming language. The main goal
+Yes, it is. It has no similarities to any programming language. The main goal
 is precisely to save programming effort as much as possible.
 
 This can be achieved with a very pragmatic approach, simplification if you want,
@@ -38,7 +38,7 @@ documentation has one or several related sample scripts that can be modified and
 This Github repository contains the source code for both Desktop (or PC) and Android. Actually many
 sources are shared by the two variants, specifically all what is inside the folder "base".
 
-The App for Android is available at the Google market for aproximately 1 Euro which represents
+The App for Android is available at the Google market for approximately 1 Euro which represents
 a support for the project. It is also available as apk to be installed manually.
 
 Binaries for both desktop and android can be found at
@@ -46,7 +46,7 @@ Binaries for both desktop and android can be found at
 
 ## Small demo
 
-Probably the best introduction even before a tutorial and start learnig rules is to see
+Probably the best introduction even before a tutorial and start learning rules is to see
 a quick demo to have the feeling of how the things are done and what you can get from this language.
 
 ### The problem
@@ -63,7 +63,7 @@ code it in few words as well?
 ### The coding
 
 We separate GUI from logic and also from data. The first two are personalized: javaj is the
-responsible guy for the GUI and listix for the logic. Both do their job acording to variables
+responsible guy for the GUI and listix for the logic. Both do their job according to variables
 that we set to them. In this case the script could be
 
       #javaj#
@@ -114,13 +114,13 @@ and this would be the result in Android
 
 ### What about the web?
 
-I start saying there are two variants of gastona, well a third variant is growing right now
+I start saying there are two variants of Gastona, well a third variant is growing right now
 and it is a javascript library.
 
 If the scripting language turns out to be useful and convenient, could we use it also
 for rendering our application in a browser?
 
-The answser is yes,  jGastona.js and the family Eva.js, EvaLayout.js and LayoutManager.js can do that. These are
+The answer is yes,  jGastona.js and the family Eva.js, EvaLayout.js and LayoutManager.js can do that. These are
 pure javascript libraries that implement Gastona for a browser. Not thought to be one to one
 compatible with the java variants, which is not possible and also not needed, but just as
 an alternative for developing browser applications.
