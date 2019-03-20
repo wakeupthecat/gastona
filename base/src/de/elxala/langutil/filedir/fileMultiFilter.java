@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,6 +32,7 @@ import de.elxala.zServices.logger;
 
    Implements FileFilter.accept () for be used with java classes and dialogs
 
+   2019.03.20 do matching case insensitive
 */
 
 public class fileMultiFilter implements FileFilter /* implements accept () */
@@ -63,7 +64,7 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
       if (parte == EXTENSION)
          text = "\\." + text + "$";
 
-      filtrum[criterio][parte].add (Pattern.compile(text));
+      filtrum[criterio][parte].add (Pattern.compile(text, Pattern.CASE_INSENSITIVE));
    }
 
    /**
@@ -110,18 +111,6 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
       genericAdd (crite, parte, textFilter);
    }
 
-//
-//   public void includeExtension (String extension)
-//   {
-//      genericAdd (INCLUDE, EXTENSION, extension);
-//   }
-//
-//   public void excludeExtension (String extension)
-//   {
-//      genericAdd (EXCLUDE, EXTENSION, extension);
-//   }
-//
-//
    private boolean pasaFiltro (int crit, int parte, String name)
    {
       // check if criterium is void
@@ -129,10 +118,6 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
 
       for (int ii = 0; ii < filtrum[crit][parte].size (); ii ++)
       {
-//         Pattern patterno = (Pattern) filtrum[crit][parte];
-//         Matcher matcho = patterno.matcher (name);
-//         boolean cumple = matcho.find ();
-
          boolean cumple = ((Pattern) filtrum[crit][parte].get(ii)).matcher (name).find (); // (*) see note: USE find() instead of matches()
          if (cumple)
             return (crit == INCLUDE);
@@ -145,7 +130,7 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
    public String toString ()
    {
       String str = "[";
-      
+
       for (int crit = INCLUDE; crit <= EXCLUDE; crit ++)
          for (int parte = EXTENSION; parte <= FILENAME; parte ++)
             if (filtrum[crit][parte] != null)
@@ -163,7 +148,7 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
       //
       if (! pasaFiltro (INCLUDE, DIRECTORY, parentPath)) return false;
       if (! pasaFiltro (EXCLUDE, DIRECTORY, parentPath)) return false;
-      if (isDir) 
+      if (isDir)
       {
          log.dbg (4, "accept", "accepted directory parentPath [" +  parentPath + "]");
          return true;
@@ -203,26 +188,6 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
          System.out.println ("   -D  exclude the directory that contains 'str'");
          System.out.println ("   +F  include the file that contains 'str'");
          System.out.println ("   -F  exclude the file that contains 'str'");
-         return;
-      }
-
-      if (aa[0].equals("@"))
-      {
-         // simple test pattern matcher
-         String patt  = (aa.length >= 2) ? aa[1]: "a";
-         String texto = (aa.length >= 3) ? aa[2]: "this is a text";
-
-         Pattern patterno = Pattern.compile (patt);
-         Matcher matcho = patterno.matcher (texto);
-         boolean cumple = matcho.matches ();
-
-         System.out.println ("little Pattern-Matcher test :");
-         System.out.println ("   Pattern [" + patt + "]");
-         System.out.println ("   Matcher [" + texto + "]");
-         System.out.println ("");
-         System.out.println ("   matches ? " + ((cumple) ? "yes": "no"));
-         System.out.println ("   findes  ? " + matcho.find ());
-
          return;
       }
 

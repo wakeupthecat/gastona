@@ -7,7 +7,12 @@
 
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
-      2019-02-17 17:08:19	fix broken parsons: (fix done in 12691)
+   
+      2019-03-20 22:08:00  do SCAN filters case insensitive (so "+E, png" includes also .PNG Png etc)
+                           add more JAST samples in welcomeGastona
+      2019-03-06 01:32:04	fix regression in jGastona (bildID 12685 on 2018-05-29! did break setData function)
+   
+      2019-02-17 17:08:19	fix broken parsons: (regression from yesterday fix)
       2019-02-16 14:48:43	fix issue : PARSONS using VAR get a line not consumed properly
 
       2018-12-13 01:50:58	new property gastona.tmp.dir explicit temp dir

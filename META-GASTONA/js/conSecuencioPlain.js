@@ -112,11 +112,11 @@ function conSecuencioPlain (diagData)
       return agArr;
    }
 
-   function getElapsed (tnow, indxFrom, indxTo, /**/ telapsed)
+   function getElapsed (tnow, indxFrom, indxTo)
    {
       if (!autoElapsed) return "";
 
-      telapsed = timesIda["" + indxTo + "/" + indxFrom];
+      var telapsed = timesIda["" + indxTo + "/" + indxFrom];
       delete timesIda["" + indxFrom + "/" + indxTo];
 
       if (telapsed)
@@ -262,7 +262,7 @@ function conSecuencioPlain (diagData)
       }
    }
 
-   var band = Math.round (distAgents / 3);
+   var band = Math.round (distAgents / 2);
    var sLeft = repeat (' ', TIME_LEN);
    var sLeft0 = repeat (' ', TIME_LEN + 1 - band/2);
    var sGap  = repeat (' ', distAgents - band + 1);
@@ -275,6 +275,8 @@ function conSecuencioPlain (diagData)
    for (var ag in agents)
    {
       var agentStr = agentsAlias[agents[ag]] || agents[ag];
+      if (agentStr.length > band)
+         agentStr = agentStr.left (band);
       var half = Math.round ((band - agentStr.length) / 2);
       sAgeNom = sAgeNom + repeat (' ', half) + agentStr + repeat (' ', band-half - agentStr.length) + sGap;
       sAgeRay = sAgeRay + repeat ('_', band) + sGap;
@@ -322,7 +324,7 @@ function conSecuencioPlain (diagData)
 
       // decide which agentindex is "from" and which is "to"
       //
-      if (iDir == -1 || ["RQ", "REQ", "EV", "TX", ">>"].indexOf ((arr[aa][iDir]).toUpperCase()) >= 0)
+      if (iDir == -1 || ["RQ", "REQ", "TX", ">>"].indexOf ((arr[aa][iDir]).toUpperCase()) >= 0)
          putLabel (ti, agenIndxAg1, agenIndxAg2, tx);
       else
          putLabel (ti, agenIndxAg2, agenIndxAg1, tx);
