@@ -94,7 +94,7 @@ function EvaLayout (mangr, layName)
          addItem           : addItem,           // add a HeaderItem (colum or row) to the header
          setLengthOfItemAt : setLengthOfItemAt, // (index, len) to inform about the minimal size of a layable object at the header index
          endItems          : endItems,          // call it once finished all input data of headerItems
-         getLengthInRange  : getLengthInRange,   // (totalExtra, indexfrom, indexto) returns the length of the items ín the range
+         getLengthInRange  : getLengthInRange,   // (totalExtra, indexfrom, indexto) returns the length of the items in the range
          countItems        : function () { return regla.length; } // number of items of the header
       }
 

@@ -8,6 +8,7 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
    
+      2019-03-25 01:00:00  dashed lines in trazos2D.js and restore stroke style in Canvas   
       2019-03-20 22:08:00  do SCAN filters case insensitive (so "+E, png" includes also .PNG Png etc)
                            add more JAST samples in welcomeGastona
       2019-03-06 01:32:04	fix regression in jGastona (bildID 12685 on 2018-05-29! did break setData function)

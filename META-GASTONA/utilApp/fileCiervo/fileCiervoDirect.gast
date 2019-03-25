@@ -18,11 +18,11 @@
 
    <GET />
      //<html>
-     //<style> 
-     //     * { 
-     //         font-family: Tahoma, Consolas, sans-serif;  
-     //         margin-left: 6px;  
-     //         margin-right: 6px; 
+     //<style>
+     //     * {
+     //         font-family: Tahoma, Consolas, sans-serif;
+     //         margin-left: 6px;
+     //         margin-right: 6px;
      //     }
      //</style>
      //<body>
@@ -34,9 +34,9 @@
      //
      LOOP, DIRS, @<eCurrentDir>
          , RECURSIVE, 0
-         ,, // <tr> 
+         ,, // <tr>
          ,, //    <td> <a href="/setdir?dir=@<fullPath>"> @<ICO_CARP> </a>
-         ,, //    <td>  @<fileName> 
+         ,, //    <td>  @<fileName>
          ,, //    <td>
          ,, // </tr>
      //
@@ -44,7 +44,7 @@
          , RECURSIVE, 0
          ,, // <tr>
          ,, //     <td> <a href="@<FS>/@<:linux-path fullPath>"> @<ICO_FILE> </a>
-         ,, //     <td> @<fileName> 
+         ,, //     <td> @<fileName>
          ,, //     <td align="right"> @<TAMA>
          ,, // </tr>
      //
@@ -92,7 +92,7 @@
       STRCONV, PATH-SOLVE, @<eCurrentDir>/..
 
    <TAMA> JS, @<calcSize>
-   
+
    <calcSize>
       //function bytes2Str(num)
       //{
@@ -100,7 +100,7 @@
       //   if (num == 0) return "0 " + units[0];
       //   var ndig = Math.min (units.length-1, Math.floor (1 + Math.log10((num < 0 ? -num: num)/1024)/3));
       //   return Math.round (num * Math.pow(1024, - ndig)) + " " + units [ndig];
-      //} 
+      //}
       //
       //bytes2Str (@<size>);
 
@@ -109,9 +109,10 @@
       //   <br><br><button id="upButton" onclick="uploadIt ()" >Upload choosen file</button>
 
    <JS_uploadStuff>
-     //@<:infile META-GASTONA/js/jGastona.js>
+     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
      //
      //     var luix = jGastona (); // for using AJAXUploadFile
+     //     //uix.start ();
      //
      //     function setUploadingFeedback (isUploading)
      //     {
@@ -138,9 +139,9 @@
       //
       // var data = {
       //      "folder graffiti": [
-      //           [ "defstyle", "tinta3", "#FF7F27" ],
+      //           [ "defstyle", "tinta3", "fc:#FF7F27" ],
       //           [ "z",322,399,"tinta3","jauz",16,-53,27,-77,57,-15,49,5,53,7,45,12,15,22,-6,35,-16,64,-28,53,-46,4,-45,-3,-78,-15,-45,-22 ],
-      //           [ "defstyle", "tinta1", "#EAEAEA" ],
+      //           [ "defstyle", "tinta1", "fc:#EAEAEA" ],
       //           [ "z",391,369,"tinta1","jau",0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30 ],
       //           [ "z",440,209,"tinta1","jau",26,-9,26,2,19,8 ],
       //           [ "z",470,217,"tinta1","jau",12,0,19,8,15,-1 ],
@@ -150,7 +151,7 @@
       //           ],
       //
       //      "fulla graffiti": [
-      //           [ "defstyle", "tinta1", "#EAEAEA" ],
+      //           [ "defstyle", "tinta1", "fc:#EAEAEA" ],
       //           [ "z",391,369,"tinta1","jau",0,-95,16,-53,21,-31,20,-16,37,0,51,3,31,10,-22,42,-23,81,-3,74,6,28,-25,8,-69,-3,-25,-12,-11,-30 ],
       //           [ "z",440,209,"tinta1","jau",26,-9,26,2,19,8 ],
       //           [ "z",470,217,"tinta1","jau",12,0,19,8,15,-1 ],

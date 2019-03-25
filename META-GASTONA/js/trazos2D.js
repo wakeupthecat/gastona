@@ -175,6 +175,7 @@ function trazos2D ()
             sc: "stroke",
             sw: "stroke-width",
             so: "stroke-opacity",
+            sd: "stroke-dasharray",
             fc: "fill",
             fr: "fill-rule",
             fo: "fill-opacity",
@@ -562,6 +563,8 @@ function trazos2D ()
    function applyCanvasStyle (c2d, styles, strstyle)
    {
       var estilos = parse2DStyle (styles [strstyle] || strstyle);
+      var oldWidth;
+      var oldLineDash;
 
       if ("fill" in estilos)
       {
@@ -570,10 +573,23 @@ function trazos2D ()
       }
       if ("stroke-width" in estilos)
       {
+         oldWidth = c2d.lineWidth;
          c2d.lineWidth = estilos["stroke-width"];
+      }
+      if ("stroke-dasharray" in estilos)
+      {
+         oldLineDash = true;
+         c2d.setLineDash (eval ("[" + estilos["stroke-dasharray"] + "]"));
       }
       c2d.strokeStyle = ("stroke" in estilos) ? estilos["stroke"]: "#000000";
       c2d.stroke ();
+      
+      //restore c2d values
+      if (oldWidth !== undefined)
+         c2d.lineWidth = oldWidth;
+      if (oldLineDash !== undefined)
+         c2d.setLineDash ([]);
+
    }
 
    function drawGraffiti2canvas (trazos, canv, props)

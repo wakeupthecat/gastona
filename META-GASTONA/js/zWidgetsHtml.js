@@ -428,17 +428,6 @@ function zWidgets (htmlStamm, laData, mensaka)
       return str2;
    }
 
-   function strStartsWith (s1, s2, pos)
-   {
-      pos = pos || 0;
-      return s1.indexOf(s2, pos) === pos;
-      //return s1.slice(0, s2.length) === s2;
-
-      // thisdoes not work for IE8, 9
-      //
-      //if (!String.prototype.startsWith) { String.prototype.startsWith = function(seas, pos) { pos = pos || 0; return this.indexOf(seas, pos) === pos; }; }
-   }
-
    function fabricaStandard (typestr, name, atts)
    {
       var ele = document.createElement (typestr);   // "label" "button" etc

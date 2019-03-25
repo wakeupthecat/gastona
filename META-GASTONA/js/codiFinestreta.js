@@ -36,7 +36,7 @@
 //
 function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
 {
-   // most keywords taken from prettify
+   // most keywords taken from prettify for convenience, can be changed as needed
    //
    var FLOW_CONTROL_KEYWORDS = ["break,continue,do,else,for,if,return,while"];
    var C_KEYWORDS = [FLOW_CONTROL_KEYWORDS,"auto,case,char,const,default," +
@@ -145,7 +145,7 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
       dark  :  "002b36FFFFFFe0b370b7b3b6d0e1c9937979FFFFAA9ddfddd0e1c9",
       dark2 :  "002b36e9e9e9ecee9568d7cec1c1c1268fe6FFFFAAed9cc70dcac0",
    };
-   
+
    var codeTextArray = codeTextArr;
 
    var globNnumLines = codeTextArray ? codeTextArray.length : 0;
