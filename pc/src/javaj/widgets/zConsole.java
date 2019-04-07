@@ -89,8 +89,9 @@ import javaj.widgets.basics.*;
       gastSample
 
       hello zConsole
-<!      zConsole advanced
       all consoles
+      change zConsole Colors
+
 
    <hello zConsole>
       //#javaj#
@@ -159,6 +160,49 @@ import javaj.widgets.basics.*;
       //      IN CASE, @<kstdErr plugged selected>
       //             , 1, MSG, oConsola plugErr
       //             , 0, MSG, oConsola unplugErr
+
+   <change zConsole Colors>
+      //#javaj#
+      //
+      //   <frames> main
+      //
+      //   <layout of main>
+      //      EVA, 10, 10, 5, 5
+      //
+      //         ,            , X
+      //         , lBackground, eBackground
+      //         , lForeground, eForeground
+      //         , bGo        , bInvert
+      //       X , oConsole, -
+      //
+      //
+      //#data#
+      //
+      //   <eBackground> +025022087
+      //   <eForeground> +155101222
+      //
+      //#listix#
+      //
+      //   <setMisColores>
+      //      //
+      //      //background @<eBackground>
+      //      //foreground @<eForeground>
+      //      //
+      //      -->, oConsole control!, backColor, @<eBackground>, foreColor, @<eForeground>
+      //
+      //   <main>	           LSX, setMisColores
+      //   <-- bGo>	        LSX, setMisColores
+      //   <-- eBackground>  LSX, setMisColores
+      //   <-- eForeground>  LSX, setMisColores
+      //
+      //   <-- bInvert>
+      //      VAR=, temp, @<eBackground>
+      //      -->, eBackground data!,, @<eForeground>
+      //      -->, eForeground data!,, @<temp>
+      //      LSX, setMisColores
+
+
+
 
 #**FIN_EVA#
 

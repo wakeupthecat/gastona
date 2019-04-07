@@ -114,7 +114,7 @@ and this would be the result in Android
 
 ### What about the web?
 
-I start saying there are two variants of Gastona, well a third variant is growing right now
+I start saying there are two variants of gastona, well a third variant is growing right now
 and it is a javascript library.
 
 If the scripting language turns out to be useful and convenient, could we use it also

@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190325 \"yuicompras\"
+   <gastonaVersion>  //1.2.190407 \"yui&mesdemos\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

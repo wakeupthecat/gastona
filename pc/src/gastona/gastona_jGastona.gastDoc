@@ -41,6 +41,7 @@
       sample jGastona Boletin
       OnTheFly JAST Secuenci Editor
       OnTheFly JAST JAST Editor
+      OnTheFly JAST deepTable Editor
       simple CodiFinestreta
       simple CodiFinestreta II
       js Visor
@@ -327,14 +328,17 @@
       //       //   <layout of main>
       //       //      EVALAYOUT, 20, 20, 15, 15
       //       //
-      //       //         , X           ,    X2
-      //       //         , lSequenciInput, lDiagram output on the fly
-      //       //       X , xScript  , xOnFlyOutput
+      //       //         , X           ,    X                        , X
+      //       //         , lSequenciInput, lDiagram output on the fly, eDistAgents
+      //       //       X , xScript       , xOnFlyOutput              , -
       //       //
       //       //#data#
       //       //
-      //       //   <xScript onkeyup>
-      //       //      //mensaka ("reflexa");
+      //       //   <eDistAgents type> range
+      //       //   <eDistAgents> 40
+      //       //
+      //       //   <eDistAgents oninput>   //mensaka ("reflexa");
+      //       //   <xScript onkeyup>       //mensaka ("reflexa");
       //       //
       //       //   <xScript>
       //       //      //  A=User
@@ -354,8 +358,8 @@
       //       //   <-- reflexa>
       //       //      //var arr = getDataAsTextArray("xScript");
       //       //      //for (var ii = 0; ii < arr.length; ii ++) arr[ii] = arr[ii].replace(/^\s*/, "").replace(/ +/g, ',');
-      //       //      //setData("xOnFlyOutput", conSecuencioPlain (
-      //       //      //        evaFileStr2obj ("#data#\n<sequenceTable> agent1, dir, agent2, message\n" + arr.join ("\n"))["data"]));
+      //       //      //var evaStr = "#data#\n<distanceAgents> " + getDataCell("eDistAgents") + "\n<sequenceTable> agent1, dir, agent2, message\n" + arr.join ("\n");
+      //       //      //setData("xOnFlyOutput", conSecuencioPlain (evaFileStr2obj (evaStr)["data"]));
       //       //
       //
       //#listix#
@@ -364,7 +368,6 @@
       //      MICO, ONCE
       //
       //   <GET />
-      //     //<!DOCTYPE html>
       //     //<html>
       //     //<style>
       //     //
@@ -466,6 +469,148 @@
       //     //<script>
       //     //
       //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //
+      //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //     //   jast.run ();
+      //     //
+      //     //</script>
+      //     //</body></html>
+      //
+      //#**#
+
+   <OnTheFly JAST deepTable Editor>
+      //   <!  Generate sql queries with connections according with deepTable rules
+      //   <!  see https://www.codeproject.com/Articles/75601/The-Deep-Table
+      //
+      //#data#
+      //
+      //    <JAST_script>
+      //       //#javaj#
+      //       //
+      //       //   <layout of main>
+      //       //      EVA, 7, 7, 4, 4
+      //       //
+      //       //         ,         , X
+      //       //         , lSample, rSamples
+      //       //      X  , xScript, -
+      //       //         , bGenerate, -
+      //       //         , lResulting query, -
+      //       //      X  , xOutput, -
+      //       //
+      //       //#data#
+      //       //
+      //       //   <lSample> Choose sample:
+      //       //
+      //       //   <rSamples>
+      //       //      label,
+      //       //
+      //       //      simple
+      //       //      complex
+      //       //      recurrent
+      //       //
+      //       //   <data simple>
+      //       //      //conn: artist, tabSongs, artId, tabArtists, id
+      //       //      //
+      //       //      //deep: tabSongs, artId, artist->name, title
+      //       //      //
+      //       //      //------------------------
+      //       //      // This sample creates one connection between two tables tabSongs and tabArtists
+      //       //      // and output a deep sql from the now "deep" table tabSongs. Simulating the
+      //       //      // hypothetical DEEP query
+      //       //      //
+      //       //      //     DEEP_SELECT artId, artist->name, title FROM DEEP_tabSongs
+      //       //      //
+      //       //      //     Exercise 1: add to the given select (deep) a new column (any name) and a new deep column (artist->xxx)
+      //       //      //
+      //       //      //     Exercise 2: supossing we have a thrid table tabCountries,
+      //       //      //                  add a new connection with tabArtists and tabCountries (using any ids)
+      //       //      //                  add to the query a new deep column (p.e. artist->country->name if your connection is called "country")
+      //       //      //
+      //       //
+      //       //   <data complex>
+      //       //      //conn: customer, tSales     , customerId , tCompanies    , id
+      //       //      //conn: product , tSales     , productId  , tProducts     , prodID
+      //       //      //conn: provider, tProducts  , providerID , tCompanies    , id
+      //       //      //conn: country , tCompanies , countryId  , tISOCountries , isoA2
+      //       //      //
+      //       //      //deep: tSales, date, product->name
+      //       //      //deep: tSales, id, date, customer->name, customer->country->name, product->name, quantity, product->provider->name, product->provider->country->name
+      //       //      //
+      //       //      //------------------------
+      //       //      //    This sample has been taken from the article https://www.codeproject.com/Articles/75601/The-Deep-Table
+      //       //      //    it joins 4 tables (tSales, tProducts, tCompanies and tISOCountries) using 4 connections
+      //       //      //    (customer, product, provider and country).
+      //       //      //    It outputs two deep selects, the first one simple of depth 1 and the second one with much deeper columns.
+      //       //
+      //       //   <data recurrent>
+      //       //      //conn: father, tabPeople, fatherID, tabPeople, ID
+      //       //      //conn: mother, tabPeople, motherID, tabPeople, ID
+      //       //      //
+      //       //      //deep: tabPeople, name, father->name, mother->name, mother->father->name, mother->mother->name, mother->mother->father->name
+      //       //      //
+      //       //      //------------------------
+      //       //      //    This sample demonstrates recursive joins of a table with itself.
+      //       //      //    We use just one table:
+      //       //      //          tabPeople (ID, name, fatherID, motherID)
+      //       //      //    and by creating two strategic connections: father and mother, we are able to query arbitrary deep columns
+      //       //      //    like "mother->mother->father->name" for the name of the father of the mother of the mother of someone.
+      //       //
+      //       //#listix#
+      //       //
+      //       //   <-- rSamples>
+      //       //      //setData ("xScript", getData("data " + getData("rSamples selected.label")));
+      //       //
+      //       //   <-- bGenerate>
+      //       //      //setData ("xOutput", processSample (getData("xScript")));
+      //       //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //     //<!DOCTYPE html>
+      //     //<html>
+      //     //<style>
+      //     //
+      //     // * { font-family : Consolas; }
+      //     //
+      //     //</style>
+      //     //<body>
+      //     //
+      //     //<script id="mainJast" type="jast">
+      //     //
+      //     LSX, JAST_script
+      //     //
+      //     //</script>
+      //     //
+      //     //<script>
+      //     //
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //     //@<:infile META-GASTONA/js/deepTable.js>
+      //     //
+      //     //   function processSample (arr)
+      //     //   {
+      //     //      var dee = deepTable ();
+      //     //   
+      //     //      var sal = [];
+      //     //   
+      //     //      for (var ii in arr) {
+      //     //         var lin = arr[ii][0];
+      //     //         var indx = lin.indexOf ("conn:");
+      //     //         if (indx >= 0)
+      //     //            dee.addConnection (lin.substring(indx+6));
+      //     //         else {
+      //     //            indx = lin.indexOf ("deep:");
+      //     //            if (indx !== -1) {
+      //     //               var els = lin.substring(indx+6).split (",");
+      //     //               sal.push (dee.deepSelect (els[0], els.slice(1), true));
+      //     //            }
+      //     //         }
+      //     //      }
+      //     //      return sal.join ("\n\n");
+      //     //   }
       //     //
       //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
       //     //   jast.run ();

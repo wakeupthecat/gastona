@@ -80,6 +80,7 @@
       launch arces
       launch xmelon
       mandoPictures
+      demoGraphWiz
 
    <launch arces>
       //#listix#
@@ -181,6 +182,239 @@
       //      //</html>
 
 
+   <demoGraphWiz>
+      //#javaj#
+      //
+      //   <frames> main, Dot graphwiz online demo, 450, 500
+      //
+      //   <layout of main>
+      //      EVA, 6, 6, 4, 4
+      //
+      //          ,            ,             , X
+      //          , lSamples   ,  lDot source,-
+      //        X , iSamples   ,  xDotSource,-
+      //          ,   +        ,  kOnline, bRun
+      //
+      //   <sysDefaultFonts>  Consolas, 12, 0, TextField, TextArea
+      //
+      //#data#
+      //
+      //   <kOnline selected> 1
+      //
+      //   <iSamples>
+      //      name
+      //      basic
+      //      state machine
+      //      formas
+      //      db connections
+      //      db connectionsII
+      //      db connectionsIII
+      //      shape record
+      //      listix graph proposal
+      //
+      //   <basic>
+      //      // digraph G {
+      //      //   "Welcome" -> "To"
+      //      //   "To" -> "Web"
+      //      //   "To" -> "GraphViz!"
+      //      // }
+      //
+      //   <state machine>
+      //      // digraph finite_state_machine {
+      //      //    rankdir=LR;
+      //      //    size="8,5"
+      //      //    node [shape = doublecircle]; LR_0 LR_3 LR_4 LR_8;
+      //      //    node [shape = circle];
+      //      //    LR_0 -> LR_2 [ label = "SS(B)" ];
+      //      //    LR_0 -> LR_1 [ label = "SS(S)" ];
+      //      //    LR_1 -> LR_3 [ label = "S($end)" ];
+      //      //    LR_2 -> LR_6 [ label = "SS(b)" ];
+      //      //    LR_2 -> LR_5 [ label = "SS(a)" ];
+      //      //    LR_2 -> LR_4 [ label = "S(A)" ];
+      //      //    LR_5 -> LR_7 [ label = "S(b)" ];
+      //      //    LR_5 -> LR_5 [ label = "S(a)" ];
+      //      //    LR_6 -> LR_6 [ label = "S(b)" ];
+      //      //    LR_6 -> LR_5 [ label = "S(a)" ];
+      //      //    LR_7 -> LR_8 [ label = "S(b)" ];
+      //      //    LR_7 -> LR_5 [ label = "S(a)" ];
+      //      //    LR_8 -> LR_6 [ label = "S(b)" ];
+      //      //    LR_8 -> LR_5 [ label = "S(a)" ];
+      //      // }
+      //
+      //   <formas>
+      //      // digraph {
+      //      //     /* declare the node & style them */
+      //      //     "Node 1" [shape=diamond, penwidth=3, style=filled, fillcolor="#FCD975"];
+      //      //     "Node 2" [style=filled,fillcolor="#9ACEEB" ];
+      //      //     "Node 3" [shape=diamond, style=filled, fillcolor="#FCD975" ];
+      //      //     "Node 4" [style=filled, fillcolor="#9ACEEB" ]
+      //      //
+      //      //     /* declare the edges & style them */
+      //      //     "Node 1" -> "Node 2" [dir=none, weight=1, penwidth=3] ;
+      //      //     "Node 1" -> "Node 3" [dir=none, color="#9ACEEB"] ;
+      //      //     "Node 1" -> "Node 4" [arrowsize=.5, weight=2.]
+      //      // }
+      //      //
+      //
+      //   <db connections>
+      //      //digraph joso
+      //      //{
+      //      //   node [shape=box,fontname=Verdana,fontsize=6,style=filled,color=powderblue];
+      //      //   edge [fontname=Verdana,fontsize=5];
+      //      //
+      //      //  subgraph cluster_tracks
+      //      //  {
+      //      //    label ="tracks"
+      //      //    tracks_TrackId
+      //      //    tracks_Name
+      //      //    tracks_AlbumId
+      //      //    tracks_MediaTypeId
+      //      //    tracks_GenreId
+      //      //    tracks_Composer
+      //      //  }
+      //      //
+      //      //  subgraph cluster_media_types
+      //      //  {
+      //      //    label ="media_types"
+      //      //    media_types_MediaTypeId
+      //      //    media_types_Name
+      //      //  }
+      //      //
+      //      //  subgraph cluster_genres
+      //      //  {
+      //      //    label ="media_types"
+      //      //    genres_GenreId
+      //      //    genres_Name
+      //      //  }
+      //      //
+      //      //  tracks_MediaTypeId -> media_types_MediaTypeId;
+      //      //  tracks_GenreId -> genres_GenreId;
+      //      //}
+      //      //
+      //
+      //   <db connectionsII>
+      //      //digraph structs {
+      //      //
+      //      //   graph [ rankdir = "LR"  ];
+      //      //   node [ fontname=Verdana,fontsize=8 ];
+      //      //
+      //      //   tracks [
+      //      //      label="TRACKS|<f0>TrackId|<f1>Name|<f2>AlbumId|<f3>MediaTypeId|<f4>GenreId|<f5>Composer"
+      //      //      shape=record
+      //      //   ];
+      //      //
+      //      //   media_types [label="MEDIA_TYPES|<f0>MediaTypeId|<f1>Name" shape=record];
+      //      //
+      //      //   genres [ label ="GENRES|<f0>GenreId|<f1>Name" shape=record];
+      //      //
+      //      //   artists [ label ="ARTISTS|<f0>ArtistId|<f1>Name" shape=record];
+      //      //   albums [ label ="ALBUMS|<f0>AlbumId|<f1>Title|<f2>ArtistId" shape=record];
+      //      //   playlists [ label ="PLAYLISTS|<f0>PlaylistId|<f1>Name" shape=record];
+      //      //   playlist_track [ label ="PLAYLIST_TRACK|<f0>PlaylistId|<f1>TrackId" shape=record];
+      //      //   invoices [ label ="INVOICES|<f0>InvoiceId|<f1>CustomerId|<f2>InvoiceDate|<f3>BillingAddress|<f2>BillingCity" shape=record];
+      //      //   invoice_items [ label ="INVOICE_ITEMS|<f0>InvoiceItemId|<f1>InvoiceId|<f2>TrackId|<f3>UnitPrice|<f4>Quantity" shape=record];
+      //      //
+      //      //   customers [ label ="CUSTOMERS|<f0>CustomerId|<f1>FistName|<f2>LastName|<f3>Company|<f4>SupportRepId" shape=record];
+      //      //   employees [ label ="EMPLOYEES|<f0>EmployeeId|<f1>FistName|<f2>LastName|<f3>Title|<f4>ReportsTo" shape=record];
+      //      //
+      //      //   invoices:f1 -> customers:f0 [label = "customer"]
+      //      //   customers:f4 -> employees:f0 [label = "employee"]
+      //      //   employees:f4 -> employees:f0 [label = "boss"]
+      //      //   tracks:f3 -> media_types:f0 [label = "media" ]
+      //      //   tracks:f4 -> genres:f0 [label = "genre" ]
+      //      //   tracks:f2 -> albums:f0 [label = "album" ]
+      //      //   albums:f2 -> artists:f0 [label = "artist" ]
+      //      //
+      //      //   playlist_track:f0 -> playlists:f0
+      //      //   playlist_track:f1 -> tracks:f0
+      //      //   invoice_items:f0 -> invoices:f0
+      //      //   invoice_items:f2 -> tracks:f0
+      //      //}
+      //      //
+      //      //
+      //
+      //   <db connectionsIII>
+      //      //digraph percons {
+      //      //   graph [ rankdir = "LR"  ];
+      //      //   node [ fontname=Verdana,fontsize=8 ];
+      //      //   edge [ arrowhead="crow", color="salmon"];
+      //      //   tISOCountries  [
+      //      //         shape=record
+      //      //         label=" [- tISOCountries -]|<LNKisoA2>isoA2\l|<LNKisoA3>isoA3\l|<LNKnumber>number\l|<LNKname>name\l"
+      //      //         ];
+      //      //   tCompanies  [
+      //      //         shape=record
+      //      //         label=" [- tCompanies -]|<LNKid>id\l|<LNKname>name\l|<LNKcountryId>countryId\l"
+      //      //         ];
+      //      //   tProducts  [
+      //      //         shape=record
+      //      //         label=" [- tProducts -]|<LNKprodID>prodID\l|<LNKproviderID>providerID\l|<LNKname>name\l|<LNKprice>price\l"
+      //      //         ];
+      //      //   tSales  [
+      //      //         shape=record
+      //      //         label=" [- tSales -]|<LNKid>id\l|<LNKdate>date\l|<LNKcustomerId>customerId\l|<LNKproductId>productId\l|<LNKquantity>quantity\l"
+      //      //         ];
+      //      //
+      //      //   tCompanies:LNKid -> tSales:LNKcustomerId [ label="customer", fontname=Verdana,fontsize=7  ]
+      //      //   tProducts:LNKprodID -> tSales:LNKproductId [ label="product", fontname=Verdana,fontsize=7  ]
+      //      //   tCompanies:LNKid -> tProducts:LNKproviderID [ label="provider", fontname=Verdana,fontsize=7  ]
+      //      //   tISOCountries:LNKisoA2 -> tCompanies:LNKcountryId [ label="country", fontname=Verdana,fontsize=7  ]
+      //      //}
+      //
+      //
+      //   <shape record>
+      //      //digraph structs {
+      //      //    node [shape=Mrecord];
+      //      //    struct1 [label="<f0> left|<f1> mid&#92; dle|<f2> right"];
+      //      //    struct2 [label="<f0> one|<f1> two"];
+      //      //    struct3 [label="hello&#92;nworld |{ b |{c|<here> d|e}| f}| g | h"];
+      //      //    struct1:f1 -> struct2:f0;
+      //      //    struct1:f2 -> struct3:here;
+      //      //}
+      //
+      //
+      //   <listix graph proposal>
+      //      //digraph structs {
+      //      //    rankdir=LR;
+      //      //    node [shape=Mrecord,fontname=Consolas,fontsize=8];
+      //      //    main [label="<ename>&lt;main&gt;\l|{DB CONFIG|DEFAULT|mydb.db}|{LSX|<logics>logics}"];
+      //      //    logics [label="<ename>&lt;logics&gt;\l|(tablona)\l|{LOOP|SQL||SELECT * WHERE blabla..}|{|<osti>here comes the @(name) @(refero) jol mas\l}|(/tablona)\l"];
+      //      //    refero [label="<ename>&lt;refero&gt;\l|senzillar\l"];
+      //      //    main:logics -> logics:ename;
+      //      //    logics:osti -> refero:ename;
+      //      //}
+      //
+      //
+      //
+      //#listix#
+      //
+      //   <-- iSamples>
+      //      CHECK, VAR, iSamples selected.name
+      //      -->, xDotSource data!, var, @<iSamples selected.name>
+      //
+      //   <-- bRun>
+      //      -->, xDotSource save, :mem content
+      //      mico, start, graphito
+      //
+      //   <dotMemFile>
+      //      @<:infile :mem content>
+      //
+      //   <GET />
+      //     //<html>
+      //     //<head>
+      //     //</head><body>
+      //     //<script src="@<SRC_JS>"></script>
+      //     //<script>
+      //     //
+      //     //   var miData = "@<:solve-encode-utf8 dotMemFile>".replace (/\+/g, "%20");
+      //     //   document.body.innerHTML = Viz(decodeURIComponent (miData), "svg");
+      //     //
+      //     //</script></body></html>
+      //
+      //   <SRC_JS>
+      //      IF, @<kOnline selected>
+      //        , "1" , //http://www.webgraphviz.com/viz.js
+      //        , ELSE, viz.js
 
 #**FIN_EVA#
 
