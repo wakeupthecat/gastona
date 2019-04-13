@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190407 \"yui&mesdemos\"
+   <gastonaVersion>  //1.2.190413 \"ja17compa\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -82,7 +82,7 @@
       //
 
    <4WINDOWS>
-      VAR=, eJavacPath,     //javac.exe
+      VAR=, eJavacPath,     //\pavoTools\jdk1.7.0_04\bin\javac.exe
       VAR=, eBinaryArchive, //\pavoTools\gastonaBinaries
       VAR=, """", //"
       VAR=, SEP, //;
