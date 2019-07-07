@@ -96,13 +96,9 @@ import java.awt.image.*;
 import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 
-// import java.util.List;
-// import java.util.Vector;
 import listix.*;
 import de.elxala.Eva.*;
 import de.elxala.zServices.*;
-// import de.elxala.langutil.filedir.TextFile;
-// import de.elxala.langutil.filedir.fileUtil;
 
 public class cmdScreenshot implements commandable
 {

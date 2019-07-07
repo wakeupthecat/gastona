@@ -228,14 +228,14 @@ import de.elxala.zServices.*;
       //      //      <svg width="400" height="400" id="Caballo"></svg>
       //      //<script>
       //      //
-      //      //@<:infile META-GASTONA/js/trazos2D-min.js>
+      //      //@<:infile META-GASTONA/js/trassos2D-min.js>
       //      //
       //      // @<laData>
       //      //
       //      //   window.onload = function(e)
       //      //   {
-      //      //      trazos2D ().renderSvgGraffitis (vdata);
-      //      //      trazos2D ().renderCanvasGraffitis (vdata);
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
       //      //   };
       //      //
       //      //</script>

@@ -23,15 +23,15 @@
       //    can be selected. Once the user select one record, can also be multi selection, a message
       //    whith the name of the widget is sent, at this time the attributes are filled by the widget.
       //
-      //    The attribute 'subTableSelection' contains an Eva table with all columns of all selected 
-      //    records, it is therefore a subtable with the whole selection. It can be accessed, for instance, 
+      //    The attribute 'subTableSelection' contains an Eva table with all columns of all selected
+      //    records, it is therefore a subtable with the whole selection. It can be accessed, for instance,
       //    using a loop.
       //
       //    A single selection, or the first selection in case of multi selection, produces a set of
       //    attributes 'selected.COLUMNNAME', as many as columns has the table. These attributes contains
       //    actually the same information as the first record of the attribute 'subTableSelection', simply
       //    they are splited in separate variables for convenience.
-      //    
+      //
       //    These attributes works the same for Eva or database tables and cover all columns of them
       //    regardless of they are visible or not.
       //
@@ -171,25 +171,32 @@
       //   <-- tDestination>
       //      MSG, iChosenList data!
 
-      
+
    <widgetsTableModel>
       //#javaj#
       //
       //   <frames> main, Widgets wit table data model
-      //   
+      //
       //   <layout of main>
-      //      EVA, 10, 10, 2 , 2
-      //      
+      //      EVA, 10, 10, 4 , 4
+      //
       //         ,  A, X
-      //         , lA table
-      //       X , tTabla, -
-      //         , lA combo box, cCaja
-      //         , lA list
-      //         , iLista, -
-      //         , lA radio group, rgRadio
-      //         , lA checkbox group, kgCheck
+      //         , lA table, lA list
+      //         , tTabla, iLlista
+      //         , layBotons, -
       //       X , oConso, -
-      //      
+      //         , layDumpsel, -
+      //
+      //   <layout of layBotons>
+      //      EVA, 4, 4, 6, 6
+      //         ,             ,      , X,             ,         , X,
+      //         , lA combo box, cCaixa,  ,lA radio group, rgRadio,  , lA checkbox group, kgCheck
+      //
+      //   <layout of layDumpsel>
+      //      EVA, 4, 4, 6, 6
+      //         ,
+      //         , lDump variables, rgDumpsel
+      //
       //#data#
       //
       //   <rgRadio var> thetable
@@ -200,11 +207,11 @@
       //
       //   <tTabla var> theTable
       //
-      //   <cCaja var> theTable
-      //   <cCaja visibleColumns> name
+      //   <cCaixa var> theTable
+      //   <cCaixa visibleColumns> name
       //
-      //   <iLista var> theTable
-      //   <iLista visibleColumns> desc
+      //   <iLlista var> theTable
+      //   <iLlista visibleColumns> desc
       //
       //   <thetable>
       //      label, id, name, desc
@@ -213,20 +220,30 @@
       //      HAM, 6671, Hamburg  , //Speicherstadt
       //      SEL, 1717, Seoul    , //Gangam
       //
+      //    <rgDumpsel orientation> X
+      //    <rgDumpsel>
+      //      label        , id     , selected
+      //      all          ,        , 1
+      //      table        , tTabla
+      //      list         , iLlista
+      //      combobox     , cCaixa
+      //      radio buttons, rgRadio
+      //      checkboxes   , kgCheck
+      //
       //#listix#
       //
-      //   <-- rgRadio>   LSX, show
-      //   <-- kgCheck>   LSX, show
-      //   <-- tTabla>   LSX, show
-      //   <-- cCaja>   LSX, show
-      //   <-- iLista>   LSX, show
+      //   <-- rgRadio>    LSX, show
+      //   <-- kgCheck>    LSX, show
+      //   <-- tTabla>     LSX, show
+      //   <-- cCaixa>     LSX, show
+      //   <-- iLlista>    LSX, show
+      //
+      //   <-- rgDumpsel>  LSX, show
       //
       //   <show>
       //      MSG, oConso clear
-      //      DUMP, data
-      //      
-      
-      
+      //      DUMP, data, , @<rgDumpsel selected.id>
+
 #**FIN_EVA#
 
 */

@@ -57,12 +57,12 @@
      //
      LSX, JS_uploadStuff
      //
-     //@<:infile META-GASTONA/js/trazos2D-min.js>
+     //@<:infile META-GASTONA/js/trassos2D-min.js>
      //@<graffiti data>
      //
      //     window.onload = function(e)
      //     {
-     //        trazos2D ().renderClassGraffiti (data);
+     //        trassos2D ().renderClassGraffiti (data);
      //     }
      //
      //

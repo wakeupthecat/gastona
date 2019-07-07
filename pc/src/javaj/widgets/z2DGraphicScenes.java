@@ -185,16 +185,18 @@ import de.elxala.zServices.*;
       //   <crea grid(x0 x1 incx y0 y1 incy var)>
       //      VAR=, @<p7>, ""
       //      LOOP, FOR, x, @<p1>, @<p2>, @<p3>
-      //         ,, VAR+, @<p7>, path, "", "M @<x> @<p4> L @<x> @<p5>"
+      //         ,, VAR+, @<p7>, path, "sw:0.1", "M @<x> @<p4> L @<x> @<p5>"
       //      LOOP, FOR, y, @<p4>, @<p5>, @<p6>
-      //         ,, VAR+, @<p7>, path, "", "M @<p1> @<y> L @<p2> @<y>"
+      //         ,, VAR+, @<p7>, path, "sw:0.1", "M @<p1> @<y> L @<p2> @<y>"
       //      VAR+, @<p7>, text, "font-family:Tahoma;fc:;fs:2", 0, 0, 0, 0, ""
       //      LOOP, FOR, x, @<p1>, @<p2>, @<p3>
       //         ,, VAR+, @<p7>, text, "font-family:Tahoma;fs:2", @<x+.3>, 0, 0, 0, @<x>
       //      LOOP, FOR, y, @<p4>, @<p5>, @<p6>
-      //         ,, VAR+, @<p7>, text, "font-family:Tahoma;fs:2", .3, @<y>, 0, 0, @<y>
+      //         ,, VAR+, @<p7>, text, "font-family:Tahoma;fs:2", .3, @<y>, 0, 0, @<invy>
       //
       //   <x+.3> =, x+.3
+      //
+      //   <invy> =, -@<y>
       //
       //#data#
       //
@@ -203,9 +205,11 @@ import de.elxala.zServices.*;
       //      dabajo
       //
       //   <2DsMyPaint graphic dabajo>
-      //      path, "fc:none;",  "M  -40 0 C -30 -40 -10 0 40 0"
+      //      path, "fc:none;sw:.4;sc:yellow",      "M  -40 0 L -30 -40 -10 0 40 0"
+      //      path, "fc:none;sw:.4;sc:+250143090",  "M  -40 0 C -30 -40 -10 0 40 0"
+      //      path, "fc:none;sw:.4;sc:green",       "M  -40 0 J -30 -40 -10 0 40 0"
       //
-      //
+
 #**FIN_EVA#
 
 */

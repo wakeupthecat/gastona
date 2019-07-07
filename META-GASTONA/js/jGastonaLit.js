@@ -151,10 +151,10 @@ function jGastona (evaConfig, existingPlaceId)
       function setData (name, value)
       {
          // create on demand
-         if (typeof value === "string")
+         if (typeof value === "string" || typeof value === "number")
          {
             dataUnit[name] = [[""]];
-            setDataCell (name, value);
+            setDataCell (name, value + "");
          }
          else if (isEvaValue (value))
          {
@@ -202,6 +202,8 @@ function jGastona (evaConfig, existingPlaceId)
       mask               : mask,
       unmask             : unmask,
       canUploadFile      : canUploadFile,
+      
+      laData : laData,
 
       // part ajax ...
       //
@@ -764,7 +766,7 @@ function jGastona (evaConfig, existingPlaceId)
          //
          // subhead1:val1
          // subhead2:val2
-         // :---body
+         //
          // subbody
 
          var textArr = str2lineArray (bodystr);
@@ -773,7 +775,7 @@ function jGastona (evaConfig, existingPlaceId)
          while (hh < textArr.length)
          {
             var strlin = textArr[hh ++];
-            if (!strlin) break;
+            if (!strlin || strlin === ':') break;
 
             var idval = /([^:]*):(.*)/.exec (strlin);
             // console.log ("multi set " + idval[1] + " [" + idval[2] + "]");

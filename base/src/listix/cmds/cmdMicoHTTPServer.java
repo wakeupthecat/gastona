@@ -411,6 +411,109 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //bytes2Str (@<size>);
 
 
+   <JS Chrono>
+      //#listix#
+      //
+      //   <main>
+      //      MICOHTTP, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //
+      //      //<style>
+      //      //   * {
+      //      //      font-family: Ubuntu, Consolas;
+      //      //      font-size: 22;
+      //      //   }
+      //      //
+      //      //   #cronoLabel {
+      //      //      font-size: 82;
+      //      //      color: green
+      //      //   }
+      //      //
+      //      //</style>
+      //      //
+      //      //
+      //      //<div id="cronoLabel" style=>0:00</div>
+      //      //
+      //      //    <input type="button" value="Compte enrere 3s" onClick="compteEnrere()" />
+      //      //    <input type="button" value="START" onClick="chronoStart()" />
+      //      //    <input type="button" value="STOP" onClick="chronoStop()" />
+      //      //    <input type="button" value="Reset" onClick="chronoReset()" />
+      //      //
+      //      //<script>
+      //      //
+      //      //var cronoLabel;
+      //      //var start = 0;
+      //      //var lastDiff = 0;
+      //      //var timerID = 0;
+      //      //
+      //      //function setCronoLabel (text, negative)
+      //      //{
+      //      //   if (! cronoLabel)
+      //      //      cronoLabel = document.getElementById("cronoLabel");
+      //      //
+      //      //   cronoLabel.style.color = (negative ? "red": "green");
+      //      //   cronoLabel.innerHTML = (negative ? "-": "") + (text ? text: "0:00");
+      //      //}
+      //      //
+      //      //function refrescaCrono ()
+      //      //{
+      //      //   var end = new Date();
+      //      //   var neg = end < start;
+      //      //   var diffa = new Date(neg ? start - end : end - start);
+      //      //   lastDiff = new Date(end - start);
+      //      //
+      //      //   var milli = diffa.getMilliseconds();
+      //      //   var sec = diffa.getSeconds();
+      //      //   var min = diffa.getMinutes();
+      //      //   var hor = diffa.getHours()-1;
+      //      //
+      //      //   setCronoLabel ((hor > 0 ? (hor + ":"): "") +
+      //      //                  (hor + min > 0 ? (min + ":"): "") +
+      //      //                  sec + ":" +
+      //      //                  (milli < 100. ? "0": "") + Math.floor (milli / 10.),
+      //      //                  neg);
+      //      //
+      //      //   clearTimeout (timerID);
+      //      //   timerID = setTimeout("refrescaCrono()", 20);
+      //      //}
+      //      //
+      //      //function compteEnrere ()
+      //      //{
+      //      //   start = new Date();
+      //      //   start.setTime (start.getTime () + 3000); // give 3 seconds countdown
+      //      //   refrescaCrono ();
+      //      //}
+      //      //
+      //      //function chronoStart()
+      //      //{
+      //      //   start = new Date();
+      //      //   refrescaCrono ();
+      //      //}
+      //      //
+      //      //// function chronoContinue()
+      //      //// {
+      //      ////    start = new Date(new Date() - lastDiff);
+      //      ////    refrescaCrono();
+      //      //// }
+      //      //
+      //      //function chronoReset()
+      //      //{
+      //      //   setCronoLabel ();
+      //      //   start = new Date();
+      //      //}
+      //      //
+      //      //function chronoStop()
+      //      //{
+      //      //   clearTimeout (timerID);
+      //      //}
+      //      //
+      //      //</script>
+      //      //
+      //      //</html>
+
+
 #**FIN_EVA#
 */
 

@@ -56,7 +56,7 @@
      //
      //@<:infile META-GASTONA/js/Eva.js>
      //
-     //@<:infile META-GASTONA/js/conSecuencioCanvas.js>
+     //@<:infile META-GASTONA/js/conSequenciCanvas.js>
      //
      //var DATAinline = function diagram () { /*
      //
@@ -82,7 +82,7 @@
      //   var texta = document.getElementById('place');
      //   var data = evaFileStr2obj (DATAinline)["data"];
      //   if (data) {
-     //        conSecuencioCanvas (texta.getContext ('2d'), data);
+     //        conSequenciCanvas (texta.getContext ('2d'), data);
      //   }
      //
      //</script>

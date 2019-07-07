@@ -110,12 +110,12 @@
      IN CASE, @<kAllowUploadFile selected>
             , 1, LSX, JS_uploadStuff
      //
-     //@<:infile META-GASTONA/js/trazos2D-min.js>
+     //@<:infile META-GASTONA/js/trassos2D-min.js>
      //@<graffiti data>
      //
      //     window.onload = function(e)
      //     {
-     //        trazos2D ().renderClassGraffiti (data);
+     //        trassos2D ().renderClassGraffiti (data);
      //     }
      //
      //
@@ -162,7 +162,7 @@
       //   <br><br><button id="upButton" onclick="uploadIt ()" >Upload choosen file</button>
 
    <JS_uploadStuff>
-     //@<:infile META-GASTONA/js/jGastona.js>
+     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
      //
      //     var jast = jGastona (); // for using AJAXUploadFile
      //     //jast.start (); // not needed

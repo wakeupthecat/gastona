@@ -475,7 +475,7 @@ public class editablePaths
    }
 
 
-   // optimized uses META-GASTONA/js/trazos2D.js as function
+   // optimized uses META-GASTONA/js/trassos2D.js as function
    // while optimized generates all javascript code necesary without including anything
    //
    public StringBuffer buildJavaScriptCode (int trazoIndx, boolean optimized)
@@ -585,7 +585,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazos2D().trazoShape (c2d, \"pol\", " +
+               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"pol\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -618,7 +618,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazos2D().trazoShape (c2d, \"cub\", " +
+               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"cub\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -655,7 +655,7 @@ public class editablePaths
          {
             if (optimized)
             {
-               sb.append ("trazos2D().trazoShape (c2d, \"qua\", " +
+               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"qua\", " +
                           et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                           ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
                           ", [");
@@ -696,7 +696,7 @@ public class editablePaths
             {
                if (optimized)
                {
-                  sb.append ("trazos2D().trazoShape (c2d, \"pol\", " +
+                  sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"pol\", " +
                              et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                              ", " + strFill + ", " + strStroke + ", false" +
                              ", [" + (lx + et.getPointX(1)) + ", " + (ly + et.getPointY(1)) + "]);");
@@ -731,7 +731,7 @@ public class editablePaths
 
                if (optimized)
                {
-                  sb.append ("trazos2D().trazoShape (c2d, \"cub\", " +
+                  sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"cub\", " +
                              et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
                              ", " + strFill + ", " + strStroke + ", false" +  // closing this curve is more complicated ...
                              ", [");

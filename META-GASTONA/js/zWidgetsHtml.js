@@ -232,157 +232,148 @@ function zWidgets (htmlStamm, laData, mensaka)
                            signalName ();
                        };
 
-      var hayClassOf = laData.dataUnit["class of " + name];
-      var widgetclass = hayClassOf ? hayClassOf[0][0] : name;
-
-      switch (widgetclass.charAt (0))
+      var hayTagOf = laData.dataUnit["htmltag of " + name];
+      if (hayTagOf)
       {
-         case 'd':
-            zwid = fabricaStandard ("div", name, { "data!": updateSimpleLabel  } );
-            break;
-         case 'n':
-            zwid = fabricaStandard ("a", name, { href: "login", "data!": updateSimpleLabel } );
-            break;
-         case 'b':
-            zwid = fabricaStandard ("button", name, { onclick: signalName, "data!": updateSimpleLabel } );
-            break;
-         case 'e':
-            zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, placeholder: var2Text(name), "data!": updateSimpleValue } );
-            break;
-
-         // --- Note about widget class for submit button
-         //    this could be handled with an extra widget class, implementing it as
-         //    zwid = fabricaStandard ("input", name, { type: "submit", ...
-         //    but this is not necessary since we can use a button ('b') and set its property "type" to submit
-         //    for example
-         //          <bSendIt type> //submit
-
-
-         // --- Note about upload (choose file) widget class
-         // As stated by the Chrome error message if we try to set a value different than empty string to this element
-         // "Failed to set the 'value' property on 'HTMLInputElement': This input element accepts a filename, which may only be programmatically set to the empty string."
+         // direct html tag (e.g. <htmltag of lasona> audio
          //
-         case 'u':
-            zwid = fabricaStandard ("input", name, { type: "file", onchange: signalName, "data!": updateResetValue } );
-            break;
+         zwid = fabricaStandard (hayTagOf, name, { "data!": updateSimpleSrc });
+      }
+      else {
 
-         case 'm': // image
-            // zwid = fabricaStandard ("img", name, { "data!": updateImage } );
-            zwid = fabricaStandard ("div", name, { onclick: signalName, "data!": updateImage } );
-            zwid.style["background-position"] = "center center";
-            zwid.style["background-repeat"] = "no-repeat";
-            zwid.style["background-size"] = "contain";
-            break;
+         var hayClassOf = laData.dataUnit["class of " + name];
+         var widgetclass = hayClassOf ? hayClassOf[0][0] : name;
 
-         case 'p': // password
-            zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
-            break;
+         switch (widgetclass.charAt (0))
+         {
+            case 'd':
+               zwid = fabricaStandard ("div", name, { "data!": updateSimpleLabel  } );
+               break;
+            case 'n':
+               zwid = fabricaStandard ("a", name, { href: "login", "data!": updateSimpleLabel } );
+               break;
+            case 'b':
+               zwid = fabricaStandard ("button", name, { onclick: signalName, "data!": updateSimpleLabel } );
+               break;
+            case 'e':
+               zwid = fabricaStandard ("input", name, { type: "text", onchange: assignValue, placeholder: var2Text(name), "data!": updateSimpleValue } );
+               break;
 
-         //(o) TOCHECK: some strange thing happen when two h's are put beside in EVALAYOUT
-         case 'h':
-            if (widgetclass.length >= 2)
-               zwid = fabricaStandard ("h" + widgetclass.charAt (1), name, { "data!": updateSimpleLabel2 } );
-            break;
-
-         case 'l':
-            zwid = fabricaStandard ("label", name, { "data!": updateSimpleLabel } );
-            break;
-
-         case 'x':
-            {
-               var updata = function () {
-                     var tex = "", row;
-                     if (!laData.isEvaEmpty (laData.dataUnit[this.id]))
-                        for (row in laData.dataUnit[this.id])
-                           tex += laData.dataUnit[this.id][row] + "\n";
-                     setValueToElement (this, tex);
-                  }
-               zwid = fabricaStandard ("textarea", name, { placeholder: var2Text(name), "data!": updata, onchange: assignText } );
-            }
-            break;
+            // --- Note about widget class for submit button
+            //    this could be handled with an extra widget class, implementing it as
+            //    zwid = fabricaStandard ("input", name, { type: "submit", ...
+            //    but this is not necessary since we can use a button ('b') and set its property "type" to submit
+            //    for example
+            //          <bSendIt type> //submit
 
 
-         case 't': // simple table
-            {
-               var updata = function () {
-                     var etabla, rowele, colele, row, col, evaData = laData.dataUnit[this.id];
+            // --- Note about upload (choose file) widget class
+            // As stated by the Chrome error message if we try to set a value different than empty string to this element
+            // "Failed to set the 'value' property on 'HTMLInputElement': This input element accepts a filename, which may only be programmatically set to the empty string."
+            //
+            case 'u':
+               zwid = fabricaStandard ("input", name, { type: "file", onchange: signalName, "data!": updateResetValue } );
+               break;
 
-                     // create new html table
-                     while (this.hasChildNodes())
-                     {
-                        this.removeChild(this.firstChild);
-                     }
+            case 'm': // image
+               // zwid = fabricaStandard ("img", name, { "data!": updateImage } );
+               zwid = fabricaStandard ("div", name, { onclick: signalName, "data!": updateImage } );
+               zwid.style["background-position"] = "center center";
+               zwid.style["background-repeat"] = "no-repeat";
+               zwid.style["background-size"] = "contain";
+               break;
 
-                     etabla = document.createElement ("table");
-                     etabla["id"] = this.id + "-table"; // e.g <div id="tMiTabla"> <table id="tMitabla-table">...
+            case 'p': // password
+               zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
+               break;
 
-                     for (row in evaData)
-                     {
-                        if (laData.isEvaEmpty (evaData))
-                        {
-                           // row === "0" only one column and empty ==> no headers
-                           // no headers!
-                        }
-                        else
-                        {
-                           rowele = document.createElement ("tr");
+            //(o) TOCHECK: some strange thing happen when two h's are put beside in EVALAYOUT
+            case 'h':
+               if (widgetclass.length >= 2)
+                  zwid = fabricaStandard ("h" + widgetclass.charAt (1), name, { "data!": updateSimpleLabel2 } );
+               break;
 
-                           for (col in evaData[row])
-                           {
-                              colele = document.createElement (row === "0" ? "th": "td");
+            case 'l':
+               zwid = fabricaStandard ("label", name, { "data!": updateSimpleLabel } );
+               break;
 
-                              // use instead ? colele.value = evaData[row][col];
-                              setValueToElement (colele, evaData[row][col]);
-                              rowele.appendChild (colele);
-                           }
-                           etabla.appendChild (rowele);
-                        }
-                     }
-                     this.appendChild (etabla);
-                  }
-               zwid = fabricaSimpleTable (name, { "data!": updata });
-            }
-            break;
-
-         case 'c': // combo
-         case 'r': // radio group
-         case 'k': // checkbox group
-         case 'i': // list
-            {
-               var labels = [], values = [];
-               var indxLabel = 0, indxValue = 0;
-
-               // Now assume list of "value, label" for the data (with column names in the first row!)
-               //
-               for (var row in laData.dataUnit[name])
+            case 'x':
                {
-                  if (row === "0")
-                  {
-                     indxLabel = laData.dataUnit[name][row].indexOf ("label");
-                     if (indxLabel == -1) indxLabel = 0;
-                     indxValue = laData.dataUnit[name][row].indexOf ("value");
-                     if (indxValue == -1) indxValue = 0;
-                  }
-                  else
-                  {
-                     values.push (laData.dataUnit[name][row][indxValue]||"?");
-                     labels.push (laData.dataUnit[name][row][indxLabel]||"?");
-                  }
+                  var updata = function () {
+                        var tex = "", row;
+                        if (!laData.isEvaEmpty (laData.dataUnit[this.id]))
+                           for (row in laData.dataUnit[this.id])
+                              tex += laData.dataUnit[this.id][row] + "\n";
+                        setValueToElement (this, tex);
+                     }
+                  zwid = fabricaStandard ("textarea", name, { placeholder: var2Text(name), "data!": updata, onchange: assignText } );
                }
-               var orient = laData.dataUnit[name + " orientation"]||"X";
+               break;
 
-               //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelectList (...
 
-               if (name.charAt (0) == 'c')
-                  htmlStamm.appendChild (fabricaSelectList (name, values, labels, false));
-               if (name.charAt (0) == 'i')
-                  htmlStamm.appendChild (fabricaSelectList (name, values, labels, true));
-               if (name.charAt (0) == 'r')
-                  htmlStamm.appendChild (fabricaGrupo ("radio", orient, name, values, labels));
-               if (name.charAt (0) == 'k')
-                  htmlStamm.appendChild (fabricaGrupo ("checkbox", orient, name, values, labels));
-            }
-            break;
+            case 't': // simple table
+               {
+                  var updata = function () {
+                        var etabla, rowele, colele, row, col, evaData = laData.dataUnit[this.id];
+
+                        // create new html table
+                        while (this.hasChildNodes())
+                        {
+                           this.removeChild(this.firstChild);
+                        }
+
+                        etabla = document.createElement ("table");
+                        etabla["id"] = this.id + "-table"; // e.g <div id="tMiTabla"> <table id="tMitabla-table">...
+
+                        for (row in evaData)
+                        {
+                           if (laData.isEvaEmpty (evaData))
+                           {
+                              // row === "0" only one column and empty ==> no headers
+                              // no headers!
+                           }
+                           else
+                           {
+                              rowele = document.createElement ("tr");
+
+                              for (col in evaData[row])
+                              {
+                                 colele = document.createElement (row === "0" ? "th": "td");
+
+                                 // use instead ? colele.value = evaData[row][col];
+                                 setValueToElement (colele, evaData[row][col]);
+                                 rowele.appendChild (colele);
+                              }
+                              etabla.appendChild (rowele);
+                           }
+                        }
+                        this.appendChild (etabla);
+                     }
+                  zwid = fabricaSimpleTable (name, { "data!": updata });
+               }
+               break;
+
+            case 'c': // combo
+            case 'r': // radio group
+            case 'k': // checkbox group
+            case 'i': // list
+               {
+                  var objTransp = table2ColumnObj (laData.dataUnit[name]);
+                  var orient = laData.dataUnit[name + " orientation"]||"X";
+
+                  //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelectList (...
+
+                  if (name.charAt (0) == 'c')
+                     htmlStamm.appendChild (fabricaSelectList (name, false));
+                  if (name.charAt (0) == 'i')
+                     htmlStamm.appendChild (fabricaSelectList (name, true));
+                  if (name.charAt (0) == 'r')
+                     htmlStamm.appendChild (fabricaGrupo (name, "radio", false));
+                  if (name.charAt (0) == 'k')
+                     htmlStamm.appendChild (fabricaGrupo (name, "checkbox", true));
+               }
+               break;
+         }
       }
 
       if (zwid)
@@ -507,11 +498,11 @@ function zWidgets (htmlStamm, laData, mensaka)
    // selectAllColumnsFromTable (unit, "mytable", "01");
    // produces setting the variables
    //
-   //    <mytable selected.id> 01
+   //    <mytable selected.value> 01
    //    <mytable selected.name> my first name
    //    <mytable selected.phone> 88888
    //
-   function selectAllColumnsFromTable (unit, name, strvalue)
+   function selectAllColumnsFromTable (unit, name, val)
    {
       if (!unit || !unit[name] || !unit[name][0]) return false;
       var colnames = unit[name][0];
@@ -526,7 +517,7 @@ function zWidgets (htmlStamm, laData, mensaka)
       //search the row with the value (unique id) at position 0
       for (var rosel = 1; rosel < unit[name].length; rosel ++)
       {
-         if (unit[name][rosel][indxVal] === strvalue)
+         if (unit[name][rosel][indxVal] === val)
          {
             for (var col in colnames)
                unit[name + " selected." + colnames[col]] = [[ unit[name][rosel][col]||"?" ]];
@@ -537,36 +528,124 @@ function zWidgets (htmlStamm, laData, mensaka)
       return false;
    }
 
-   // set all the variables for all column names <name seleted.columnname>
-   // the single variable <name_value> and send the mensaka message "name"
-   // or remove the variables if no value is selected (deselecting last item in a list)
+   // if having the flag "selection uid.checked" (tipically for checkboxes)
+   //    update the variable <name uid.checked> "0" or "1"
+   //    NOTE: this can be done for chechboxes easily but not for radio or combo boxes!!
    //
-   function whenChangeTableSelection (name, value)
+   // if having the flag "selection selected.column" (tipically for lists, radio boxes, combo boxes)
+   //    then set all the variables for all column names <name selected.columnname>
+   //    the single variable <name_value> and send the mensaka message "name"
+   //    or remove the variables if no value is selected (deselecting last item in a list)
+   //
+   function whenChangeTableSelection (name, este, value)
    {
-      if (selectAllColumnsFromTable (laData.dataUnit, name, value||"?"))
-           laData.dataUnit[name + "_value"] = [[ value||"?" ]]; // to have a single variable
-      else delete laData.dataUnit[name + "_value"];
-      mensaka(name)
+      if (este["selection uid.checked"])
+      {
+         // note : this attribute has to be set for all items in the begining
+         //        and update on item change (enough)
+         //
+         if (este["uid"])
+            laData.dataUnit[name + " " + este["uid"] + ".checked"] = [[ este.checked ? "1": "0" ]];
+
+         // TODO: fill variables <name uid.column> vvvv when checked is 1 and delete them when checked is 0!
+         //
+         //       so if we check if variable getData("kgCities BCN.name") and exists it means that
+         //       Barcelona is checked, also getData("kgCities BCN.checked") is "1"
+         //
+      }
+
+      if (este["selection selected.column"])
+      {
+         // note : these attributes has to be clear and set again on any item change
+         //
+         if (selectAllColumnsFromTable (laData.dataUnit, name, value||""))
+         {
+            laData.dataUnit[name + "_value"] = [[ value||"?" ]]; // to have a single variable
+            laData.dataUnit[name + "_uid"] = [[ este["uid"] ]]; // to have a single variable
+         }
+         else
+         {
+            delete laData.dataUnit[name + "_value"];
+            delete laData.dataUnit[name + "_uid"];
+         }
+      }
+      mensaka(name);
    }
+
+   // var etable = [["id", "name"], [72, "Canido"], [82, "Ocell"], [107, ""]];
+   // table2ColumnObj (etable)
+
+   function table2ColumnObj (tata)
+   {
+      var obj = {};
+
+      if (!tata  || !tata[0]) return obj;
+      var cols = tata [0];
+
+      for (var ii in cols)
+      {
+          var colname = cols[ii];
+          obj[colname] = [];
+          for (var rr = 1; rr < tata.length; rr ++)
+             obj[colname].push (tata[rr][ii]);
+      }
+      return obj;
+   }
+
+   function addCommonAttributesToCheckableItem (item, indx, name, label, tableTrans, uidchecked, selectedcolumn)
+   {
+      item["name"] = name;
+      item["value"] = (tableTrans["value"] ? tableTrans["value"][indx]||"": "");
+      item["label"] = label;
+      item["uid"] = (tableTrans["uid"] ? tableTrans["uid"][indx]||indx: indx);
+      item["checked"] = (tableTrans["selected"] ? tableTrans["selected"][indx]||"0": "0") === "1";
+      // subele["master"] = tableTrans;
+      // subele["labindx"] = indx;
+      item["data!"] = function () { }; //(o) TOREVIEW_jGastona_update message in subelements, is it really needed ?
+
+      item["selection uid.checked"]     = uidchecked;
+      item["selection selected.column"] = selectedcolumn;
+
+      // create the attribute "uid".checked
+      // for example
+      //       <kgCities BCN.checked> "1"
+      //
+      if (item["selection uid.checked"])
+         laData.dataUnit[name + " " + item["uid"] + ".checked"] = [[ item["checked"] ? "1": "0" ]];
+   }
+
 
    // for lists and combos
    //
-   function fabricaSelectList (name, arrOp, arrLab, ismultiple)
+   function fabricaSelectList (name, multipleSelection)
    {
+      var tableTrans = table2ColumnObj (laData.dataUnit[name]);
+      var orient = laData.dataUnit[name + " orientation"]||"X";
+
+      // html strange "smart" "select" tag, when multiple is true it builds a list
+      // and if not a combo ...
+      //
       var ele = document.createElement ("select");
-      if (ismultiple)
-         ele["multiple"] = "si";
+      ele["multiple"] = multipleSelection;
 
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
-      for (var ite in arrOp)
+      ele.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
+
+      // tableTrans is an object like
+      // {
+      //    label: ["mygod", "save", "queen"];
+      //    value: [1223, 188198, 555];
+      //    selected: ["0", "1", "0"];
+      // }
+
+      var labels = tableTrans["label"];
+      if (!labels) return ele;
+      for (var ii in labels)
       {
          var subele = document.createElement ("option");
-         subele["value"] = arrOp[ite];
-         subele["data!"] = function () { }; //(o) TOREVIEW_jGastona_update message in subelements, is it really needed ?
-
-         subele.appendChild (document.createTextNode(arrLab[ite]));
+         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans, false, true);
+         subele.appendChild (document.createTextNode(labels[ii]));
          ele.appendChild (subele);
       }
 
@@ -575,11 +654,24 @@ function zWidgets (htmlStamm, laData, mensaka)
 
    // for checkbox and radio groups
    //
-   function fabricaGrupo (tipo, orient, name, arrOp, arrLab)
+   function fabricaGrupo (name, tipo, multipleSelect)
    {
+      var tableTrans = table2ColumnObj (laData.dataUnit[name]);
+      var orient = laData.dataUnit[name + " orientation"]||"X";
+
       var ele = document.createElement ("div");
       ele["id"] = name;
       ele.style.visibility = "hidden";
+
+      // tableTrans is an object like
+      // {
+      //    label: ["mygod", "save", "queen"];
+      //    value: [1223, 188198, 555];
+      //    selected: ["0", "1", "0"];
+      // }
+
+      var labels = tableTrans["label"];
+      if (!labels) return ele;
 
       // *** Own width calculation
       // we have to estimate width, for some reason if not specified
@@ -589,21 +681,20 @@ function zWidgets (htmlStamm, laData, mensaka)
 
       //cannot do this here like in fabricaSelect, but to be done on each element
       //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
-      for (var ite in arrOp)
+      for (var ii in labels)
       {
          var subele = document.createElement ("input");
          subele["type"] = tipo;
-         subele["name"] = name;
-         subele["value"] = arrOp[ite];
-         subele["label"] = arrLab[ite];
+         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans, multipleSelect, !multipleSelect);
 
-         // a more accurate measure has to take into account the final font
+         //Estimate width of the item's label
+         // for a more accurate measure it should be taken into account the final font
          // which might be not know right now (?!)
-         var estimW = 12 * subele["label"].length; // mean 12px per char
+         var estimW = 12 * labels[ii].length; // mean 12px per char
 
          subele["data!"] = function () { };
-         subele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
-         if (ite !== "0" && (orient == "Y" || orient == "V")) {
+         subele.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
+         if (orient == "Y" || orient == "V") {
             ele.appendChild (document.createElement ("br"));
             widthEstim = Math.max (widthEstim, estimW);
          }
@@ -611,7 +702,7 @@ function zWidgets (htmlStamm, laData, mensaka)
             widthEstim += estimW;
          }
          ele.appendChild (subele);
-         ele.appendChild (document.createTextNode(arrLab[ite]));
+         ele.appendChild (document.createTextNode(labels[ii]));
       }
       ele.style.width = widthEstim + "px";
 

@@ -39,5 +39,6 @@ public class commander extends commanderBase
       loadCommandable (new cmdPython ());
 
       loadCommandable (new cmdReplaceBmp ());  // only for Windows
+      loadCommandable (new cmdProcessImage ());  // only for Windows
    }
 }

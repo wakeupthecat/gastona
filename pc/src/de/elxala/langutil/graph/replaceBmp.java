@@ -64,12 +64,12 @@ public class replaceBmp
          if (inStream != null)
             theImage = BMPLoader.read (inStream);
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
          log.err ("convertBMPtoPNG", "exception reading file [" + ficher + "] " + e);
          return false;
       }
-      
+
       if (inStream == null || theImage == null)
       {
          log.err ("convertBMPtoPNG", "error loading bmp from [" + ficher + "]");
@@ -102,12 +102,12 @@ public class replaceBmp
    {
       convertBMPtoPNG (filearr, false);
    }
-   
+
    public static void convertBMPtoPNG (String [] filearr)
    {
       convertBMPtoPNG (filearr, true);
    }
-   
+
    public static int convertBMPtoPNG (String [] filearr, boolean keepOld)
    {
       return recConvertBMPtoPNG ("", filearr, keepOld);
@@ -130,10 +130,18 @@ public class replaceBmp
          {
             //System.out.println ("     guaita is a file!");
             if (fileX.length () > 4 && (fileX.endsWith (".bmp") || fileX.endsWith (".BMP")))
-               if (convertBMPtoPNG (fileX, keepOld)) 
+               if (convertBMPtoPNG (fileX, keepOld))
                   count ++;
          }
       }
       return count;
    }
 }
+
+
+/*
+private BufferedImage cropImage(BufferedImage src, Rectangle rect) {
+      BufferedImage dest = src.getSubimage(0, 0, rect.width, rect.height);
+      return dest;
+   }
+*/

@@ -180,7 +180,7 @@
       //
       //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //
-      //@<:infile META-GASTONA/js/trazos2D-min.js>
+      //@<:infile META-GASTONA/js/trassos2D-min.js>
       //
       //@<graffiti data>
       //
@@ -253,7 +253,7 @@
       //
       //   <-- ajaxResponse getDataForId>
       //      //updateFileNameCheck ();
-      //      //trazos2D ().renderClassGraffiti (data);
+      //      //trassos2D ().renderClassGraffiti (data);
       //
       //   <-- bSave>
       //      //AJAXPost ("savegast", getIdValue ("xFileContent"), { "ajaxREQ-gastName": getIdValue("eFileName") });

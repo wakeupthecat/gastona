@@ -141,7 +141,7 @@
       //
       //           will encode in UTF-8 the contents of the variable myText
       //
-      //          @<:infile META-GASTONA/js/jGastona.js>
+      //          @<:infile jGastonaEva-min.js>
       //
       //           will include the given file as text
       //
@@ -208,11 +208,11 @@
       //
       //         Example:
       //
-      //             @<:infile META-GASTONA/js/jGastona.js>
+      //             @<:infile META-GASTONA/js/jGastonaEva-min.js>
       //
       //             which would be the same as
       //
-      //             IN FILE, META-GASTONA/js/jGastona.js
+      //             IN FILE, META-GASTONA/js/jGastonaEva-min.js
       //                    , SOLVE, 0
       //
       //      @<:path varWithPath>

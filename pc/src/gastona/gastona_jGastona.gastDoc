@@ -62,8 +62,8 @@
       //     //
       //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //   jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"))
-      //     //       .start ();
+      //     //   var jast = jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
+      //     //   jast.run ();
       //     //
       //     //</script></body></html>
       //
@@ -85,19 +85,19 @@
       //      //
       //      //      ZZZ,            ,    X     ,
       //      //         , lLabel1    , eEdit1   , -
-      //      //         , lLabel2    , xMemo    , lLabel3
+      //      //         , eSlider    , xMemo    , lLabel3
       //      //         , lLabel4    ,    +     , iLista
       //      //         , bSwitchBack,    +     , +
-      //      //         ,            ,    +     , +
-      //      //       X ,            ,    +     , +
+      //      //       X , rRadios    ,    +     , +
+      //      //       X , kChekos    ,    +     , +
       //      //         , cCombo     ,    -     , +
       //      //
       //      //   <layout of form1>
       //      //      EVALAYOUT, 10, 10, 5, 5
       //      //
-      //      //         ,           ,    X     ,
+      //      //         ,           ,          , X
       //      //         , lLabel1   , eEdit1   , -
-      //      //         , lLabel2   , eEdit2   , lLabel3
+      //      //         , eSlider   , lLabel3  , eEdit2
       //      //       X , xMemo     , -        , -
       //      //
       //      //   <layout of form2>
@@ -107,13 +107,42 @@
       //      //         , lLabel4   , cCombo
       //      //       X ,           , iLista
       //      //
-      //      //#jListix#
+      //      //#data#
+      //      //
+      //      //   <rRadios orientation> Y
+      //      //   <rRadios>
+      //      //       label, value
+      //      //       radio, 51552
+      //      //       gaga , 90292
+      //      //       hero , 11010
+      //      //
+      //      //   <kChekos orientation> Y
+      //      //   <kChekos>
+      //      //       label, value
+      //      //       xako , 1
+      //      //       golo , 2
+      //      //       rumpf, 3
+      //      //
+      //      //   <eSlider type> range
+      //      //   <eSlider> 40
+      //      //   <eSlider oninput>   //mensaka ("toc");
+      //      //
+      //      //   <cCombo>
+      //      //       label, value, phrase
+      //      //       Catala, CAT , Bon dia
+      //      //       Deutsch, DEU, Heilandsack!
+      //      //       Korean, KOR , Annyeonghaseyo
+      //      //
+      //      //#listix#
       //      //
       //      //   <-- bSwitchMain>   //mask ("main", "second")
       //      //   <-- bSwitchBack>   //mask ("main")
       //      //   <-- bMask1>        //mask ("form1", "form2")
       //      //   <-- bMask2>        //mask ("form1", "xMemo")
       //      //   <-- bUnmask>       //mask ("form1")
+      //      //
+      //      //   <-- toc>           //setData ("lLabel3", getDataCell("eSlider"));
+      //      //   <-- cCombo>        //setData ("lLabel4", getDataCell("cCombo selected.phrase"));
 
 
    <using jGatonaAJAXPost I>
@@ -133,7 +162,7 @@
       //     //
       //     //<script>
       //     //
-      //     //@<:infile META-GASTONA/js/jGastona.js>
+      //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
       //     //   var jgas = jGastona ();
       //     //   // jgas.start ();
@@ -359,7 +388,7 @@
       //       //      //var arr = getDataAsTextArray("xScript");
       //       //      //for (var ii = 0; ii < arr.length; ii ++) arr[ii] = arr[ii].replace(/^\s*/, "").replace(/ +/g, ',');
       //       //      //var evaStr = "#data#\n<distanceAgents> " + getDataCell("eDistAgents") + "\n<sequenceTable> agent1, dir, agent2, message\n" + arr.join ("\n");
-      //       //      //setData("xOnFlyOutput", conSecuencioPlain (evaFileStr2obj (evaStr)["data"]));
+      //       //      //setData("xOnFlyOutput", conSequenciPlain (evaFileStr2obj (evaStr)["data"]));
       //       //
       //
       //#listix#
@@ -386,7 +415,7 @@
       //     //
       //     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
       //     //
-      //     //@<:infile META-GASTONA/js/conSecuencioPlain.js>
+      //     //@<:infile META-GASTONA/js/conSequenciPlain.js>
       //     //
       //     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
       //     //   jast.run ();
@@ -593,9 +622,9 @@
       //     //   function processSample (arr)
       //     //   {
       //     //      var dee = deepTable ();
-      //     //   
+      //     //
       //     //      var sal = [];
-      //     //   
+      //     //
       //     //      for (var ii in arr) {
       //     //         var lin = arr[ii][0];
       //     //         var indx = lin.indexOf ("conn:");
@@ -745,14 +774,14 @@
       //      //     zWidgetsHtml.js
       //      //
       //      //     marketes.js
-      //      //     trazos2D.js
+      //      //     trassos2D.js
       //      //     codiFinestreta.js
       //      //
-      //      //     conSecuencioCanvas.js
-      //      //     conSecuencioGraffiti.js
-      //      //     conSecuencioGraffitiNoCanvas.js
-      //      //     conSecuencioPlain.js
-      //      //     conSecuencioPlainExt.js
+      //      //     conSequenciCanvas.js
+      //      //     conSequenciGraffiti.js
+      //      //     conSequenciGraffitiNoCanvas.js
+      //      //     conSequenciPlain.js
+      //      //     conSequenciPlainExt.js
       //      //
       //      //
       //      //#listix#

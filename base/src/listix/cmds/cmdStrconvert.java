@@ -223,7 +223,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       29     , 2DTRAZOS-JS     ,       , //
       29     , evaName         ,       , //Variable name (eva) containing the 2d trazos
-      29     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trazos2D.js is included
+      29     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trassos2D.js is included
       29     , canvasX         , 0     , //If > 0 width of canvas where the image has to fit
       29     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
       29     , offset0         , 0     , //If 1 then clear the offsets to 0, 0

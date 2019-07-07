@@ -67,7 +67,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       gorhino1
       javascriptExecutorGoRhino
-      consecuencioDiagram
+      consequenciDiagram
       files for goRhino
       sqlSelect for goRhino
       sqlRunner for goRhino
@@ -135,10 +135,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      =, (@<:lsx CLOCK> - startStamp) / 1000
       //
 
-   <consecuencioDiagram>
+   <consequenciDiagram>
       //#javaj#
       //
-      //   <frames> Fmain, Sample conSecuencio.js using Rhino
+      //   <frames> Fmain, Sample conSequenci.js using Rhino
       //
       //   <layout of Fmain>
       //    EVA, 10, 10, 7, 7
@@ -173,9 +173,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //      // autoElapsed      : false,
       //      //  };
       //      //
-      //      //@<:infile META-GASTONA/js/conSecuencioPlain.js>
+      //      //@<:infile META-GASTONA/js/conSequenciPlain.js>
       //      //
-      //      //conSecuencioPlain (diagData);
+      //      //conSequenciPlain (diagData);
       //      //
       //
       //#listix#
