@@ -528,18 +528,18 @@ function zWidgets (htmlStamm, laData, mensaka)
       return false;
    }
 
-   // if having the flag "selection uid.checked" (tipically for checkboxes)
+   // if having the flag "selectionType uid.checked" (tipically for checkboxes)
    //    update the variable <name uid.checked> "0" or "1"
    //    NOTE: this can be done for chechboxes easily but not for radio or combo boxes!!
    //
-   // if having the flag "selection selected.column" (tipically for lists, radio boxes, combo boxes)
+   // otherwise the it will be used "selection selected.column" (tipically for lists, radio boxes, combo boxes)
    //    then set all the variables for all column names <name selected.columnname>
    //    the single variable <name_value> and send the mensaka message "name"
    //    or remove the variables if no value is selected (deselecting last item in a list)
    //
    function whenChangeTableSelection (name, este, value)
    {
-      if (este["selection uid.checked"])
+      if (este["selectionType uid.checked"])
       {
          // note : this attribute has to be set for all items in the begining
          //        and update on item change (enough)
@@ -553,8 +553,7 @@ function zWidgets (htmlStamm, laData, mensaka)
          //       Barcelona is checked, also getData("kgCities BCN.checked") is "1"
          //
       }
-
-      if (este["selection selected.column"])
+      else
       {
          // note : these attributes has to be clear and set again on any item change
          //
@@ -594,24 +593,31 @@ function zWidgets (htmlStamm, laData, mensaka)
 
    function addCommonAttributesToCheckableItem (item, indx, name, label, tableTrans, uidchecked, selectedcolumn)
    {
+      var valuecol = getColName (name, "value");
+
       item["name"] = name;
-      item["value"] = (tableTrans["value"] ? tableTrans["value"][indx]||"": "");
+      item["value"] = valuecol ? tableTrans[valuecol][indx] : "?";
       item["label"] = label;
       item["uid"] = (tableTrans["uid"] ? tableTrans["uid"][indx]||indx: indx);
       item["checked"] = (tableTrans["selected"] ? tableTrans["selected"][indx]||"0": "0") === "1";
       // subele["master"] = tableTrans;
       // subele["labindx"] = indx;
       item["data!"] = function () { }; //(o) TOREVIEW_jGastona_update message in subelements, is it really needed ?
+   }
 
-      item["selection uid.checked"]     = uidchecked;
-      item["selection selected.column"] = selectedcolumn;
+   // returns colname (e.g. "label", "value" etc) if exists as column or the first column name of the unit unitname
+   //
+   function getColName (unitname, colname)
+   {
+      if (laData.dataUnit[unitname][0].length < 1)
+      {
+         console.log ("ERROR: No column can be used as label in list " + unitname + "!");
+         return null;
+      }
 
-      // create the attribute "uid".checked
-      // for example
-      //       <kgCities BCN.checked> "1"
-      //
-      if (item["selection uid.checked"])
-         laData.dataUnit[name + " " + item["uid"] + ".checked"] = [[ item["checked"] ? "1": "0" ]];
+      var indxLabel = laData.dataUnit[unitname][0].indexOf (colname);
+      if (indxLabel == -1) indxLabel = 0;
+      return laData.dataUnit[unitname][0][indxLabel];
    }
 
 
@@ -620,7 +626,6 @@ function zWidgets (htmlStamm, laData, mensaka)
    function fabricaSelectList (name, multipleSelection)
    {
       var tableTrans = table2ColumnObj (laData.dataUnit[name]);
-      var orient = laData.dataUnit[name + " orientation"]||"X";
 
       // html strange "smart" "select" tag, when multiple is true it builds a list
       // and if not a combo ...
@@ -630,7 +635,10 @@ function zWidgets (htmlStamm, laData, mensaka)
 
       ele["id"] = name;
       ele.style.visibility = "hidden";
-      ele.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
+      ele.addEventListener ("change",
+            function () {
+               whenChangeTableSelection (name, this, this.value);
+            });
 
       // tableTrans is an object like
       // {
@@ -639,12 +647,16 @@ function zWidgets (htmlStamm, laData, mensaka)
       //    selected: ["0", "1", "0"];
       // }
 
-      var labels = tableTrans["label"];
-      if (!labels) return ele;
+      // get from data the column to be used as label
+      //
+      var labelcol = getColName (name, "label");
+      if (!labelcol) return ele;
+      var labels = tableTrans[labelcol];
+
       for (var ii in labels)
       {
          var subele = document.createElement ("option");
-         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans, false, true);
+         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans);
          subele.appendChild (document.createTextNode(labels[ii]));
          ele.appendChild (subele);
       }
@@ -670,8 +682,11 @@ function zWidgets (htmlStamm, laData, mensaka)
       //    selected: ["0", "1", "0"];
       // }
 
-      var labels = tableTrans["label"];
-      if (!labels) return ele;
+      // get from data the column to be used as label
+      //
+      var labelcol = getColName (name, "label");
+      if (!labelcol) return ele;
+      var labels = tableTrans[labelcol];
 
       // *** Own width calculation
       // we have to estimate width, for some reason if not specified
@@ -683,17 +698,27 @@ function zWidgets (htmlStamm, laData, mensaka)
       //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
       for (var ii in labels)
       {
-         var subele = document.createElement ("input");
-         subele["type"] = tipo;
-         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans, multipleSelect, !multipleSelect);
+         var subelem = document.createElement ("input");
+         subelem["type"] = tipo;
+         addCommonAttributesToCheckableItem (subelem, ii, name, labels[ii], tableTrans);
 
-         //Estimate width of the item's label
+         // choose the selection type
+         subelem["selectionType uid.checked"] = multipleSelect;
+
+         // create the attribute "uid".checked
+         // for example
+         //       <kgCities BCN.checked> "1"
+         //
+         if (subelem["selectionType uid.checked"])
+            laData.dataUnit[name + " " + subelem["uid"] + ".checked"] = [[ subelem["checked"] ? "1": "0" ]];
+
+         //Estimate width of the subelem's label
          // for a more accurate measure it should be taken into account the final font
          // which might be not know right now (?!)
          var estimW = 12 * labels[ii].length; // mean 12px per char
 
-         subele["data!"] = function () { };
-         subele.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
+         subelem["data!"] = function () { };
+         subelem.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
          if (orient == "Y" || orient == "V") {
             ele.appendChild (document.createElement ("br"));
             widthEstim = Math.max (widthEstim, estimW);
@@ -701,7 +726,7 @@ function zWidgets (htmlStamm, laData, mensaka)
          else {
             widthEstim += estimW;
          }
-         ele.appendChild (subele);
+         ele.appendChild (subelem);
          ele.appendChild (document.createTextNode(labels[ii]));
       }
       ele.style.width = widthEstim + "px";
