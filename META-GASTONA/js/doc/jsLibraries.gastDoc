@@ -28,6 +28,7 @@
       javascriptExecutorBrowser
       marketesPublisher
       simple appHelp
+      plotAmbTrassos
 
 
    <conSequenciGraffiti>
@@ -238,6 +239,116 @@
       //
       //   <GET />
       //      //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
+
+   <plotAmbTrassos>
+      //#data#
+      //
+      //   <laData>
+      //      // minX = -50;
+      //      // maxX =  50;
+      //      // incX = 0.1;
+      //      // var nummedio = false;
+      //      // var numcantos = true;
+      //      //
+      //      // var stylesGraella = {
+      //      //       grid: "sw:.1;sc:gray",
+      //      //       axe: "sw:0.2;sc:gray",
+      //      //       letra: "fof:Tahoma;fs:2.5;fc:black;sc:gray;sw:0.1;",
+      //      //       fu1: "sw:0.4;sc:green;fill:none",
+      //      //       fu2: "sw:0.4;sc:red;fill:none",
+      //      //       fu3: "sw:0.2;sc:yellow;fill:none",
+      //      //    };
+      //      //
+      //      // function addGrid (vdata, graffitiname, x0, x1, incx, y0, y1, incy)
+      //      // {
+      //      //    var arro = [];
+      //      //    for (var sty in stylesGraella)
+      //      //       arro.push (["defstyle", sty, stylesGraella[sty]]);
+      //      //    var MAR = 20;
+      //      //    arro.push (["rec", x0-MAR, y0-MAR, "fc:black", x1-x0+2*MAR, y1-y0+2*MAR]);
+      //      //    arro.push (["z", x0, y0, "fc:gray", "rect", x1-x0, y1-y0]);
+      //      //
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["z", xx, y0, "grid", "pol", 0, y1-y0]);
+      //      //
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["z", x0, yy, "grid", "pol", x1-x0, 0]);
+      //      //
+      //      //    arro.push (["z", 0., y0, "axe", "pol", 0, y1-y0]);
+      //      //    arro.push (["z", x0, 0., "axe", "pol", x1-x0, 0]);
+      //      //
+      //      //    if (nummedio)
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["text", xx, 0, "letra", xx ]);
+      //      //
+      //      //    if (nummedio)
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["text", .3, yy, "letra", -yy]);
+      //      //
+      //      //    if (numcantos)
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["text", xx, y1+incy/3., "letra", xx ]);
+      //      //
+      //      //    if (numcantos)
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["text", x1+incx/4., yy, "letra", -yy]);
+      //      //
+      //      //    vdata[graffitiname + " graffiti"] = arro;
+      //      // }
+      //      //
+      //      // var vdata = { };
+      //      // addGrid (vdata, "grido", minX, maxX, 10, -40, 40, 10);
+      //      //
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu1", "pol", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu2", "bez", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu3", "jau", 10, -40, 20, 40, 50, 0]);
+      //      // var lastons = vdata["grido graffiti"];
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <p>Edit formula and press enter: </p>
+      //      //      <input id="formulos" font-family="Monospaced" type="text" value="Math.sin(x)" onchange='plotFormula()'"></input>
+      //      //      <br><br>
+      //      //      <canvas width="600" height="700" id="grido"></canvas>
+      //      //      <svg width="600" height="700" id="grido"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trassos2D.js>
+      //      //
+      //      // @<laData>
+      //      //
+      //      //   var elo = document.getElementById ("formulos");
+      //      //   function trassFormula()
+      //      //   {
+      //      //       var arrus = eval ("var arras = []; var ete=0, yol= 0; for (x = " + minX + "; x <= " + maxX + "; x += " + incX + ") { ete = " + elo.value  + "; arras.push (" + incX + ", yol-ete); yol = ete; } arras");
+      //      //       return ['z', (minX-incX), 0, 'fu3', 'pol'].concat (arrus);
+      //      //   }
+      //      //
+      //      //   function plotFormula ()
+      //      //   {
+      //      //      lastons[lastons.length-1] = trassFormula ();
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      plotFormula ();
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+      //
+      //#**#
+   
 
 
 #**FIN_EVA#

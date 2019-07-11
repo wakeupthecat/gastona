@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190708 \"fixsellist\"
+   <gastonaVersion>  //1.2.190712 \"trassos&plots\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

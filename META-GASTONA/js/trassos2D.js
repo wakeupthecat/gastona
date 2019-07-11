@@ -279,7 +279,6 @@ function trassos2D ()
 
       drawGraffiti2canvas   : drawGraffiti2canvas,
       trassShapeNoSyncCanvas: trassShapeNoSyncCanvas,
-      trassShape2canvas     : trassShape2canvas,
 
       drawGraffiti2svg      : drawGraffiti2svg,
       trassShape2svg        : trassShape2svg,
@@ -669,7 +668,7 @@ function trassos2D ()
             }
             else
             {
-               console.log ("ERROR: unknow form " + form + " calling trassShape2canvas!");
+               console.log ("ERROR: unknow form " + form + " calling trassShapeNoSyncCanvas!");
                break; // error!
             }
          }
@@ -678,105 +677,13 @@ function trassos2D ()
       }
    }
 
-   function trassShape2canvas (canvSync, form, px, py, pathStyle, closep, arrp)
-   {
-      var relative = true;
-      var xx = +(px), yy = +(py);
 
-      canvSync.addRender (function () {
-         this.ctx.beginPath();
-         this.ctx.moveTo(px, py);
-
-         if (form === "jau") {
-            var curv = autoCasteljau (+(px), +(py), closep, arrp);
-            curv.computePoints ();
-            var cc = curv.getArrayCasteljau ();
-
-            for (var ii = 2; ii+5 < cc.length; ii += 6)
-               this.ctx.bezierCurveTo (cc[ii], cc[ii+1], cc[ii+2], cc[ii+3], cc[ii+4], cc[ii+5]);
-         }
-         else {
-            for (var ii = 0; ii < arrp.length; ii += 2)
-            {
-               var plusx = relative ? xx : 0;
-               var plusy = relative ? yy : 0;
-
-               if (form === "pol") {
-                  xx = +(arrp[ii+0]) + plusx;
-                  yy = +(arrp[ii+1]) + plusy;
-
-                  this.ctx.lineTo (xx, yy);
-               }
-               else if (form == "qua") {
-                  xx = +(arrp[ii+2]) + plusx;
-                  yy = +(arrp[ii+3]) + plusy;
-                  this.ctx.quadraticCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, xx, yy);
-                  ii += 2;
-               }
-               else if (form == "cub" || form == "bez") {
-                  xx = +(arrp[ii+4]) + plusx;
-                  yy = +(arrp[ii+5]) + plusy;
-                  this.ctx.bezierCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, +(arrp[ii+2]) + plusx, +(arrp[ii+3]) + plusy, xx, yy);
-                  ii += 4;
-               }
-               else
-               {
-                  console.log ("ERROR: unknow form " + form + " calling trassShape2canvas!");
-                  break; // error!
-               }
-            }
-            if (closep)
-               this.ctx.closePath();
-         }
-      });
-   }
-
-   function drawImage2canvas (canvSync, source, px, py)
-   {
-      canvSync.declareImage (source);
-      canvSync.addRender (function () {
-                this.renderImage (source, +(px), +(py));
-            });
-   }
-
-   function applyCanvasStyle (canvSync, styles, strstyle)
-   {
-      var estilos = parse2DStyle (styles [strstyle] || strstyle);
-
-      canvSync.addRender (function () {
-         var oldWidth;
-         var oldLineDash;
-
-         if ("fill" in estilos)
-         {
-            this.ctx.fillStyle = estilos["fill"];
-            this.ctx.fill ();
-         }
-         if ("stroke-width" in estilos)
-         {
-            oldWidth = this.ctx.lineWidth;
-            this.ctx.lineWidth = estilos["stroke-width"];
-         }
-         if ("stroke-dasharray" in estilos)
-         {
-            this.ctx.setLineDash (eval ("[" + estilos["stroke-dasharray"] + "]"));
-         }
-         this.ctx.strokeStyle = ("stroke" in estilos) ? estilos["stroke"]: "#000000";
-         this.ctx.stroke ();
-
-         if (oldWidth !== undefined)
-            this.ctx.lineWidth = oldWidth;
-         if (oldLineDash !== undefined)
-            this.ctx.setLineDash ([]);
-      });
-   }
-
-   function drawGraffiti2canvas (arrtrass, canv, props)
+   function drawGraffiti2canvas (atrass, canv, props)
    {
       var canvSync = canvasSync (canv.getContext("2d"));
 
 
-      // sample arrtrass:
+      // sample atrass:
       //
       //    "defstyle", "red", "sc:#AA1010"
       //    "z", 10, 10, "red"       , "pol", 40, 0, 10, -50, -66, 30
@@ -787,94 +694,183 @@ function trassos2D ()
 
       var styles = {};
 
-      var applyprop = (!props || props.autofit) ? boundingBoxAndAutoScale (arrtrass, canv.width, canv.height): props;
+      var applyprop = (!props || props.autofit) ? boundingBoxAndAutoScale (atrass, canv.width, canv.height): props;
       var hasScaleAndOffsets = "scalex" in applyprop;
 
-      if (hasScaleAndOffsets)
-      {
-         canvSync.addRender (function () {
-            // apply scales and offsets
-            //
-               this.ctx.save ();
-               this.ctx.lineWidth = 1.0 / applyprop.scalex; // compensate the scale with stroke
-               this.ctx.scale (applyprop.scalex, applyprop.scaley);
-               this.ctx.translate (applyprop.offsetx, applyprop.offsety);
-         });
-      }
+      canvSync.addRender (function () {
+         var thas = this;
 
-      for (var rr in arrtrass)
-      {
-         if (!arrtrass[rr] || arrtrass[rr].length < 3) continue;
-         if (arrtrass[rr][0] === "defstyle") {
-            styles [arrtrass[rr][1]] = makestyle (arrtrass[rr][2]);
-         }
-         else if (arrtrass[rr][0] === "img") {
-            //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
-            drawImage2canvas (canvSync, arrtrass[rr][4], arrtrass[rr][1], arrtrass[rr][2])
-         }
-         else if (arrtrass[rr][0] === "text" || arrtrass[rr][0] === "txt") {
-            var estilos = parse2DStyle (styles [arrtrass[rr][3]] || arrtrass[rr][3]);
+         // inner function 1
+         function applyCanvasStyle (styles, strstyle)
+         {
+            var estilos = parse2DStyle (styles [strstyle] || strstyle);
+
+            var oldWidth;
+            var oldLineDash;
+
             if ("fill" in estilos)
             {
-canvSync.addRender (function () {
-               this.ctx.fillStyle = estilos["fill"];
-               this.ctx.fillText (arrtrass[rr][4], arrtrass[rr][1], arrtrass[rr][2]);
-});
+               if (estilos["fill"] !== "none")
+               {
+                  thas.ctx.fillStyle = estilos["fill"];
+                  thas.ctx.fill ();
+               }
             }
-            if ("stroke" in estilos)
+            if ("stroke-width" in estilos)
             {
-canvSync.addRender (function () {
-               this.ctx.strokeStyle = estilos["stroke"];
-               this.ctx.strokeText (arrtrass[rr][4], arrtrass[rr][1], arrtrass[rr][2]);
-});
+               oldWidth = thas.ctx.lineWidth;
+               thas.ctx.lineWidth = estilos["stroke-width"];
+            }
+            if ("stroke-dasharray" in estilos)
+            {
+               thas.ctx.setLineDash (eval ("[" + estilos["stroke-dasharray"] + "]"));
+            }
+            thas.ctx.strokeStyle = ("stroke" in estilos) ? estilos["stroke"]: "#000000";
+            thas.ctx.stroke ();
+
+            if (oldWidth !== undefined)
+               thas.ctx.lineWidth = oldWidth;
+            if (oldLineDash !== undefined)
+               thas.ctx.setLineDash ([]);
+         }
+
+         // inner function 2
+         function trassShape2canvas (form, px, py, pathStyle, closep, arrp)
+         {
+            var relative = true;
+            var xx = +(px), yy = +(py);
+
+            thas.ctx.beginPath();
+            thas.ctx.moveTo(px, py);
+
+            if (form === "jau") {
+               var curv = autoCasteljau (+(px), +(py), closep, arrp);
+               curv.computePoints ();
+               var cc = curv.getArrayCasteljau ();
+
+               for (var ii = 2; ii+5 < cc.length; ii += 6)
+                  thas.ctx.bezierCurveTo (cc[ii], cc[ii+1], cc[ii+2], cc[ii+3], cc[ii+4], cc[ii+5]);
+            }
+            else {
+               for (var ii = 0; ii < arrp.length; ii += 2)
+               {
+                  var plusx = relative ? xx : 0;
+                  var plusy = relative ? yy : 0;
+
+                  if (form === "pol") {
+                     xx = +(arrp[ii+0]) + plusx;
+                     yy = +(arrp[ii+1]) + plusy;
+
+                     thas.ctx.lineTo (xx, yy);
+                  }
+                  else if (form == "qua") {
+                     xx = +(arrp[ii+2]) + plusx;
+                     yy = +(arrp[ii+3]) + plusy;
+                     thas.ctx.quadraticCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, xx, yy);
+                     ii += 2;
+                  }
+                  else if (form == "cub" || form == "bez") {
+                     xx = +(arrp[ii+4]) + plusx;
+                     yy = +(arrp[ii+5]) + plusy;
+                     thas.ctx.bezierCurveTo (+(arrp[ii]) + plusx, +(arrp[ii+1]) + plusy, +(arrp[ii+2]) + plusx, +(arrp[ii+3]) + plusy, xx, yy);
+                     ii += 4;
+                  }
+                  else
+                  {
+                     console.log ("ERROR: unknow form " + form + " calling trassShape2canvas!");
+                     break; // error!
+                  }
+               }
+               if (closep)
+                  thas.ctx.closePath();
             }
          }
-         else if (arrtrass[rr][0] === "rect" || arrtrass[rr][0] === "rec") {
-canvSync.addRender (function () {
-            this.ctx.rect (arrtrass[rr][1], arrtrass[rr][2], arrtrass[rr][4], arrtrass[rr][5]);
-});
-            applyCanvasStyle (canvSync, styles, arrtrass[rr][3]);
-         }
-         else if (arrtrass[rr][0] === "circle" || arrtrass[rr][0] === "cir") {
-canvSync.addRender (function () {
-            this.ctx.beginPath();
-            this.ctx.ellipse (arrtrass[rr][1], arrtrass[rr][2], arrtrass[rr][4], arrtrass[rr][4], 0, 2 * Math.PI, 0);
-});
-            applyCanvasStyle (canvSync, styles, arrtrass[rr][3]);
-         }
-         else if (arrtrass[rr][0] === "ellipse" || arrtrass[rr][0] === "ell") {
-            // void ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
-canvSync.addRender (function () {
-            this.ctx.beginPath();
-            this.ctx.ellipse (arrtrass[rr][1], arrtrass[rr][2], arrtrass[rr][4], arrtrass[rr][5], 0, 2 * Math.PI, 0);
-});
-            applyCanvasStyle (canvSync, styles, arrtrass[rr][3]);
-         }
-         else if (arrtrass[rr][0] === "z" && arrtrass[rr].length >= 6) {
-            // 0   1    2     3      4  5...
-            // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
-            // trassShape2canvas (c2d, form, px, py, style, closep, arrp)
-            trassShape2canvas (canvSync,
-                        arrtrass[rr][4].substring (0, 3),              // type ("pol" "jau" etc)
-                        arrtrass[rr][1],                               // x0
-                        arrtrass[rr][2],                               // y0
-                        styles [arrtrass[rr][3]]|| arrtrass[rr][3],      // path style
-                        arrtrass[rr][4].length > 3 && arrtrass[rr][4].substring(3) === 'z', // is closed ?
-                        arrtrass[rr].slice (5));
-            applyCanvasStyle (canvSync, styles, arrtrass[rr][3]);
-         }
-      }
+         //
+         // end of inner functions
 
-canvSync.addRender (function () {
-      if (hasScaleAndOffsets)
-         this.ctx.restore ();
-});
+
+         if (hasScaleAndOffsets)
+         {
+            this.ctx.save ();
+            this.ctx.lineWidth = 1.0 / applyprop.scalex; // compensate the scale with stroke
+            this.ctx.scale (applyprop.scalex, applyprop.scaley);
+            this.ctx.translate (applyprop.offsetx, applyprop.offsety);
+         }
+
+         for (var rr in atrass)
+         {
+            var lotrass = atrass[rr];
+            if (!lotrass || lotrass.length < 3) continue;
+            if (lotrass[0] === "defstyle") {
+               styles [lotrass[1]] = makestyle (lotrass[2]);
+            }
+            else if (lotrass[0] === "img") {
+               //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
+               declareImage (lotrass[4]);
+               this.renderImage (lotrass[4], +(lotrass[1]), +(lotrass[2]));
+            }
+            else if (lotrass[0] === "text" || lotrass[0] === "txt") {
+               var estilos = parse2DStyle (styles [lotrass[3]] || lotrass[3]);
+
+               if ("font-family" in estilos)
+               {
+                  // style ctx.font = "12px Arial"
+                  //
+                  if ("font-size" in estilos)
+                       this.ctx.font = estilos["font-size"] + "px " + estilos["font-family"];
+                  else this.ctx.font = estilos["font-family"];
+               }
+
+               if ("fill" in estilos)
+               {
+                  this.ctx.fillStyle = estilos["fill"];
+                  this.ctx.fillText (lotrass[4], lotrass[1], lotrass[2]);
+               }
+               if ("stroke" in estilos)
+               {
+                  this.ctx.strokeStyle = estilos["stroke"];
+                  this.ctx.strokeText (lotrass[4], lotrass[1], lotrass[2]);
+               }
+            }
+            else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
+               this.ctx.rect (lotrass[1], lotrass[2], lotrass[4], lotrass[5]);
+               applyCanvasStyle (styles, lotrass[3]);
+            }
+            else if (lotrass[0] === "circle" || lotrass[0] === "cir") {
+               this.ctx.beginPath();
+               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[4], 0, 2 * Math.PI, 0);
+               applyCanvasStyle (styles, lotrass[3]);
+            }
+            else if (lotrass[0] === "ellipse" || lotrass[0] === "ell") {
+               // void ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
+               this.ctx.beginPath();
+               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[5], 0, 2 * Math.PI, 0);
+               applyCanvasStyle (styles, lotrass[3]);
+            }
+            else if (lotrass[0] === "z" && lotrass.length >= 6) {
+               // 0   1    2     3      4  5...
+               // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
+               // trassShape2canvas (c2d, form, px, py, style, closep, arrp)
+               trassShape2canvas (
+                           lotrass[4].substring (0, 3),              // type ("pol" "jau" etc)
+                           lotrass[1],                               // x0
+                           lotrass[2],                               // y0
+                           styles [lotrass[3]]|| lotrass[3],      // path style
+                           lotrass[4].length > 3 && lotrass[4].substring(3) === 'z', // is closed ?
+                           lotrass.slice (5));
+               applyCanvasStyle (styles, lotrass[3]);
+            }
+         }
+
+         if (hasScaleAndOffsets)
+            this.ctx.restore ();
+      });
 
       canvSync.renderAll ();
    }
 
    ///////////////////////////////////
-   // arrtrass - graffiti 2 svg
+   // atrass - graffiti 2 svg
    ///////////////////////////////////
 
    function trassText2svg (svgEle, px, py, pathStyle, textContent)
@@ -983,7 +979,7 @@ canvSync.addRender (function () {
       svgEle.appendChild (pato);
    }
 
-   function drawGraffiti2svg (arrtrass, svgElem, props, restData)
+   function drawGraffiti2svg (atrass, svgElem, props, restData)
    {
       function makestyle (a) { return a; }
 
@@ -1007,7 +1003,7 @@ canvSync.addRender (function () {
          if (svgElem.width && svgElem.width.baseVal) wi = parseInt (svgElem.width.baseVal.value);
          if (svgElem.height && svgElem.height.baseVal) hi = parseInt (svgElem.height.baseVal.value);
 
-         applyprop = boundingBoxAndAutoScale (arrtrass, wi, hi);
+         applyprop = boundingBoxAndAutoScale (atrass, wi, hi);
       }
       var hasScaleAndOffsets = "scalex" in applyprop;
 
@@ -1025,15 +1021,16 @@ canvSync.addRender (function () {
       // ---------------------
       // set all paths
       //
-      for (var rr in arrtrass)
+      for (var rr in atrass)
       {
-         if (!arrtrass[rr] || arrtrass[rr].length < 3) continue;
-         if (arrtrass[rr][0] === "defstyle") {
-            styles [arrtrass[rr][1]] = makestyle (arrtrass[rr][2]);
+         var lotrass = atrass[rr];
+         if (!lotrass || lotrass.length < 3) continue;
+         if (lotrass[0] === "defstyle") {
+            styles [lotrass[1]] = makestyle (lotrass[2]);
          }
-         else if (arrtrass[rr][0] === "gra" || arrtrass[rr][0] === "graf" || arrtrass[rr][0] === "graffiti") {
+         else if (lotrass[0] === "gra" || lotrass[0] === "graf" || lotrass[0] === "graffiti") {
 
-            var graffitiName = arrtrass[rr][3];
+            var graffitiName = lotrass[3];
             var enPila = graffitiPila.indexOf (graffitiName) > -1;
 
             // "graf", 50, 50, Caballar, 100
@@ -1041,13 +1038,13 @@ canvSync.addRender (function () {
             if (graf && !enPila)
             {
                var gelo = document.createElementNS (SVGNamespace, "svg");
-               gelo.setAttribute("width",  arrtrass[rr][4] +  "px");
-               gelo.setAttribute("height", arrtrass[rr][5]  +  "px");
-               gelo.setAttribute("x", arrtrass[rr][1] +  "px");
-               gelo.setAttribute("y", arrtrass[rr][2] +  "px");
+               gelo.setAttribute("width",  lotrass[4] +  "px");
+               gelo.setAttribute("height", lotrass[5]  +  "px");
+               gelo.setAttribute("x", lotrass[1] +  "px");
+               gelo.setAttribute("y", lotrass[2] +  "px");
 
                //gelo.setAttribute("preserveAspectRatio", "xMidYMid");
-               //gelo.setAttribute("viewBox", "" + -arrtrass[rr][1] + " " + -arrtrass[rr][2] + " " + arrtrass[rr][4] + " " + arrtrass[rr][5] + " ");
+               //gelo.setAttribute("viewBox", "" + -lotrass[1] + " " + -lotrass[2] + " " + lotrass[4] + " " + lotrass[5] + " ");
 
                // enter recursive call
                graffitiPila.push (graffitiName);
@@ -1057,67 +1054,67 @@ canvSync.addRender (function () {
                gaga.appendChild (gelo);
             }
          }
-         else if (arrtrass[rr][0] === "img") {
+         else if (lotrass[0] === "img") {
             //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
             trassImage2svg (gaga,
-                           arrtrass[rr][1],
-                           arrtrass[rr][2],
-                           styles [arrtrass[rr][3]]|| arrtrass[rr][3],
-                           arrtrass[rr][4]);
+                           lotrass[1],
+                           lotrass[2],
+                           styles [lotrass[3]]|| lotrass[3],
+                           lotrass[4]);
          }
-         else if (arrtrass[rr][0] === "text" || arrtrass[rr][0] === "txt") {
+         else if (lotrass[0] === "text" || lotrass[0] === "txt") {
             //    [ "text" ,238, 121, "",  "pericollosso" ],
             trassText2svg (gaga,
-                           arrtrass[rr][1],
-                           arrtrass[rr][2],
-                           styles [arrtrass[rr][3]]|| arrtrass[rr][3],
-                           arrtrass[rr][4]);
+                           lotrass[1],
+                           lotrass[2],
+                           styles [lotrass[3]]|| lotrass[3],
+                           lotrass[4]);
          }
-         else if (arrtrass[rr][0] === "rect" || arrtrass[rr][0] === "rec") {
+         else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
             //    [ "rect" ,238, 121, "",  dx, dy, rx, ry ],
-            var pato = createSvgElement ("rect", styles [arrtrass[rr][3]]|| arrtrass[rr][3]);
+            var pato = createSvgElement ("rect", styles [lotrass[3]]|| lotrass[3]);
 
             // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
-            pato.setAttribute ("x", arrtrass[rr][1]);
-            pato.setAttribute ("y", arrtrass[rr][2]);
-            pato.setAttribute ("width",  arrtrass[rr][4]);
-            pato.setAttribute ("height", arrtrass[rr][5]);
-            pato.setAttribute ("rx", arrtrass[rr][6]||0);
-            pato.setAttribute ("ry", arrtrass[rr][7]||0);
+            pato.setAttribute ("x", lotrass[1]);
+            pato.setAttribute ("y", lotrass[2]);
+            pato.setAttribute ("width",  lotrass[4]);
+            pato.setAttribute ("height", lotrass[5]);
+            pato.setAttribute ("rx", lotrass[6]||0);
+            pato.setAttribute ("ry", lotrass[7]||0);
             gaga.appendChild (pato);
          }
-         else if (arrtrass[rr][0] === "circle" || arrtrass[rr][0] === "cir") {
+         else if (lotrass[0] === "circle" || lotrass[0] === "cir") {
             //    [ "circle" ,238, 121, "",  dx, dy, rx, ry ],
-            var pato = createSvgElement ("circle", styles [arrtrass[rr][3]]|| arrtrass[rr][3]);
+            var pato = createSvgElement ("circle", styles [lotrass[3]]|| lotrass[3]);
 
             // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
-            pato.setAttribute ("cx", arrtrass[rr][1]);
-            pato.setAttribute ("cy", arrtrass[rr][2]);
-            pato.setAttribute ("r", arrtrass[rr][4]);
+            pato.setAttribute ("cx", lotrass[1]);
+            pato.setAttribute ("cy", lotrass[2]);
+            pato.setAttribute ("r", lotrass[4]);
             gaga.appendChild (pato);
          }
-         else if (arrtrass[rr][0] === "ellipse" || arrtrass[rr][0] === "ell") {
+         else if (lotrass[0] === "ellipse" || lotrass[0] === "ell") {
             //    [ "circle" ,238, 121, "",  rx, ry ],
-            var pato = createSvgElement ("ellipse", styles [arrtrass[rr][3]]|| arrtrass[rr][3]);
+            var pato = createSvgElement ("ellipse", styles [lotrass[3]]|| lotrass[3]);
 
             // <rect x="50" y="20" rx="20" ry="20" width="150" height="150"
-            pato.setAttribute ("cx", arrtrass[rr][1]);
-            pato.setAttribute ("cy", arrtrass[rr][2]);
-            pato.setAttribute ("rx", arrtrass[rr][4]);
-            pato.setAttribute ("ry", arrtrass[rr][5]);
+            pato.setAttribute ("cx", lotrass[1]);
+            pato.setAttribute ("cy", lotrass[2]);
+            pato.setAttribute ("rx", lotrass[4]);
+            pato.setAttribute ("ry", lotrass[5]);
             gaga.appendChild (pato);
          }
-         else if (arrtrass[rr][0] === "z" && arrtrass[rr].length >= 6) {
+         else if (lotrass[0] === "z" && lotrass.length >= 6) {
             // 0   1    2     3      4  5...
             // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
             // trassShape2svg (gaga, form, px, py, styleStr, closep, arrp)
             trassShape2svg (gaga,
-                        arrtrass[rr][4].substring (0, 3),
-                        arrtrass[rr][1],
-                        arrtrass[rr][2],
-                        styles [arrtrass[rr][3]]|| arrtrass[rr][3],
-                        arrtrass[rr][4].length > 3 && arrtrass[rr][4].substring(3) == 'z',
-                        arrtrass[rr].slice (5));
+                        lotrass[4].substring (0, 3),
+                        lotrass[1],
+                        lotrass[2],
+                        styles [lotrass[3]]|| lotrass[3],
+                        lotrass[4].length > 3 && lotrass[4].substring(3) == 'z',
+                        lotrass.slice (5));
          }
       }
    }
