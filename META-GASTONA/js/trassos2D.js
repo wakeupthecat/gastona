@@ -548,7 +548,7 @@ function trassos2D ()
    // trasses - bounding box and autofit (autoscale)
    ///////////////////////////////////
 
-   function boundingBoxAndAutoScale (trasses, width, height, marginPercent)
+   function boundingBoxAndAutoScale (trasses, width, height, squareratio, marginPercent)
    {
       marginPercent = marginPercent || 10;
 
@@ -563,15 +563,25 @@ function trassos2D ()
 
       var scalex = width * (1 -2 * marginPercent / 100) / bounds.dx;
       var scaley = height * (1 -2 * marginPercent / 100) / bounds.dy;
-      if (scalex < scaley)
-           scaley = scalex;
-      else scalex = scaley;
+      var extrax = 0;
+      var extray = 0;
+      if (squareratio)
+      {
+         if (scalex < scaley) {
+            extray = (0.5 * (scaley-scalex) * bounds.dy) / scalex;
+            scaley = scalex;
+         }
+         else {
+            extrax = (0.5 * (scalex-scaley) * bounds.dx) / scaley;
+            scalex = scaley;
+         }
+      }
 
       return {
          scalex: scalex,
          scaley: scaley,
-         offsetx: -bounds.x + (marginPercent / 100) * bounds.dx,
-         offsety: -bounds.y + (marginPercent / 100) * bounds.dy,
+         offsetx: extrax - bounds.x + (marginPercent / 100) * bounds.dx,
+         offsety: extray - bounds.y + (marginPercent / 100) * bounds.dy,
       };
       // center ? this don't work ...
       //c2d.translate (canvasElem.clientWidth / (2*scalex) - bounds.x0 + bounds.dx/2,
@@ -694,8 +704,21 @@ function trassos2D ()
 
       var styles = {};
 
-      var applyprop = (!props || props.autofit) ? boundingBoxAndAutoScale (atrass, canv.width, canv.height): props;
+      var applyprop = props || { autofit: true, squareratio: true };
+      if (applyprop.autofit)
+      {
+         applyprop = boundingBoxAndAutoScale (atrass, canv.width, canv.height, applyprop.squareratio);
+      }
       var hasScaleAndOffsets = "scalex" in applyprop;
+
+      // declareImage has to be called out of instructions included within addRender
+      //
+      for (var rr in atrass)
+      {
+         var lotrass = atrass[rr];
+         if (lotrass && lotrass.length > 4 && lotrass[0] === "img")
+            canvSync.declareImage (lotrass[4]);
+      }
 
       canvSync.addRender (function () {
          var thas = this;
@@ -788,12 +811,16 @@ function trassos2D ()
          //
          // end of inner functions
 
+         var escalax;
+         var escalay;
 
          if (hasScaleAndOffsets)
          {
+            escalax = applyprop.scalex;
+            escalay = applyprop.scaley;
             this.ctx.save ();
             this.ctx.lineWidth = 1.0 / applyprop.scalex; // compensate the scale with stroke
-            this.ctx.scale (applyprop.scalex, applyprop.scaley);
+            this.ctx.scale (escalax, escalay);
             this.ctx.translate (applyprop.offsetx, applyprop.offsety);
          }
 
@@ -805,8 +832,7 @@ function trassos2D ()
                styles [lotrass[1]] = makestyle (lotrass[2]);
             }
             else if (lotrass[0] === "img") {
-               //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
-               declareImage (lotrass[4]);
+               // e.g.   [ "img" ,238, 121, "scale=1.;opacity=1.",  "wakeupthecat.png" ],
                this.renderImage (lotrass[4], +(lotrass[1]), +(lotrass[2]));
             }
             else if (lotrass[0] === "text" || lotrass[0] === "txt") {
@@ -821,6 +847,12 @@ function trassos2D ()
                   else this.ctx.font = estilos["font-family"];
                }
 
+               if (escalax)
+               {
+                  //this.ctx.save ();
+                  //this.ctx.scale(1./escalax, 1./escalay);
+               }
+
                if ("fill" in estilos)
                {
                   this.ctx.fillStyle = estilos["fill"];
@@ -830,6 +862,11 @@ function trassos2D ()
                {
                   this.ctx.strokeStyle = estilos["stroke"];
                   this.ctx.strokeText (lotrass[4], lotrass[1], lotrass[2]);
+               }
+
+               if (escalax)
+               {
+                  //this.ctx.restore ();
                }
             }
             else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
@@ -990,7 +1027,7 @@ function trassos2D ()
       //
       var gaga = document.createElementNS (SVGNamespace, "g");
 
-      var applyprop = props || { autofit: true };
+      var applyprop = props || { autofit: true, squareratio: true };
       if (applyprop.autofit)
       {
          // example transform:
@@ -1003,7 +1040,7 @@ function trassos2D ()
          if (svgElem.width && svgElem.width.baseVal) wi = parseInt (svgElem.width.baseVal.value);
          if (svgElem.height && svgElem.height.baseVal) hi = parseInt (svgElem.height.baseVal.value);
 
-         applyprop = boundingBoxAndAutoScale (atrass, wi, hi);
+         applyprop = boundingBoxAndAutoScale (atrass, wi, hi, applyprop.squareratio);
       }
       var hasScaleAndOffsets = "scalex" in applyprop;
 
