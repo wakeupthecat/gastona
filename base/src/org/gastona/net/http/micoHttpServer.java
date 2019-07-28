@@ -268,6 +268,12 @@ public class micoHttpServer extends Thread
       if (ext.equalsIgnoreCase ("html")) return "text/html; charset=utf-8";
       if (ext.equalsIgnoreCase ("htm")) return "text/html; charset=utf-8";
       if (ext.equalsIgnoreCase ("xml")) return "text/xml; charset=utf-8";
+      if (ext.equalsIgnoreCase ("mp3")) return "audio/mpeg";
+      if (ext.equalsIgnoreCase ("mpeg")) return "video/mpeg";
+      if (ext.equalsIgnoreCase ("mp4")) return "video/mp4";
+      if (ext.equalsIgnoreCase ("ogg")) return "video/ogg";
+      if (ext.equalsIgnoreCase ("mov")) return "video/mov";
+      if (ext.equalsIgnoreCase ("webm")) return "video/webm";
       //(o) TOREVIEW_micoHttp Content-Type serving a file, review : any other extension to consider ?
 
       // by sending application/octet-stream the browser will procede to download the file
