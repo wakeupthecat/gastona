@@ -4,7 +4,7 @@
 
    <tableTools>
       logicName , modul  , winOS        , linuxOS    , linuxOS64, linuxArm, allOS
-      sqlite    , sqlite , sqlite321.exe, sqlite3    , sqlite3.17b  , sqlite3
+      sqlite    , sqlite , sqlite329.exe, sqlite3    , sqlite3.17b  , sqlite3
       ruby      , ruby   , ruby.exe     ,
       lua       , lua    , lua52.exe    , lua52
       perl      , perl   , perl.exe     ,
@@ -13,7 +13,7 @@
    <module sqlite winOS>
       fileName
 
-      sqlite321.exe
+      sqlite329.exe
 
    <module sqlite linuxOS>
       fileName
@@ -55,10 +55,3 @@
       perl510.dll
 
 #**FIN#
-
-   <module python winOS>
-      fileName
-
-      python.exe
-      python3.dll
-

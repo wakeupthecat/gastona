@@ -1,0 +1,31 @@
+
+
+===== ORIGINAL sqlite3 3.29
+
+shell.c, sqlite3.h and sqlite3.c taken from sqlite.org
+
+sqlite-amalgamation-3290000
+
+===== MODIFICATION shell_modified.c
+
+in shell.c add the function samefilecontent
+
+===== COMPILATION
+
+on windows
+gcc -O2 shell_modified.c sqlite3.c -o sqlite329.exe
+
+on linux and linux arm
+gcc -O2 shell_modified.c sqlite3.c -o sqlite3.29 -lpthread -ldl
+
+
+===== COPY BINARIES BEFORE BUILDING gastona.jar
+
+   the binaries (e.g. sqlite329.exe) has to be placed in 
+   the directory META-GASTONA\muTools + right platform subfolder
+      
+   for example for the windows binary
+   
+      META-GASTONA\muTools\winOS\sqlite
+
+      

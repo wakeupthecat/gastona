@@ -7,6 +7,12 @@
 
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
+   
+      2019-07-28 19:00:56	new sqlite3 3.29 2019-07-10 + add Content-Type audio and video in Mico
+      2019-07-16 02:31:38	some fixes in trassos2D and new sample
+      2019-07-08 19:20:41	fix zWidgetsHtml.js regression with lists
+      2019-07-07 20:32:21	fixing jGastona kg selection (checkboxes)
+      2019-07-07 02:35:51	some works on r and k groups in jWidgets
       2019-07-06 00:00:00  trassos2D syncCanvas & conSequenci
       2019-07-04 02:00:00  jGastona setData numeric + canvasSync + <htmltag of ...>
       2019-05-12 20:28:00  new command PROCESS IMAGE

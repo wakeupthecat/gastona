@@ -1,13 +1,17 @@
-2017.12.11 
+2019-07-28
+
 
 ====== ABOUT THE SQLITE BINARY DISTRIBUTED
 
-The version of sqlite binary distributed here is 
+The version of sqlite binary distributed here is based on
 
-   SQLite version 3.21.0 2017-10-24
+   SQLite version 3.29.0 (from sqlite.org on 2019-07-28)
+
+The executable is identical to sqlite 3.29 from sqlite.org except for one added function
+called samefilecontent which code can be found at github Gastona
 
 
-SQLite has no license since is PUBLIC DOMAIN (actually the most generous license!)
+SQLite itself has no license since is PUBLIC DOMAIN (actually the most generous license!)
    
    https://www.sqlite.org/copyright.html
    
