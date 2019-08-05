@@ -38,9 +38,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <help>
       //
       // For conditional execution of commands (short alias IF). Compares the given 'mainValue'
-      // with all 'caseValues' and execute the given 'subCommand' when the comparation matches.
-      // Note that this command uses "string comparation" which may be not suitable for numberic
-      // values, for numeric comparation use the command "IN CASE NUM".
+      // with all 'caseValues' and execute the given 'subCommand' when the comparison matches.
+      // Note that this command uses "string comparison" which may be not suitable for numberic
+      // values, for numeric comparison use the command "IN CASE NUM".
       // If 'subCommand' contains just one column it behaves as an inline format of just one line.
       //
       // Examples:
@@ -179,8 +179,10 @@ public class cmdInCase extends inCaseCommon implements commandable
    {
       return new String [] {
             "IN CASE",
+            "CASE",
             "IF",
-            "SWITCH2"
+            "SWITCH2",
+            "SWITCH",
          };
    }
 

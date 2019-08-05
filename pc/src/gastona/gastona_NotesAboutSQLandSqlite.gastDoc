@@ -27,9 +27,9 @@
       //
       //    - Table or view names starting with "sqlite" are reserved for internal use (e.g. sqlite_master)
       //
-      //    - A column can accept either text values or numeric ones, the comparation and sorting order
+      //    - A column can accept either text values or numeric ones, the comparison and sorting order
       //      of these values may differ being not proper (not always numeric). To ensure the right
-      //      comparation and/or sorting order in numeric columns, it is enough to make an addition of
+      //      comparison and/or sorting order in numeric columns, it is enough to make an addition of
       //      a zero value, for instance
       //
       //             SELECT .... WHERE (myNumer+0 > 100) ...
@@ -62,7 +62,7 @@
       //    line feed etc. Coding and decoding is made internally on adding records and querying them,
       //    therefore it should be transparent for the application unless you add or retrieve information
       //    from the database using other programs (including sqlite.exe)
-      //    It is possible to switch the encoding schema, for example to "UTF-8", by using the listix command 
+      //    It is possible to switch the encoding schema, for example to "UTF-8", by using the listix command
       //    DATABASE CONFIG, ENCODING.
       //
 
@@ -75,10 +75,10 @@
 */
 
 
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED 
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED 
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED 
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED 
+REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
+REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
+REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
+REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
 
 
 

@@ -50,11 +50,11 @@
       //     listix commands SCAN and PARSONS.
       //
       //   - The logic of many tasks even not related traditionally with databases can be solved using
-      //     SQL (e.g. calculations, handling and comparation of lists, tables or even trees!).
+      //     SQL (e.g. calculations, handling and comparison of lists, tables or even trees!).
       //     Thinking in this kind of solution is not always easy (at least for me!), whereas an algorithmic
       //     solution might be designed more or less quickly, the SQL equivalent requires sometimes
       //     very good skills. But with the realization it happens exactly the contrary, the algorithmic
-      //     solution is much larger, error prone and remains unflexible while SQL uses few sentences
+      //     solution is much larger, error prone and remains inflexible while SQL uses few sentences
       //     that really compacts the logic.
       //
       //

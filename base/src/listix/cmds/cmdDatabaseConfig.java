@@ -154,9 +154,9 @@ db config, default, ""
       //      VAR=, tmp1, @<:lsx tmp db>
       //      VAR=, tmp2, @<:lsx tmp db>
       //
-      //      DB,        , EXECUTE, "CREATE TABLE content (desc text); INSERT INTO content VALUES ("default session db");
-      //      DB, @<tmp1>, EXECUTE, "CREATE TABLE content (desc text); INSERT INTO content VALUES ("temporary db 1");
-      //      DB, @<tmp2>, EXECUTE, "CREATE TABLE content (desc text); INSERT INTO content VALUES ("temporary db 2");
+      //      DB,        , EXECUTE, //CREATE TABLE content (desc text); INSERT INTO content VALUES ("default session db");
+      //      DB, @<tmp1>, EXECUTE, //CREATE TABLE content (desc text); INSERT INTO content VALUES ("temporary db 1");
+      //      DB, @<tmp2>, EXECUTE, //CREATE TABLE content (desc text); INSERT INTO content VALUES ("temporary db 2");
       //
       //      DB CONFIGURE, ALIAS, t1, @<tmp1>
       //                  , ALIAS, t2, @<tmp1>

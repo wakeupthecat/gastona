@@ -3,27 +3,27 @@
 //    a new built function "samefilecontent(filename, blobfield)" in slite
 //
 //
-// Motivation:  
-//    
-//    The useful SQL functions "readfile" and "writefile"
-//    allow transfering files into blobs and viceversa.
+// Motivation:
 //
-//    Having files in blob columns allows file comparation
+//    The useful SQL functions "readfile" and "writefile"
+//    allow transferring files into blobs and vice versa.
+//
+//    Having files in blob columns allows file comparison
 //    in sql queries by simply comparing values of its blob columns.
-//    But in order to do so, we need that both files (blob values) are 
+//    But in order to do so, we need that both files (blob values) are
 //    loaded in the database.
-//    
-//    A new function to compare a blob value directly with the content 
+//
+//    A new function to compare a blob value directly with the content
 //    of a file without having to load the second one into the database
 //    may be convenient in many applications.
 //
-//    For example, we want to know if the content of a file is already 
+//    For example, we want to know if the content of a file is already
 //    in the database and only if not found the load it into the database.
 //    So using "samefilecontent" function we can avoid expensive disc operations
 //    specially if the files are big.
 //
-//    EXAMPLE: if we have a table fileData (id, size, fcontent) a query 
-//    to search for a file 'mybigfile.mpg' of size XXXX in the database could be 
+//    EXAMPLE: if we have a table fileData (id, size, fcontent) a query
+//    to search for a file 'mybigfile.mpg' of size XXXX in the database could be
 //
 //    SELECT id FROM fileData WHERE size+0 = XXXX AND samefilecontent('mybigfile.mpg', fcontent);
 //
@@ -51,7 +51,7 @@ static void samefilecontent (
    long MAXBLOCKREAD = 10001024;
 
    UNUSED_PARAMETER(argc);
-   
+
    // open the file to read
    //
    zFileName = (const char*) sqlite3_value_text (argv[0]);
@@ -61,7 +61,7 @@ static void samefilecontent (
    fseek (fileIn, 0, SEEK_END);
    fileSize = ftell (fileIn);
    rewind (fileIn);
-   
+
    rcSame = 0;
    if (sqlite3_value_bytes(argv[1]) != fileSize)
    {
@@ -73,7 +73,7 @@ static void samefilecontent (
    // prepare file buffer (max 10MB)
    //
    rcSame = 1; // assume true
-   
+
    long fileOffset = 0;
    long fileBuffSize = (fileSize < MAXBLOCKREAD ? fileSize : MAXBLOCKREAD);
    char * zFileBuff = sqlite3_malloc(fileBuffSize);
@@ -97,12 +97,12 @@ static void samefilecontent (
       {
          fprintf(stderr,"Error: samefilecontent cannot read %d bytes at offset %d from file \"%s\"\n", fileBuffSize, fileOffset, zFileName);
          rcSame = 0;
-         break; // error            
-      }         
+         break; // error
+      }
       rcSame = 0 == memcmp(zBlobBuff + fileOffset, zFileBuff, fileBuffSize);
       fileOffset += fileBuffSize;
    }
-   
+
    sqlite3_free(zFileBuff);
    fclose(fileIn);
    sqlite3_result_int64(context, rcSame);
@@ -110,7 +110,7 @@ static void samefilecontent (
 
 
 /*
-   ***** TO ENABLE THE NEW FUNCION THE CORRESPONDING sqlite3_create_function 
+   ***** TO ENABLE THE NEW FUNCION THE CORRESPONDING sqlite3_create_function
          HAS TO BE ADDED IN THE FUNCTION open_db
 
 static void open_db(ShellState *p, int keepAlive){
@@ -134,7 +134,7 @@ static void open_db(ShellState *p, int keepAlive){
           shellstaticFunc, 0, 0);
     }
     if( p->db==0 || SQLITE_OK!=sqlite3_errcode(p->db) ){
-      utf8_printf(stderr,"Error: unable to open database \"%s\": %s\n", 
+      utf8_printf(stderr,"Error: unable to open database \"%s\": %s\n",
           p->zDbFilename, sqlite3_errmsg(p->db));
       if( keepAlive ) return;
       exit(1);

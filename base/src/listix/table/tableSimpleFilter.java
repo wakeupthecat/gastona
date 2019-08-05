@@ -44,21 +44,29 @@ public class tableSimpleFilter
    private int indexField = -1;
    private int ioperation = OP_INVALID;
    private String valRef = null;
+   private boolean isCaseSensitive = true;
 
    /**
       @see init(...)
    */
    public tableSimpleFilter (String operation, String operandVal)
    {
-      init (operation, operandVal, -1);
+      init (operation, operandVal, -1, true);
    }
 
-   /**
-      @see init(...)
-   */
+   public tableSimpleFilter (String operation, String operandVal, boolean caseSensitive)
+   {
+      init (operation, operandVal, -1, caseSensitive);
+   }
+
    public tableSimpleFilter (String operation, String operandVal, int associatedIndx)
    {
-      init (operation, operandVal, associatedIndx);
+      init (operation, operandVal, associatedIndx, true);
+   }
+
+   public tableSimpleFilter (String operation, String operandVal, int associatedIndx, boolean caseSensitive)
+   {
+      init (operation, operandVal, associatedIndx, caseSensitive);
    }
 
    /**
@@ -71,7 +79,7 @@ public class tableSimpleFilter
                              this index can be later retrieved with the function getAssociatedIndex (). This value has no other
                              influence in the filter.
    */
-   public void init (String operation, String operandVal, int associatedIndx)
+   public void init (String operation, String operandVal, int associatedIndx, boolean caseSensitive)
    {
       indexField = associatedIndx;
       if (operation.equals("=") || operation.equals("=="))
@@ -88,6 +96,7 @@ public class tableSimpleFilter
          ioperation = OP_GREAT;
 
       valRef = operandVal;
+      isCaseSensitive = caseSensitive;
    }
 
    public int getAssociatedIndex ()
@@ -112,7 +121,7 @@ public class tableSimpleFilter
 
    private boolean pass (String firstOperand, String secondOperand)
    {
-      int que = firstOperand.compareTo (secondOperand);
+      int que = isCaseSensitive ? firstOperand.compareTo (secondOperand): firstOperand.compareToIgnoreCase (secondOperand);
 
 //System.out.println (valRef + " compared to " + valueField + " rekornoskastas " + que + " operasao was " + ioperation);
 

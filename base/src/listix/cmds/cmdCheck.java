@@ -1,6 +1,6 @@
  /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,9 +37,26 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Checks some condition (e.g. existence of a file) and only if the condition is met continues
-      // the execution of the the current format, otherwise optionally a command might be invoqued
-      // (elseSubCommand).
+      // Checks some condition (e.g. existence of a file) and optionally runs some sub-commands 
+      // in positive or negative case of the check result. 
+      //
+      // The command shows a special behaviour depending on the presence of the option BODY (or ""
+      // since BODY is the default option). Basically if the BODY is not present then it returns
+      // from the current format if the check result is negative but on the contrary if the BODY is
+      // present this does not happen and it continues with the format regardless of the check result.
+      //
+      // For example:
+      //
+      //       CHECK, whatever, ...
+      //       //continue only if check positive
+      //       ...
+      //
+      //       CHECK, whatever, ...
+      //            , BODY, subcomand
+      //       //continue always, with check positive or negative !
+      //       ...
+      //
+      //  This last behaviour can be forced as well by using the option CONTINUE with 1
       //
 
    <aliases>
@@ -54,10 +71,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          3   ,    3      , //Checks the existence of a file in the given path
          4   ,    3      , //Checks the existence of a file for read access, first in the given path, if not found there in the java classpath
          5   ,    3      , //Checks the existence of a directory
-         6   ,    3      , //Checks a single string comparation between to values
-         7   ,    3      , //Checks if the current operative system "seems" to be linux (indeed only checks if the file separator is '/')
+         6   ,    3      , //Checks a single string comparison between to values
+         7   ,    3      , //Checks if the current operative system "seems" to be LINUX (indeed only checks if the file separator is '/')
          8   ,    3      , //Checks if the given 'EvaUnitName' can be loaded from the file 'fileName'
          9   ,    3      , //Checks a numeric expression or formula
+        10   ,    3      , //Checks if the current operative system "seems" to be ANDROID
+        11   ,    3      , //Checks if first parameter is contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
+        12   ,    3      , //Checks if first parameter is NOT contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
 
    <syntaxParams>
       synIndx, name    , defVal         , desc
@@ -76,9 +96,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          5   , DIR     ,                , //
          5   , path    ,                , //Path of the directory be checked
          5   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
-         6   , =  <  >  <>  <=  >=,     , //String comparation for the following values (valueA operation valueB)
-         6   , valueA  ,                , first value for the comparation
-         6   , valueB  ,                , second value for the comparation
+         6   , =  <  >  <>  <=  >=,     , //String comparison for the following values (valueA operation valueB)
+         6   , valueA  ,                , //First value for the comparison
+         6   , valueB  ,                , //Second value for the comparison
          6   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
          7   , LINUX   ,                ,
          7   , elseSubCommand,          ,//If the operative system seems to be Windows, the given subcommand will be executed
@@ -87,20 +107,32 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          8   , EvaUnitName,             ,//Eva unit name to be checked
 
          9   , NUMEXPR ,               ,
-         9   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparation opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
+         9   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparison opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
 
         10   , ANDROID ,                ,
         10   , elseSubCommand,          ,//If the target system seems to be not android (e.g. gastona.jar), the given subcommand will be executed
 
+        11   , WITHIN(-CASE),           ,
+        11   , valueA       ,           , //Value to compare
+        11   , value1       ,           , //First value of the set
+        11   , ...          ,           , //next values of the set
+
+        12   , NOT WITHIN(-CASE),           ,
+        12   , valueA       ,           , //Value to compare
+        12   , value1       ,           , //First value of the set
+        12   , ...          ,           , //next values of the set
+
    <options>
       synIndx, optionName  , parameters , defVal, desc
-          x  , ELSE        , sub-command,    0  , Aditionally to the else-sub-command in arguments other sub-command may be given using this option. It may ocuppy more than one line but option ELSE is mandatory in all lines.
+          x  , BODY        , sub-command,    0  , If given and check is positive the sub-command will be executed. If given and check is negative it will cause the continuity with the current format!
+          x  , ELSE        , sub-command,    0  , Additionally to the else-sub-command in arguments other sub-command may be given using this option. It may ocuppy more than one line but option ELSE is mandatory in all lines.
           x  , CONINUE     , 0 / 1      ,    0  , Even if the check does not success it is possible to force continuing with the format if this option is set to 1
 
    <examples>
       gastSample
 
       test check
+      check-within
 
    <test check>
 
@@ -155,6 +187,20 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //Running on an Android device
       //
 
+   <check-within>
+      //#listix#
+      //
+      //   <main>
+      //       LSX, check-pic, mpeg
+      //       LSX, check-pic, TIFF
+      //
+      //   <check-pic>
+      //      CHECK, WITHIN, @<p1>, png, jpeg, tiff
+      //           , BODY, //@<p1> is a picture
+      //           , ELSE, //@<p1> might not be a picture
+      //      // (end of check)
+      //      //
+
 #**FIN_EVA#
 */
 package listix.cmds;
@@ -176,9 +222,23 @@ public class cmdCheck implements commandable
    {
       return new String [] {
             "CHECK",
+            "ASSERT",
             "REQUIRE",
             "RETURN IF NOT",
          };
+   }
+
+   protected boolean someEqual (String chkType, listixCmdStruct cmd, int nargRead)
+   {
+      boolean caseSensitive = chkType.indexOf ("-CASE") != -1;
+
+      tableSimpleFilter comparator = new tableSimpleFilter ("=", cmd.getArg(nargRead ++), -1, caseSensitive);
+      while (nargRead < cmd.getArgSize ())
+      {
+         if (comparator.passOperand2 (cmd.getArg (nargRead ++)))
+            return true;
+      }
+      return false;
    }
 
    /**
@@ -197,6 +257,7 @@ public class cmdCheck implements commandable
       //NOTE: BE CAREFUL getting arguments solved (default by getArg) the else-sub-command
       //      arguments has to be not solved!
       int nargRead = 0;
+      boolean elseAllowedInParameters = true;
 
       String chkType = cmd.getArg(nargRead ++).toUpperCase ();
       //String second  = cmd.getArg(1);
@@ -206,6 +267,8 @@ public class cmdCheck implements commandable
       int jumpToEnd = commands.rows () - indxComm;
       boolean checked = false;
 
+      // 1) evaluate properly the check and put the result in "checked"
+      //
       if (chkType.equals("EVA") || chkType.equals ("VAR"))
       {
          //e.g.  CHECK, EVA, jajaja, [adondesino]
@@ -269,7 +332,7 @@ public class cmdCheck implements commandable
          //
          String fileName = cmd.getArg(nargRead ++);
          String evaUnitName = cmd.getArg(nargRead ++);
-         
+
          // by now a little bit expensive ... we load the whole file!
          //
          EvaFile efi = new EvaFile (fileName);
@@ -282,6 +345,20 @@ public class cmdCheck implements commandable
          String formula = cmd.getArg(nargRead ++);
 
          checked = (calcFormulas.calcFormula (that, formula) != 0.f);
+      }
+      else if (listixCmdStruct.meantConstantString (chkType, new String [] { "IN", "INSET", "CONTAINED", "WITHIN", "IN-CASE", "INSET-CASE", "CONTAINED-CASE", "WITHIN-CASE" }))
+      {
+         //e.g.   CHECK, IN SET, @<myVar>, png, jpeg, tiff
+         //
+         checked = someEqual (chkType, cmd, nargRead);
+         elseAllowedInParameters = false;
+      }
+      else if (listixCmdStruct.meantConstantString (chkType, new String [] {"NOTIN", "OUTOFSET", "NOTCONTAINED", "NOTWITHIN", "NOTIN-CASE", "OUTOFSET-CASE", "NOTCONTAINED-CASE", "NOTWITHIN-CASE" }))
+      {
+         //e.g.   CHECK, NOT IN SET, @<myVar>, png, jpeg, tiff
+         //
+         checked = ! someEqual (chkType, cmd, nargRead);
+         elseAllowedInParameters = false;
       }
       else // it must be an operation
       {
@@ -298,10 +375,18 @@ public class cmdCheck implements commandable
          checked = comparator.passOperand2 (valueB);
       }
 
+      // 2) if checked is positive execute the body if any and return
       if (checked)
       {
          // check pass
          that.log().dbg (2, "CHECK", "(pass) " + ((EvaLine) commands.get(indxComm)));
+
+         Eva positiveBody = cmd.takeOptionAsEva (new String [] { "", "BODY" });
+         if (positiveBody != null)
+         {
+            that.log().dbg (2, "CHECK", "execute body of " + positiveBody.rows () + " rows starting with [" + ((EvaLine) positiveBody.get(0)) + "]");
+            that.doFormat (positiveBody);
+         }
 
          //just consume not used options for the proper checkRemaining...
          cmd.checkRemainingOptions (true, new String [] { "CONTINUE", "ELSE" });
@@ -313,9 +398,13 @@ public class cmdCheck implements commandable
       //
       that.log().dbg (2, "CHECK", "(do not pass) " + ((EvaLine) commands.get(indxComm)));
 
-      // execute elseSubCommand if given in the arguments
+      // 3) checked is negative, first try to execute the implicit ELSE subcommand from the not consumed arguments
       //
-      if (nargRead < cmd.getArgSize ())
+      //       for example
+      //       CHECK, type, arg1, arg2, implicit else subcommand
+      //       CHECK, =, @<extension>, "png", BOX, I, //this is not a png!
+      //
+      if (elseAllowedInParameters && nargRead < cmd.getArgSize ())
       {
          // NOTE: the eva subcommand is independent of the current EvaUnit data!
          Eva subcommand = new Eva ("subcommand");
@@ -332,35 +421,48 @@ public class cmdCheck implements commandable
 
       }
 
-      //  Collect all sub-commands in option(s) ELSE
+      // 4) Now collect and execute ELSE body if exists
       //
-      Eva elseSubCommand = new Eva ("!else-sub-command found in format [" + commands.getName () + "]");
-      int rowElseSubCmd = 0;
-      String [] arrElseCommand = null;
-      while (null != (arrElseCommand = cmd.takeOptionParameters(new String [] { "ELSE" }, false)))
+      Eva negativeBody = cmd.takeOptionAsEva (new String [] { "ELSE" });
+      if (negativeBody != null)
       {
-         // collect the command (or simply text)
-         for (int ii = 0; ii < arrElseCommand.length; ii ++)
-         {
-            elseSubCommand.setValue (arrElseCommand[ii], rowElseSubCmd, ii);
-         }
-         rowElseSubCmd ++;
+         that.log().dbg (2, "CHECK", "execute else-sub-command of " + negativeBody.rows () + " rows starting with [" + ((EvaLine) negativeBody.get(0)) + "]");
+         that.doFormat (negativeBody);
       }
 
-      if (rowElseSubCmd > 0)
-      {
-         that.log().dbg (2, "CHECK", "execute else-sub-command of " + elseSubCommand.rows () + " rows starting with [" + ((EvaLine) elseSubCommand.get(0)) + "]");
-
-         that.doFormat (elseSubCommand);
-      }
+      // 5) find out if we have to leave the current format or continue
+      //
+      //    we continue if
+      //       - there is the option CONTINUE, 1
+      //       - there is some positive body !!! (new)
+      //         if the check has a positive body it is safe to continue
+      //
+      //       CHECK, =, @<extension>, "png"
+      //             , BODY, //the files is a png
+      //             , ELSE, //the files is NOT a png!
+      //       //continue anyway
+      //
+      //       CHECK, =, @<extension>, "png"
+      //             , ELSE, //the files is NOT a png!
+      //       //continue ONLY if @<extension> is "png" !!!!
+      //
 
       // continue anyway ?
-      boolean bForceContinue = "1".equals (cmd.takeOptionString("CONTINUE", "0"));
-      that.log().dbg (2, "CHECK", "force continue = " + bForceContinue);
+      boolean weContinue = cmd.takeOptionString (new String [] { "", "BODY" }, null, false) != null;
+      if (weContinue)
+         that.log().dbg (2, "CHECK", "continue because CHECK positive body is present");
+
+      if (!weContinue)
+      {
+         weContinue = "1".equals (cmd.takeOptionString("CONTINUE", "0"));
+         if (weContinue)
+            that.log().dbg (2, "CHECK", "continue because CHECK option CONTINUE is 1");
+      }
+      else
 
       // jumpToEnd is an end format (like a return)
-      cmd.checkRemainingOptions ();
-      return (bForceContinue) ? 1: jumpToEnd;
+      cmd.checkRemainingOptions (true, new String [] { "CONTINUE", "", "BODY" });
+      return (weContinue) ? 1: jumpToEnd;
    }
 }
 

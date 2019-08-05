@@ -38,7 +38,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <help>
       //
       // For conditional execution of commands (short alias IF NUM). Compares the given 'mainValue'
-      // with all 'caseValues' and execute the given 'subCommand' when the comparation matches.
+      // with all 'caseValues' and execute the given 'subCommand' when the comparison matches.
       // If 'subCommand' contains just one column it behaves as an inline format of just one line.
       //
       // Examples:

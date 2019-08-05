@@ -7,7 +7,10 @@
 
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
-   
+
+
+      2019-08-05 22:54:18	update documentation of command CHECK
+      2019-08-05 22:17:26	new syntaxes WITHIN and NOT WITHIN in CHECK command
       2019-07-28 19:00:56	new sqlite3 3.29 2019-07-10 + add Content-Type audio and video in Mico
       2019-07-16 02:31:38	some fixes in trassos2D and new sample
       2019-07-08 19:20:41	fix zWidgetsHtml.js regression with lists
@@ -17,11 +20,11 @@
       2019-07-04 02:00:00  jGastona setData numeric + canvasSync + <htmltag of ...>
       2019-05-12 20:28:00  new command PROCESS IMAGE
       2019-04-07 18:29:33  yui compression for js files, new deepTable.js and new samples/demos
-      2019-03-25 01:00:00  dashed lines in trazos2D.js and restore stroke style in Canvas   
+      2019-03-25 01:00:00  dashed lines in trazos2D.js and restore stroke style in Canvas
       2019-03-20 22:08:00  do SCAN filters case insensitive (so "+E, png" includes also .PNG Png etc)
                            add more JAST samples in welcomeGastona
       2019-03-06 01:32:04	fix regression in jGastona (bildID 12685 on 2018-05-29! did break setData function)
-   
+
       2019-02-17 17:08:19	fix broken parsons: (regression from yesterday fix)
       2019-02-16 14:48:43	fix issue : PARSONS using VAR get a line not consumed properly
 

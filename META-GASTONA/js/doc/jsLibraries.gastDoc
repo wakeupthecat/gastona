@@ -25,7 +25,7 @@
       gastSample
 
       conSequenciGraffiti
-      javascriptExecutorBrowser
+      javascriptExecutor
       marketesPublisher
       simple appHelp
       plotAmbTrassos
@@ -81,7 +81,7 @@
       //      //</body>
       //      //</html>
 
-   <javascriptExecutorBrowser>
+   <javascriptExecutor>
       //#javaj#
       //
       //   <frames> main, Javascript Executor
@@ -90,17 +90,32 @@
       //      EVA, 3, 3, 2, 2
       //
       //         , X
-      //         , lEnter your javascript code
-      //       X , xCodeArea
-      //         , bEjecute
-      //         , lSalida
-      //       X , xBodyResponse
-      //      <! X , oSalar
+      //         , lEnter your javascript code, -
+      //       X , xCodeArea, -
+      //         , rgModo, bEjecute
+      //         , lSalida, -
+      //       X , xBodyResponse, -
+      //       X , oSal, -
       //
       //   <sysDefaultFonts>
       //      Consolas, 14, 0, TextArea.font
       //
       //#data#
+      //
+      //   <rgModo orientation> X
+      //   <rgModo>
+      //      label, selected, program
+      //      Browser, 0     , progBrowser
+      //      goRhino, 1     , progGoRhino
+      //
+      //   <OUTER_JS>
+      //      //var __out__ = [];
+      //      //function out (eso) { __out__.push (eso); }
+      //      //
+      //      //@<xCodeArea>
+      //      //
+      //      //__out__.join ("\n");
+      //      //
       //
       //   <xCodeArea>
       //      //
@@ -115,8 +130,23 @@
       //#listix#
       //
       //   <-- bEjecute>
+      //     LSX, @<rgModo selected.program>
+      //
+      //  <progBrowser>
       //      MSG, lSalida data!,, Opening browser ...
       //      MICO, start, Servako
+      //
+      //  <progGoRhino>
+      //      -->, xBodyResponse data!,, ""
+      //      MSG, oSal clear
+      //      VAR=, startStamp, @<:lsx CLOCK>
+      //      MSG, lSalida data!,, //Calling goRhino ...
+      //      VAR=, xBodyResponse, @<callG>
+      //      -->, lSalida data!,, //done in @<elapsed> s
+      //      -->, xBodyResponse data!
+      //
+      //   <callG>
+      //      goRhino, @<OUTER_JS>
       //
       //   <elapsed>
       //      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
@@ -348,7 +378,7 @@
       //      //</html>
       //
       //#**#
-   
+
 
 
 #**FIN_EVA#

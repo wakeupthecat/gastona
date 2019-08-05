@@ -88,7 +88,7 @@
       CHECK, VAR, p2
       SETVAR, eDirRight, @<p2>
 
-      <! dir given, Launch comparation
+      <! dir given, Launch comparison
       @<do compare dirs>
 
    <-- bCompare>

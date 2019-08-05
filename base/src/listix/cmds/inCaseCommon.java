@@ -27,8 +27,8 @@ public abstract class inCaseCommon
    public abstract String commandStr       ();
    public abstract String processMainValue (comparator compa, listixCmdStruct cmd, String oper, String mainValue);
    public abstract String doCase           (comparator compa, listixCmdStruct cmd, String oper, String par2);
-   
-   // struct that contains the comparation status for both cmdInCase and cmdInCaseNumeric
+
+   // struct that contains the comparison status for both cmdInCase and cmdInCaseNumeric
    //
    protected class comparator
    {
@@ -146,7 +146,7 @@ public abstract class inCaseCommon
 
             if (subcommand.cols (0) > 1)
                  cmd.getListix ().executeSingleCommand (subcommand);
-            else 
+            else
             {
                // all strings of a case value print a return except the last one
                if (firstPrinted)
