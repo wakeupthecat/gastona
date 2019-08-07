@@ -426,7 +426,7 @@ public class micoHttpServer extends Thread
          {
              // do not even try these names as filenames to serve
              // note the difference made between the special strings 'hide' and 'nopublic'
-             // where "/hidelberg" is acceptable while "/nopublicBerg" is not
+             // where "/hidepark" is acceptable while "/nopublicPark" is not
              out (0, "Attempt to open a not public item! [" + uri + "]");
          }
          else
@@ -438,7 +438,8 @@ public class micoHttpServer extends Thread
 
       File tryF = fileUtil.getNewFile (tryFileName);
 
-      out (6, "check file [" + tryF.getPath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
+      out (6, "check file [" + tryF.getAbsolutePath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
+      //out (6, "check file [" + tryF.getPath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
 
       return (tryF != null && tryF.exists () && !tryF.isDirectory ()) ? tryF: null;
    }
@@ -495,6 +496,7 @@ public class micoHttpServer extends Thread
 
             //:SEQ HTTP_Request | clientHTTP -> 1:requestHTTP -> micoHTTP | Server accepts an http request from a client
             Socket client = theServer.accept ();
+
             // if any previous close timer was set, cancel it since now we start serving again
             if (closeTimer != null) closeTimer.cancel();
 

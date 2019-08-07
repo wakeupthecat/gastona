@@ -151,11 +151,17 @@ function layoutManager (evaObj, zWidgets)
       return layable;
    }
 
-
-   function maskElement (masked, masker)
+   // perform the mask of "masked" with "masker" but if alternateMasker
+   // is defined then if performs a mask toggle on each call
+   //
+   function maskElement (masked, masker, alternateMasker)
    {
+      var mask2put = masker;
+      if (alternateMasker !== undefined && maskMap[masked] && maskMap[masked] == masker)
+         mask2put = alternateMasker;
+
       // masking to undefined, "" or itself is the same as unmask "masked"!
-      maskMap[masked] = (!masker || masker === "" || masked === masker) ? undefined: masker;
+      maskMap[masked] = (!mask2put || mask2put === "" || masked === mask2put) ? undefined: mask2put;
       changeInWidgets = true;
       invalidateAll ();
    }

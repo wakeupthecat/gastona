@@ -609,7 +609,7 @@ function zWidgets (htmlStamm, laData, mensaka)
    //
    function getColName (unitname, colname)
    {
-      if (laData.dataUnit[unitname][0].length < 1)
+      if (!laData.dataUnit[unitname] || !laData.dataUnit[unitname][0] || laData.dataUnit[unitname][0].length < 1)
       {
          console.log ("ERROR: No column can be used as label in list " + unitname + "!");
          return null;

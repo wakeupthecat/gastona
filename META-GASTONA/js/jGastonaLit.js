@@ -237,10 +237,10 @@ function jGastona (evaConfig, existingPlaceId)
 
 
    // shorcuts
-   function mask (a, b)
+   function mask (a, b, c)
    {
       if (layMan) {
-         layMan.maskLayoutId (a, b);
+         layMan.maskLayoutId (a, b, c);
          adaptaLayout ();
       }
    }

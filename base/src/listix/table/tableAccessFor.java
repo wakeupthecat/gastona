@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005..2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,7 @@ import listix.*;
 import java.util.*;
 import de.elxala.langutil.*;
 import de.elxala.Eva.*;
+import listix.cmds.calcFormulas;
 
 
 /**
@@ -75,9 +76,13 @@ public class tableAccessFor extends tableAccessBase
       if (cmdData.getArg(1).length() > 0)
          indexName = cmdData.getArg(1);
 
-      initialValue = stdlib.atoi (cmdData.getArg(2));
-      endValue     = stdlib.atoi (cmdData.getArg(3));
-      increment    = stdlib.atoi (cmdData.getArg(4));
+      // initialValue = stdlib.atoi (cmdData.getArg(2));
+      // endValue     = stdlib.atoi (cmdData.getArg(3));
+      // increment    = stdlib.atoi (cmdData.getArg(4));
+
+      initialValue = (int) calcFormulas.calcFormula (cmdData.getListix (), cmdData.getArg(2));
+      endValue     = (int) calcFormulas.calcFormula (cmdData.getListix (), cmdData.getArg(3));
+      increment    = (int) calcFormulas.calcFormula (cmdData.getListix (), cmdData.getArg(4));
 
       if (increment == 0) increment = 1;
 

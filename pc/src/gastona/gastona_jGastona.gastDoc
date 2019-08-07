@@ -45,7 +45,7 @@
       simple CodiFinestreta
       simple CodiFinestreta II
       js Visor
-
+      Browser Image Viewer
 
    <jGatona & Evalayout>
       //#javaj#
@@ -648,6 +648,120 @@
       //     //</body></html>
       //
       //#**#
+
+   <Browser Image Viewer>
+      //#javaj#
+      //
+      //   <frames> oServer, PictureViewer server, 400, 200
+      //
+      //#listix#
+      //
+      //   <PATH_IMAGES> @<:sys user.home>/Pictures
+      //
+      //   <TOTAL> 0
+      //   <PAGE_COLS> 4
+      //   <PAGE_ROWS> 8
+      //
+      //   <SLIDER_MAX> =, (TOTAL-1)/(PAGE_COLS*PAGE_ROWS)
+      //
+      //   <extensions> //jpg, jpeg, png, PNG, gif
+      //
+      //   <main>
+      //      SETPROP, user.dir, @<PATH_IMAGES>
+      //      VAR=, Catalog, filename
+      //      LOOP, FILES, ., @<extensions>
+      //          ,, VAR+, Catalog, @<:path-linux fullSubPath>
+      //          ,, NUM=, TOTAL, TOTAL+1
+      //      MICO, start
+      //
+      //   <POST /getDataForId>
+      //      NUM=, K, 0
+      //      LOOP, VAR, Catalog
+      //          , START ROW, page * PAGE_COLS * PAGE_ROWS
+      //          , LIMIT ROWS, PAGE_COLS * PAGE_ROWS
+      //          , HEAD, VAR=, pralPath, @<:path-linux filename>
+      //          ,, //mSec@<secINDX>:@<:path-linux filename>
+      //          ,, NUM=, K, K+1
+      //      //
+      //      //
+      //      //@<pralPath>
+      //
+      //   <POST /doExplore>
+      //      CHECK, VAR, path
+      //      LAUNCH, //explorer.exe /n,/e,/select,@<path>
+      //
+      //   <secINDX> JS, //Math.floor(@<K> / @<PAGE_COLS>)+""+Math.floor(@<K> % @<PAGE_COLS>)
+      //
+      //   <GET />
+      //      //<html> <body bgcolor="black">
+      //      //<script id="mainJast" type="jast">
+      //      //      #javaj#
+      //      //
+      //      //         <layout of main>
+      //      //            EVALAYOUT, 4, 4, 3, 3
+      //      //
+      //      //                     , X    , X, X, X
+      //      //                  X  , mPral, -, -, laySecundas
+      //      //                     ,      ,  ,  , eSlider
+      //      //
+      //      //          <layout of alone>
+      //      //                EVA, 4, 4, 2, 2
+      //      //                   , X
+      //      //                 X , mPral
+      //      //
+      //      //          <layout of laySecundas>
+      //      //            EVALAYOUT, 4, 4, 3, 3
+      //      //
+      //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
+      //          , HEAD, LOOP, FOR, CC, 1, PAGE_COLS
+      //          , HEAD,     , LINK, ""
+      //          , HEAD,     ,, //     , X
+      //          , HEAD, //
+      //          , HEAD, //
+      //          ,, //      X,
+      //          ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
+      //          ,,     , LINK, ", "
+      //          ,,     ,, //mSec@<RR>@<CC>
+      //      //
+      //      //          , bExploreCurrent, --
+      //      //
+      //      //    #data#
+      //      //
+      //      //         <eSlider type> range
+      //      //         <eSlider> 0
+      //      //         <eSlider min> 0
+      //      //         <eSlider max> @<SLIDER_MAX>
+      //      //         <eSlider oninput>   //mensaka ("requestPictures")
+      //      //
+      //      //      #listix#
+      //      //
+      //      //         <main>
+      //      //            //mensaka ("requestPictures")
+      //      //
+      //      //         <-- mPral>
+      //      //            //mask('main', 'alone', '');
+      //      //
+      //      //         <-- bExploreCurrent>
+      //      //            //AJAXSend ("doExplore", "path=" + getDataCell("mPral"));
+      //      //
+      //      //         <-- requestPictures>
+      //      //            //AJAXgetDataForId ("mPral", "page=" + getDataCell("eSlider"), true);
+      //      //
+      //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
+      //          ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
+      //          ,,     ,, //         <-- mSec@<RR>@<CC>>  //setData ("mPral", getData("mSec@<RR>@<CC>"));
+      //      //
+      //      //</script>
+      //      //
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //      //
+      //      //   var jas = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //      //   jas.run ();
+      //      //
+      //      //</script></body></html>
+      //      //
 
    <simple CodiFinestreta>
       //#listix#

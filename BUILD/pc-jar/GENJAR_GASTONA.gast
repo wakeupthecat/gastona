@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190805 \"nou check\"
+   <gastonaVersion>  //1.2.190807 \"morejs\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

@@ -163,9 +163,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       4      , FOR          ,             , //
       4      , indexName    ,             , //Variable name for the index of the FOR (default "forIndex")
-      4      , initialValue ,             , //Initial value for the loop
-      4      , endValue     ,             , //Final value for the loop
-      4      , increment    ,      1      , //Increment
+      4      , initialValue ,             , //Numeric expression or constant with the initial value for the loop
+      4      , endValue     ,             , //Numeric expression or constant with the final value for the loop
+      4      , increment    ,      1      , //Numeric expression or constant with the increment
 
       5      , COLUMNS      ,             , //
 
@@ -193,6 +193,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       gastSample
 
       first loop
+      multiplication tables
 
    <first loop>
 
@@ -213,6 +214,27 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <main0>
       //      LOOP, EVA, people
       //          ,, //Hello @<name>, little big @<desc>!
+      //
+
+   <multiplication tables>
+      //#javaj#
+      //
+      //   <frames>  oConsolar, "Multiplication tables"
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      // TAULES DE MULTIPLICAR:
+      //      //
+      //      LOOP, FOR, mulA, 1, 9
+      //          ,BODY, //
+      //          ,BODY, // taula del @<mulA>:
+      //          ,BODY, //
+      //          ,BODY, LOOP, FOR, mulB, 1, 9
+      //          ,BODY,     ,, //    @<mulA> x @<mulB> = @<opera>
+      //
+      //   <opera>
+      //      =, mulA * mulB
       //
 
 #**FIN_EVA#
