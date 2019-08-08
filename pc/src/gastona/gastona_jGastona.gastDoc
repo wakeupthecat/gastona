@@ -687,29 +687,30 @@
       //      //@<pralPath>
       //
       //   <POST /doExplore>
-      //      CHECK, VAR, path
-      //      LAUNCH, //explorer.exe /n,/e,/select,@<path>
+      //         CHECK, VAR, pathOpen
+      //         LAUNCH, //explorer.exe /n,/e,/select,"@<:path :sys user.dir>\@<:path pathOpen>"
       //
       //   <secINDX> JS, //Math.floor(@<K> / @<PAGE_COLS>)+""+Math.floor(@<K> % @<PAGE_COLS>)
       //
       //   <GET />
-      //      //<html> <body bgcolor="black">
+      //         //<html> <style> label { font-family: Consolas, color: lightgray } </style> <body bgcolor="black">
       //      //<script id="mainJast" type="jast">
       //      //      #javaj#
       //      //
       //      //         <layout of main>
       //      //            EVALAYOUT, 4, 4, 3, 3
       //      //
-      //      //                     , X    , X, X, X
-      //      //                  X  , mPral, -, -, laySecundas
-      //      //                     ,      ,  ,  , eSlider
+      //         //                     , X3   ,  X
+      //         //                  X  , mPral,  layGrid
+      //         //                     ,   +  ,  bExploreCurrent
+      //         //                     ,   +  ,  eSlider
       //      //
-      //      //          <layout of alone>
+      //         //          <layout of layAlone>
       //      //                EVA, 4, 4, 2, 2
       //      //                   , X
       //      //                 X , mPral
       //      //
-      //      //          <layout of laySecundas>
+      //         //          <layout of layGrid>
       //      //            EVALAYOUT, 4, 4, 3, 3
       //      //
       //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
@@ -723,7 +724,6 @@
       //          ,,     , LINK, ", "
       //          ,,     ,, //mSec@<RR>@<CC>
       //      //
-      //      //          , bExploreCurrent, --
       //      //
       //      //    #data#
       //      //
@@ -732,6 +732,7 @@
       //      //         <eSlider min> 0
       //      //         <eSlider max> @<SLIDER_MAX>
       //      //         <eSlider oninput>   //mensaka ("requestPictures")
+      //         //         <lPageNr> 0/N
       //      //
       //      //      #listix#
       //      //
@@ -739,17 +740,22 @@
       //      //            //mensaka ("requestPictures")
       //      //
       //      //         <-- mPral>
-      //      //            //mask('main', 'alone', '');
+      //         //            //mask('main', 'layAlone', '');
       //      //
       //      //         <-- bExploreCurrent>
-      //      //            //AJAXSend ("doExplore", "path=" + getDataCell("mPral"));
+      //         //            //AJAXSend ("doExplore", "pathOpen=" + getDataCell("mPral"));
+      //         //
+      //         //         <-- updateMain>
+      //         //            //setData ("bExploreCurrent", getDataCell("mPral"));
       //      //
       //      //         <-- requestPictures>
       //      //            //AJAXgetDataForId ("mPral", "page=" + getDataCell("eSlider"), true);
+      //         //            //
+      //         //            //setData ("lPageNr", " " + getDataCell("eSlider") + "/" + getDataCell("eSlider max"));
       //      //
       //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
       //          ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
-      //          ,,     ,, //         <-- mSec@<RR>@<CC>>  //setData ("mPral", getData("mSec@<RR>@<CC>"));
+      //            ,,     ,, //         <-- mSec@<RR>@<CC>>  //setData ("mPral", getData("mSec@<RR>@<CC>")); mensaka ("updateMain");
       //      //
       //      //</script>
       //      //
@@ -762,7 +768,6 @@
       //      //
       //      //</script></body></html>
       //      //
-
    <simple CodiFinestreta>
       //#listix#
       //

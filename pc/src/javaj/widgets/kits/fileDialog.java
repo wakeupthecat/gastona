@@ -22,8 +22,9 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.Dimension;
 
-import de.elxala.langutil.*;
 import de.elxala.Eva.*;
+import de.elxala.langutil.*;
+import de.elxala.langutil.filedir.fileUtil;
 
 /**
 */
@@ -90,7 +91,7 @@ public class fileDialog
       //                 at javax.swing.JFileChooser.<init>(JFileChooser.java:288)
       //
       String dirName = "";
-      File fil = new File (thisDir);
+      File fil = fileUtil.getNewFile (thisDir);
       if (! fil.exists ())
          fil = new File (".");
       try { dirName = fil.getCanonicalPath (); } catch (Exception e) {}

@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005..2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -309,7 +309,7 @@ public class microToolInstaller
          String dirBase = installedModules.getValue (indxModule, 1);
 
          String fullPath = finalFullPath (nameModul, nameBinary);
-         File este = new File (fullPath);
+         File este = fileUtil.doubleCheckFile (fullPath);
 
          if (este.exists ())
             return fullPath;
@@ -420,7 +420,7 @@ public class microToolInstaller
 
    private static boolean fileExists (String path)
    {
-      File eo = new File (path);
+      File eo = fileUtil.doubleCheckFile (path);
       return eo.exists ();
    }
 

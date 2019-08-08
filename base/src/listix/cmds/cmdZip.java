@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005..2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -575,7 +575,7 @@ public class cmdZip implements commandable
       {
          InputStream is = null;
 
-         File asfile = new File (ziFile);
+         File asfile = fileUtil.doubleCheckFile (ziFile);
          if (asfile.exists ())
          {
             is = new FileInputStream(ziFile);

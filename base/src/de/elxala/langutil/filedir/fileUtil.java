@@ -481,7 +481,7 @@ public class fileUtil
 
    public static File getNewFile (String vagueFileName)
    {
-      return new File (resolveCurrentDirFileName (vagueFileName));
+      return doubleCheckFile (resolveCurrentDirFileName (vagueFileName));
    }
 
    // this method is thought for Android Apps getFilePathFromVagueFilename
@@ -490,9 +490,24 @@ public class fileUtil
       return uniFileUtil.resolveCurrentDirFileName (vagueFileName);
    }
 
+   public static File doubleCheckFile (String pathName)
+   {
+      File pathFi = new File (pathName);
+      if (!pathFi.exists ())
+      {
+         // Second try
+         // This workaround is needed sometimes usually when current directory has been changed, no idea why this happens!
+         //
+         pathFi = new File (pathFi.getAbsolutePath ());
+         if (pathFi.exists ())
+            log.warn ("Workaround for false 'file not exists' required for " + pathName);
+      }
+      return pathFi;
+   }
+
    public static File getRootDirectoryOf (String referenceFile, String rootMark)
    {
-      File reference = new File (referenceFile);
+      File reference = doubleCheckFile (referenceFile);
       if (! reference.exists ()) return null;
 
       String cannon = ".";

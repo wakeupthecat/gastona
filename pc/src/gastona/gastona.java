@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 to 2012 Alejandro Xalabarder Aulet
+Copyright (C) 2005..2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -699,7 +699,7 @@ public class gastona
       //       without having to associate the extension .gast to "java -jar gastona.jar"
       //       or in linux start the script with #!java -jar gastona.har
       //
-      File normalFile = new File ("autoStart.gast");
+      File normalFile = fileUtil.getNewFile ("autoStart.gast");
       if (normalFile.exists ())
       {
          log.dbg (2, "searchingApp", "found autoStart.gast in current directory");
