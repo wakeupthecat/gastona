@@ -200,6 +200,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       micoAjaxWithForm
       whoareyou
       simple file server
+      JS Chrono
+      micoServerShowAJAX
 
 
    <micoHttpExample1>
@@ -512,6 +514,144 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //</script>
       //      //
       //      //</html>
+
+   <micoServerShowAJAX>
+      //#javaj#
+      //
+      //    <frames> main, ServerShow, 400, 700
+      //
+      //    <layout of main>
+      //      EVA, 6, 6, 3, 3
+      //
+      //         , X
+      //       X , xRequest
+      //     150 , oConso
+      //         , bClear
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#listix#
+      //
+      //    <main>
+      //       micohttp, start, monoMico
+      //
+      //    <-- bClear>
+      //      -->, oConso clear
+      //
+      //    <GET />
+      //      //<html><body>
+      //      //   <!-- nothing! -->
+      //      //<script>
+      //      //
+      //      // @<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //      //
+      //      //   var jgas = new jGastona (evaFileUTF82obj ("@<:encode-utf8 MAIN_JAST>"));
+      //      //   jgas.run ();
+      //      //
+      //      //</script></body></html>
+      //
+      //   <MAIN_JAST>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //        EVA, 15, 15, 8, 8
+      //      //
+      //      //            ,                , X
+      //      //            , lTitle, -
+      //      //            , iRequestSamples, lRequestDesc
+      //      //          X ,    +           , xRequestCode
+      //      //            ,    +           , bRunCode
+      //      //            , lWidget with id "eCamp", eCamp
+      //      //
+      //      //#data#
+      //      //
+      //      //   <lTitle> //MICO Server AJAX demo, choose an AJAX request, change values and see Server reaction
+      //      //
+      //      //   <eCamp>
+      //      //
+      //      //   <iRequestSamples>
+      //      //      label, desc, code
+      //      //
+      //      //      plain request,  "Just the simplest request",       //jgas.AJAXSend ("myRequest", "");
+      //      //      Request with variables,  "Send some variables",    //jgas.AJAXSend ("myRequest", "myvar=1021&other=etc");
+      //      //      Send all data,  "Send all data in body (default)", //jgas.AJAXSend ("myRequest");
+      //      //      Send some data, "Request choosing data to send",   //jgas.AJAXSend ("myRequest", { bodyVars : ["iRequestSamples", "eCamp"] });
+      //      //      Complex request, "Possible to send body, header and variables", //jgas.AJAXSend ("myRequest",§{ body: "Here a Body!!\nend of body",§  params: { "mivar1" : "22", "name" : "marley" },§  headers: { "myDetails" : "refining the question"}§});
+      //      //      Data for widget, "Request data of a specific widget by its id", //jgas.AJAXgetDataForId ("eCamp", "");
+      //      //      Change more widgets, "Special multi data request", //jgas.AJAXgetDataForId ("eCamp", "multi=1", true);
+      //      //      Load data,           "Load data from eva format", //jgas.AJAXLoadData ("dataDemo");
+      //      //      change GUI, "loads another JAST application and GUI", //jgas.AJAXLoadRootJast ("SECOND_JGAST");
+      //      //
+      //      //#listix#
+      //      //
+      //      //  <-- iRequestSamples>
+      //      //     //var strcode = getDataCell("iRequestSamples selected.code");
+      //      //     //setData ("xRequestCode", strcode.replace(/§/g, "\n    "));
+      //      //     //setData ("lRequestDesc", getDataCell("iRequestSamples selected.desc"));
+      //      //     //mensaka ("bRunCode");
+      //      //
+      //      //  <-- bRunCode>
+      //      //     //eval (getDataAsTextArray("xRequestCode").join("\n"));
+      //      //
+      //
+      //   <SECOND_JGAST>
+      //      //#javaj#
+      //      //
+      //      //   <layout of main>
+      //      //        EVA, 15, 15, 8, 8
+      //      //
+      //      //            ,
+      //      //            , lUps! another GUI ?
+      //      //            , bRestore first one
+      //      //#listix#
+      //      //
+      //      //  <-- bRestore first one>
+      //      //     //jgas.AJAXLoadRootJast ("MAIN_JAST");
+      //      //
+      //
+      //   <POST /loadRootJast>
+      //      CHECK, !=, @<jastName>, "", LSX, MAIN_JAST
+      //      LSX, @<jastName>
+      //
+      //   <POST /myRequest>
+      //     -->, xRequest data!,, @<SHOW_REQUEST>
+      //
+      //     MICO, SET RESPONSE VARIABLE, monoMico, ala, uno, ola, dos, jala, "tres y cuatro etc"
+      //     //This is the response body
+      //     //for the request
+      //
+      //   <POST /getDataForId>
+      //      -->, xRequest data!,, @<SHOW_REQUEST>
+      //
+      //     CHECK, VAR, desiredValue
+      //          ,, @<desiredValue>
+      //          , ELSE, //A value for the id
+      //
+      //   <POST /loadData>
+      //      //#data#
+      //      //
+      //      //   <iRequestSamples>
+      //      //       label, desc, code
+      //      //       restore data, "restore the initial data", //jgas.AJAXLoadRootJast ("MAIN_JAST");
+      //
+      //  <SHOW_REQUEST>
+      //     //LAST REQUEST AT @<:lsx date2>
+      //     //
+      //     //VISIBLE PARAMETERS:
+      //     //
+      //     LOOP, COLUMNS,
+      //         ,, //   @<columnName>: @<columnValue>
+      //     //
+      //     //
+      //     //REQUEST BODY:
+      //     //
+      //     LOOP, TEXT FILE, @<_bodyMemFileName>
+      //         ,, @<value>
+      //     //
+      //     //--- END BODY
+      //
+      //#**#
 
 
 #**FIN_EVA#

@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005,2016 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -488,6 +488,11 @@ public class javaj36
    */
    public void maskLayout (String layoutName, String newLayout)
    {
-      javajST.setMaskedLayout (layoutName, newLayout);
+      javajST.setMaskedLayout (layoutName, newLayout, null);
+   }
+
+   public void maskLayout (String layoutName, String newLayout, String layoutAlternative)
+   {
+      javajST.setMaskedLayout (layoutName, newLayout, layoutAlternative);
    }
 }

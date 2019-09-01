@@ -8,6 +8,9 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2019-09-01 21:41:57	new AJAXLoadData and fix zWidgets of type list, message "data!" was not woking
+      2019-08-31 22:30:20	trassos2D minor changes
+      2019-08-09 02:30:11	jGastona example with more zWidgets
       2019-08-08 02:22:31	hot workaround for the file not exists issue
       2019-08-07 21:01:42  add numeric expression in parameters of LOOP FOR
       2019-08-07 19:11:20  fix zWidgetsHtml.js another regression introduced in 2019.07.08

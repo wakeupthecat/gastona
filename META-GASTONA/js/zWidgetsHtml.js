@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2018 Alejandro Xalabarder Aulet
+Copyright (C) 2018,2109 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -358,19 +358,8 @@ function zWidgets (htmlStamm, laData, mensaka)
             case 'k': // checkbox group
             case 'i': // list
                {
-                  var objTransp = table2ColumnObj (laData.dataUnit[name]);
-                  var orient = laData.dataUnit[name + " orientation"]||"X";
-
-                  //(o) TODO/jGastona/fabrica_zWidgets why not ?  zwid = fabricaSelectList (...
-
-                  if (name.charAt (0) == 'c')
-                     htmlStamm.appendChild (fabricaSelectList (name, false));
-                  if (name.charAt (0) == 'i')
-                     htmlStamm.appendChild (fabricaSelectList (name, true));
-                  if (name.charAt (0) == 'r')
-                     htmlStamm.appendChild (fabricaGrupo (name, "radio", false));
-                  if (name.charAt (0) == 'k')
-                     htmlStamm.appendChild (fabricaGrupo (name, "checkbox", true));
+                  zwid = fabricaLista (name);
+                  htmlStamm.appendChild (zwid);
                }
                break;
          }
@@ -487,6 +476,16 @@ function zWidgets (htmlStamm, laData, mensaka)
       //   ele.appendChild (document.createTextNode(text));
 
       return ele;
+   }
+
+
+   function fabricaLista (name)
+   {
+      var orient = laData.dataUnit[name + " orientation"]||"X";
+      if (name.charAt (0) == 'c') return fabricaSelectList (name, false);
+      if (name.charAt (0) == 'i') return fabricaSelectList (name, true);
+      if (name.charAt (0) == 'r') return fabricaGrupo (name, "radio", false);
+      if (name.charAt (0) == 'k') return fabricaGrupo (name, "checkbox", true);
    }
 
    //== selectAllColumnsFromTable
@@ -625,8 +624,6 @@ function zWidgets (htmlStamm, laData, mensaka)
    //
    function fabricaSelectList (name, multipleSelection)
    {
-      var tableTrans = table2ColumnObj (laData.dataUnit[name]);
-
       // html strange "smart" "select" tag, when multiple is true it builds a list
       // and if not a combo ...
       //
@@ -640,6 +637,8 @@ function zWidgets (htmlStamm, laData, mensaka)
                whenChangeTableSelection (name, this, this.value);
             });
 
+      ele["data!"] = function () {
+
       // tableTrans is an object like
       // {
       //    label: ["mygod", "save", "queen"];
@@ -647,10 +646,16 @@ function zWidgets (htmlStamm, laData, mensaka)
       //    selected: ["0", "1", "0"];
       // }
 
+            // clear old content
+            while (this.hasChildNodes())
+               this.removeChild(this.firstChild);
+
+            var tableTrans = table2ColumnObj (laData.dataUnit[name]);
+
       // get from data the column to be used as label
       //
       var labelcol = getColName (name, "label");
-      if (!labelcol) return ele;
+            if (!labelcol) return;
       var labels = tableTrans[labelcol];
 
       for (var ii in labels)
@@ -658,8 +663,9 @@ function zWidgets (htmlStamm, laData, mensaka)
          var subele = document.createElement ("option");
          addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans);
          subele.appendChild (document.createTextNode(labels[ii]));
-         ele.appendChild (subele);
+               this.appendChild (subele);
       }
+         };
 
       return ele;
    }
@@ -668,13 +674,13 @@ function zWidgets (htmlStamm, laData, mensaka)
    //
    function fabricaGrupo (name, tipo, multipleSelect)
    {
-      var tableTrans = table2ColumnObj (laData.dataUnit[name]);
-      var orient = laData.dataUnit[name + " orientation"]||"X";
-
       var ele = document.createElement ("div");
       ele["id"] = name;
       ele.style.visibility = "hidden";
 
+      ele["data!"] = function () {
+         var orient = laData.dataUnit[name + " orientation"]||"X";
+         var tableTrans = table2ColumnObj (laData.dataUnit[name]);
       // tableTrans is an object like
       // {
       //    label: ["mygod", "save", "queen"];
@@ -682,10 +688,14 @@ function zWidgets (htmlStamm, laData, mensaka)
       //    selected: ["0", "1", "0"];
       // }
 
+         // clear old content
+         while (this.hasChildNodes())
+            this.removeChild(this.firstChild);
+
       // get from data the column to be used as label
       //
       var labelcol = getColName (name, "label");
-      if (!labelcol) return ele;
+         if (!labelcol);
       var labels = tableTrans[labelcol];
 
       // *** Own width calculation
@@ -720,16 +730,17 @@ function zWidgets (htmlStamm, laData, mensaka)
          subelem["data!"] = function () { };
          subelem.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
          if (orient == "Y" || orient == "V") {
-            ele.appendChild (document.createElement ("br"));
+               this.appendChild (document.createElement ("br"));
             widthEstim = Math.max (widthEstim, estimW);
          }
          else {
             widthEstim += estimW;
          }
-         ele.appendChild (subelem);
-         ele.appendChild (document.createTextNode(labels[ii]));
+            this.appendChild (subelem);
+            this.appendChild (document.createTextNode(labels[ii]));
       }
-      ele.style.width = widthEstim + "px";
+         this.style.width = widthEstim + "px";
+      };
 
       return ele;
   }
@@ -748,5 +759,4 @@ function zWidgets (htmlStamm, laData, mensaka)
 
       return ele;
    }
-
 }

@@ -27,7 +27,10 @@ vec3.prototype = {
    fromArray: function(arr, indx, dim) {
       dim = dim||3;
       var base = (indx||0)*dim;
-      this.set (arr[base], arr[1+base], (dim > 2 ? arr[2+base]: 0));
+
+      // +(var) ensures the result is a number even if var is a string
+      //
+      this.set (+(arr[base]), +(arr[1+base]), (dim > 2 ? +(arr[2+base]): 0));
    },
 
    setIntoArray: function(arr, indx, dim) {
@@ -641,8 +644,8 @@ function trassos2D ()
       var relative = true;
       var xx = +(px), yy = +(py);
 
-      cd2.beginPath();
-      cd2.moveTo(px, py);
+      c2d.beginPath();
+      c2d.moveTo(px, py);
 
       if (form === "jau") {
          var curv = autoCasteljau (+(px), +(py), closep, arrp);
@@ -691,7 +694,6 @@ function trassos2D ()
    function drawGraffiti2canvas (atrass, canv, props)
    {
       var canvSync = canvasSync (canv.getContext("2d"));
-
 
       // sample atrass:
       //

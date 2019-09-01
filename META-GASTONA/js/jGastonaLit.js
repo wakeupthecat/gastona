@@ -27,7 +27,7 @@ function jGastona (evaConfig, existingPlaceId)
 {
    "use strict";
    var laData = dataStruct (),
-       listixUnit,
+       listixUnit = {},
        corpiny,
        isStammLayout = false, // only if it will occupy the whole window area
        layMan,
@@ -213,6 +213,8 @@ function jGastona (evaConfig, existingPlaceId)
       AJAXUploadFile   : AJAXUploadFile,      // upload one file (NOTE: only one file!)
       AJAXLoadRootJast : AJAXLoadRootJast,    // ask the server for a jast file to be loaded
       AJAXgetDataForId : AJAXgetDataForId,    // ask the server for content for the id, on resposte the content will be updated automatically
+      AJAXGetDataForId : AJAXgetDataForId,    // alias for "compatibility"
+      AJAXLoadData     : AJAXLoadData,
 
       // getDataUnit    : function () { return dataUnit; }
    };
@@ -336,6 +338,7 @@ function jGastona (evaConfig, existingPlaceId)
          var wnam = msg.substr (0,ii); // widget name i.e. "bBoton"
          var wmet = msg.substr (ii+1); // method      i.e. "data!"
 
+         if (losWidgets)
          losWidgets.deliverMsgToWidget (wnam, wmet);
          //2017.11.05 more general approach, not return but continue since maybe the user (listix) is notified to the widget message as well
          // return;
@@ -346,7 +349,7 @@ function jGastona (evaConfig, existingPlaceId)
       // Note : here it is done in an "interpreter fashion",
       //        another approach is to generate proper functions and listeners previosly
       //
-      var fbody = laData.dataUnit["-- " + msg] || listixUnit["-- " + msg];
+      var fbody = laData.dataUnit["-- " + msg] || listixUnit["-- " + msg] || null;
       if (! fbody)
       {
          // message not subscribed! ignore it
@@ -699,9 +702,24 @@ function jGastona (evaConfig, existingPlaceId)
       return true;
    }
 
+   function AJAXLoadData (loadIdentifier, paramCfg)
+   {
+      var poso = httPack (paramCfg, laData.dataUnit);
+      AJAXPostRaw ("loadData?loadIdentifier=" + (loadIdentifier||"") + "&" + poso.onelineparams,
+                poso.body,
+                poso.headers,
+                function (bodytxt, httpero) {
+                     var subobj = evaFileStr2obj (bodytxt)["data"];
+                     if (subobj)
+                        for (var vara in subobj)
+                           setData (vara, subobj[vara]);
+                }
+         );
+   }
+
    function AJAXLoadRootJast (jastName, placeId)
    {
-      AJAXPostRaw ("loadRootJast?jastName=" + jastName,
+      AJAXPostRaw ("loadRootJast?jastName=" + jastName||"",
                    "",     // body
                    null,   // headers
                            // callback

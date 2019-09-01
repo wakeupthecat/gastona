@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -203,6 +203,7 @@ public class mensaka4listix implements MensakaTarget
             if (theJavaj == null)
             {
                // only actuate if javaj cannot handle it (e.g. no javaj in the gast script)
+               log.dbg (2, "takePacket", "handle JAVAJ EXIT");
                System.exit (0);
             }
             break;
@@ -223,11 +224,13 @@ public class mensaka4listix implements MensakaTarget
          case RX_JAVAJ_MASK:
             String lay1 = data.getSomeHowEva ("layoutToMask").getValue ();
             String lay2 = data.getSomeHowEva ("masklayout").getValue ();
+            Eva altern = data.getEva ("alternativelayout");
 
             log.dbg (2, "takePacket", "received JAVAJ MASK [" + lay1 + "] -> [" + lay2 + "]");
             if (theJavaj != null)
             {
-               theJavaj.maskLayout (lay1, lay2);
+               String salter =  (altern == null ? null: altern.getValue ());
+               theJavaj.maskLayout (lay1, lay2, salter);
                theJavaj.relayout ();
             }
             else log.err ("takePacket", "received JAVAJ MASK but application has no javaj instance!");
@@ -248,15 +251,18 @@ public class mensaka4listix implements MensakaTarget
       {
          // it is not an action ?
          // !error
+         log.err ("takePacket", "wrong actionIndx " + actionIndx + " while total actions is " + EActions.rows ());
          return false;
       }
 
+      log.dbg (4, "takePacket", "reverting all widget texts");
       // always collect all edit widgets
       //
       Mensaka.sendPacket (TX_REVERT_ALL_TEXTS, null);
 
       // get the action by index
       String action = EActions.getValue (actionIndx, 0);
+      log.dbg (4, "takePacket", "handle action message [" + action + "]");
       theListix.printLsxFormat (action, pars);
 
       return true;

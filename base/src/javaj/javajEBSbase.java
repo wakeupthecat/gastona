@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -193,12 +193,30 @@ public class javajEBSbase
       return names;
    }
 
+   public void setMaskedLayout (String layoutName, String layoutMask)
+   {
+      setMaskedLayout (layoutName, layoutMask, null);
+   }
+
+   public void setMaskedLayout (String layoutName, String layoutMask, String layoutAlternative)
+   {
+      // ISSUE! after masking this condition seems to be not enough 
+      String lomaska = getMaskedLayout (layoutName);
+      boolean same = lomaska == layoutMask;
+      String poyes2 = (layoutAlternative != null && same) ? layoutAlternative: layoutMask;
+      doSetMaskedLayout (
+           layoutName,
+           (layoutAlternative != null && getMaskedLayout (layoutName) == layoutMask) ?
+              layoutAlternative: layoutMask
+           );
+   }
+
    /**
       set a layout mask for a specific layout with name layoutName
       up to here when trying to layout layoutName layoutMask will be actually laid out
       to remove the mask, simply call again setMaskedLayout with layoutMask null or ""
    */
-   public void setMaskedLayout (String layoutName, String layoutMask)
+   private void doSetMaskedLayout (String layoutName, String layoutMask)
    {
       if (mainEUData == null) return;
 

@@ -1086,8 +1086,11 @@ public class listix
 
       // store the key stack level
       //
+      log.dbg (6, "printLsxFormat", "getStackDepthZero4Parameters");
       int oldStackLevel = getStackDepthZero4Parameters();
-      setStackDepthZero4Parameters (getTableCursorStack ().getDepth());
+      int currStackLevel = getTableCursorStack ().getDepth();
+      setStackDepthZero4Parameters (currStackLevel);
+      log.dbg (6, "printLsxFormat", "current StackDepthZero4Parameters " + currStackLevel + " old one " + oldStackLevel);
 
       // push the parameters in the stack
       //

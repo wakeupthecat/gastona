@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -65,6 +65,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          1   , MASK LAYOUT  ,             , //
          1   , layoutToMask ,             , //Layout or widget to mask
          1   , masklayout   , (unmask)    , //Layout or widget that masks, if nothing given then the mask is removed and the original layout or widget will be shown
+         1   , maskAlternative, (unmask)  , //Layout or widget that will be used if found that layoutToMask is already masked by maskLayout. Setting it to '' will perform a toggle (mask/unmask)
 
    <options>
       synIndx, optionName, parameters, defVal, desc
@@ -349,6 +350,8 @@ public class CmdJavaj implements commandable
 
          (evaU.getSomeHowEva ("layoutToMask")).setValueVar (cmd.getArg(1));
          (evaU.getSomeHowEva ("maskLayout")).setValueVar (cmd.getArg(2));
+         if (cmd.getArgSize () > 2)
+            (evaU.getSomeHowEva ("alternativelayout")).setValueVar (cmd.getArg(3));
 
          Mensaka.sendPacket (":gastona javaj MASK", evaU);
       }
