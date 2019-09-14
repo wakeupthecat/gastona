@@ -44,8 +44,7 @@ db config, default, ""
 
    <help>
       //
-      // Defines the default database as well as all attached databases in each db operation 
-      // performed either from listix commands or javaj widgets.
+      // Various DB configurations for all operations with DBs. A default database name can be set as well as aliases and pragmas.
       //
       // ==== DEFAULT DATABASE
       //
@@ -90,6 +89,15 @@ db config, default, ""
       // To allow multi line text in fields as well as special characters a encoding schema is used. Per default an intern
       // simple schema is used. It can be changed to standards like "UTF-8" or "ISO-8859-1" using the command DATABASE CONFIG, ENCODING.
       //
+      //
+      // ==== USING PRAGMAS
+      //
+      //  This command will perform [PRAGMA pragmaName = value] etc .. before each operation with sqlite.
+      //  For example if we want to disable journal in sqlite for a faster insert and update
+      //
+      //    DB CONFIG, PRAGMA, journal_mode, OFF
+      //
+      //
 
    <aliases>
       alias
@@ -102,7 +110,8 @@ db config, default, ""
       synIndx, importance, desc
          1   ,    5      , //Sets the default database to be used in all following sql operations which do not specify dbName or specify empty string dbName
          2   ,    5      , //Defines alias and attached database to be used in all following sql operations
-         3   ,    5      , //Encode model schema to be used with the data
+         3   ,    5      , //Defines a pragma to be set
+         4   ,    5      , //Encode model schema to be used with the data
 
    <syntaxParams>
       synIndx, name           , defVal    , desc
@@ -113,12 +122,19 @@ db config, default, ""
          2   , aliasName      ,           , //Table name to be created or to add records to
          2   , dbName         ,           , //physical database name for the alias
 
-         3   , ENCODE         ,           , //
-         3   , encodeSchema   ,           , //For example UTF-8 or ISO-8859-1. If not given then the intern schema is used
+         3   , PRAGMA         ,           , //
+         3   , pragmaName     ,           , //DB pragma name
+         3   , pragmaValue    ,           , //pragma value
+
+         4   , ENCODE         ,           , //
+         4   , encodeSchema   ,           , //For example UTF-8 or ISO-8859-1. If not given then the intern schema is used
          
    <options>
       synIndx, optionName            , parameters, defVal, desc
           x  , ALIAS                 , "aliasName, dbName",    , //Defines alias and attached database to be used in all following sql operations
+          x  , PRAGMA                , "pragmaName, value",    , //Set a pragma for all db operations
+          x  , ENCODE                , "encoding",    , //Encoding for texts. For example UTF-8 or ISO-8859-1. If not given then the intern schema is used
+          x  , DEFAULT               , "dbName",    , //Database name (a file name) or empty string in order to use the gastona session temporary database
 
    <examples>
       gastSample
@@ -159,7 +175,7 @@ db config, default, ""
       //      DB, @<tmp2>, EXECUTE, //CREATE TABLE content (desc text); INSERT INTO content VALUES ("temporary db 2");
       //
       //      DB CONFIGURE, ALIAS, t1, @<tmp1>
-      //                  , ALIAS, t2, @<tmp1>
+      //                  , ALIAS, t2, @<tmp2>
       //
       //   <-- rgDBchoose>
       //       CHECK, VAR, rgDBchoose selected.sql
@@ -196,6 +212,7 @@ public class cmdDatabaseConfig implements commandable
          "DATABASE CONFIG",
          "DB CONFIGURE",
          "DB CONFIG",
+         "DB CFG",
        };
    }
 
@@ -209,77 +226,30 @@ public class cmdDatabaseConfig implements commandable
    */
    public int execute (listix that, Eva commands, int indxComm)
    {
-      listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
+      // NOTE : optionOffset = 0 all options can be in the first line (syntax + arguments)
+      listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm, 0 /* options can be syntax! */);
 
-      String oper    = cmd.getArg(0);
-      String param1   = cmd.getArg(1);
-      String param2   = cmd.getArg(2);
-
-      boolean optDefault  = cmd.meantConstantString (oper, new String [] { "DEFAULT", "DEFAULTDB" });
-      boolean optAlias    = cmd.meantConstantString (oper, new String [] { "ALIAS", "ALIASDB" });
-      boolean optEncoding = cmd.meantConstantString (oper, new String [] { "ENCODE", "ENCODING" });
-
-      if (optDefault || optAlias || optEncoding || oper.length () == 0)
+      String defDB = cmd.takeOptionString (new String [] { "DEFAULT", "DEFAULTDB", "DEFDB", "DEF" }, null);
+      if (defDB != null)
       {
-         // ok
-      }
-      else
-      {
-         cmd.getLog().err ("DATABASE CONFIG", "DATABASE CONFIG operation [" + oper + "] not recognized!");
-         return 1;
+         System.setProperty(sqlUtil.sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, defDB);
+         cmd.getLog().dbg (2, "DATABASE CONFIG", "default db name set to [" + defDB + "]");
       }
       
-      //Note: it has to be detected where alias is specified or not to allow the call
-      //
-      //    DB CONFIG, ALIAS
-      //
-      //    that would reset the previous aliases
-      //
-      boolean hasAlias = false;
-      String aliasPropStr = "";
-
-      if (optDefault)
+      String encoding = cmd.takeOptionString (new String [] { "ENCODE", "ENCODING" }, null);
+      if (encoding != null)
       {
-         System.setProperty(sqlUtil.sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, param1);
-         cmd.getLog().dbg (2, "DATABASE CONFIG", "default db name set to [" + param1 + "]");
-         // continue for aliases
+         utilEscapeStr.setEscapeModel (encoding);
+         cmd.getLog().dbg (2, "DATABASE CONFIG", "encoding model set to [" + encoding + "]");
       }
-      if (optEncoding)
-      {
-         //System.out.println ("SETAL EL  [" + param1 + "]");
-         utilEscapeStr.setEscapeModel (param1);
-         cmd.getLog().dbg (2, "DATABASE CONFIG", "encoding model set to [" + param1 + "]");
-         // continue for aliases
-      }
-      if (optAlias)
-      {
-         //   gastona.defaultDBaliasAttach = "my, data/midb.db, auxi, cache/auxdb.db, custom, cache/customdb.db"
+      
+      Eva prag = cmd.takeOptionAsEva (new String [] { "PRAGMA", "" }, "pragmas", true);
+      sqlUtil.setGlobalDefaultDBPragmas (prag);
          
-          // alias might be '' but db has to be set
-         if (param2.length () > 0)
-            aliasPropStr = param1 + ", " + param2;
-         hasAlias = true; // even if aliasPropStr = ""
-      }
+      Eva ali = cmd.takeOptionAsEva (new String [] { "ALIAS", "ALIASDB" }, "aliases", true);
+      sqlUtil.setGlobalDefaultDBAliases (ali);
       
-      do
-      {
-         String [] aliasPar = cmd.takeOptionParameters (new String [] { "ALIAS", "ALIASDB" });
-         if (aliasPar == null) break;
-         hasAlias = true;
-         if (aliasPar.length < 1) continue;
-         
-         String comma = (aliasPropStr.length() > 0 ? ", ": "");
-         String dbName = aliasPar.length >= 2 ? aliasPar[1]: "";
-         
-         aliasPropStr += comma + aliasPar[0] + ", " + dbName;
-      } while (cmd.checkRemainingOptions (false) > 0);
-      
-      
-      if (hasAlias)
-      {
-         System.setProperty(sqlUtil.sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS, aliasPropStr);
-         cmd.getLog().dbg (2, "DATABASE CONFIG", "attach alias list [" + aliasPropStr + "]");
-      }
+      cmd.getLog().dbg (2, "DATABASE CONFIG", "set " + (prag != null ? prag.rows () : 0)+ " pragmas and " + (ali != null ? ali.rows (): 0) + " aliases");
       
       cmd.checkRemainingOptions ();
       return 1;

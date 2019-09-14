@@ -200,12 +200,9 @@ public class javajEBSbase
 
    public void setMaskedLayout (String layoutName, String layoutMask, String layoutAlternative)
    {
-      // ISSUE! after masking this condition seems to be not enough 
-      String lomaska = getMaskedLayout (layoutName);
-      boolean same = lomaska == layoutMask;
-      String poyes2 = (layoutAlternative != null && same) ? layoutAlternative: layoutMask;
       doSetMaskedLayout (
            layoutName,
+           // ISSUE! after masking this condition seems to be not enough 
            (layoutAlternative != null && getMaskedLayout (layoutName) == layoutMask) ?
               layoutAlternative: layoutMask
            );

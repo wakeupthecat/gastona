@@ -43,9 +43,11 @@ import de.elxala.db.*;
 public class sqlUtil
 {
    public static final String sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_DATABASE_NAME;
-   public static final String sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS  = org.gastona.gastonaCtes.PROP_GASTONA_DEFAULT_ATTACHED_DBS;
 
    private static logger log = new logger (null, "sqlUtil", null);
+
+   private static Eva globalDefaultAlias = null;
+   private static Eva globalDefaultPragmas = null;
 
    public static boolean existsGlobalDefaultDB ()
    {
@@ -94,39 +96,57 @@ public class sqlUtil
    /*
       for example:
 
-         gastona.defaultDBaliasAttach = "data/midb.db, auxi, cache/auxdb.db, custom, cache/customdb.db"
-
-      returns
-
         <attachedDBs>
-             alias , dbName
              auxi  , cache/auxdb.db
              custom, cache/customdb.db
 
    */
-   public static Eva getGlobalDefaultDBaliasAttach ()
+   public static void setGlobalDefaultDBAliases (Eva aliasList)
    {
-      String attachString = System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_ATTACHED_DBS, "");
-      if (attachString.equals ("")) return null;
+      globalDefaultAlias = aliasList;
+   }
 
-      String [] arrDbName = attachString.split (",");
+   /*
+      for example:
 
-      Eva eva = new Eva("attachedDBs");
-      eva.addLine (new EvaLine (new String [] { "alias", "dbName" } ));
-      for (int ii = 0; ii+1 < arrDbName.length; ii += 2)
+        <pragmasDB>
+             journal_mode, OFF
+
+   */
+   public static void setGlobalDefaultDBPragmas (Eva dbPragmas)
+   {
+      globalDefaultPragmas = dbPragmas;
+   }
+
+   public static Eva getGlobalDefaultDBAliases ()
+   {
+      return globalDefaultAlias;
+   }
+
+   public static Eva getGlobalDefaultDBPragmas ()
       {
-         eva.addLine (new EvaLine (new String [] { arrDbName[ii].trim (), arrDbName[ii+1].trim () } ));
+      return globalDefaultPragmas;
       }
-      return eva;
+
+   public static String getGlobalDefaultDBSqlitePragmas ()
+   {
+      Eva pragms = getGlobalDefaultDBPragmas ();
+      if (pragms == null) return "";
+
+      String sal = "";
+      for (int ii = 0; ii < pragms.rows (); ii ++)
+         sal += "PRAGMA " + pragms.getValue (ii, 1) + " = " + pragms.getValue (ii, 0) + ";\n";
+
+      return sal;
    }
 
    public static String getGlobalDefaultDBaliasAttachQuery ()
    {
-      Eva att = getGlobalDefaultDBaliasAttach ();
+      Eva att = getGlobalDefaultDBAliases ();
       if (att == null) return "";
 
       String sal = "";
-      for (int ii = 1; ii < att.rows (); ii ++)
+      for (int ii = 0; ii < att.rows (); ii ++)
          sal += "ATTACH DATABASE '" + att.getValue (ii, 1) + "' AS '" + att.getValue (ii, 0) + "';\n"; // need ' to support ATTACH and DETACH ''
 
       return sal;
@@ -134,11 +154,11 @@ public class sqlUtil
 
    public static String getGlobalDefaultDBaliasDetachQuery ()
    {
-      Eva att = getGlobalDefaultDBaliasAttach ();
+      Eva att = getGlobalDefaultDBAliases ();
       if (att == null) return "";
 
       String sal = "";
-      for (int ii = 1; ii < att.rows (); ii ++)
+      for (int ii = 0; ii < att.rows (); ii ++)
          sal += "DETACH DATABASE '" + att.getValue (ii, 0) + "';\n"; // need ' to support ATTACH and DETACH ''
 
       return sal;

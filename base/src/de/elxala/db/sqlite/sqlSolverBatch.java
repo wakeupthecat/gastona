@@ -245,6 +245,8 @@ public class sqlSolverBatch
 
       writeScript (".headers ON");
 
+      writeScript (sqlUtil.getGlobalDefaultDBSqlitePragmas ());
+
       //(o) TODO_sqlite automatically attaching databases, by the moment only implemented through property "gastona.defaultDBaliasAttach"
       writeScript (sqlUtil.getGlobalDefaultDBaliasAttachQuery ());
 

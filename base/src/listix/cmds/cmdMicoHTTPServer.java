@@ -577,7 +577,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //      Request with variables,  "Send some variables",    //jgas.AJAXSend ("myRequest", "myvar=1021&other=etc");
       //      //      Send all data,  "Send all data in body (default)", //jgas.AJAXSend ("myRequest");
       //      //      Send some data, "Request choosing data to send",   //jgas.AJAXSend ("myRequest", { bodyVars : ["iRequestSamples", "eCamp"] });
-      //      //      Complex request, "Possible to send body, header and variables", //jgas.AJAXSend ("myRequest",§{ body: "Here a Body!!\nend of body",§  params: { "mivar1" : "22", "name" : "marley" },§  headers: { "myDetails" : "refining the question"}§});
+      //      //      Complex request, "Possible to send body, header and variables", //jgas.AJAXSend ("myRequest",?{ body: "Here a Body!!\nend of body",?  params: { "mivar1" : "22", "name" : "marley" },?  headers: { "myDetails" : "refining the question"}?});
       //      //      Data for widget, "Request data of a specific widget by its id", //jgas.AJAXgetDataForId ("eCamp", "");
       //      //      Change more widgets, "Special multi data request", //jgas.AJAXgetDataForId ("eCamp", "multi=1", true);
       //      //      Load data,           "Load data from eva format", //jgas.AJAXLoadData ("dataDemo");
@@ -587,7 +587,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //
       //      //  <-- iRequestSamples>
       //      //     //var strcode = getDataCell("iRequestSamples selected.code");
-      //      //     //setData ("xRequestCode", strcode.replace(/§/g, "\n    "));
+      //      //     //setData ("xRequestCode", strcode.replace(/?/g, "\n    "));
       //      //     //setData ("lRequestDesc", getDataCell("iRequestSamples selected.desc"));
       //      //     //mensaka ("bRunCode");
       //      //

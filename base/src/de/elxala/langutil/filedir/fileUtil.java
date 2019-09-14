@@ -492,7 +492,7 @@ public class fileUtil
 
    public static File doubleCheckFile (String pathName)
    {
-      File pathFi = new File (pathName);
+      File pathFi = new File (pathName.length () == 0 ? ".": pathName);
       if (!pathFi.exists ())
       {
          // Second try
@@ -500,7 +500,7 @@ public class fileUtil
          //
          pathFi = new File (pathFi.getAbsolutePath ());
          if (pathFi.exists ())
-            log.warn ("Workaround for false 'file not exists' required for " + pathName);
+            log.warn ("Workaround for false 'file not exists' required for [" + pathName + "] [" + pathFi.getPath () + "]");
       }
       return pathFi;
    }
@@ -517,7 +517,7 @@ public class fileUtil
 
    private static File getRootDirectoryOf (File referenceFile, String rootMark)
    {
-      File tryfile = new File (referenceFile + "/" + rootMark);
+      File tryfile = doubleCheckFile (referenceFile + "/" + rootMark);
       if (tryfile.exists ())
          return tryfile.getParentFile ();
 

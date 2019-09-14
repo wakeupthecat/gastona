@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -44,6 +44,7 @@ public class listixCmdStruct
    private listix listixPtr = null;
    private Eva    cmdEvaPtr = null;
    private int    baseIndx = 0;
+   private int    optOffset = 1;
    private int    maxIndx = 0;
    private int    maxArguments = -1;
 
@@ -62,18 +63,24 @@ public class listixCmdStruct
       @param that lisitix structure used for logg and to solve arguments and option parameters
       @param commandEva Eva variable containing the whole commnad
       @param indxComm row index of commandEva where the commnad starts
+      @param offsetOptions offset where does the options begin (per default 1)
    */
-   public listixCmdStruct (listix that, Eva commandEva, int indxComm)
+   public listixCmdStruct (listix that, Eva commandEva, int indxComm, int offsetOptions)
    {
-      //construct (that, commandEva, indxComm, -1 /* undefined */ );
-      construct (that, commandEva, indxComm);
+      construct (that, commandEva, indxComm, offsetOptions);
    }
 
-   public void construct (listix that, Eva commandEva, int indxComm)
+   public listixCmdStruct (listix that, Eva commandEva, int indxComm)
+   {
+      construct (that, commandEva, indxComm, 1);
+   }
+
+   public void construct (listix that, Eva commandEva, int indxComm, int offsetOptions)
    {
       listixPtr = that;
       cmdEvaPtr = commandEva;
       baseIndx = indxComm;
+      optOffset = offsetOptions;
 
       // command must be found
       if (baseIndx >= cmdEvaPtr.rows())
@@ -179,11 +186,22 @@ public class listixCmdStruct
    {
       givenOptions = new Vector();
 
-      // collect all option "titles" in List givenOptions
-      // Note the index in the List givenOptions will be used to retrieve the options parameters!!
-      // Note2 this can be reprogrammed in a less complicated way, by copying all options into another array
-      for (int ii = 1 + baseIndx;
-           ii < cmdEvaPtr.rows () && cmdEvaPtr.cols(ii) > 1 && cmdEvaPtr.getValue (ii, 0).length () == 0; // it is a void listix command
+      // Example: collect "OPT1" and "OPT2" and also "PAR" if optOffset is 0
+      //
+      //              ...
+      //   baseIndx-> CMD, PAR, par, par
+      //                 , OPT1, opar, opar
+      //                 , OPT2, opar, opar
+      //                 Other
+
+      // collect all option names in a list givenOptions
+      // NOTE1: We don't copy all parameters but access them using the same index as the option has in the list!
+      // NOTE2: We detect the end of options by the column 0 which has to be empty (except if ii == baseIndx !)
+      //
+      for (int ii = optOffset + baseIndx;
+           ii < cmdEvaPtr.rows () &&
+           cmdEvaPtr.cols(ii) > 1 &&
+           (ii == baseIndx || cmdEvaPtr.getValue (ii, 0).length () == 0); // check if it is a void listix command
            ii ++)
       {
          String optStr = (cmdEvaPtr.getValue (ii, 1)).toUpperCase().replaceAll (" ", "");
@@ -272,14 +290,15 @@ public class listixCmdStruct
             if (cmdName.equals (laopt))
             {
                givenOptions.set(oo, null); // mark it as taken
+               int evaindx = baseIndx + optOffset + oo;
 
-               if (baseIndx + 1 + oo <= maxIndx)
-               {
+               if (evaindx > maxIndx) continue; // actually not possible, sanity check
+
                   // an option in "its place"
                   //
 
                   // retrieve and solve, if needed, all the parameters
-                  EvaLine el = cmdEvaPtr.get(baseIndx + 1 + oo);
+               EvaLine el = cmdEvaPtr.get(evaindx);
                   String [] resp = new String [el.cols()-2];
                   for (int ii = 2; ii < el.cols(); ii ++)
                   {
@@ -292,18 +311,17 @@ public class listixCmdStruct
                }
             }
          }
-      }
       return null;
    }
 
    public Eva takeOptionAsEva (String [] optNames)
    {
-      return takeOptionAsEva (optNames, "");
+      return takeOptionAsEva (optNames, "", false);
    }
 
    // get all rows of the option found as an unique eva
    //
-   public Eva takeOptionAsEva (String [] optNames, String evaName2set)
+   public Eva takeOptionAsEva (String [] optNames, String evaName2set, boolean solved)
    {
       if (optNames == null || optNames.length == 0) return null;
 
@@ -321,13 +339,17 @@ public class listixCmdStruct
             if (cmdName.equals (laopt))
             {
                givenOptions.set(oo, null); // mark it as taken
+               int evaindx = baseIndx + optOffset + oo;
+
+               if (evaindx > maxIndx) continue; // actually not possible, sanity check
 
                // retrieve line
                int row = target.rows ();
-               EvaLine el = cmdEvaPtr.get(baseIndx + 1 + oo);
+               EvaLine el = cmdEvaPtr.get(evaindx);
                for (int ii = 2; ii < el.cols(); ii ++)
                {
-                  target.setValue (el.get(ii), row, ii - 2);
+                  String val = solved ? listixPtr.solveStrAsString (el.get(ii)): el.get(ii);
+                  target.setValue (val, row, ii - 2);
                   //System.out.println ("resp[" + ii + "-2]  [" + resp[ii-2] + "]" );
                }
             }
@@ -350,11 +372,13 @@ public class listixCmdStruct
       String [] reto = new String [nn];
       nn = 0;
       for (int ii = 0; ii < givenOptions.size (); ii ++)
+      {
          if (givenOptions.get (ii) != null)
          {
             if (nn >= reto.length) getLog().severe ("getRemainingOptionNames", "wrong index");
             reto[nn++] = (String) givenOptions.get (ii);
          }
+      }
 
       return reto;
    }
