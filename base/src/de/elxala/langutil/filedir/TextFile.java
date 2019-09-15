@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005,2016  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,9 +82,9 @@ import de.elxala.zServices.logger;
     other methods
 
          void writeFileContents (String fileName)
-         static StringBuffer readFileIntoStringBuffer (String Nombre, String lineSeparator)
-         static String [] readFile (String Nombre)
-         static boolean writeFile (String Nombre, String [] contents, boolean addReturn)
+         static StringBuffer readFileIntoStringBuffer (String Nom, String lineSeparator)
+         static String [] readFile (String Nom)
+         static boolean writeFile (String Nom, String [] contents, boolean addReturn)
 
    <pre>
    Example:
@@ -738,19 +738,19 @@ public class TextFile
       Lee un fichero de texto y lo retorna en un StringBuffer
       Retorna true si se ha podido leer.
    */
-   public static StringBuffer readFileIntoStringBuffer (String Nombre)
+   public static StringBuffer readFileIntoStringBuffer (String Nom)
    {
-      return readFileIntoStringBuffer (Nombre, RETURN_STR);
+      return readFileIntoStringBuffer (Nom, RETURN_STR);
    }
 
-   public static StringBuffer readFileIntoStringBuffer (String Nombre, String lineSeparator)
+   public static StringBuffer readFileIntoStringBuffer (String Nom, String lineSeparator)
    {
       StringBuffer contenido = new StringBuffer ();
       TextFile fix = new TextFile ();
 
-      if (!fix.fopen (Nombre, "r"))
+      if (!fix.fopen (Nom, "r"))
       {
-         logStatic.err ("readFile", "cannot read the file [" + Nombre + "] !");
+         logStatic.err ("readFile", "cannot read the file [" + Nom + "] !");
          return null;
       }
 
@@ -780,11 +780,11 @@ public class TextFile
       Lee un fichero de texto y lo retorna en un array de String. Si el
       fichero no ha podido leerse retorna null.
    */
-   public static String [] readFile (String Nombre)
+   public static String [] readFile (String Nom)
    {
       TextFile fix = new TextFile ();
 
-      if (!fix.fopen (Nombre, "r"))
+      if (!fix.fopen (Nom, "r"))
          return null;
 
       List lineas = new Vector ();
@@ -802,12 +802,12 @@ public class TextFile
    /**
       Write a text file
    */
-   public static boolean writeFile (String Nombre, String [] contents, boolean addReturn)
+   public static boolean writeFile (String Nom, String [] contents, boolean addReturn)
    {
       TextFile fix = new TextFile ();
 
-      if (logStatic != null) logStatic.dbg (2, "writeFile", "opening [" + Nombre + "]");
-      if (!fix.fopen (Nombre, "w"))
+      if (logStatic != null) logStatic.dbg (2, "writeFile", "opening [" + Nom + "]");
+      if (!fix.fopen (Nom, "w"))
          return false;
 
       if (logStatic != null) logStatic.dbg (2, "writeFile", "writing " + contents.length + " lines");
@@ -822,14 +822,14 @@ public class TextFile
       return true;
    }
 
-   public static boolean writeFile (String Nombre, String [] contents)
+   public static boolean writeFile (String Nom, String [] contents)
    {
-      return writeFile (Nombre, contents, true);
+      return writeFile (Nom, contents, true);
    }
 
    // NOTE : it can be very inefficicent if the contets is very big
-   public static boolean writeFile (String Nombre, String contents)
+   public static boolean writeFile (String Nom, String contents)
    {
-      return writeFile (Nombre, new String [] { contents }, false);
+      return writeFile (Nom, new String [] { contents }, false);
    }
 }

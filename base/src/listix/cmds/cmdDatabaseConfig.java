@@ -244,9 +244,11 @@ public class cmdDatabaseConfig implements commandable
       }
       
       Eva prag = cmd.takeOptionAsEva (new String [] { "PRAGMA", "" }, "pragmas", true);
+      if (prag != null)
       sqlUtil.setGlobalDefaultDBPragmas (prag);
          
       Eva ali = cmd.takeOptionAsEva (new String [] { "ALIAS", "ALIASDB" }, "aliases", true);
+      if (ali != null)
       sqlUtil.setGlobalDefaultDBAliases (ali);
       
       cmd.getLog().dbg (2, "DATABASE CONFIG", "set " + (prag != null ? prag.rows () : 0)+ " pragmas and " + (ali != null ? ali.rows (): 0) + " aliases");

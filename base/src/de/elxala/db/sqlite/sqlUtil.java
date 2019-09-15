@@ -103,7 +103,11 @@ public class sqlUtil
    */
    public static void setGlobalDefaultDBAliases (Eva aliasList)
    {
-      globalDefaultAlias = aliasList;
+      // way of resetting all aliases:
+      //    ALIAS ,,
+      if (aliasList.rows () > 0 && aliasList.getValue(0,0).length () == 0)
+         globalDefaultAlias = null;
+      else globalDefaultAlias = aliasList;
    }
 
    /*
@@ -115,7 +119,11 @@ public class sqlUtil
    */
    public static void setGlobalDefaultDBPragmas (Eva dbPragmas)
    {
-      globalDefaultPragmas = dbPragmas;
+      // way of resetting all pragmas:
+      //    PRAGMA ,,
+      if (dbPragmas.rows () > 0 && dbPragmas.getValue(0,0).length () == 0)
+           globalDefaultAlias = null;
+      else globalDefaultPragmas = dbPragmas;
    }
 
    public static Eva getGlobalDefaultDBAliases ()

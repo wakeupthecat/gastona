@@ -72,7 +72,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       synIndx, optionName  , parameters       ,  defVal             , desc
 
          1   , UNIT2LOAD   , nameOfEvaUnit    ,  data|formats|listix, //EvaUnit to be load from the file, if not specified it has the same name as the target EvaUnit ('data', 'formats' or 'listix')
-         1   , MERGE       , CLEAN/REPLACE/ADD,  REPLACE            , //CLEAN: Clean current before merging, REPLACE: replacing existing Evas, ADD: Adding lines to existing Evas
+         1   , MERGE       , CLEAN/REPLACE/ADD_LINES/ONLY_NEW,  REPLACE            , //CLEAN: Clean current before merging, REPLACE: replacing existing Evas, ADD_LINES: Adding lines to existing Evas, ONLY_NEW: Add only new evas
 
    <examples>
       desc
@@ -144,22 +144,26 @@ public class cmdLoadUnit implements commandable
       //         MERGE_REPLACE     'R'   the eva is replaced (if it already exist)
 
       char iMergeType = Eva.MERGE_ADD;
-      if (mergeType.equals ("CLEAN"))
+      if (mergeType.equalsIgnoreCase ("CLEAN"))
       {
          uTarget.clear ();
          iMergeType = Eva.MERGE_REPLACE;
       }
-      else if (mergeType.equals ("REPLACE"))
+      else if (mergeType.equalsIgnoreCase ("REPLACE"))
       {
          iMergeType = Eva.MERGE_REPLACE;
       }
-      else if (mergeType.equals ("ADD"))
+      else if (mergeType.equalsIgnoreCase ("ADD") || mergeType.equalsIgnoreCase ("ADD_LINES"))
       {
          iMergeType = Eva.MERGE_ADD;
       }
+      else if (mergeType.equalsIgnoreCase ("NEW") || mergeType.equalsIgnoreCase ("ONLY_NEW"))
+      {
+         iMergeType = Eva.MERGE_NEW_VARS;
+      }
       else
       {
-         cmd.getLog ().err ("LOAD UNIT", "wrong MERGE option, given \"" + mergeType + "\", it should be either 'CLEAN', 'REPLACE' or 'ADD'");
+         cmd.getLog ().err ("LOAD UNIT", "wrong MERGE option, given \"" + mergeType + "\", it should be either 'CLEAN', 'REPLACE', 'ADD_LINES' or 'ONLY_NEW'");
          return 1;
       }
 

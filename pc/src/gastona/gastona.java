@@ -28,8 +28,8 @@ package gastona;
 #gastonaDoc#
 
    <docType>    gastona_variables
-   <name>       fusion
-   <groupInfo>  fusion
+   <name>       //Variables of unit #gastona#
+   <groupInfo>  variables
    <javaClass>  de.elxala.langutil.graph.sysLookAndFeel
    <importance> 4
    <desc>       //Variables of unit #gastona#
@@ -41,7 +41,7 @@ package gastona;
       //  is starting Javaj and Listix with their configurations and data. There still some few things
       //  you can configure in #gastona# unit
       //
-      //-- Variable PAINT LAYOUT
+      //-- Variable <PAINT LAYOUT>
       //
       //    Only the presence of this variable make the components of all visible frames to paint its
       //    limits using a red line. This can be useful during the layout design. In some samples this
@@ -71,7 +71,7 @@ package gastona;
       //          clientName, maxLogLevel
       //          ...
       //
-      //-- Variable UDP_DEBUG_PORT
+      //-- Variable <UDP_DEBUG_PORT>
       //
       //    If this variable is set, then the given port (if empty then the value 11882 is used)
       //    will be opened for UDP communication and for debug output purposes. A client can open the
@@ -141,6 +141,7 @@ package gastona;
       //       A (default)       Append: Contents of the loaded variable will be appended to the end of the variable
       //       R                 Replace: The entire variable will be replaced with the new one
       //       T                 Table Append: The variable except the first line (column names) will appended
+      //       N                 New variables: only the variables which are new are added and the already existent keep its content unchanged
       //
       //    NOTE: This mechanism is not recursive, variables <fusion> found in loaded files will
       //          have no effect!
@@ -408,9 +409,10 @@ public class gastona
             char policy = kindFus.charAt (0);
             switch (policy)
             {
-               case 'A':
-               case 'R':
-               case 'T':
+               case 'A': // add, default mode
+               case 'R': // replace
+               case 'T': // add table
+               case 'N': // only new variables are added
                   break;
                default:
                   log.err ("loadUnits", "unknown merge type [" + kindFus + "], possible values are 'A'(append), 'R'(replace), 'T'(append table)");

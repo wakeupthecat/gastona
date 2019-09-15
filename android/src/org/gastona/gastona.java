@@ -198,9 +198,10 @@ public class gastona
             char policy = kindFus.charAt (0);
             switch (policy)
             {
-               case 'A':
-               case 'R':
-               case 'T':
+               case 'A': // add, default mode
+               case 'R': // replace
+               case 'T': // add table
+               case 'N': // only new variables are added
                   break;
                default:
                   log.err ("loadUnits", "unknown merge type [" + kindFus + "], possible values are 'A'(append), 'R'(replace), 'T'(append table)");
@@ -211,10 +212,18 @@ public class gastona
             if (log.isDebugging (3))
                log.dbg (3, "loadUnits", "fusion file [" + fileFus + "] type " + policy);
 
-            unitGastona.merge (EvaFile.loadEvaUnit (fileFus, UNIT_GASTONA) , policy);
-            unitJavaj.merge   (EvaFile.loadEvaUnit (fileFus, UNIT_JAVAJ)   , policy);
-            unitListix.merge  (EvaFile.loadEvaUnit (fileFus, UNIT_LISTIX)  , policy);
-            unitData.merge    (EvaFile.loadEvaUnit (fileFus, UNIT_DATA)    , policy);
+            EvaFile fuse = new EvaFile (fileFus);
+
+            unitGastona.merge (fuse.getUnit (UNIT_GASTONA) , policy);
+
+            // merge "guix" accepting "javaj" as backwards compatible
+            EvaUnit guix = fuse.getUnit (UNIT_GUIX);
+            if (guix == null)
+               guix = fuse.getUnit (UNIT_JAVAJ);
+            unitJavaj.merge   (guix, policy);
+
+            unitListix.merge  (fuse.getUnit (UNIT_LISTIX)  , policy);
+            unitData.merge    (fuse.getUnit (UNIT_DATA)    , policy);
          }
          log.dbg (2, "loadUnits", "fusion done");
       }

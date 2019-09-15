@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2109  Alejandro Xalabarder Aulet
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -280,7 +280,7 @@ public class EvaFile
             ////       the performance of Eva structure in general
             //if (!checkNotContainsReturn (elin.getColumnArray ()))
             //{
-            //   log().err ("writeEvaUnitOnFile", "Found a return in eva <" + eva.Nombre + "> row " + rr + " while saving EvaUnit in [" + openedFile.getFileName () + "]");
+            //   log().err ("writeEvaUnitOnFile", "Found a return in eva <" + eva.Nom + "> row " + rr + " while saving EvaUnit in [" + openedFile.getFileName () + "]");
             //   //continue with the rest!
             //}
 

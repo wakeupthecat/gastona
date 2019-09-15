@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2109  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -68,7 +68,7 @@ import java.lang.StringBuffer;
 */
 public class EvaUnit implements java.io.Serializable
 {
-   private String Nombre = "";
+   private String Nom = "";
    public List lis_Evas = null; // List < Eva > needed as public for special utilities
 
    public EvaUnit (String nom)
@@ -87,7 +87,7 @@ public class EvaUnit implements java.io.Serializable
    //
    public void setAsReferenceOf (EvaUnit master)
    {
-      Nombre = master.getName ();
+      Nom = master.getName ();
       lis_Evas = master.lis_Evas;
    }
 
@@ -95,7 +95,7 @@ public class EvaUnit implements java.io.Serializable
    //
    public void copyEvaUnit (EvaUnit cop)
    {
-      Nombre = cop.getName ();
+      Nom = cop.getName ();
 
       lis_Evas = new Vector ();
       for (int ii = 0; ii < cop.lis_Evas.size (); ii ++)
@@ -112,7 +112,7 @@ public class EvaUnit implements java.io.Serializable
    */
    public String getName ()
    {
-      return Nombre;
+      return Nom;
    }
 
    /**
@@ -120,7 +120,7 @@ public class EvaUnit implements java.io.Serializable
    */
    public void setName (String name)
    {
-      Nombre = name;
+      Nom = name;
    }
 
    /**
@@ -136,7 +136,7 @@ public class EvaUnit implements java.io.Serializable
    */
    public void clear (String nom)
    {
-      Nombre = nom;
+      Nom = nom;
       lis_Evas = new Vector ();
    }
 
@@ -145,7 +145,7 @@ public class EvaUnit implements java.io.Serializable
    */
    public void clear ()
    {
-      clear (Nombre);
+      clear (Nom);
    }
 
    /**
@@ -199,6 +199,11 @@ public class EvaUnit implements java.io.Serializable
       return merge (plusUnit, mergePolicy, true, false);
    }
 
+   public int merge (EvaUnit plusUnit, char mergePolicy, boolean insertIfNotExists)
+   {
+      return merge (plusUnit, mergePolicy, insertIfNotExists, false);
+   }
+
    /**
       merges the EvaUnit 'plusUnit' following the policies 'insertIfNotExists' and 'mergePolicy'
 
@@ -207,6 +212,7 @@ public class EvaUnit implements java.io.Serializable
             MERGE_ADD         'A'   the rows of the plusEva are added at the end
             MERGE_REPLACE     'R'   the eva is replaced (if it already exist)
             MERGE_ADD_TABLE   'T'   the rows of the plusEva are added at the end except the first one which is the header with column names
+            MERGE_NEW_VARS    'N'   only the new variables are added, the existent one remains unchanged
 
       @insertIfNotExists:
          if the Eva to merge does not exists then it is created
@@ -218,47 +224,52 @@ public class EvaUnit implements java.io.Serializable
 
       if (plusUnit == null) return 0;
 
+      // add new variables is default for all policies
+      // MERGE_NEW_VARS simply specify that if not new then it cannot be merged
+      boolean canMergeExistent = mergePolicy != Eva.MERGE_NEW_VARS;
+
       for (int ii = 0; ii < plusUnit.size (); ii ++)
       {
          Eva eSource = plusUnit.getEva(ii);
          String eName = eSource.getName ();
          Eva eHere = getEva (eName);
+         boolean exists = eHere != null;
 
-         if (eHere == null)
+         if (exists && canMergeExistent)
          {
-            if (insertIfNotExists)
+            eHere.merge (eSource, mergePolicy, copy);
+            nMerged ++;
+         }
+         if (!exists && insertIfNotExists)
             {
-               // do not exists ... then insert it
+            // it does not exists ... then insert it
                //
                Eva e2add = eSource;
                if (copy)
+            {
+               e2add = new Eva (eSource.Nom);
                   e2add.merge (eSource, mergePolicy, true);
+            }
 
                add (e2add);
                nMerged ++;
             }
          }
-         else // eHere == null
-         {
-            eHere.merge (eSource, mergePolicy, copy);
-            nMerged ++;
-         }
-      }
 
       return nMerged;
    }
 
 
    /**
-   *  Retorna el i'ndice de la eva con el nombre Nom (si existe)
-   *  en caso contrario retorna -1
+   *  Retorna l'index de l'eva amb el nom "name" si existeix
+   *  en cas contrari retorna -1
    */
-   public int indxEva (String Nom)
+   public int indxEva (String name)
    {
-      if (Nom == null) return -1;
+      if (name == null) return -1;
 
       for (int ii = 0; ii < size (); ii ++)
-         if (Nom.equalsIgnoreCase ( ((Eva) lis_Evas.get (ii)).Nombre) )
+         if (name.equalsIgnoreCase ( ((Eva) lis_Evas.get (ii)).Nom) )
             return ii;
       return -1;
    }
@@ -269,7 +280,7 @@ public class EvaUnit implements java.io.Serializable
    public String toString ()
    {
       String ret = Eva.RETURN_STR;
-      StringBuffer ss = new StringBuffer ("#" + Nombre + "#" + ret);
+      StringBuffer ss = new StringBuffer ("#" + Nom + "#" + ret);
 
       for (int ii = 0; ii < size (); ii ++)
       {

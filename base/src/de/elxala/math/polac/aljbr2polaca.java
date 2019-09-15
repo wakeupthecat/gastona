@@ -1,6 +1,6 @@
 /*
 package de.elxala.math.polac;
-(c) Copyright 2006,2014 Alejandro Xalabarder Aulet
+(c) Copyright 2006-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -152,7 +152,7 @@ public class aljbr2polaca
       {
          Dedo = recorro;
 
-         // saltar nombres
+         // saltar noms
          //
          while ( (Dedo < sAljbr.length ()) &&
                  (EsTexto(sAljbr.charAt (Dedo))) )  Dedo++;
@@ -160,7 +160,7 @@ public class aljbr2polaca
          if (Dedo - recorro > 0)
          {
             //
-            // es : Nombre de funcion, variable, nu'mero etc
+            // es : Nom de funcio', variable, nu'mero etc
             //
             pilaStr.push (sAljbr.substring (recorro, Dedo));
             EraFuncion = (Dedo < sAljbr.length ()) && (sAljbr.charAt(Dedo) == '(');

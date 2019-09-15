@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2109  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -67,8 +67,9 @@ public class Eva implements java.io.Serializable
    public static final char MERGE_REPLACE   = 'R';   // the eva is replaced (if it already exist)
    public static final char MERGE_ADD       = 'A';   // the rows of the plusEva are added at the end
    public static final char MERGE_ADD_TABLE = 'T';   // the rows of the plusEva are added at the end except the first one which is the header with column names
+   public static final char MERGE_NEW_VARS  = 'N';   // only the new variables are added, the existent one remains unchanged
 
-   public String Nombre;
+   public String Nom;
    public List   lis_EvaLin; // List < EvaLine >
 
    /**
@@ -125,7 +126,7 @@ public class Eva implements java.io.Serializable
    */
    public String getName ()
    {
-      return Nombre;
+      return Nom;
    }
 
    /**
@@ -133,7 +134,7 @@ public class Eva implements java.io.Serializable
    */
    public void setName (String name)
    {
-      Nombre = name;
+      Nom = name;
    }
 
    // This set the Eva object as a reference of the passed Eva "master"
@@ -142,7 +143,7 @@ public class Eva implements java.io.Serializable
    //
    public void setAsReferenceOf (Eva master)
    {
-      Nombre = master.getName ();
+      Nom = master.getName ();
       lis_EvaLin = master.lis_EvaLin;
    }
 
@@ -166,7 +167,7 @@ public class Eva implements java.io.Serializable
    */
    public void create (String name)
    {
-      Nombre = name;
+      Nom = name;
       init ();
    }
 
@@ -175,7 +176,7 @@ public class Eva implements java.io.Serializable
    */
    public void create (String name, String value)
    {
-      Nombre = name;
+      Nom = name;
       init ();
       setValueVar (value);
    }
@@ -194,7 +195,7 @@ public class Eva implements java.io.Serializable
     */
    public void create (String name, EvaLine firstEvaLine)
    {
-      Nombre = name;
+      Nom = name;
       init ();
       addLine (firstEvaLine);
    }
@@ -213,7 +214,7 @@ public class Eva implements java.io.Serializable
     */
    public void create (String name, String [][] values)
    {
-      Nombre = name;
+      Nom = name;
       setValues (values);
    }
 
@@ -270,9 +271,9 @@ public class Eva implements java.io.Serializable
       return false;
    }
 
-   public void merge (Eva plusEva)
+   public void merge (Eva plusEva, char mergePolicy)
    {
-      merge (plusEva, MERGE_ADD, false);
+      merge (plusEva, mergePolicy, false);
    }
 
    /**
@@ -282,6 +283,7 @@ public class Eva implements java.io.Serializable
             MERGE_REPLACE     'R'   the eva is replaced (if it already exist)
             MERGE_ADD         'A'   the rows of the plusEva are added at the end
             MERGE_ADD_TABLE   'T'   the rows of the plusEva are added at the end except the first one which is the header with column names
+            MERGE_NEW_VARS    'N'   only the new variables are added, the existent one remains unchanged
 
       @copy:
          make a copy instead of just reference the source (whole Eva or just EvaLines)
@@ -290,6 +292,10 @@ public class Eva implements java.io.Serializable
    public void merge (Eva plusEva, char mergePolicy, boolean copy)
    {
       if (plusEva == null) return;
+
+      // at this point we don't know if this Eva was created new or it is an old one ..
+      // so no code here
+      // ........ if (mergePolicy == MERGE_NEW_VARS) return;
 
       if (mergePolicy == MERGE_REPLACE)
          clear ();
@@ -461,7 +467,7 @@ public class Eva implements java.io.Serializable
    public String toString ()
    {
       String ret = RETURN_STR;
-      StringBuffer ss = new StringBuffer (ret + "   <" + Nombre + ">" + ret);
+      StringBuffer ss = new StringBuffer (ret + "   <" + Nom + ">" + ret);
 
       for (int ii = 0; ii < rows (); ii ++)
       {
