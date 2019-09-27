@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2014 Alejandro Xalabarder Aulet
+Copyright (C) 2014-2109 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -196,6 +196,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <examples>
       gastSample
 
+      exerciseDateTime
       micoHttpExample1
       micoAjaxWithForm
       whoareyou
@@ -203,6 +204,88 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       JS Chrono
       micoServerShowAJAX
 
+   <exerciseDateTime>
+      //#javaj#
+      //
+      //   <frames> main, Sqlite date time demo
+      //
+      //   <layout of main>
+      //      EVA, 10, 10, 5, 5
+      //         , X 
+      //       X , tExpressions
+      //         , lDesc,
+      //         , layInteract
+      //      200, oSal
+      //
+      //   <layout of layInteract>
+      //      EVA, 4, 4, 4, 4
+      //         ,            , X    ,   , 250
+      //         , lExpression, eExpr, b=,  eValue
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 12, 0, *
+      //
+      //#data#
+      //
+      //   <tExpressions visibleColumns> expression, value
+      //
+      //#listix#
+      //
+      //   <main0>
+      //      -->, tExpressions data!, sqlSelect, //@<SQL_EXPR_TABLE>
+      //      @<help>
+      //
+      //   <-- tExpressions>
+      //      CHECK, VAR, tExpressions selected.desc, -->, lDesc data!,, ""
+      //      -->, lDesc data!,, //@<tExpressions selected.desc>
+      //      -->, eExpr data!,, //@<tExpressions selected.expression>
+      //      -->, eValue data!,, //@<tExpressions selected.value>
+      //
+      //   <-- eExpr>  LSX, executeExpr
+      //   <-- b=>     LSX, executeExpr
+      //
+      //   <executeExpr>
+      //      LOOP, SQL,, //SELECT (@<eExpr>) AS val
+      //          ,, -->, eValue data!,, @<val>
+      //
+      //   <help>
+      //      // Add this code to the script in order to get the output in the browser (try it)
+      //      //
+      //      //    <main>
+      //      //      MICOHTTP, ONCE
+      //      //
+      //      //    <GET />
+      //      //        //<html>
+      //      //        // <style> td {font-family: monospace; font-size: 12px} </style>
+      //      //        //    <table>
+      //      //        LOOP, SQL,, //@<@><SQL_EXPR_TABLE>
+      //      //            ,, //<tr>
+      //      //            ,, //   <td>@<@><expression> <td>@<@><value> <td>@<@><desc>
+      //      //            ,, //</tr>
+      //      //        //    </table> <br>
+      //      //        //<a href="https://sqlite.org/lang_datefunc.html">see also slite documentation</a>
+      //      //        //</html>
+      //
+      //   <SQL_EXPR_TABLE>
+      //      LOOP, VAR, sqlexpressions
+      //          , LINK, " UNION "
+      //          ,, //SELECT "@<expr>" AS expression, (@<expr>) AS value, "@<:encode desc>" AS desc
+      //
+      //   <sqlexpressions>
+      //      expr, desc
+      //
+      //      "date('now')", //Compute the current date
+      //      "date('now','start of month','+1 month','-1 day')", //Compute the last day of the current month
+      //      "date('now','start of year','+9 months','weekday 2')", //Compute the date of the first Tuesday in October for the current year
+      //      "datetime(1092941466, 'unixepoch')", //Compute the date and time given a unix timestamp 1092941466
+      //      "datetime(1092941466, 'unixepoch', 'localtime')", //Compute the date and time given a unix timestamp 1092941466, and compensate for your local timezone.
+      //      "datetime(1570000000, 'unixepoch', 'localtime')", //A particular "rounded" day
+      //      "datetime(1570000000, 'unixepoch')", //A particular rounded day in Dungarvan
+      //      "julianday('now') - julianday('1776-07-04')", //Compute the number of days since the signing of the US Declaration of Independence.
+      //      "(julianday('now') - 2440587.5)*86400.0", //Compute the time since the unix epoch in seconds (like strftime('%s','now') except includes fractional part)
+      //      "strftime('%s','now')", //Compute the current unix timestamp
+      //      "strftime('%s','now') - strftime('%s','2004-01-01 02:34:56')", //Compute the number of seconds since a particular moment in 2004
+      //      "strftime('%s','2020-01-01')", //Compute the current unix timestamp
 
    <micoHttpExample1>
       //#javaj#
