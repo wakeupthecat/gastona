@@ -8,7 +8,7 @@
 #javaj#
 
    <frames>
-      FF, ARCess v0.4, 920, 650
+      FF, ARCess v0.5, 920, 650
 
    <sysDefaultFonts>
       Tahoma, 11, 1, *
@@ -31,8 +31,8 @@
       EVA, 0, 0, 5, 5
 
        ZZZ,               ,   X      ,             ,
-        22,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
-        22,  lSQLQuery    , eSQLQuery,  bRun       ,   +
+          ,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
+          ,  lSQLQuery    , eSQLQuery,  bRun       ,   +
 
    <layout of tabas>
       TABBED,
@@ -55,8 +55,8 @@
    <layout of ristra>
       EVA
 
-        ZZZ, 100, X,
-         22, lColumns    , -
+        ZZZ, 150, X,
+           , layFilterTabCol, -
          X , aDeepColumns, -
 
    <layout of table with export>
@@ -65,6 +65,12 @@
          , X
        X , sTabala
          , layExportBasic
+
+   <layout of layFilterTabCol>
+      EVA, 5, 5, 5, 5
+
+         ,             , X
+         , lSchema filt, eFilterTabVie, kSort
 
    <MessageToMessage>
 
@@ -82,12 +88,9 @@
    <xSchema fileName> :mem xschemafile
 
    <aDeepColumns rootTitle> Deep columns
-   <aDeepColumns var> theDBDeepSchema
    <aDeepColumns separator> " "
 
    <eDBName>
-
-   <theDBDeepSchema>
 
    <bChooseFile>     Selec...
 
@@ -109,8 +112,20 @@
    <sql tablas> //SELECT type,name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT name LIKE 'sqlite%'
    <! AND NOT name LIKE "__dbMore%";
 
+   <-- kSort>          LSX, update deepTree
+   <-- eFilterTabVie>  LSX, update deepTree
+
+   <update deepTree>
+      MSG, aDeepColumns data!, sqlSelect, //SELECT deepColumn FROM dbtemp.theDBDeepSchema WHERE deepColumn LIKE '%@<:encode eFilterTabVie>%' @<ORDER_OR_NOT>
+
+   <ORDER_OR_NOT>
+      CHECK, VAR, kSort
+      IN CASE, @<kSort selected>
+             , 1, // ORDER BY deepColumn
+
    <update mainDatabase>
       CHECK, !=, @<eDBName>, ""
+      VAR=, tmpDB, @<:lsx tmp db>
       DB CONFIG, DEFAULT, @<eDBName>
       -->, sLasTablas data!, sqlSelect, //@<sql tablas>
 
@@ -118,7 +133,9 @@
 		DB,, SCHEMA, theDBSchema
       DBMORE, LOAD CONNECTIONS,, theDBConnections, 1
 		DBMORE, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
-      MSG, aDeepColumns data!
+      DB, @<tmpDB>, CREATE TABLE, theDBDeepSchema
+      DB CONFIG, ALIAS, dbtemp, @<tmpDB>
+      LSX, update deepTree
 
       <!=== update schema text widget xSchema
       <!
