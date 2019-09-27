@@ -220,7 +220,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <layout of layInteract>
       //      EVA, 4, 4, 4, 4
       //         ,            , X    ,   , 250
-      //         , lExpression, eExpr, b=,  eValue
+      //         , lEdit expression, eExpr, b=,  eValue
       //
       //   <sysDefaultFonts>
       //      Consolas, 12, 0, *
@@ -263,7 +263,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //            ,, //   <td>@<@><expression> <td>@<@><value> <td>@<@><desc>
       //      //            ,, //</tr>
       //      //        //    </table> <br>
-      //      //        //<a href="https://sqlite.org/lang_datefunc.html">see also slite documentation</a>
+      //      //        //<a href="https://sqlite.org/lang_datefunc.html">see also sqlite documentation</a>
       //      //        //</html>
       //
       //   <SQL_EXPR_TABLE>
