@@ -45,8 +45,6 @@ import de.elxala.db.*;
 */
 public class sqlSolverAApi
 {
-   public static String SESSION_TEMP_DB_ALIAS = "sessionTmpDB";
-
    private serialTextBuffer theSQLScript = new serialTextBuffer ();
    private boolean addTransaction = false;
 

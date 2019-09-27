@@ -42,8 +42,6 @@ import de.elxala.db.*;
 */
 public class sqlSolverBatch
 {
-   public static String SESSION_TEMP_DB_ALIAS = "sessionTmpDB";
-
    private serialTextBuffer theSQLScript = new serialTextBuffer ();
 
    private abstractStreamTextReader theSQLOutput = null;

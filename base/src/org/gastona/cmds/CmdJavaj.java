@@ -310,14 +310,6 @@ public class CmdJavaj implements commandable
        };
    }
 
-//   private String oper        = null;
-//   private String fileSource  = null;
-//   private String dbName      = null;
-//   private String tablePrefix = null;
-//   private aLineParsons parsons = null;
-//
-//   private int fileID = -1;
-
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.

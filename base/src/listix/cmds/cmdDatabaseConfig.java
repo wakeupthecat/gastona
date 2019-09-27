@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -63,9 +63,7 @@ db config, default, ""
       //      DB CONFIG, DEFAULT,
       //      // now the original default database, temporal and unique per session, is restored as default
       //
-      // The real database name of the temporary - once per session - database is stored in the variable
-      //    @<:sys gastona.sessionTmpDB>
-      // and the current default db name in 
+      // the current default db name is stored in the property gastona.defaultDB
       //    @<:sys gastona.defaultDB>
       //
       // ==== ATTACHING DATABASES AND CREATING TEMPORAL DATABASES

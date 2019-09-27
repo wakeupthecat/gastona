@@ -36,10 +36,7 @@
       //             SELECT .... ON (myNumer+0 = myResult+0) ...
       //             SELECT .... ORDER BY myNumer+0 DESC
       //
-      //    - When the time consumption of a query is high, it does not mean that the database engine
-      //      performance is bad, the most times it indicates that the queries has to be optimized.
-      //      For instance by creating the proper indexes in the queried tables and/or using auxiliary
-      //      tables etc.
+      //    - If a query takes long time to execute, try to optimize it or choose proper indexes in the affected tables.
       //
       //   Notes about Gastona and sqlite
       //   -----------------------------------
@@ -50,11 +47,15 @@
       //    since it will produce only few records to be loaded, the rest will be retrieved automatically
       //    on demand (e.g. when scrolling the table or when moving forward within a loop).
       //
-      //    Right now all sql functionallity in Gastona in widgets as well as in listix commands is
-      //    implemented in batch mode, that means that for each query the sqlite command line executable
+      //    SQL functionallity in Gastona in widgets as well as in listix commands is
+      //    implemented in batch mode(*). That means that for each query the sqlite command line executable
       //    is invoked. This drive to some limitations using sqlite native temporary tables (TEMP TABLE)
       //    since these tables will only persist one call. But instead default databases can be created
       //    and used as convenient. For more information read the listix command DATABASE CONFIG documentation.
+      //
+      //    (*) this is not the case for Gastona for Android (apk) which cannot use this approach due to android
+      //        policies on the execution of binaries (for security). Here the java sqlite API is used instead.
+      //        This has the severe limitation that more than one query at a time cannot be executed.
       //
       //    --- Storing multi line texts and special characters -----
       //
@@ -65,51 +66,29 @@
       //    It is possible to switch the encoding schema, for example to "UTF-8", by using the listix command
       //    DATABASE CONFIG, ENCODING.
       //
+      //    --- Default database and aliases -----
+      //
+      //    Widgets that can work with databases have an attribute called "dbName" to specify the database
+      //    to work with. Also listix commands can give the database name by argument in those commands that use SQL.
+      //    
+      //    Nevertheless since for many scripts a single database is enough it worth to have some way of setting 
+      //    a default database which will be used when dbName is not specified. This is done with the command DB CONFIG
+      //    for example
+      //
+      //          DB CONFIG, DEFAULT, mydbdefault.db
+      //
+      //     this name can be also queried using the property gastona.defaultDB, for example
+      //
+      //          //default database is @<:sys gastona.defaultDB>
+      //
+      //    If no default database is set and some widget or command also do not specify the dbName then 
+      //    gastona will create a temporary database transparently and use it as default. This database will 
+      //    be removed when finishing the gastona script.
+      //
 
    <examples>
       gastSample
 
 
 #**FIN_EVA#
-
-*/
-
-
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
-REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED REMOVED
-
-
-
-      //    --- Session temporary database -----
-      //
-      //    In order to facilitate working with temporary tables Gastona attach on every query a
-      //    session temporary database which has the alias "sessionTmpDB". This database is created once
-      //    on the first query and is deleted when finishing the application. The whole name, if needed,
-      //    can be requested using the property "gastona.sessionTmpDB", that is using the variable
-      //
-      //       @<:sys gastona.sessionTmpDB>
-      //
-      //    --- Default database -----
-      //
-      //    Usually you have to specify on every query which database is to be used. This is done in
-      //    widgets through the attribute "dbName" and in Listix commands through an argument. If the
-      //    application uses just one database, the script can be simplified being not necessary to
-      //    specify the database name at all. Every query that has no database associated or its name
-      //    is an empty string use the same database which can be found in the property "gastona.defaultDB"
-      //
-      //       @<:sys gastona.defaultDB>
-      //
-      //    this property can be set using the command SET PROP. In case the variable is not set by the
-      //    application, it is assumed that a temporary database is wanted, then it is created(*) and the
-      //    name is stored automatically into the property.
-      //    When using two or more databases, only one can be referenced as default, the rest has to
-      //    be explicity given.
-      //
-      // (*) Note that defaultDB, even if temporary, is not the same as sessionTmpDB. The first one is
-      //     a database that all queries that do not specify database name will use, while the second
-      //     one is a temporary database that every query (specifying or not database name) can use
-      //     through the alias "sessionTmpDB".
-      //
 

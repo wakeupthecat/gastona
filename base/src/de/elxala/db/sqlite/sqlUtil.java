@@ -64,7 +64,7 @@ public class sqlUtil
       String defDB = System.getProperty(sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, null);
       if (defDB == null && force)
       {
-         // CREATE ONCE THE TEMPORARY DEFAULT DATABASE
+         // CREATE A TEMPORARY DEFAULT DATABASE
          //
 
          // FILE INSIDE UNIQUE DIRECTORY WITHOUT CREATING THE FILE !! (for Berkeley DB)
@@ -91,7 +91,6 @@ public class sqlUtil
    {
       System.setProperty(sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, defaultDBName);
    }
-
 
    /*
       for example:

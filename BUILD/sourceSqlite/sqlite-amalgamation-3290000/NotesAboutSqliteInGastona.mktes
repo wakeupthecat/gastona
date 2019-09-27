@@ -1,0 +1,113 @@
+#h Notes about Sqlite in Gastona
+
+--- Use of sqlite in gastona
+
+Sqlite is used by most of the javaj zWidgets. In particular all zWidgets that have the 
+attributes "dbName" and "sqlSelect" which are
+
+      zCheckBoxTable
+      zRadioButtonTable
+      zComboBox
+      zList
+      zTable
+      zTree
+      zAsisteTabla
+
+and the listix commands
+
+      DATABASE          Create table from EVA variable, execute an arbitrary SQL query etc.
+      DATABASE CONFIG   Set the default database, alias
+      DEEP DB           Generation of complex select queries based on table connections
+      SCAN              Output can be written in tables
+      PARSONS           Output can be written in tables
+      XMELON            Output is a database
+      JSON              Output can be written in tables
+      LOOP              the syntax SQL (LOOP, SQL...) performs a select query over a database
+
+--- Implementation through batch execution
+
+All the calls to the sqlite are done internally always by means of a batch execution. That is, using sqlite command line 
+executable (shell.c). Such a batch can look like
+
+         sqlite3 databaseName < inputQuery > output
+
+where the inputQuery is a text file containing either a SELECT query or an arbitrary sequence of SQL queries (execute),
+then the output would be the result of the SELECT or other output (errors).
+
+The batches are done automatically by Gastona and for that temporary files are used. There is no risk of generating
+a huge output since all selects are "windowed" transparently (LIMIT offset, count).
+
+---- Pros and cons
+
+Since this approach requires the invocation sqlite executable it has mainly two drawbacks
+
+      - Each execution requires the binary to be loaded which slow down the process
+      - Temporary tables can not be used unless they are used in the same batch
+
+For big transactions the first drawback can be minimized by generating all in one batch, that is, a big inputQuery file.
+This big files are processed extremely fast by sqlite, so it is the best solution, much better than using sqlite through 
+some API calls which probably would consume a huge memory.
+
+Among the big advantages we can mention
+   
+      + Big insert / update queries can be done very fast and efficiently
+      + Database are always closed until the batch is executed
+      + Extremely simple to use, no need to deal with APIs, JDBCs or JIT for having DB support
+      + Switch the engine just by exchanging the binary!
+      
+The last one is possible the main reason for no changing this with any other approach.
+
+
+
+      
+      
+      
+
+
+
+
+There is specially one limitation of these approach and it is the impossibility of using temporary tables that will not
+persist
+
+
+
+
+
+
+
+
+
+
+So the executables are needed.
+
+
+
+===== ORIGINAL sqlite3 3.29
+
+shell.c, sqlite3.h and sqlite3.c taken from sqlite.org
+
+sqlite-amalgamation-3290000
+
+===== MODIFICATION shell_modified.c
+
+in shell.c add the function samefilecontent
+
+===== COMPILATION
+
+on windows
+gcc -O2 shell_modified.c sqlite3.c -o sqlite329.exe
+
+on linux and linux arm
+gcc -O2 shell_modified.c sqlite3.c -o sqlite3.29 -lpthread -ldl
+
+
+===== COPY BINARIES BEFORE BUILDING gastona.jar
+
+   the binaries (e.g. sqlite329.exe) has to be placed in 
+   the directory META-GASTONA\muTools + right platform subfolder
+      
+   for example for the windows binary
+   
+      META-GASTONA\muTools\winOS\sqlite
+
+      

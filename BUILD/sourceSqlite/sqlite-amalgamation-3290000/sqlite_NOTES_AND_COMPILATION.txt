@@ -1,14 +1,13 @@
 
+===== SOURCE CODE FOR sqltite
 
-===== ORIGINAL sqlite3 3.29
+These are the original sqlite3 3.29 taken from sqlite.org sqlite-amalgamation-3290000
 
-shell.c, sqlite3.h and sqlite3.c taken from sqlite.org
+      shell.c, sqlite3.h and sqlite3.c
 
-sqlite-amalgamation-3290000
-
-===== MODIFICATION shell_modified.c
-
-in shell.c add the function samefilecontent
+We do modify shell.c and name it shell_modified.c in order to add a new
+function called "samefilecontent" that compares a field of type blob with
+a file from file system
 
 ===== COMPILATION
 
@@ -28,4 +27,7 @@ gcc -O2 shell_modified.c sqlite3.c -o sqlite3.29 -lpthread -ldl
    
       META-GASTONA\muTools\winOS\sqlite
 
+   Note: right now only windows is updated to the version 3.29
+         while other platforms (arm, linux) are using 3.17
+         for no special reason but its compilation has not been done yet ...
       

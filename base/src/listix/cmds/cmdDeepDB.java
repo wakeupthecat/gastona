@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -47,10 +47,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       // Example:
       //
-      //    supose we have following schema
+      //    suppose we have following schema
       //
-      //    table tabOrders   (orderID, lineNr, productID, quantity)
-      //    table tabProducts (ID, name, price, stock)
+      //    table tabArtists  (ID, name)
+      //    table tabAlbum    (albumID, authorID, name, year, price)
       //
       //    and the tables are related by the "productID" <-> "ID" fields.
       //    This will be our connection that we will call PRODUCT
@@ -77,8 +77,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //         tabAlbum.authorID == AUTHOR.ID
       //
       //    The connections can be stored in the sqlite database as part of the schema by using
-      //    the command "DEEP DB" in its syntax "SET CONNECTIONS". If this were done and the database
-      //    were the default database, then the command could be simplified as:
+      //    the command "DEEP DB" in its syntax "SET CONNECTIONS". If this is already done then the
+      //    command can be simplified as:
       //
       //      DEEP DB, SELECT, tabAlbum
       //             , FIELDS, albumID, "AUTHOR name", year
