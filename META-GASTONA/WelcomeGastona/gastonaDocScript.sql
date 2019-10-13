@@ -921,7 +921,8 @@ INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '26', '3', 'Escape a string usi
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '27', '3', 'Unescape a string using a escape style (supported HTML and LATEX)');
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '28', '3', 'Xor encryption with shift mechanism');
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '29', '3', '~Generate java script code for painting a specific scence where using ~3trazos~3');
-INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '30', '3', 'Saves into a file an image given by paths');INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '0', 'SUBSTR', '', '');
+INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '30', '3', 'Saves into a file an image given by paths');
+INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '31', '3', 'Calculate the hash value (md5 or crc32) of a file');INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '0', 'SUBSTR', '', '');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '1', 'string', '', 'String source');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '2', 'offset', '', 'zero based offset position start of the resulting substring to obtain');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '3', 'length', '', 'maximal length of the desired substring');
@@ -1009,12 +1010,10 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '84', 'imageFilename', 
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '85', 'fileType', '0', '~File type, default is ~3png~3');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '86', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '87', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '88', '2DTRAZOS-FILE', '', '');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '89', 'evaName', '', 'Variable name (eva) containing the 2d trazos');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '90', 'imageFilename', '1', 'Target file name for image');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '91', 'fileType', '0', '~File type, default is ~3png~3');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '92', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '93', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '22', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '88', 'HASH', '', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '89', 'algorithm', '', 'Hash algorithm, now md5 or crc32 supported');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '90', 'fileName', '', 'File (real path) which hash wants to be calculated');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '91', 'limitMB', '0', 'If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes');INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '22', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '23', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '25', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '28', '*IN FILE KEY', 'filename', '', 'NOT IMPLEMENTED!  file to be used as key');

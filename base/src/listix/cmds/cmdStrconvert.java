@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -114,6 +114,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
         28   ,   3       , //Xor encryption with shift mechanism
         29   ,   3       , //Generate java script code for painting a specific scence where using "trazos"
         30   ,   3       , //Saves into a file an image given by paths
+        31   ,   3       , //Calculate the hash value (md5 or crc32) of a file
 
    <syntaxParams>
       synIndx, name         , defVal, desc
@@ -236,12 +237,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       30     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
       30     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
-      31     , 2DTRAZOS-FILE   ,       , //
-      31     , evaName         ,       , //Variable name (eva) containing the 2d trazos
-      31     , imageFilename   , 1     , //Target file name for image
-      31     , fileType        , 0     , //File type, default is "png"
-      31     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
-      31     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
+      32     , 2DTRAZOS-FILE   ,       , //
+      32     , evaName         ,       , //Variable name (eva) containing the 2d trazos
+      32     , imageFilename   , 1     , //Target file name for image
+      32     , fileType        , 0     , //File type, default is "png"
+      32     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
+      32     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
+
+      31     , HASH            ,       , //
+      31     , algorithm       ,       , //Hash algorithm, now md5 or crc32 supported
+      31     , fileName        ,       , //File (real path) which hash wants to be calculated
+      31     , limitMB         , 0     , //If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes
 
 <! XOR ENCRYPT, KEY, offset1, mult, offset2
 <!            , IN FILE KEY,
@@ -405,6 +411,7 @@ import de.elxala.db.*;
 
 import java.awt.image.*;
 import de.elxala.langutil.graph.*;
+import de.elxala.math.hash.*;
 
 public class cmdStrconvert implements commandable
 {
@@ -846,6 +853,15 @@ public class cmdStrconvert implements commandable
          //    STRCONV, 2DTRAZOS-FILE, evaname, pngFileName, filetype[png], dx, dy
          dosD2File ("trazos", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
          strResult = "";
+      }
+      else if (oper.equals ("HASH") || oper.equals ("HASH-FILE"))
+      {
+         strResult = "";
+         if (p1.equalsIgnoreCase ("md5"))
+            strResult = hashos.md5 (p2, stdlib.atoi (p3));
+         else if (p1.equalsIgnoreCase ("crc") ||
+                  p1.equalsIgnoreCase ("crc32"))
+            strResult = hashos.crc32 (p2, stdlib.atoi (p3));
       }
       else
       {

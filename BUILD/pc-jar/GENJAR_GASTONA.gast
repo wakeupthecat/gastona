@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.190927 \"aarce\"
+   <gastonaVersion>  //1.2.191013 \"hashos\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

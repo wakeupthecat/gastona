@@ -115,6 +115,34 @@ public class goSqlSelect extends ScriptableObject
       return theObj.unEscapeString (str);
    }
    
+   //@TODO
+   // introduced 2019.09.23 but actually it does not work, javascript can call it but no object is returned
+   // based on goFile readLines (), does this function works ?
+   //
+   @JSFunction
+   public Object getColumnNames ()
+   {
+      String [] columns = new String [getColumnCount ()];
+      for (int ii = 0; ii < columns.length; ii++)
+         columns[ii] = getColumnName (ii);
+
+      return Context.getCurrentContext().newObject (ScriptableObject.getTopLevelScope(this), "Array", columns);
+   }
+
+   //@TODO
+   // introduced 2019.09.23 but actually it does not work, javascript can call it but no object is returned
+   // based on goFile readLines (), does this function works ?
+   //
+   @JSFunction
+   public Object getRecord (int row)
+   {
+      ScriptableObject desc = new NativeObject();
+      // ScriptRuntime.setBuiltinProtoAndParent(desc, ScriptableObject.getTopLevelScope(this), TopLevel.Builtins.Object);
+
+      desc.defineProperty(getColumnName(0), getValue (row, 0), ScriptableObject.DONTENUM);
+      return desc;
+   }
+
 
    /**
      * Finalizer.

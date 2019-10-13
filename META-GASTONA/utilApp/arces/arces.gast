@@ -119,7 +119,7 @@
       MSG, aDeepColumns data!, sqlSelect, //SELECT deepColumn FROM dbtemp.theDBDeepSchema WHERE deepColumn LIKE '%@<:encode eFilterTabVie>%' @<ORDER_OR_NOT>
 
    <ORDER_OR_NOT>
-      CHECK, VAR, kSort
+      CHECK, VAR, kSort selected
       IN CASE, @<kSort selected>
              , 1, // ORDER BY deepColumn
 
