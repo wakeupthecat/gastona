@@ -134,6 +134,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , RECURSIVE    ,   1/0              , "1"    , //If '1' (default) then the seach of files will be recusive, otherwise simple
       1      , FILTER       ,  "option, string"  , ""     , //Option might be +/- E,F or D or </> T, S (see filter options help)
       1      , EXTENSIONS   ,  "string"          , ""     , //comma or space separated list of extensions to admit
+      1      , ADD HASH     ,  "algorithm, limitMB", "md5", //Creates a new column with the hash applied to the file content, it can be either md5 or crc32. Additionally a limit 1000 x byte can be given to make a faster hash in case of huge files
 
       3      , ROOTPATH     ,  "rootPath"    ,         , //Specify the rootPath to be deleted
 
@@ -239,6 +240,7 @@ import de.elxala.db.dbMore.*;
 
 import de.elxala.zServices.*;
 import de.elxala.mensaka.*;   // for messages start, progress, end
+import de.elxala.math.hash.*;
 
 
 /**
@@ -249,7 +251,7 @@ import de.elxala.mensaka.*;   // for messages start, progress, end
             Creates (if inexistent) a sqlite DB with name 'sqliteDBName' with following schema
 
                CREATE TABLE scan_roots (rootID, rootLabel, pathRoot, rootType, timeLastScan);
-               CREATE TABLE scan_files (rootID, fileID, pathFile, fileName, extension, date, size);
+               CREATE TABLE scan_files (rootID, fileID, pathFile, fileName, extension, date, size [[, md5 or crc]] );
                ...
                CREATE VIEW scan_all ... all fields + 'fullPath' + 'fullParentPath'
 
@@ -404,10 +406,10 @@ public class cmdScanFiles implements commandable
          filtrum.addCriteria (optFilt, valFilt);
       }
 
-      // collect sub-options
+      // collect options
       //
 
-      //sub-option PREFIX
+      //option PREFIX
       //
       currentPrefix = "scan";
       String optStr = cmd.takeOptionString("PREFIX");
@@ -417,7 +419,7 @@ public class cmdScanFiles implements commandable
          theLog.dbg (2, "SCAN", "option PREFIX = '" + currentPrefix + "'");
       }
 
-      //sub-option ROOTLABEL
+      //option ROOTLABEL
       //
       String currentRootLabel = (optRemove) ? "": "local";
       optStr = cmd.takeOptionString("ROOTLABEL");
@@ -427,14 +429,22 @@ public class cmdScanFiles implements commandable
          theLog.dbg (2, "SCAN", "option ROOTLABEL = '" + currentRootLabel + "'");
       }
 
+      //option ROOTLABEL
+      //
+      String [] optHash = cmd.takeOptionParameters(new String [] { "HASH", "ADDHASH" });
+      if (optHash != null && optHash.length > 0)
+      {
+         theLog.dbg (2, "SCAN", "option HASH = '" + optHash[0] + "'" + (optHash.length > 1 ? (" limit " + optHash[1] + " x1000 bytes"): ""));
+      }
+
       boolean currentIsRecursive = true;
       if (optAdd)
       {
-         //sub-option RECURSIVE
+         //option RECURSIVE
          //
          currentIsRecursive = -1 != "1yYSs".indexOf (cmd.takeOptionString(new String [] { "RECURSIVE", "RECURSE", "REC" }, "1").substring(0,1));
 
-         //sub-option FILTERS
+         //option FILTERS
          //
          String [] optArr = cmd.takeOptionParameters("FILTERS");
          if (optArr != null)
@@ -476,7 +486,7 @@ public class cmdScanFiles implements commandable
          return 1;
       }
 
-      createSchema (dbName);
+      createSchema (dbName, optHash);
       // preparation root ID
       //
 
@@ -516,6 +526,8 @@ public class cmdScanFiles implements commandable
 
       // String [] ristra = new String [] { dirSolo, nameSolo, extension, dateStr, "" + farray[indxToca].length () };
       List cosas = null;
+      String algo = (optHash != null && optHash.length > 0) ? optHash[0]: null;
+      int hashLimMB = (optHash != null && optHash.length > 1) ? stdlib.atoi(optHash[1]): 0;
       do
       {
          // cosas = moto.scanN (100);
@@ -524,9 +536,25 @@ public class cmdScanFiles implements commandable
          for (int jj = 0; jj < cosas.size (); jj++)
          {
             String [] record = (String []) cosas.get (jj);
+            String hashstr = null;
+
+            if (algo != null)
+            {
+               // fullpath is record[5]
+               if (algo.equalsIgnoreCase ("md5"))
+                  hashstr = hashos.md5 (record[5], hashLimMB);
+               else if (algo.equalsIgnoreCase ("crc") ||
+                        algo.equalsIgnoreCase ("crc32"))
+                  hashstr = hashos.crc32 (record[5], hashLimMB);
+            }
 
             String values = rootID + ", " + (fileID ++) + ", ";
-            values += "'" + myDB.escapeString(record[0]) + "', '" + myDB.escapeString(record[1]) + "', '" + myDB.escapeString(record[2]) + "', '" + myDB.escapeString(record[3]) + "', " + myDB.escapeString(record[4]);
+            values += "'" + myDB.escapeString(record[0]) + "', '" +
+                      myDB.escapeString(record[1]) + "', '" +
+                      myDB.escapeString(record[2]) + "', '" +
+                      myDB.escapeString(record[3]) + "', " +
+                      myDB.escapeString(record[4]) +
+                      (hashstr == null ? "": ", '" + myDB.escapeString(hashstr) + "'");  // probably it does not need escapeString ...
 
             myDB.writeScript ("INSERT INTO " + FILES_TABLE () + " VALUES (" + values + ") ;");
          }
@@ -550,15 +578,19 @@ public class cmdScanFiles implements commandable
 
    // create a database
    //
-   private void createSchema (String dbName)
+   private void createSchema (String dbName, String [] optHash)
    {
       sqlSolver myDB = new sqlSolver ();
 
       //(o) listix_sql_schemas SCAN schema creation
 
       myDB.openScript ();
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + ROOTS_TABLE () + " (rootID int, rootLabel text, pathRoot text, rootType text, timeLastScan text, UNIQUE(rootID));");
-      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + FILES_TABLE () + " (rootID int, fileID int, pathFile text, fileName text, extension text, date text, size int, UNIQUE(rootID, fileID));");
+      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + ROOTS_TABLE () +
+                        " (rootID int, rootLabel text, pathRoot text, rootType text, timeLastScan text, UNIQUE(rootID));");
+      myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + FILES_TABLE () +
+                        " (rootID int, fileID int, pathFile text, fileName text, extension text, date text, size int, " +
+                        ((optHash != null && optHash.length > 0) ? optHash[0] + ", " : "") +
+                        " UNIQUE(rootID, fileID));");
 
       // o-o  Add deepSql connections info
       myDB.writeScript (deepSqlUtil.getSQL_CreateTableConnections ());

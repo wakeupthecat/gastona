@@ -846,6 +846,7 @@ INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', 'x', 'ROOTLABEL', 'rootDescription
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'RECURSIVE', '1/0', '1', '~If ~41~4 (default) then the seach of files will be recusive, otherwise simple');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'FILTER', 'option, string', '', 'Option might be +/- E,F or D or </> T, S (see filter options help)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'EXTENSIONS', 'string', '', 'comma or space separated list of extensions to admit');
+INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'ADD HASH', 'algorithm, limitMB', 'md5', 'Creates a new column with the hash applied to the file content, it can be either md5 or crc32. Additionally a limit 1000 x byte can be given to make a faster hash in case of huge files');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '3', 'ROOTPATH', 'rootPath', '', 'Specify the rootPath to be deleted');
 /* START PROCESSING ..\..\base\src\listix\cmds\cmdScreenshot.java */
 
@@ -1010,10 +1011,16 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '84', 'imageFilename', 
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '85', 'fileType', '0', '~File type, default is ~3png~3');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '86', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '30', '87', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '88', 'HASH', '', '');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '89', 'algorithm', '', 'Hash algorithm, now md5 or crc32 supported');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '90', 'fileName', '', 'File (real path) which hash wants to be calculated');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '91', 'limitMB', '0', 'If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes');INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '22', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '88', '2DTRAZOS-FILE', '', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '89', 'evaName', '', 'Variable name (eva) containing the 2d trazos');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '90', 'imageFilename', '1', 'Target file name for image');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '91', 'fileType', '0', '~File type, default is ~3png~3');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '92', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '93', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '94', 'HASH', '', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '95', 'algorithm', '', 'Hash algorithm, now md5 or crc32 supported');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '96', 'fileName', '', 'File (real path) which hash wants to be calculated');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '97', 'limitMB', '0', 'If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes');INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '22', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '23', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '25', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '28', '*IN FILE KEY', 'filename', '', 'NOT IMPLEMENTED!  file to be used as key');
