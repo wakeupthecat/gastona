@@ -1,6 +1,6 @@
 /*
 de.elxala.parse.xml
-Copyright (C) 2014 Alejandro Xalabarder Aulet
+Copyright (C) 2014-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -197,19 +197,28 @@ public class xmelonSchema
    {
       perFile = new perFileStruc ();
 
+      if (cliDB == null)
+      {
       cliDB = new sqlSolver ();
       initialScript (dbName, tablePrefix);
+         cliDB.openScript ();
+         log.dbg (2, "processOneFile", "create db [" + dbName + "] start parsing [" + fileName + "] fileId " + cached.fileID);
+      }
+      else
+      {
+         cached.fileID ++;
+         // client does not close the DB in BATCH mode
+         //
+         log.dbg (2, "processOneFile", "add to db [" + dbName + "] start parsing [" + fileName + "] fileId " + cached.fileID);
+      }
 
-      if (checkMisprog (cliDB == null, "cliDB")) return null;
       if (checkMisprog (cached == null, "cached")) return null;
 
-      cliDB.openScript ();
       out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + 
                     cached.fileID + ", '" + 
                     cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + 
                     cliDB.escapeString (fileName) + "');");
 
-      log.dbg (2, "processOneFile", "start parsing [" + fileName + "]");
       TextFile tf = new TextFile ();
       if (! tf.fopen (fileName, "rb"))  // mode "rb" to be able to get the InputStream!
       {
@@ -221,6 +230,11 @@ public class xmelonSchema
 
    public void closeDB ()
    {
+      if (cliDB == null)
+      {
+         log.warn ("closeDB", "cliDB is null, it cannot be closed!");
+         return;
+      }
       cliDB.closeScript ();
       log.dbg (2, "processOneFile", "storing in DB");
       cliDB.runSQL (cached.dbName);

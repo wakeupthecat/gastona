@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -57,6 +57,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       FOR, FILES, ., xml, kml
       //          ,, XMELON, FILE2DB, @<fullPath>, testXMeLon.db
       //       XMELON, CACHE, 0
+      //
+      // ====== New option BATCH
+      //
+      // This option accelerates even more the process of multiple files, include the adventages of option CACHE as well
+      //
+      //       XMELON, BATCH, START
+      //       FOR, FILES, ., xml, kml
+      //          ,, XMELON, FILE2DB, @<fullPath>, testXMeLon.db
+      //       XMELON, BATCH, END
       //
       // ====== Accessing the data
       //
@@ -153,6 +162,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          2   ,    4      , //Parse 'jsonSourceFile' and set the result into the database 'dbName' creating the schema if needed
          3   ,    4      , //Enables or disables a cache used to keep loaded tables (tagID and pathID) that accelerates the parsing with multiple files
          4   ,    4      , //Create views and connections (see command DEEPDB) for all the xml paths containing data found in all parsed xml files
+         5   ,    4      , //Starts or ends batch mode over one DB. Note! if no "XMELON, BATCH, END" is called the database will not be written!
 
 
    <syntaxParams>
@@ -173,6 +183,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          4   , CREATE CONTENT VIEWS,      ,
          4   , targetDbName , (default db), //Database name containing the xmelon data obtained on previous XMELON parse operations
          4   , tablePrefix  , xmelon      , //Optional prefix for the result tables ('prefix'_files, 'prefix'_tagDef, 'prefix'_pathDef and 'prefix'_data)
+
+         5   , BATCH        ,             , //
+         5   , START / END  , START       , //Start or ends batch mode where multiple xmelon commands can be applied to the same target db (if different DBs are specified only the first one will be taken into account!)
 
    <options>
       synIndx, optionName, parameters, defVal, desc
@@ -408,6 +421,7 @@ public class cmdXmelon implements commandable
    private jsonXmelon theJsonMelon = null;
 
    private boolean allowCache = false;
+   private boolean batchModeOn = false;
 
    private int fileID = -1;
 
@@ -465,14 +479,26 @@ public class cmdXmelon implements commandable
       if (dbName.length () == 0)
          dbName = cmd.getListix ().getDefaultDBName ();
 
+      boolean optBatch   = cmd.meantConstantString (oper, new String [] { "BATCH" } );
       boolean optCache   = cmd.meantConstantString (oper, new String [] { "ENABLECACHE", "CACHE" } );
       boolean optXMLFile2DB = cmd.meantConstantString (oper, new String [] { "FILE2DB", "XML", "XML2DB" } );
       boolean optJSONFile2DB = cmd.meantConstantString (oper, new String [] { "JSON", "JSON2DB" } );
       boolean optCreateViews = cmd.meantConstantString (oper, new String [] { "CREATECONTENTVIEWS", "CREATEVIEWS", "CONTENTVIEWS" } );
 
-      if (!optCache && !optXMLFile2DB && !optJSONFile2DB && !optCreateViews)
+      if (optBatch)
       {
-         cmd.getLog().err ("XMELON", "operation [" + oper + "] not valid (try one of FILE2DB, XML, JSON, ENABLECACHE or CREATECONTENTVIEWS)");
+         String para = cmd.getArg(1);
+         batchModeOn = para.length () == 0 || cmd.meantConstantString (para, new String [] { "START", "BEGIN", "OPEN", "ON" } );
+
+         if (cmd.meantConstantString (para, new String [] { "FINISH", "END", "CLOSE", "OFF" }))
+         {
+            if (theSaXmelon != null)
+               theSaXmelon.endBatch ();
+
+            cmd.getLog().dbg (2, "XMELON", "BATCH CLOSE");
+            batchModeOn = false;
+         }
+         cmd.checkRemainingOptions ();
          return 1;
       }
 
@@ -590,7 +616,7 @@ public class cmdXmelon implements commandable
             theSaXmelon = new saXmelon ();
          }
 
-         if (!allowCache)
+         if (!allowCache && !batchModeOn)
          {
             theSaXmelon.clearCache ();
          }
@@ -599,7 +625,7 @@ public class cmdXmelon implements commandable
          theSaXmelon.optTransparentTagList = transpTagList;
          theSaXmelon.optTagAliases = mapTagAliases;
 
-         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache);
+         theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache, batchModeOn);
       }
       if (optJSONFile2DB)
       {
@@ -608,7 +634,7 @@ public class cmdXmelon implements commandable
             theJsonMelon = new jsonXmelon ();
          }
 
-         if (!allowCache)
+         if (!allowCache && !batchModeOn)
          {
             theJsonMelon.clearCache ();
          }

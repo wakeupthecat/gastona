@@ -8,7 +8,10 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
-      2019-10-13 17:50     New STRCONV, HASH for calculating md5 and crc32 of a file
+   	2019-10-31 01:12:57	Fix XMELON BATCH
+   	2019-10-30 03:00:55	add XMELON BATCH BEGIN END
+   	2019-10-15 02:20:25	add option hash to SCAN FILES
+   	2019-10-13 18:05:20	New syntax STRCONV HASH for md5 and crc32
       2019-09-27 19:35:56  add filter and order checkbox for schema tree in arces
       2019-09-15 19:01:37	new Evaunit fusion mode "new variables only"
       2019-09-15 01:10:13	add option PRAGMA in DB CONFIG command (e.g. journal_mode, OFF)

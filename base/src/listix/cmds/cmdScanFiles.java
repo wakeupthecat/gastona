@@ -24,7 +24,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    ========================================================================================
 
    This embedded EvaUnit describe the documentation for this listix command. Basically contains
-   the syntaxes, options and examples for the listix commnad.
+   the syntaxes, options and examples for the listix command.
 
 #gastonaDoc#
 
@@ -33,7 +33,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <groupInfo>  system_files
    <javaClass>  listix.cmds.cmdScanFiles
    <importance> 5
-   <desc>       //For scan directories or zipp files into a database
+   <desc>       //For scan directories or zip files into a database
 
 
    <help>
@@ -44,13 +44,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       // If the database does not exists then it is created with the following schema
       //
       //       table (scan)_roots : rootID, rootLabel, pathRoot, rootType, timeLastScan
-      //       table (scan)_files : rootID, fileID, pathFile, fileName, extension, date, size
+      //       table (scan)_files : rootID, fileID, pathFile, fileName, extension, date, size, [md5 or crc32]
       //       view  (scan)_all   : which is a join of the two tables plus the formed fields fullPath,
       //                            fullParentPath and subPath
       //
       // Example of entry in the database:
       //
-      //       Scaning the directory c:\myDir gives just one file under subdir\text.txt, then the
+      //       Scanning the directory c:\myDir gives just one file under subdir\text.txt, then the
       //       fields for the table scan_roots might be
       //
       //          rootID        1
@@ -69,7 +69,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          date        "28-03-2003 09:02"
       //          size        182887
       //
-      //       additionaly to all these fields, in the view scan_all we found as well
+      //       additionally to all these fields, in the view scan_all we found as well
       //
       //          fullPath         "c:\myDir\subdir\text.txt"
       //          fullParentPath   "c:\myDir\subdir"
@@ -108,7 +108,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       synIndx, importance, desc
          1   ,  5       , //Performs a scan of a directory saving the results into a database
          2   ,  2       , //Puts the entries of a zip or jar file into a database
-         3   ,  2       , //Removes entries from the database acording some criteria. The deletion might be achieved directly using sql, this option facilitates synchronized deletion in tables "roots" and "files"
+         3   ,  2       , //Removes entries from the database according some criteria. The deletion might be achieved directly using SQL, this option facilitates synchronized deletion in tables "roots" and "files"
 
    <syntaxParams>
       synIndx, name         , defVal      , desc
@@ -116,7 +116,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , sqliteDBName , (default db), //Database name (file name) where to add file information
       1      , pathRoot     ,             , //Root path where the files are to be found
       1      , optFilter    ,             , //Might be +/- for extensions, +D|-D for directories or +F|-F for file names. If specified then the text filter is expected as next parameter
-      1      , textFilter   ,             , //Text related with the last 'optFilter' simply strings or java regular expresions are accepted
+      1      , textFilter   ,             , //Text related with the last 'optFilter' simply strings or java regular expressions are accepted
 
       2      , ADD ZIP      ,             , //
       2      , sqliteDBName , (default db), //Database name (file name) where to add file information
@@ -130,8 +130,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       synIndx, optionName  , parameters, defVal, desc
 
       x      , PREFIX       ,  "tablePrefix" , "scan", //Specifies a table name prefix for the operation, all the tables will have this prefix
-      x      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is sepecially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
-      1      , RECURSIVE    ,   1/0              , "1"    , //If '1' (default) then the seach of files will be recusive, otherwise simple
+      x      , ROOTLABEL    ,  "rootDescription" , "local", //Allows setting a textual description or name for the root path, this will stored in a field with name 'rootLabel'. This option is specially useful for CD-ROM labels or Sticks where the root path might be always the same for all (e.g. D:\)
+      1      , RECURSIVE    ,   1/0              , "1"    , //If '1' (default) then the search of files will be recursive, otherwise simple
       1      , FILTER       ,  "option, string"  , ""     , //Option might be +/- E,F or D or </> T, S (see filter options help)
       1      , EXTENSIONS   ,  "string"          , ""     , //comma or space separated list of extensions to admit
       1      , ADD HASH     ,  "algorithm, limitMB", "md5", //Creates a new column with the hash applied to the file content, it can be either md5 or crc32. Additionally a limit 1000 x byte can be given to make a faster hash in case of huge files
@@ -248,7 +248,7 @@ import de.elxala.math.hash.*;
          SCAN, CREATE DATABASE, sqliteDBName
          ------------------------------------------------
 
-            Creates (if inexistent) a sqlite DB with name 'sqliteDBName' with following schema
+            Creates (if non-existent) a sqlite DB with name 'sqliteDBName' with following schema
 
                CREATE TABLE scan_roots (rootID, rootLabel, pathRoot, rootType, timeLastScan);
                CREATE TABLE scan_files (rootID, fileID, pathFile, fileName, extension, date, size [[, md5 or crc]] );
@@ -268,7 +268,7 @@ OLD OLD OLD OLD OLD -------------------------------------
 
             - rootLabel
                a name of the computer or external medium (i.e. CD name identifier)
-               it is not required, if empty the files are suposed to be found in the local host
+               it is not required, if empty the files are supposed to be found in the local host
 
             - rootDir
 

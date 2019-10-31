@@ -1,6 +1,6 @@
 /*
 de.elxala.parse.xml
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -93,7 +93,7 @@ public class saXmelon
 
    public void parseFile (String fileToParse, String dbName, String tablePrefix)
    {
-      parseFile (fileToParse, dbName, tablePrefix, false);
+      parseFile (fileToParse, dbName, tablePrefix, false, false);
    }
 
    /**
@@ -103,9 +103,10 @@ public class saXmelon
    public void parseFile (String fileToParse,
                           String dbName,
                           String tablePrefix,
-                          boolean keepCache)
+                          boolean keepCache,
+                          boolean batchMode)
    {
-      processOneFile (dbName, fileToParse, tablePrefix, keepCache);
+      processOneFile (dbName, fileToParse, tablePrefix, keepCache||batchMode, batchMode);
    }
 
    public void clearCache ()
@@ -113,7 +114,18 @@ public class saXmelon
       xemi.clearCache ();
    }
 
-   private void processOneFile (String dbName, String fileName, String tablePrefix, boolean keepCache)
+   public void closeDB ()
+   {
+      xemi.closeDB ();
+   }
+
+   // quasi alias of closeDB
+   public void endBatch ()
+   {
+      xemi.closeDB ();
+   }
+
+   private void processOneFile (String dbName, String fileName, String tablePrefix, boolean keepCache, boolean batchMode)
    {
       TextFile textF = xemi.openDBforFile (dbName, fileName, tablePrefix);
       if (textF == null) return;
@@ -125,10 +137,11 @@ public class saXmelon
       {
          log.err ("processOneFile", "file to parse [" + fileName + "] " + "" + e);
          //e.printStackTrace ();
+         // run the script even if there is some parse error
+         // this way we can know the last successful record
       }
 
-      // run the script even if there is some parse error
-      // this way we can know the last succsessful record
+      if (!batchMode)
       xemi.closeDB ();
       if (!keepCache)
          xemi.clearCache ();
