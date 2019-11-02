@@ -300,7 +300,7 @@ public class cmdZip implements commandable
          // open zip stream as deflated archive mode
          ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(ziFile));
 
-         // THIS DOES NOT WORK FOR STOTED METHOD !!
+         // THIS DOES NOT WORK FOR STORED METHOD !!
          // AND DEFLATED IS ALREADY DEFAULT
          //zipStream.setMethod(onlyStore ? ZipOutputStream.STORED: ZipOutputStream.DEFLATED);
          if (onlyStore)

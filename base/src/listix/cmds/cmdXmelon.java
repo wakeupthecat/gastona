@@ -404,6 +404,10 @@ import de.elxala.parse.json.*;
 import de.elxala.zServices.*;
 import de.elxala.mensaka.*;   // for messages start, progress, end
 
+import java.io.*;
+import java.net.URL;
+import java.util.zip.*;
+
 
 /**
 */
@@ -482,6 +486,7 @@ public class cmdXmelon implements commandable
       boolean optBatch   = cmd.meantConstantString (oper, new String [] { "BATCH" } );
       boolean optCache   = cmd.meantConstantString (oper, new String [] { "ENABLECACHE", "CACHE" } );
       boolean optXMLFile2DB = cmd.meantConstantString (oper, new String [] { "FILE2DB", "XML", "XML2DB" } );
+      boolean optXMLinZIP2DB = cmd.meantConstantString (oper, new String [] { "ZIPXML2DB", "ZIPXML" } );
       boolean optJSONFile2DB = cmd.meantConstantString (oper, new String [] { "JSON", "JSON2DB" } );
       boolean optCreateViews = cmd.meantConstantString (oper, new String [] { "CREATECONTENTVIEWS", "CREATEVIEWS", "CONTENTVIEWS" } );
 
@@ -627,6 +632,24 @@ public class cmdXmelon implements commandable
 
          theSaXmelon.parseFile (fileSource, dbName, tablePrefix, allowCache, batchModeOn);
       }
+      if (optXMLinZIP2DB)
+      {
+         // Important to keep theSaXmelon alive to take profit of its
+         // cache habilities (e.g. when parsing multiple files calling the command XMELON
+         // continously)
+         //
+         if (theSaXmelon == null)
+         {
+            theSaXmelon = new saXmelon ();
+         }
+
+         theSaXmelon.optRootTagIgnoreList = ignoreRootTagList;
+         theSaXmelon.optTransparentTagList = transpTagList;
+         theSaXmelon.optTagAliases = mapTagAliases;
+
+         loopZipXMLEntries (fileSource, dbName, tablePrefix);
+         theSaXmelon.endBatch ();
+      }
       if (optJSONFile2DB)
       {
          if (theJsonMelon == null)
@@ -651,4 +674,100 @@ public class cmdXmelon implements commandable
       cmd.checkRemainingOptions ();
       return 1;
    }
+
+   private boolean filterOutThisName (String name)
+   {
+      // implement filters later
+      return false;
+   }
+
+
+   private void loopZipXMLEntries (String ziFile, String dbName, String tablePrefix)
+   {
+      boolean ok = true;
+      byte [] buff = new byte[8192];
+
+      ///! theLog.dbg (2, "XMELON", "loopZipXMLEntries [" + ziFile + "] on [" + dbName + "]");
+
+      try
+      {
+         InputStream is = null;
+
+         File asfile = fileUtil.doubleCheckFile (ziFile);
+         if (asfile.exists ())
+         {
+            is = new FileInputStream(ziFile);
+         }
+         else
+         {
+            // try url
+            is = new URL(ziFile).openStream();
+         }
+         if (is == null)
+         {
+            ///!theLog.err ("XMELON", "loopZipXMLEntries cannot open [" + ziFile + "] as stream");
+            return;
+         }
+
+         // open zip stream
+         ZipInputStream zins = new ZipInputStream(is);
+
+         // read all entries of the tip file
+         //
+         ZipEntry entry;
+         while ((entry = zins.getNextEntry()) != null)
+         {
+            if (entry.isDirectory ()) continue;
+
+            if (filterOutThisName (entry.getName()))
+            {
+               while (zins.read(buff) != -1);
+               continue;
+            }
+
+            theSaXmelon.parseInputStream (zins, entry.getName(), dbName, tablePrefix, true, true);
+         }
+         zins.close();
+      }
+      catch(Exception e)
+      {
+         ok = false;
+         //! theLog.severe ("ZIP", "unzip [" + ziFile + "] " + e);
+      }
+      //! theLog.dbg (4, "ZIP", "unzip " + ((ok) ? "well done.": "ended with errors!"));
+   }
+
+
+   /**
+      loop over all files !
+   */
+   ///private void loopZipXMLEntries (String ziFile, String dbName, String tablePrefix)
+   ///{
+   ///   boolean ok = true;
+   ///
+   ///   ///! theLog.dbg (2, "XMELON", "loopZipXMLEntries [" + ziFile + "]");
+   ///
+   ///   try
+   ///   {
+   ///      ZipFile zipfile = new ZipFile(ziFile);
+   ///      java.util.Enumeration zipEnum = zipfile.entries();
+   ///      while (zipEnum.hasMoreElements ())
+   ///      {
+   ///         ZipEntry entry = (ZipEntry) zipEnum.nextElement();
+   ///         if (! entry.isDirectory ())
+   ///         {
+   ///            theSaXmelon.parseInputStream (parseFile (entry.getName(), dbName, tablePrefix, true, true);
+   ///            ///! theLog.dbg (2, "ZIP", "add entry [" + entry.getName() + "]");
+   ///            listOfFiles.addLine (new String [] { entry.getName(), ("" + entry.getSize ()), ("" + entry.getTime ()), ("" + entry.getCompressedSize ()) });
+   ///         }
+   ///      }
+   ///   }
+   ///   catch(Exception e)
+   ///   {
+   ///      ok = false;
+   ///      ///! theLog.severe ("ZIP", "zipEntries [" + ziFile + "]" + e);
+   ///   }
+   ///   ///! theLog.dbg (4, "ZIP", "zipEntries " + ((ok) ? "well done.": "ended with errors!"));
+   ///}
+
 }

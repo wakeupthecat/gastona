@@ -193,8 +193,10 @@ public class xmelonSchema
       log.dbg (2, "initialScript", "obtained tagDef list of " + cached.tagIDList.size () + " elements");
    }
 
-   public TextFile openDBforFile (String dbName, String fileName, String tablePrefix)
+   public boolean openDBforFileName (String dbName, String fileName, String tablePrefix)
    {
+      if (checkMisprog (cached == null, "cached")) return false;
+
       perFile = new perFileStruc ();
 
       if (cliDB == null)
@@ -212,20 +214,11 @@ public class xmelonSchema
          log.dbg (2, "processOneFile", "add to db [" + dbName + "] start parsing [" + fileName + "] fileId " + cached.fileID);
       }
 
-      if (checkMisprog (cached == null, "cached")) return null;
-
       out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + 
                     cached.fileID + ", '" + 
                     cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + 
                     cliDB.escapeString (fileName) + "');");
-
-      TextFile tf = new TextFile ();
-      if (! tf.fopen (fileName, "rb"))  // mode "rb" to be able to get the InputStream!
-      {
-         log.err ("processOneFile", "file to parse [" + fileName + "] cannot be opened!");
-         return null;
-      }
-      return tf;
+      return true;
    }
 
    public void closeDB ()

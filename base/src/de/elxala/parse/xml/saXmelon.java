@@ -32,6 +32,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
 import de.elxala.parse.xmelonSchema;
+import java.io.*;
 
 /**
 */
@@ -106,7 +107,25 @@ public class saXmelon
                           boolean keepCache,
                           boolean batchMode)
    {
-      processOneFile (dbName, fileToParse, tablePrefix, keepCache||batchMode, batchMode);
+      TextFile textF = new TextFile ();
+      if (! textF.fopen (fileToParse, "rb"))  // mode "rb" to be able to get the InputStream!
+      {
+         log.err ("processOneFile", "file to parse [" + fileToParse + "] cannot be opened!");
+      }
+
+      processOneInputStream (textF.getAsInputStream (), dbName, fileToParse, tablePrefix, keepCache||batchMode, batchMode);
+      textF.fclose ();
+   }
+
+   public void parseInputStream (InputStream inps,
+                          String fileName,
+                          String dbName,
+                          String tablePrefix,
+                          boolean keepCache,
+                          boolean batchMode)
+   {
+      processOneInputStream (inps, dbName, fileName, tablePrefix, keepCache||batchMode, batchMode);
+      try { inps.close (); } catch (Exception ex) {}
    }
 
    public void clearCache ()
@@ -125,13 +144,30 @@ public class saXmelon
       xemi.closeDB ();
    }
 
-   private void processOneFile (String dbName, String fileName, String tablePrefix, boolean keepCache, boolean batchMode)
+
+   // This extra class is needed since for whatever reason sax.parser XMLReader.parse(org.xml.sax.InputSource)
+   // likes to close the given inputStream, this kills the loop for instance when using a ZipInputStream
+   // that may contain multiple files!
+   //
+   //    see also https://stackoverflow.com/questions/8341680/java-saxparser-keep-inputstream-open
+   //
+   // whithout this trick, cmdXmelon call to parseInputStream wouldn't work at all (only for the first file)
+   //
+   class letitopen extends BufferedInputStream
    {
-      TextFile textF = xemi.openDBforFile (dbName, fileName, tablePrefix);
-      if (textF == null) return;
+      letitopen(InputStream is) { super (is); }
+
+      public void close () {}  // a convenient close for sax.parse
+      public void doClose() { try { super.close (); } catch (Exception e) {} }
+   }
+
+   private void processOneInputStream (InputStream inpstream, String dbName, String fileName, String tablePrefix, boolean keepCache, boolean batchMode)
+   {
+      xemi.openDBforFileName (dbName, fileName, tablePrefix);
+
       try
       {
-         xmlReader.parse (new org.xml.sax.InputSource (textF.getAsInputStream ()));
+         xmlReader.parse (new org.xml.sax.InputSource (new letitopen (inpstream)));
       }
       catch (Exception e)
       {

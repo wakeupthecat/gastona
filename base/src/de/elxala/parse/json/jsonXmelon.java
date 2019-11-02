@@ -78,7 +78,13 @@ public class jsonXmelon
    */
    public void parseFile (String fileToParse, String dbName, String tablePrefix, boolean keepCache)
    {
-      processOneFile (dbName, fileToParse, tablePrefix, keepCache);
+      TextFile textF = new TextFile ();
+      if (! textF.fopen (fileToParse, "rb"))  // mode "rb" to be able to get the InputStream!
+      {
+         log.err ("processOneFile", "file to parse [" + fileToParse + "] cannot be opened!");
+      }
+
+      processOneFile (textF, dbName, fileToParse, tablePrefix, keepCache);
    }
 
    public void clearCache ()
@@ -86,12 +92,11 @@ public class jsonXmelon
       xemi.clearCache ();
    }
 
-   private void processOneFile (String dbName, String jsooFileName, String tablePrefix, boolean keepCache)
+   private void processOneFile (TextFile tfi, String dbName, String jsooFileName, String tablePrefix, boolean keepCache)
    {
-      TextFile textF = xemi.openDBforFile (dbName, jsooFileName, tablePrefix);
-      if (textF == null) return;
+      xemi.openDBforFileName (dbName, jsooFileName, tablePrefix);
 
-      StringBuffer sb = textF.readFileIntoStringBuffer (jsooFileName);
+      StringBuffer sb = tfi.readFileIntoStringBuffer (jsooFileName);
       if (sb == null)
       {
          log.err ("processOneFile", "file " + jsooFileName + " could not be read");
@@ -103,6 +108,7 @@ public class jsonXmelon
       // run the script even if there is some parse error
       // this way we can know the last succsessful record
       xemi.closeDB ();
+      tfi.fclose ();
       if (!keepCache)
          xemi.clearCache ();
    }
