@@ -125,7 +125,6 @@ public class saXmelon
                           boolean batchMode)
    {
       processOneInputStream (inps, dbName, fileName, tablePrefix, keepCache||batchMode, batchMode);
-      try { inps.close (); } catch (Exception ex) {}
    }
 
    public void clearCache ()
