@@ -1,0 +1,64 @@
+#gastona#
+
+   <fusion>
+       META-GASTONA/utilApp/std/ExportBasicDialog.gasti
+
+#javaj#
+
+   <frames> fMain, CSV empassa, 500, 300
+
+   <layout of fMain>
+       EVA, 10, 10, 10, 10
+
+            ,  X
+           X , sContent, -
+             , layExportBasic, -
+           X , oSa, bDrop
+
+#data#
+
+    <bDrop> drop CSV file here
+
+    <bDrop droppedFiles>
+
+#listix#
+
+    <main>
+      VAR=, tmpsql, @<:lsx tmp sql>
+
+
+    <-- bDrop droppedFiles>
+      LOOP, VAR, bDrop droppedFiles
+          ,, LSX, convertAndOpen, @<fullPath>
+
+    <convertAndOpen>
+         num=, START, @<:lsx ClOCK>
+         CHECK, FILE, @<p1>.db
+              ,, .
+              , ELSE, LSX, genDB, @<p1>
+
+         DB CONFIG, DEFAULT, @<p1>.db
+         -->, sContent data!, sqlSelect, //SELECT * FROM atauCVSCells
+         LISTIX, ExportBasic set (gridName dbName), sContent, ""
+
+         LOOP, SQL,, //SELECT * FROM atauCVSIncidences
+             , HEAD, //===== @<:lsx ROWS> Incidences!
+             ,, in line @<lineNr>: @<desc>
+             , TAIL, //
+             , TAIL, //
+
+         //it took :
+         =, @<:lsx ClOCK> - START
+         // ms
+         //
+
+   <genDB>
+      JS, //@<jsgoScript>
+      CALL, //@<:mutool sqlite> "@<p1>.db" ".read '@<:path-linux tmpsql>'"
+
+   <jsgoScript>
+      //empassaCvs ("@<:path-linux p1>", "@<:path-linux tmpsql>");
+      //
+      //@<:infile META-GASTONA/utilApp/std/empassacsv.jsgo>
+
+#**#

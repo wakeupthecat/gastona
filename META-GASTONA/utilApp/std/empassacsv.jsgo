@@ -1,0 +1,158 @@
+//empassaCvs ("test.csv");
+
+var QUOT;
+var MAXI_INCI;
+var sepaCh;
+var headColNames;
+var lineValue;
+var nIncidence;
+var fo;
+
+function trimStr (str) { return str.replace(/^\s+|\s+$/g, ''); }
+
+function initGlobals ()
+{
+   QUOT = '\"';
+   MAXI_INCI = 100;
+   sepaCh = " ";
+   headColNames = [];
+   lineValue = [];
+   nIncidence = 0;
+   fo = new goFile ();
+}
+
+function escapeStr (str)
+{
+   // do encode ' but not spaces!
+
+   // NOTE: in theory is possible using listix for the native encode
+   //       although it is not a very efficient way
+   //       but still difficult to measure ...
+   //
+      listix.getSomeHowVarEva("mytempvar").setValue (str, 0, 0);
+      return listix.solveLsxFormatAsEva (":encode mytempvar").getValue (0,0);
+      
+      // for 5000 records of a DLT trace ...
+      // it took :4165 ms
+      // it took :3738 ms
+      // it took :3554 ms
+      
+
+   //return encodeURIComponent ((""+str).replace (/'/g, "%27")).replace(/%20/g, " ");
+   
+   // for 5000 records of a DLT trace ...
+   //it took :3574 ms
+   //it took :2886 ms
+   //it took :3094 ms
+
+}
+
+function unescapeStr (str)
+{
+   return decodeURIComponent (ecan).replace(/%27/g, "'");
+}
+
+function processHeader (heastr)
+{
+   // a column name in a header should not contain ,;tab or similar
+   sepaCh = heastr.indexOf (",") >= 0 ? ',':
+            heastr.indexOf (";") >= 0 ? ';':
+            heastr.indexOf ("\t") >= 0 ? '\t': ' ';
+
+   var brutos = heastr.split (sepaCh);
+   var heacnt = 0;
+   for (var ii in brutos)
+   {
+      var nam = trimStr(brutos[ii]);
+      if (nam.charAt(0) === QUOT && nam.charAt(nam.length-1) === QUOT)
+         nam = nam.substring (1,nam.length-1);
+      nam = nam.replace (/[^a-zA-Z0-9]/g, "");
+      nam = nam + ((nam.length === 0 || headColNames.indexOf (nam) !== -1) ? ("_" + (heacnt++)): "");
+      headColNames.push (nam);
+      //fo.writeLine (nam);
+   }
+
+   fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSCells (c_" + headColNames.join (", c_") + ");");
+   fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSIncidences (incidenceNr, lineNr, desc);");
+}
+
+function outIncidence (linenr, desc)
+{
+   nIncidence ++;
+   if (nIncidence === MAXI_INCI)
+      fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", 'too much incidences, stop storing them!');");
+   if (nIncidence < MAXI_INCI)
+      fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", '" + desc + "');");
+}
+
+function processLine (str, linenr)
+{
+   var posi = 0;
+   lineValue = [];
+   while (str.length > 0)
+   {
+      str = trimStr(str);
+      var valu = null;
+      var hasQ = str.charAt (0) === QUOT;
+      var start2 = str.length; // should be set to something less
+      for (var ii = (hasQ ? 1: 0); ii < str.length; ii ++)
+      {
+         if (hasQ && str.charAt (ii) === QUOT)
+         {
+            if (ii+1 < str.length && str.charAt (ii+1) === QUOT)
+            {
+               // double quote ""
+               ii ++;
+            }
+            else
+            {
+               // string end or end of quoted text
+               valu = str.substring (1, ii).replace (/\"\"/g, "\"");
+               hasQ = false;
+            }
+         }
+         if (!hasQ && str.charAt (ii) === sepaCh) {
+            if (valu === null)
+                valu = trimStr (str.substring (0, ii - 1));
+            start2 = ii+1;
+            break;
+         }
+      }
+      str = str.substring (start2);
+      if (valu === null) {
+          outIncidence (linenr, "cell nr " + (1 + lineValue.length) + " does not generate a value");
+          break;
+      }
+      lineValue.push (escapeStr (valu));
+      //fo.writeLine ("// value [" + escapeStr (valu) + "]");
+   }
+   if (lineValue.length === headColNames.length)
+   fo.writeLine ("INSERT INTO atauCVSCells VALUES ('" + lineValue.join ("', '") + "');");
+   else outIncidence (linenr, lineValue.length + " cells generated but " + headColNames.length + " are required");
+}
+
+function empassaCvs (fileName, outSqlfile)
+{
+   initGlobals ();
+
+   var fix = new goFile ();
+   var leos;
+   if (fix.fopen (fileName, "r"))
+   {
+      if (fo.fopen (outSqlfile, "w"))
+      {
+          fo.writeLine ("BEGIN;");
+          leos = fix.readLine ();
+          var linenr = 2;
+          if (leos !== null) processHeader (leos);
+          while ((leos = fix.readLine ()) !== null)
+             processLine (leos, linenr ++);
+          fo.writeLine ("COMMIT;");
+      }
+      if (nIncidence > 0)
+         fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", 'final count of incidences " + nIncidence + "');");
+      fo.fclose ();
+      fix.fclose ();
+   }
+}
+""
