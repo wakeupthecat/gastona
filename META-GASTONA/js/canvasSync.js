@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015,2016,2017,2018 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2109 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -57,14 +57,8 @@ function canvasSync (gcontext)
    function declareImage (iname)
    {
       var image = new Image();
-      image.onload = function()
-      {
-         imageBag [iname] = image;
-      }
-      image.onerror = function()
-      {
-         imageBag [iname] = -1;
-      }
+      image.onload = function() { imageBag [iname] = image; };
+      image.onerror = function() { imageBag [iname] = -1; };
       image.src = iname;
       declaredImages.push (iname);
    }
@@ -104,8 +98,8 @@ function canvasSync (gcontext)
 
    function allImagesAreLoaded ()
    {
-      for (var ima in declaredImages)
-         if (!imageBag[declaredImages[ima]])
+      for (var ii = 0; ii < declaredImages.length; ii ++)
+         if (!imageBag[declaredImages[ii]])
             return false;
       return true;
    }
@@ -126,7 +120,7 @@ function canvasSync (gcontext)
       // now all images are loaded, do the the whole rendering
       //
       ctx.beginPath ();
-      for (var rr in renderArray)
+      for (var rr = 0; rr < renderArray.length; rr ++)
          renderArray[rr].call (jomateix);
       ctx.closePath ();
    }

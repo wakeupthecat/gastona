@@ -59,9 +59,9 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
        "internal,into,is,join,let,lock,null,object,out,override,orderby,params," +
        "partial,readonly,ref,remove,sbyte,sealed,select,set,stackalloc,string,select,uint,ulong," +
        "unchecked,unsafe,ushort,value,var,virtual,where,yield"];
-   var COFFEE_KEYWORDS = "all,and,by,catch,class,else,extends,false,finally," +
-       "for,if,in,is,isnt,loop,new,no,not,null,of,off,on,or,return,super,then," +
-       "throw,true,try,unless,until,when,while,yes";
+   // var COFFEE_KEYWORDS = "all,and,by,catch,class,else,extends,false,finally," +
+   //     "for,if,in,is,isnt,loop,new,no,not,null,of,off,on,or,return,super,then," +
+   //     "throw,true,try,unless,until,when,while,yes";
    var JSCRIPT_KEYWORDS = [COMMON_KEYWORDS,
        "abstract,async,await,constructor,debugger,enum,eval,export,function," +
        "get,implements,instanceof,interface,let,null,set,undefined,var,with," +
@@ -155,8 +155,6 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
    // compute the max length to know the total width dimension needed
    // and make a list of lines which belong to started comment block /* .. */
    //
-   var nowComment = startInComment;
-
    loadText (codeTextArray);
 
    return {
@@ -316,7 +314,7 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
 
       // invalidate all!
       renderedLines = {};
-      gotoLine (lineNr)
+      gotoLine (lineNr);
    }
 
    function getPosLastClick ()
@@ -415,7 +413,9 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
 
          var mini = currLinstr.length;
          var agent = "";
-         for (var szeno in agents) {
+         for (var szeno in agents)
+            if (agents.hasOwnProperty (szeno))
+            {
             agents[szeno].match = agents[szeno].reg.exec (currLinstr);
             if (agents[szeno].match && agents[szeno].match.index < mini)
             {
@@ -523,7 +523,7 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
             var x0    = Math.round (NUMLINE_POSX_LINETXT + mat.index * CHAX);
             var width = Math.round (CHAX * mat[0].length);
 
-            var pato = document.createElementNS (SVGNamespace, "rect");
+            pato = document.createElementNS (SVGNamespace, "rect");
 
             // + 2 pixels left and 3 pixels right
 
@@ -616,7 +616,6 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
          //
          agentsWords.setData (text);
          var lama;
-         var linFormated = [];
 
          while ((lama = agentsWords.nextMatch ()) !== null)
          {

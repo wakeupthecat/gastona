@@ -8,6 +8,8 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2019-12-14 19:53:50	add MICO option LAUNCH BROWSER
+      2019-11-08 03:00:47	add empassacsv.jsgo
       2019-11-06 00:23:00  new XMELON ZIPXML2DB
    	2019-10-31 01:12:57	Fix XMELON BATCH
    	2019-10-30 03:00:55	add XMELON BATCH BEGIN END

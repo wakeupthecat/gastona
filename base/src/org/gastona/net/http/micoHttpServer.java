@@ -475,9 +475,15 @@ public class micoHttpServer extends Thread
       closeTimer.schedule (tasca, millisToClose);
    }
 
+   public boolean isServerValid ()
+   {
+      return theServer != null && getLocalPort () > 0;
+   }
+
+
    public void run ()
    {
-      if (getLocalPort () < 0)
+      if (!isServerValid ())
       {
          log.err ("run", "server cannot be started, it is not bound!");
          return;

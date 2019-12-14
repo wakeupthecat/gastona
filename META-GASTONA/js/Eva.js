@@ -55,7 +55,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 */
 
-"use strict";
+// "use strict";
 
 function evaFileObj (obj)
 {
@@ -76,7 +76,7 @@ function evaFileObj (obj)
    function evaFileObj2Text (evafileObj)
    {
       var str = [];
-      for (var uni in evafileObj)
+      for (var uni in evafileObj) if (evafileObj.hasOwnProperty (uni))
       {
          str.push ("#" + uni + "#");
          str.push ("");
@@ -89,7 +89,7 @@ function evaFileObj (obj)
    function evaUnitObj2Text (obj)
    {
       var str = [];
-      for (var eva in obj)
+      for (var eva in obj) if (obj.hasOwnProperty (eva))
       {
          str.push ("");
          str.push ("   <" + eva + ">");
@@ -102,10 +102,10 @@ function evaFileObj (obj)
    function evaObj2Text (obj)
    {
       var str = [], lin = "";
-      for (var row in obj)
+      for (var row in obj) if (obj.hasOwnProperty (row))
       {
          lin = "      ";
-         for (var col in obj[row])
+         for (var col=0; col < obj[row].length; col ++)
          {
             if (col > 0)
                lin += ", ";
@@ -163,7 +163,7 @@ function evaFileStr2obj (evaFileAsArrOrStr)
          return {
             name: line.substr (1, indx-1),      // do not trim names
             rest: trimStr (line.substr (indx+1))
-         }
+         };
    }
 
    /*
@@ -259,7 +259,7 @@ function evaFileStr2obj (evaFileAsArrOrStr)
 
    function parseFileStr (filetext)
    {
-      var nameUnit, nameEva, novoName, linStr, textArr, lineArr, lindx;
+      var nameUnit, nameEva;
       var currFile = {}, currUnit = {}, currEva = [];
 
       function setCurrent (finishUnit)
@@ -286,16 +286,16 @@ function evaFileStr2obj (evaFileAsArrOrStr)
          textArr = str2lineArray (filetext);
       }
 
-      for (lindx in textArr)
+      for (var lindx = 0; lindx < textArr.length; lindx ++)
       {
-         linStr = trimStr (textArr[lindx]);
+         var linStr = trimStr (textArr[lindx]);
 
          // check if comment, then ignore line
          if (linStr.charAt (0) === '<' && linStr.charAt (1) === '!') continue;
 
          // check if start of unit
          //
-         novoName = isname (linStr, "#", "#");
+         var novoName = isname (linStr, "#", "#");
          if (novoName)
          {
             if (novoName.name && novoName.name.charAt(0) === '*' && novoName.name.charAt(1) == '*') break; // logic end of file
@@ -321,7 +321,7 @@ function evaFileStr2obj (evaFileAsArrOrStr)
          //
          if (linStr && nameUnit && nameEva)
          {
-            lineArr = parseEvaLine (linStr);
+            var lineArr = parseEvaLine (linStr);
             if (lineArr)
                currEva.push (lineArr);
          }
@@ -332,24 +332,5 @@ function evaFileStr2obj (evaFileAsArrOrStr)
       }
       setCurrent (true);
       return currFile;
-   }
-
-   //
-   // parseSingleEva ("  one , two, three ... etc \n 1002, theEnd");
-   //
-   // => [ [ "one", "two", "three ... etc" ], [ "1002", "theEnd" ] ]
-   //
-   function parseSingleEva (textStr)
-   {
-      var eva = [], lines, indx, linArr;
-      lines = str2lineArray (textStr);
-      for (indx in lines)
-      {
-         linArr = eva_parseEvaLine (lines[indx]);
-         if (linArr.length == 0) continue; //ignore blank lines
-         eva.push(linArr);
-      }
-
-      return eva;
    }
 }

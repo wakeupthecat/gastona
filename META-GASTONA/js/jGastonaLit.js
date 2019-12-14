@@ -25,24 +25,23 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 function jGastona (evaConfig, existingPlaceId)
 {
-   "use strict";
-   var laData = dataStruct (),
-       listixUnit = {},
-       corpiny,
-       isStammLayout = false, // only if it will occupy the whole window area
-       layMan,
-       losWidgets;
-       ;
+   //"use strict";
+   var laData = dataStruct ();
+   var listixUnit = {};
+   var corpiny;
+   var isStammLayout = false; // only if it will occupy the whole window area
+   var layMan;
+   var losWidgets;
 
    // ...right now no better solution for this...
    // needed aliases so listix logic can use them
-   var getData            = function (name)           { return laData.getData (name); }
-   var getDataAsTextArray = function (name)           { return laData.getDataAsTextArray (name); }
-   var getDataCell        = function (name, row, col) { return laData.getDataCell (name, row, col); }
-   var setData            = function (name, value)    { return laData.setData (name, value); }
-   var setDataCell        = function (name, row, col) { return laData.setDataCell (name, row, col); }
-   var setVarTable_DimVal = function (arrVarNames)    { return laData.setVarTable_DimVal (arrVarNames); }
-   var getCellEvaUnit     = function (unit, eva, row, col) { return laData.getCellEvaUnit (unit, eva, row, col); }
+   var getData            = function (name)           { return laData.getData (name); };
+   var getDataAsTextArray = function (name)           { return laData.getDataAsTextArray (name); };
+   var getDataCell        = function (name, row, col) { return laData.getDataCell (name, row, col); };
+   var setData            = function (name, value)    { return laData.setData (name, value); };
+   var setDataCell        = function (name, row, col) { return laData.setDataCell (name, row, col); };
+   var setVarTable_DimVal = function (arrVarNames)    { return laData.setVarTable_DimVal (arrVarNames); };
+   var getCellEvaUnit     = function (unit, eva, row, col) { return laData.getCellEvaUnit (unit, eva, row, col); };
 
    var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)
 
@@ -267,10 +266,10 @@ function jGastona (evaConfig, existingPlaceId)
       {
          // note: lali[0] is the first row of the variable (the only one)
          //
-         var mindx = parseInt(lali[0][0]|"0");
-         var mindy = parseInt(lali[0][1]|"0");
-         var maxdx = parseInt(lali[0][2]|"0");
-         var maxdy = parseInt(lali[0][3]|"0");
+         var mindx = parseInt(lali[0][0]||"0");
+         var mindy = parseInt(lali[0][1]||"0");
+         var maxdx = parseInt(lali[0][2]||"0");
+         var maxdy = parseInt(lali[0][3]||"0");
          dx = Math.max (dx, mindx);
          dy = Math.max (dy, mindy);
          if (maxdx > 0) dx = Math.min (dx, maxdx);

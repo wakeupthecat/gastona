@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2109 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -68,7 +68,7 @@ function EvaLayout (mangr, layName)
       isWidget  : false,
       doMove    : doMove,
       doShow    : doShow
-   }
+   };
 
    // sub-sub "class" HeaderLine to hold and compute all column or row information
    //
@@ -96,11 +96,11 @@ function EvaLayout (mangr, layName)
          endItems          : endItems,          // call it once finished all input data of headerItems
          getLengthInRange  : getLengthInRange,   // (totalExtra, indexfrom, indexto) returns the length of the items in the range
          countItems        : function () { return regla.length; } // number of items of the header
-      }
+      };
 
       function HeaderItem (headT)
       {
-         var type = MAXMIN, extraPercent = 0., len = 0;
+         var type = MAXMIN, extraPercent = 0, len = 0;
 
          headT = headT + ""; // to accept numbers as well as strings
 
@@ -124,7 +124,7 @@ function EvaLayout (mangr, layName)
             type: type,
             len: len,
             extraPercent: extraPercent
-         }
+         };
       }
 
       function addItem (headType)
@@ -148,9 +148,9 @@ function EvaLayout (mangr, layName)
          // compute final fixed size and the extraPercent if needed
          //
          fixLineSize = margin + margin + /*COMPENSATE_BROWSER + */ gap * (regla.length - 1);
-         for (ii in regla)
+         for (ii in regla) if (regla.hasOwnProperty (ii))
          {
-            ele = regla[ii]
+            ele = regla[ii];
             fixLineSize += ele.len;
             if (totalExtra > 0)
                ele.extraPercent = (ele.extraPercent / totalExtra);
@@ -201,9 +201,9 @@ function EvaLayout (mangr, layName)
       // from .. marginX, marginY, gapX, gapY
       //
       headColumns = HeaderLine (parseInt (layInfo [0][1]) || 0,  // margin X
-                                parseInt (layInfo [0][3]) || 0)  // gap X
+                                parseInt (layInfo [0][3]) || 0); // gap X
       headRows    = HeaderLine (parseInt (layInfo [0][2]) || 0,  // margin Y
-                                parseInt (layInfo [0][4]) || 0)  // gap Y
+                                parseInt (layInfo [0][4]) || 0); // gap Y
 
       var nCols = 0;
       var nRows = gridRows ();
