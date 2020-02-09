@@ -8,7 +8,7 @@
 #javaj#
 
    <frames>
-      FF, ARCess v0.5, 920, 650
+      FF, ARCess v0.6, 920, 650
 
    <sysDefaultFonts>
       Tahoma, 11, 1, *
@@ -107,6 +107,7 @@
              , 0    , -->, eDBName data!,, ""
              , ELSE , -->, eDBName data!,, @<p1>
       LSX, update mainDatabase
+      CALL CAPTURE, @<:mutool sqlite>, .version
 
 
    <sql tablas> //SELECT type,name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT name LIKE 'sqlite%'

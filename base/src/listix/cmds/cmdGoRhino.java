@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2016 Alejandro Xalabarder Aulet
+Copyright (C) 2016-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -135,6 +135,25 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
 
    <files for goRhino>
+      //======= files for goRhino
+      //
+      //	 In this example we demonstrate the ability of a goRhino script
+      //  for reading and writing files using "goFile".
+      //
+      //  Two memory files files are used (names start with ":mem ")
+      //  but any admitted gastona file can be used instead like file system files and
+      //  for read only files also class path resources and urls.
+      //
+      //  First we write a file (":mem in") with some content using gastona (listix GENERATE command)
+      //
+      //  Then we call goRhino with a script that read, change and rewrite the file into another
+      //  file (":mem out")
+      //
+      //  Finally we read the output file with gastona (command LOOP, TEXT FILE)
+      //
+      //  Note that we end the goRhino script with the string ("done"). This is the output of the goRhino call.
+      //  If no output is desired this can be set to "".
+      //
       //#javaj#
       //
       //   <frames> oSal
@@ -170,6 +189,24 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          ,, @<value>
 
    <sqlSelect for goRhino>
+      //======= sqlSelect for goRhino
+      //
+      //	 In this example we demonstrate the ability of a goRhino script
+      //  for accessing a database using the goSqlSelect object
+      //
+      //  First a DB with a table is created in the temporary default DB (name "") using gastona.
+      //
+      //  Then we call goRhino with a script that collect all the records in a long string and
+      //  gives it as output
+      //
+      //  One alternative to building the long string "out" is just using the available object "listix" in
+      //  goRhino language as follows:
+      //
+      //       listix.printTextLsx ("record: " + ...);
+      //       listix.newLineOnTarget ();
+      //
+      //  anb return "" in the script.
+      //
       //#javaj#
       //
       //   <frames> oSal
@@ -197,6 +234,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
    <sqlRunner for goRhino>
+      //======= sqlRunner for goRhino
+      //
+      //	 In this example we demonstrate the ability of a goRhino script
+      //  for creating and updating a database using the goSqlRunner object
+      //
+      //  First a DB with a table is created with a goRhino script and then it is read using gastona (LOOP, SQL listix command).
+      //
       //#javaj#
       //
       //   <frames> oSal

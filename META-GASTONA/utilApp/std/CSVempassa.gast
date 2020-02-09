@@ -11,9 +11,9 @@
        EVA, 10, 10, 10, 10
 
             ,  X
+           X , bDrop, oSa
            X , sContent, -
              , layExportBasic, -
-           X , oSa, bDrop
 
 #data#
 

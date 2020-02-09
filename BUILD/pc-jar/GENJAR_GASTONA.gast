@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.191214 \"micomesopts\"
+   <gastonaVersion>  //1.2.20021725 \"fixEmpassa\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

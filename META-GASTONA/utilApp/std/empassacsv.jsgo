@@ -64,6 +64,11 @@ function processHeader (heastr)
    for (var ii in brutos)
    {
       var nam = trimStr(brutos[ii]);
+
+      // it cannot be accepted an empty column name
+      // also in order to filter last false header if line ends with separator
+      if (nam.length == 0) break;
+      
       if (nam.charAt(0) === QUOT && nam.charAt(nam.length-1) === QUOT)
          nam = nam.substring (1,nam.length-1);
       nam = nam.replace (/[^a-zA-Z0-9]/g, "");
@@ -72,6 +77,8 @@ function processHeader (heastr)
       //fo.writeLine (nam);
    }
 
+   
+   // fo.writeLine ("# from header [" + heastr + "]");
    fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSCells (c_" + headColNames.join (", c_") + ");");
    fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSIncidences (incidenceNr, lineNr, desc);");
 }
