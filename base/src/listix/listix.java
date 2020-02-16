@@ -811,15 +811,35 @@ public class listix
 
    public boolean printFileLsx (String fileName, boolean solve, boolean silentIfFail)
    {
+      return printFileLsx (fileName, solve, silentIfFail, -1, -1, -1, null, null);
+   }
+
+   public boolean printFileLsx (String fileName, boolean solve, boolean silentIfFail, int fromLN, int toLN, int maxLin, String regexpStart, String regexpEnd)
+   {
       if (onceInfileMode)
       {
-         if (onceInfileList.contains (fileName))
+         String keyFile = fileName + ":" + fromLN + ":" + toLN + ":" + maxLin + ":" + regexpStart + ":" + regexpEnd;
+         if (onceInfileList.contains (keyFile))
          {
-            log.dbg (2, "printFileLsx", "skip file [" + fileName + "], already printed out");
+            log.dbg (2, "printFileLsx", "skip file [" + keyFile + "], already printed out");
             return true;
          }
-         log.dbg (2, "printFileLsx", "add file [" + fileName + "] to once infile list");
-         onceInfileList.add (fileName);
+         log.dbg (2, "printFileLsx", "add file [" + keyFile + "] to once infile list");
+         onceInfileList.add (keyFile);
+      }
+
+      boolean includeRegStart = regexpStart != null && regexpStart.length () > 1 && regexpStart.charAt(0) == '+';
+      Pattern pattStart = (regexpStart != null && regexpStart.length () > 1) ? Pattern.compile (regexpStart.substring (1)): null;
+      if (pattStart != null && regexpStart.charAt(0) != '-' && regexpStart.charAt(0) != '+')
+      {
+         log.err ("printFileLsx", "invalid regexpStart [" + regexpStart + "], the first character has to be + or -");
+      }
+
+      boolean includeRegEnd = regexpEnd != null && regexpEnd.length () > 1 && regexpEnd.charAt(0) == '+';
+      Pattern pattEnd = (regexpEnd != null && regexpEnd.length () > 1) ? Pattern.compile (regexpEnd.substring (1)): null;
+      if (pattEnd != null && regexpEnd.charAt(0) != '-' && regexpEnd.charAt(0) != '+')
+      {
+         log.err ("printFileLsx", "invalid regexpEnd [" + regexpEnd + "], the first character has to be + or -");
       }
 
       TextFile fix = new TextFile ();
@@ -832,14 +852,70 @@ public class listix
       }
       log.dbg (2, "printFileLsx", "file [" + fileName + "] to be printed out");
 
-      int nlines = 0;
+      int nlinesInc = 0;
+      int nline = 0;
+      boolean lastLine = false;
+
       while (fix.readLine ())
       {
-         if (nlines ++ > 0) newLineOnTarget ();
+         nline ++;
+
+         // ========== control start / end lines
+         //
+
+         // due to "fromLineNumber" ..
+         if (fromLN > 1 && nline < fromLN) continue; // skip until fromLN if given
+
+         // due to "regexpStart" ..
+         if (pattStart != null)
+         {
+            if (pattStart.matcher (fix.TheLine ()).find ())
+            {
+               log.dbg (2, "printFileLsx", "matched start of inclusion at line " + nline);
+               // found start!
+               pattStart = null;
+
+               // found but not this line
+               if (! includeRegStart) continue;
+            }
+            // still looking for start ?
+            if (pattStart != null) continue;
+         }
+
+         // check end of file due to "regexpEnd" ..
+         if (pattEnd != null && pattEnd.matcher (fix.TheLine ()).find ())
+         {
+            log.dbg (2, "printFileLsx", "matched end of inclusion at line " + nline);
+            // found end!
+            pattEnd = null;
+            if (! includeRegEnd) break;
+            lastLine = true; // to finish the text after this line
+         }
+
+         // check maximum number of lines ...
+         if (maxLin > 0 && nlinesInc+1 > maxLin)
+         {
+            log.dbg (2, "printFileLsx", "maximum number of lines " + maxLin + " reached");
+            break;
+         }
+
+         // ========= line included
+         //
+         if (nlinesInc ++ > 0) newLineOnTarget ();
 
          if (solve)
               printTextLsx (fix.TheLine ());
          else writeStringOnTarget (fix.TheLine ());
+         //==========
+
+         // ========== control end line
+         //
+         if (toLN >= 1 && nline >= toLN)
+         {
+            log.dbg (2, "printFileLsx", "to-line " + toLN + " reached");
+            break; // ends the inclusion
+         }
+         if (lastLine) break;
       }
       fix.fclose ();
       return true;

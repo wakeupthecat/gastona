@@ -1,0 +1,74 @@
+2020.02.16
+
+   name    : jastServer.gast
+   argument: jast file
+   desc    : Call micohttp serving a page where jGastona library is loaded and the jast script executed
+
+   JAST script may contain
+
+         1. client GUI and js logic in the units #javaj#, #data# and #listix#
+         2. server responses and optional extra js code in #server#.
+            ** Note server unit has to be found after the javaj, data and listix units!
+            this is because we inject the clien units using command "IN FILE" with
+            the regular expression "#server#" for the end of loading
+
+#javaj#
+
+    <frames> oConso
+
+#listix#
+
+   <main>
+      CHECK, NUM, @<:lsx paramCount> > 0
+      CHECK, RFILE, @<p1>, BOX, //Cannot find jast file "@<p1>" !
+      VAR=, JASTFN, @<p1>
+      LOAD, formats, @<JASTFN>
+          , MERGE, ADD
+          , UNIT2LOAD, server
+
+      CHECK, VAR, serverONCE
+           ,     , MICOHTTP, ONCE
+           , ELSE, MICOHTTP, start, monoMico
+
+   <loadVAR>
+      CHECK, VAR, @<p1>
+      VALUE OF, @<p1>
+
+   <loadEXTENSION>
+      CHECK, RFILE, @<JASTFN>.@<p1>
+      IN FILE, @<JASTFN>.@<p1>
+
+   <GET />
+     //<!DOCTYPE html>
+     //<html>
+     //<style>
+     //
+     LSX, loadVAR, extraSTYLE
+     //
+     LSX, loadEXTENSION, css
+     //
+     //</style>
+     //<body>
+     //
+     //<script id="mainJast" type="jast">
+     //
+     IN FILE, @<JASTFN>
+            , FROM TO REGEXPR, "+^\s*#.*#", "-#server#"
+     //
+     //</script>
+     //
+     //<script>
+     //
+     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+     //
+     LSX, loadVAR, extraJS
+     //
+     LSX, loadEXTENSION, js
+     //
+     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+     //   jast.run ();
+     //
+     //</script>
+     //</body></html>
+
+#**#

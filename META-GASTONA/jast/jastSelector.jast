@@ -1,0 +1,53 @@
+#javaj#
+
+   <layout of main>
+      EVA, 20, 20, 15, 15
+
+         , 300      ,   X
+         , ljast Files, dEdi
+       X , iFiles   , +
+         , +        , bRun JAST
+
+#data#
+
+   <iFiles>
+     name
+
+     sequenciEditor.jast
+     pigmentales.jast
+
+
+#listix#
+
+   <main>
+      //onJastStarted ();
+
+   <-- iFiles>
+      //AJAXSend ("getEditorContent",
+      //           "filename=" + getDataCell("iFiles selected.name"),
+      //           function contenta (content) { psin.loadText (content.split ("\n")); });
+
+   <-- bRun JAST>
+      //AJAXSend ("runThisJast", "filename=" + getDataCell("iFiles selected.name"));
+
+
+#server#
+
+   <extraJS>
+      //
+      //@<:infile META-GASTONA/js/codiFinestreta.js>
+      //
+      //  var psin = codiFinestreta ("", 1, /#server#/g);
+      //
+      //  function onJastStarted ()
+      //  {
+      //     psin.attachTo (document.getElementById ("dEdi"));
+      //  }
+      //
+
+   <POST /getEditorContent>
+      IN FILE, META-GASTONA/jast/@<filename>
+             , SOLVE, 0
+
+   <POST /runThisJast>
+      GAST, META-GASTONA\utilApp\std\jastServer.gast, META-GASTONA/jast/@<filename>

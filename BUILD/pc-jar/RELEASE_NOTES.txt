@@ -8,6 +8,7 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2020-02-16 22:15:19	new start/end option in IN FILE, new jast server and demos
       2019-12-14 19:53:50	add MICO option LAUNCH BROWSER
       2019-11-08 03:00:47	add empassacsv.jsgo
       2019-11-06 00:23:00  new XMELON ZIPXML2DB

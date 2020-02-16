@@ -76,6 +76,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       synIndx, optionName  , parameters, defVal, desc
       1      , SOLVE VAR   , 1 / 0   ,  1, //Default is 1, if set to 0 the content of the variable will be treat as text (no solving variables like @<myvar>)
       1      , AS TEXT     , 0 / 1   ,  0, //Default is 0, setting to 1 has the same effect as set SOLVE VAR to 0
+      1      , FROM TO MAX LINE, "fromLine, toLine, maxlines", "-, -", //Specify from line, to line and max number of lines, all are optional using the symbol - the default is taken for each
+      1      , FROM TO REGEXP, "(+|-)fromRegexpr, (+|-)toRegexpr", //Specify where to start and end the inclusion of the file using the regular expressions, prefix "-" indicates without including the line that matches and "+" inclusive it.
 
    <examples>
       desc
@@ -89,6 +91,7 @@ package listix.cmds;
 import listix.*;
 import de.elxala.Eva.*;
 import de.elxala.langutil.filedir.*;
+import listix.cmds.calcFormulas;
 
 public class cmdInfile implements commandable
 {
@@ -129,7 +132,24 @@ public class cmdInfile implements commandable
          boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
                                ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
          
-         that.printFileLsx (cmd.getArg(0), OptSolveVar, false);
+
+         // FROM TO MAX LINE, "fromLine, toLine, maxlines", "-, -", //Specify from line, to line and max number of lines, all are optional using the symbol - the default is taken for each
+         // FROM TO REGEXP, "(+|-)fromRegexpr, (+|-)toRegexpr", //Specify where to start and end the inclusion of the file using the regular expressions, prefix "-" indicates without including the line that matches and "+" inclusive it.
+
+         String [] optLimitLines  = cmd.takeOptionParameters (new String [] { "FROMTOMAXLINE", "FROMTOLINE", "LIMITLINES" });
+
+         // support variables containing numeric values as well as formulas
+         // e.g.   FROM TO MAX LINE, firstLine - 5, finalLine + 5, 60
+         //
+         int fromLineN = (optLimitLines != null && optLimitLines.length > 0) ? (int) calcFormulas.calcFormula (cmd.getListix (), optLimitLines[0]): -1;
+         int toLineN   = (optLimitLines != null && optLimitLines.length > 1) ? (int) calcFormulas.calcFormula (cmd.getListix (), optLimitLines[1]): -1;
+         int maxLines  = (optLimitLines != null && optLimitLines.length > 2) ? (int) calcFormulas.calcFormula (cmd.getListix (), optLimitLines[2]): -1;
+
+         String [] optLimitRegexp = cmd.takeOptionParameters (new String [] { "FROMTOREGEXP", "FROMTOREGEXPR", "STARTENDREGEXP", "STARTENDREGEXPR" });
+         String regexpStart = (optLimitRegexp != null && optLimitRegexp.length > 0) ? optLimitRegexp[0]: null;
+         String regexpEnd   = (optLimitRegexp != null && optLimitRegexp.length > 1) ? optLimitRegexp[1]: null;
+
+         that.printFileLsx (cmd.getArg(0), OptSolveVar, false, fromLineN, toLineN, maxLines, regexpStart, regexpEnd);
       }
       else if (cmd.getArgSize () == 2)
       {

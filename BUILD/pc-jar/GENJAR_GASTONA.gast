@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.20021725 \"fixEmpassa\"
+   <gastonaVersion>  //1.2.200216 \"jasta\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -39,6 +39,7 @@
       META-GASTONA/img      , javaj/img
       META-GASTONA/js
       META-GASTONA/javaj
+      META-GASTONA/jast
       META-GASTONA/muTools
       META-GASTONA/WelcomeGastona
       META-GASTONA/utilApp/arces

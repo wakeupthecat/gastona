@@ -45,6 +45,7 @@
       simple CodiFinestreta
       simple CodiFinestreta II
       js Visor
+      jast Selector
       Browser Image Viewer
 
    <jGatona & Evalayout>
@@ -956,7 +957,15 @@
       //
       //#**#
 
-
+   <jast Selector>
+      //
+      //    A "jast" launcher in "jast" language!
+      //    what else do you jast ?
+      //
+      //#listix#
+      //
+      //    <main>
+      //       GAST, META-GASTONA/utilApp/std/jastServer.gast, META-GASTONA/jast/jastSelector.jast
 
 #**FIN_EVA#
 
