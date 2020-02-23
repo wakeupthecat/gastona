@@ -29,7 +29,7 @@ Alejandro Xalabarder
 
    A uniClass is needed for each compiler (PC, Android)
    it might contain methods to be used only for the specific compiler, so it can be used by specific native classes
-   but the idea of "uni" is to have some funcionality using the same method signatures, this is not imposed by
+   but the idea of "uni" is to have some functionality using the same method signatures, this is not imposed by
    extending any java interface (although it could be done), simply the compiler will complain if a method that is
    suposed to be generic is not implemented by the specific uniClass
    

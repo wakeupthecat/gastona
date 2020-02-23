@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -40,6 +40,8 @@ public class Mensaka
    protected static boolean UNSUBSCRIBE_USED = false; // for a temporary work around
    protected static final String BOTTLE_ANONYMUS = "(bottle)"; // message in a bottle = anonymus
 
+   protected static int messageDepth = 0;
+
    // struct ...
    private static class list_Targets
    {
@@ -55,10 +57,17 @@ public class Mensaka
    static protected List /* Vector<String>       */ vec_msgText = new Vector ();
    static protected List /* Vector<list_Targets> */ vec_targets = new Vector ();
 
+   static protected GuiBusyListener guiBusyLis = null;
+
    static public void destroyCommunications ()
    {
       vec_msgText = new Vector ();
       vec_targets = new Vector ();
+   }
+
+   static public void setGuiBusyListener (GuiBusyListener obj)
+   {
+      guiBusyLis = obj;
    }
 
    /**
@@ -206,6 +215,11 @@ public class Mensaka
       int mappo = 0;
       int count = 0;
 
+      // increment message depth
+      if (messageDepth == 0 && guiBusyLis != null)
+         guiBusyLis.setGuiThreadIsBusy (true);
+      messageDepth ++;
+
       flowLogger.startMessage (hand, pk);
 
       //Important! get the size here to prevent recursion risk
@@ -229,18 +243,15 @@ public class Mensaka
 
          mappo = matmap[0];
 
+         //== here it could be possible to implement as stack of messages
+
          flowLogger.logMessageEntry (hand, obj, pk);
 
-         //(o) TODO_listix implement stack message ?
-         // PUSH stackMessages (hand + obj)  .... msg:"javaj allez" target:"zBoticario"
          lastMsgHandle = hand;
          lastMsgTarget = obj;
 
          // physically send the message! call to takePacket
          if (obj.takePacket (mappo, pk, parameters)) count ++;
-
-         //(o) TODO_listix implement stack message ?
-         // POP stackMessages ()
 
          flowLogger.logMessageExit (hand, obj, pk);
       }
@@ -251,6 +262,11 @@ public class Mensaka
       }
 
       flowLogger.endMessage (hand, pk);
+
+      // decrement message depth
+      messageDepth --;
+      if (messageDepth == 0 && guiBusyLis != null)
+         guiBusyLis.setGuiThreadIsBusy (false);
 
       return count;
    }

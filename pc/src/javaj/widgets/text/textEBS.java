@@ -47,20 +47,26 @@ public class textEBS extends generatedEBS4Text
 
    public Color getBackgroundColor ()
    {
-      if (! getEnabled ())
-         return (Color) UIManager.get ("javajUI.text.disableBackColor");
-
-      if (getIsDirty ())
-         return (Color) UIManager.get ("javajUI.text.dirtyBackColor");
-
-      return (Color) UIManager.get ("javajUI.text.normalBackColor");
+      return getCurrentColor ("Back");
    }
 
    public Color getForegroundColor ()
    {
-      return (Color) UIManager.get ("javajUI.text.normalForeColor");
+      return getCurrentColor ("Fore");
    }
-}
+
+   protected Color getCurrentColor (String stype) //  stype is "Fore" or "Back"
+   {
+      if (! getEnabled ())
+         return (Color) UIManager.get ("javajUI.text.disable" + stype + "Color");
+
+      if (getIsDirty ())
+         return (Color) UIManager.get ("javajUI.text.dirty" + stype + "Color");
+
+      return (Color) UIManager.get ("javajUI.text.normal" + stype + "Color");
+   }
+   }
+
 /*
 
 [TextArea.background]

@@ -47,7 +47,7 @@
       //    since it will produce only few records to be loaded, the rest will be retrieved automatically
       //    on demand (e.g. when scrolling the table or when moving forward within a loop).
       //
-      //    SQL functionallity in Gastona in widgets as well as in listix commands is
+      //    SQL functionality in Gastona in widgets as well as in listix commands is
       //    implemented in batch mode(*). That means that for each query the sqlite command line executable
       //    is invoked. This drive to some limitations using sqlite native temporary tables (TEMP TABLE)
       //    since these tables will only persist one call. But instead default databases can be created

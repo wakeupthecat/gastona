@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200216 \"jasta\"
+   <gastonaVersion>  //1.2.200223 \"busyflag\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

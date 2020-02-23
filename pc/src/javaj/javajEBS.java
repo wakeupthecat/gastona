@@ -52,21 +52,26 @@ public class javajEBS extends javajEBSbase
    //
    public Image getImageApp ()
    {
-      if (mImageApp != null)
+      if (mImageApp == null)
+         mImageApp = loadIconImage ("iconApp");
+      
          return mImageApp;
+   }
 
-      ImageIcon imai = javaLoad.getSomeHowImageIcon (getVar("iconApp"));
+   public Image loadIconImage (String imgName)
+   {
+      ImageIcon imai = javaLoad.getSomeHowImageIcon (getVar(imgName));
       if (imai == null)
       {
-         Eva graFormat = getEva("iconAppGraffitiFormat");
-         Eva egraff = getEva("iconAppGraffiti");
-         Eva egraffSize = getEva("iconAppGraffitiSize");
+         Eva graFormat = getEva(imgName + "GraffitiFormat");
+         Eva egraff = getEva(imgName + "Graffiti");
+         Eva egraffSize = getEva(imgName + "GraffitiSize");
 
          // try to get it from META-GASTONA/utilApp/defaultDataJavaj.gast
          if (egraff == null)
          {
-            egraff = getEvaFromDefaultData ("iconAppGraffiti");
-            egraffSize = getEva("iconAppGraffitiSize");
+            egraff = getEvaFromDefaultData (imgName + "Graffiti");
+            egraffSize = getEva(imgName + "GraffitiSize");
          }
 
          if (egraff != null)
@@ -81,8 +86,7 @@ public class javajEBS extends javajEBSbase
          }
       }
 
-      mImageApp = (imai == null) ? null: imai.getImage ();
-      return mImageApp;
+      return (imai == null) ? null: imai.getImage ();
    }
 
    /**

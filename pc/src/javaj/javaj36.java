@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -34,9 +34,9 @@ import de.elxala.mensaka.*;
 import javaj.widgets.basics.*;
 import javaj.widgets.panels.*;
 
-public class javaj36
+public class javaj36 implements GuiBusyListener
 {
-   public static final String VERSION = "0.4.080410";
+   public static final String VERSION = "0.4.200223";
 
 //   private static final int por_citarlos = javaj
    private static final utilSys menciono_utilSys = null;
@@ -57,12 +57,33 @@ public class javaj36
    private String nameBase = "";
    private EvaUnit euJavaj = null;
    private EvaUnit euData = null;
+   private Image appImage1 = null, appImage2 = null;
 
    public javaj36 (EvaUnit unitJavaj, EvaUnit unitData)
    {
       euJavaj = unitJavaj;
       euData = unitData;
+
+      Mensaka.setGuiBusyListener (this);
    }
+
+   // == implementation of GuiBusyListener
+   //
+    @Override
+   public void setGuiThreadIsBusy (boolean busy)
+   {
+      if (mainFrame == null) return;
+      if (busy && appImage2 != null)
+      {
+         mainFrame.setIconImage (appImage2);
+      }
+      if (!busy && appImage1 != null)
+      {
+         mainFrame.setIconImage (appImage1);
+      }
+   }
+
+
 
 //   03.11.2007 16:40
 //       NOTE : poviding the widgets with a default database
@@ -364,8 +385,6 @@ public class javaj36
                         "");              //(o) TOSEE_javaj what about frame prefix ?
 
 
-      // image icon
-      //
       Image ima = javajST.getImageApp ();
       if (ima != null)
          fr.setIconImage (ima);
@@ -374,7 +393,11 @@ public class javaj36
 
       if (javajST.isMainFrame (layoutName))
       {
+         //(o) javaj/frameIcons the main javaj main frame way
+         //
          mainFrame = fr;
+         appImage1 = ima;
+         appImage2 = javajST.loadIconImage ("iconAppBusy");
 
          // listener to closing main frame
          //
