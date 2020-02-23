@@ -1,6 +1,5 @@
 #data#
 
-    <iconAppGraffitiSize> 260
     <iconAppGraffiti>
       "rect", "fc:+255127039;sc:none", 0, 0, 72, 72
       "path", "sw:3", //M 45, 22 l -22,  0
@@ -10,7 +9,6 @@
       "path", "sw:3", //M 64, 29 l   0, 24
       "path", "sw:3", //M 67, 50 l -64,  0
 
-    <iconAppBusyGraffitiSize> 260
     <iconAppBusyGraffiti>
       "rect", "fc:+255244045;sc:none", 0, 0, 72, 72
       "path", "sw:3", //M 45, 22 l -22,  0

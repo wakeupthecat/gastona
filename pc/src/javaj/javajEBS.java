@@ -54,31 +54,39 @@ public class javajEBS extends javajEBSbase
    {
       if (mImageApp == null)
          mImageApp = loadIconImage ("iconApp");
-      
-         return mImageApp;
+
+      return mImageApp;
    }
 
+   //(o) javaj/images/graffiti loading app icon
+   //
    public Image loadIconImage (String imgName)
    {
+      // don't remember why GraffitiSize was needed at all, usually the best size to choose
+      // for the application icon is 32!
+      //
+      int STD_ICON_SIZE = 32;
+
       ImageIcon imai = javaLoad.getSomeHowImageIcon (getVar(imgName));
       if (imai == null)
       {
-         Eva graFormat = getEva(imgName + "GraffitiFormat");
-         Eva egraff = getEva(imgName + "Graffiti");
+         Eva egraff     = getEva(imgName + "Graffiti");
+         Eva graFormat  = getEva(imgName + "GraffitiFormat");
          Eva egraffSize = getEva(imgName + "GraffitiSize");
 
          // try to get it from META-GASTONA/utilApp/defaultDataJavaj.gast
          if (egraff == null)
          {
-            egraff = getEvaFromDefaultData (imgName + "Graffiti");
-            egraffSize = getEva(imgName + "GraffitiSize");
+            egraff     = getEvaFromDefaultData (imgName + "Graffiti");
+            graFormat  = getEvaFromDefaultData (imgName + "GraffitiFormat");
+            egraffSize = getEvaFromDefaultData (imgName + "GraffitiSize");
          }
 
          if (egraff != null)
          {
-            int dx = (egraffSize != null) ? stdlib.atoi (egraffSize.getValue (0, 0)): 20;
-            int dy = (egraffSize != null) ? stdlib.atoi (egraffSize.getValue (0, 1)): 20;
-            dx = dx <= 0 ? 20: dx; // default 20
+            int dx = (egraffSize != null) ? stdlib.atoi (egraffSize.getValue (0, 0)): STD_ICON_SIZE;
+            int dy = (egraffSize != null) ? stdlib.atoi (egraffSize.getValue (0, 1)): STD_ICON_SIZE;
+            dx = dx <= 0 ? STD_ICON_SIZE: dx;
             dy = dy <= 0 ? dx: dy; // default square (like x)
 
             String gFor = graFormat == null ? "paths": graFormat.getValue ();

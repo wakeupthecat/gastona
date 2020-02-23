@@ -8,6 +8,7 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2020-02-23 16:43:41	Fix reading default app icon
       2020-03-23 02:44:00  GUI shows when it is busy, very old requirement (Alicia) and desired feature
       2020-02-16 22:15:19	new start/end option in IN FILE, new jast server and demos
       2019-12-14 19:53:50	add MICO option LAUNCH BROWSER
