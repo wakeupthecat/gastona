@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2020 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -320,14 +320,34 @@ function trassos2D ()
             fot: "font-type",
       };
 
+      function toHex (strDeci)
+      {
+         var twochar = Number(strDeci).toString(16);
+         return (twochar.length == 1 ? "0": "") + twochar;
+      }
+
       for (var ii = 0; ii < atts.length; ii ++)
       {
          var atval = atts[ii].split (':');
          if (atval.length !== 2) continue;
 
+         // name
          var name = atval[0].trim ();
+         name = aliases[name] || name;
 
-         reto [aliases[name] || name] = atval[1].trim ();
+         // value
+
+         var value = atval[1].trim ();
+
+         // convert "+rrrgggbbb" (decimal) to "#RRGGBB" (hex) ?
+         // e.g  "+255128040" to "#FF8028"
+         if (value.length >= 10 && value[0] == '+' && (name == 'fill' || name == 'stroke'))
+            value = "#" + toHex (value.substr(1, 3))
+                        + toHex (value.substr(4, 3))
+                        + toHex (value.substr(7, 3))
+                        + (value.length >= 13 ? toHex (value.substr(10, 3)): "");
+
+         reto [name] = value;
       }
 
       return reto;
@@ -849,12 +869,6 @@ function trassos2D ()
                   else this.ctx.font = estilos["font-family"];
                }
 
-               if (escalax)
-               {
-                  //this.ctx.save ();
-                  //this.ctx.scale(1./escalax, 1./escalay);
-               }
-
                if ("fill" in estilos)
                {
                   this.ctx.fillStyle = estilos["fill"];
@@ -865,13 +879,9 @@ function trassos2D ()
                   this.ctx.strokeStyle = estilos["stroke"];
                   this.ctx.strokeText (lotrass[4], lotrass[1], lotrass[2]);
                }
-
-               if (escalax)
-               {
-                  //this.ctx.restore ();
-               }
             }
             else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
+               this.ctx.beginPath();
                this.ctx.rect (lotrass[1], lotrass[2], lotrass[4], lotrass[5]);
                applyCanvasStyle (styles, lotrass[3]);
             }

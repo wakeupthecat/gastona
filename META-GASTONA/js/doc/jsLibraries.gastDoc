@@ -29,7 +29,7 @@
       marketesPublisher
       simple appHelp
       plotAmbTrassos
-
+      cantoraBitlaySample
 
    <conSequenciGraffiti>
       //#data#
@@ -379,7 +379,109 @@
       //
       //#**#
 
-
+   <cantoraBitlaySample>
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="900" height="500" id="Llencz"></canvas>
+      //      //      <svg width="900" height="500" id="Llencz"></svg>
+      //      //
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trassos2D-min.js>
+      //      //
+      //      LSX, renderCode
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      var vdata = { "Llencz graffiti": renderPDU ("COUSO", true, misSignals) };
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+      //
+      //   <renderCode>
+      //      //var misSignals = [
+      //      //         { name: "sig1",      startbit:  0, length:  3 },
+      //      //         { name: "quebrat",   startbit: 13, length: 17 },
+      //      //         { name: "flags",     startbit: 30, length:  1 },
+      //      //         { name: "lastomato", startbit: 33, length: 31 },
+      //      //      ];
+      //      //
+      //      //var CHARX = 26;
+      //      //var CHARY = 26;
+      //      //
+      //      //var OFFSET_X = 60;
+      //      //var OFFSET_Y = 60;
+      //      //
+      //      //var DIMX_BIT = 90;
+      //      //var DIMY_BYTE = 50;
+      //      //
+      //      //var NBITS = 8;
+      //      //var NBYTES = 8;
+      //      //
+      //      //function renderPDU (messageName, isLittleEndian, signals, signalMarked)
+      //      //{
+      //      //   var OFF0 = OFFSET_X + isLittleEndian ? NBITS * DIMX_BIT: 0;
+      //      //   var SIGN = isLittleEndian ? -1: 1;
+      //      //
+      //      //   var graff = [];
+      //      //
+      //      //   var paletta = ["+255231207", "+207231255", "+191255223", "+234254192", "+252194252",
+      //      //                  "+238238238" ];
+      //      //   var colindx = 0;
+      //      //
+      //      //   function paintPos4Bit (nbit)
+      //      //   {
+      //      //      return { posx : OFF0 + SIGN * ((nbit % NBITS) * DIMX_BIT),
+      //      //               posy : OFFSET_Y + Math.floor (nbit / NBITS) * DIMY_BYTE
+      //      //      }
+      //      //   }
+      //      //
+      //      //   function paint (startbit, length)
+      //      //   {
+      //      //      for (var bb = startbit; bb < startbit + length;  bb ++)
+      //      //      {
+      //      //         var bit = paintPos4Bit (bb);
+      //      //
+      //      //         graff.push ([ "rect",
+      //      //                       bit.posx, bit.posy,
+      //      //                       "fs:#000000; fc:" + paletta[colindx],
+      //      //                       DIMX_BIT, DIMY_BYTE
+      //      //                     ]);
+      //      //
+      //      //         graff.push ([ "text",
+      //      //                       bit.posx + DIMX_BIT - CHARX * 2.5,
+      //      //                       bit.posy + CHARY * .5,
+      //      //                       "fc:+050050050", bb+"" ]);
+      //      //      }
+      //      //   }
+      //      //
+      //      //   // all bits to empty
+      //      //   //
+      //      //   colindx = paletta.length - 1;
+      //      //   for (bb = 0; bb < NBITS * NBYTES; bb ++)
+      //      //      paint (bb, 1);
+      //      //
+      //      //   // for all signals ...
+      //      //   //
+      //      //   for (var ss = 0; ss < signals.length;  ss ++)
+      //      //   {
+      //      //      colindx = (colindx + 1) % (paletta.length - 1);
+      //      //      paint (signals[ss].startbit, signals[ss].length);
+      //      //   }
+      //      //
+      //      //   return graff;
+      //      //}
+      //      //
 
 #**FIN_EVA#
 
