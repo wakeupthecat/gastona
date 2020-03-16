@@ -1,0 +1,12 @@
+#javaj#
+
+   <frames> oSal
+
+#listix#
+
+	<PRA> //Aя…аб jбjніalу mem
+
+	<main>
+     @<PRA>
+     @<:encode PRA>
+     @<:decode :encode PRA>

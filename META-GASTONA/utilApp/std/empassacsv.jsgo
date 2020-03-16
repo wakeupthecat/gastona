@@ -1,4 +1,4 @@
-//empassaCvs ("test.csv");
+//empassaCvs ("test.csv", "SORTIDA.txt");
 
 var QUOT;
 var MAXI_INCI;
@@ -100,11 +100,13 @@ function processLine (str, linenr)
    {
       str = trimStr(str);
       var valu = null;
-      var hasQ = str.charAt (0) === QUOT;
-      var start2 = str.length; // should be set to something less
-      for (var ii = (hasQ ? 1: 0); ii < str.length; ii ++)
+      var seekClosingQuote = str.charAt (0) === QUOT;
+      var foundSep = false;
+      var start2 = str.length;
+      var ii = seekClosingQuote ? 1: 0;
+      for (; ii < str.length; ii ++)
       {
-         if (hasQ && str.charAt (ii) === QUOT)
+         if (seekClosingQuote && str.charAt (ii) === QUOT)
          {
             if (ii+1 < str.length && str.charAt (ii+1) === QUOT)
             {
@@ -115,18 +117,24 @@ function processLine (str, linenr)
             {
                // string end or end of quoted text
                valu = str.substring (1, ii).replace (/\"\"/g, "\"");
-               hasQ = false;
+               seekClosingQuote = false; // now search for separator
             }
          }
-         if (!hasQ && str.charAt (ii) === sepaCh) {
+         if (! seekClosingQuote && str.charAt (ii) === sepaCh)
+         {
             if (valu === null)
-                valu = trimStr (str.substring (0, ii - 1));
+                valu = trimStr (str.substring (0, ii));
             start2 = ii+1;
+            foundSep = true;
             break;
          }
       }
+
+      if (valu === null && !foundSep)
+         valu = str;
       str = str.substring (start2);
-      if (valu === null) {
+      if (valu === null) 
+      {
           outIncidence (linenr, "cell nr " + (1 + lineValue.length) + " does not generate a value");
           break;
       }
