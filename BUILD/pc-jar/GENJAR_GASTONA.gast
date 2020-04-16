@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200315 \"extracodes\"
+   <gastonaVersion>  //1.2.200416 \"histos\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

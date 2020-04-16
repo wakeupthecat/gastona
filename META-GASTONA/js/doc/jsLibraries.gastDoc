@@ -30,6 +30,7 @@
       simple appHelp
       plotAmbTrassos
       cantoraBitlaySample
+      histogramPlainText
 
    <conSequenciGraffiti>
       //#data#
@@ -482,6 +483,107 @@
       //      //   return graff;
       //      //}
       //      //
+
+
+   <histogramPlainText>
+      //#javaj#
+      //
+      //   <frames> main, Histogram in plain text sample, 800, 700
+      //
+      //   <layout of main>
+      //      EVA, 7,7, 3,3
+      //
+      //         , 200   , X, X, X
+      //         , lData, lHistogram, -, -
+      //       X , xDataVar, oSal, -, -
+      //         , bGenerateData, +
+      //         , lFormula, +
+      //         , eFormula, +
+      //         , lPoints, +
+      //         , iPoints, +
+      //         , lStatus, bClear
+      //
+      //#listix#
+      //
+      //   <main>
+      //      -->, iPoints select!, #1, 3
+      //      LSX, -- bGenerateData
+      //
+      //   <-- bGenerateData>
+      //      VAR=, xDataVar, num
+      //      LOOP, FOR, ii, 1, 1000
+      //          , LINK, ""
+      //          ,, VAR+, xDataVar, @<RND>
+      //      -->, xDataVar data!
+      //      LSX, doHistogram
+      //
+      //   <RND> =, @<eFormula>
+      //
+      //   <-- iPoints>  LSX, doHistogram
+      //   <-- bClear> -->, oSal clear
+      //
+      //   <doHistogram>
+      //      CHECK, VAR, iPoints selected.range, -->, lStatus data!,, //Select a range
+      //      STRCONV, TEXT-EVA, xDataVar, yValues
+      //      DB,, CREATE TABLE, yValues
+      //
+      //      //
+      //      //
+      //      LOOP, SQL,, //SELECT (MAX(0+num)-MIN(0+num))/@<iPoints selected.range> AS granu, COUNT(*) AS ntotal FROM yValues
+      //          ,, NUM=, histInterval, @<normalInterval>
+      //          ,, //
+      //          ,, // --- histogram with resolution @<histInterval>
+      //          ,, //
+      //          ,, VAR=, TSTART, @<:lsx CLOCK>
+      //          ,, LOOP, SQL,, //@<SQL_HISTO>
+      //          ,,     ,, JS, @<BALK_JS>
+      //
+      //          ,, -->, lStatus data!,, //@<elapsed> s
+      //
+      //   <elapsed> =, (@<:lsx CLOCK> - TSTART) / 1000.
+      //
+      //   <normalInterval>
+      //      JS, //@<:infile META-GASTONA/js/coordinateIntervalNorm.js> coordinateIntervalNorm (@<granu>);
+      //
+      //   <BALK_JS>
+      //      //      var perc = 100 * @<histo> / @<ntotal>;
+      //      //      var lina = "@<yval>"
+      //      //                 + "   |" + Array(1+Math.round(perc/1.)).join("*")
+      //      //                 + "  " + @<histo> + (perc > 1. ? " (" + Math.round(perc, 1) + "%)": "");
+      //      //      lina;
+      //
+      //
+      //#data#
+      //
+      //   <eFormula>
+      //      rnd+rnd+rnd
+      //
+      //   <iPoints>
+      //      range
+      //      1
+      //      5
+      //      10
+      //      20
+      //      50
+      //      100
+      //      200
+      //      500
+      //      1000
+      //
+      //   <SQL_HISTO>
+      //      //SELECT
+      //      //    yval,
+      //      //    count (yval) AS histo
+      //      // FROM (
+      //      //      SELECT
+      //      //          @<histInterval> * ROUND (num / @<histInterval>, 0) AS yval
+      //      //      FROM (SELECT * FROM yValues)
+      //      //      )
+      //      // GROUP BY yval
+      //      // ORDER BY yval ASC
+      //
+      //#**#
+      //
 
 #**FIN_EVA#
 

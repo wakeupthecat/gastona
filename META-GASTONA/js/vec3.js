@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2020 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -16,6 +16,63 @@ function vec3(x, y, z) {
   this.x = x || 0;
   this.y = y || 0;
   this.z = z || 0;
+}
+
+function vec3cartesian(ccoord) {
+   this.x = ccoord[0]|| 0;
+   this.y = ccoord[1]|| 0;
+   this.z = ccoord[2]|| 0;
+}
+
+function deg2rad (deg) {
+   return Math.PI * deg / 180.;
+}
+
+function rad2deg (rad) {
+   return 180. * rad / Math.PI;
+}
+
+function vec3spherical(scoord) {
+   // scoord given in (r, theta, phi)
+   //    r     = radius or module
+   //    theta = angle in radians between axis x and the projection of the vector in the plane x-y
+   //    phi   = angle in radians between axis z and the vector
+   //
+   //NOTE: THIS IT IS NOT the ISO convention as expl. in Wikipedia 
+   //      but rather the convention used in mathematics and engineering
+   //
+   //   these two vectors v1 and v2 in the x-y plane are the same
+   //        var v1 = vec3cartesian (1, 1);
+   //        var v2 = vec3spherical (Math.sqrt(2), deg2rad(45));
+   //
+   
+   var r = scoord[0]||0;
+   var sinTheta = Math.sin (scoord[1]||0);
+   var cosTheta = Math.cos (scoord[1]||0);
+
+   // Note: only default angle is 90 degrees (no z component) but if angle is 0 it has to be computed
+   var sinPhi = (scoord[2] !== undefined) ? Math.sin (scoord[2]): 1.;
+   var cosPhi = (scoord[2] !== undefined) ? Math.cos (scoord[2]): 0.;
+
+   this.x = r * sinPhi * cosTheta;
+   this.y = r * sinPhi * sinTheta;
+   this.z = r * cosPhi;
+}
+
+function vec3polar(radi, angle) {
+   return new vec3spherical([ radi, angle ]);
+}
+
+function vec3FromTo (v1, v2) {
+  var v3 = v2.clone ();
+  v3.minus (v1);
+  return v3;
+}
+
+function vec3FromArray (arr, indx, dim) {
+  var v3 = new vec3 ();
+  v3.fromArray (arr, indx, dim);
+  return v3;
 }
 
 vec3.prototype = {
@@ -46,10 +103,18 @@ vec3.prototype = {
       this.z += v2.z;
    },
 
+   add: function(v2) {
+      this.plus (v2);
+   },
+
    minus: function(v2) {
       this.x -= v2.x;
       this.y -= v2.y;
       this.z -= v2.z;
+   },
+
+   substract: function(v2) {
+      this.minus (v2);
    },
 
    mult: function(b) {
@@ -127,14 +192,3 @@ vec3.prototype = {
    // ss + " v3 is " + v3.toString ();
 };
 
-function vec3FromTo (v1, v2) {
-  var v3 = v2.clone ();
-  v3.minus (v1);
-  return v3;
-}
-
-function vec3FromArray (arr, indx, dim) {
-  var v3 = new vec3 ();
-  v3.fromArray (arr, indx, dim);
-  return v3;
-}

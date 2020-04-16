@@ -8,6 +8,9 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2020-04-16 20:17:26	new coordinateIntervalNorm.js
+      2020-03-30 21:05:56	vec3.js extension + test
+      2020-03-15 02:58:05	Fix empassacsv.jsgo csv without quotes
       2020-02-29 00:06:43  trassos2D support color +rrrgggbbb (decimal) + fix rect in cavas
       2020-02-23 16:43:41	Fix reading default app icon
       2020-03-23 02:44:00  GUI shows when it is busy, very old requirement (Alicia) and desired feature
@@ -22,7 +25,7 @@
       2019-09-27 19:35:56  add filter and order checkbox for schema tree in arces
       2019-09-15 19:01:37	new Evaunit fusion mode "new variables only"
       2019-09-15 01:10:13	add option PRAGMA in DB CONFIG command (e.g. journal_mode, OFF)
-      2019-09-01 21:41:57	new AJAXLoadData and fix zWidgets of type list, message "data!" was not woking
+      2019-09-01 21:41:57  new AJAXLoadData and fix zWidgets of type list, message "data!" was not working
       2019-08-31 22:30:20	trassos2D minor changes
       2019-08-09 02:30:11	jGastona example with more zWidgets
       2019-08-08 02:22:31	hot workaround for the file not exists issue
@@ -89,7 +92,7 @@
    version: v1.2.170418
 
       - faster EvaLine parser, new EvaFile methods
-      - jGastona new pack and unpack utilities for requests and respopnses
+      - jGastona new pack and unpack utilities for requests and responses
       - js libraries, several improvements and fixes
       - Eva.js parser support now all features: quotes, rest of line marker, comments etc
       - MICO new commands RESP_HEADER=, RESP_VAR= and improve header settings
@@ -126,7 +129,7 @@
       - New class gSqlSelect for goRhino
       - New class gSqlRunner for goRhino
       - muTools with new sqlite 3.17 and add samefilecontent custom function
-      - remove obsolote ONFLY syntax from Lua, Ruby, Perl etc
+      - remove obsolete ONFLY syntax from Lua, Ruby, Perl etc
       - MicoHttp always was looking for files to download. Only by GET method it has to be done
       - Only default response (when no listix format is found) in GET method
       - AJAXUploadFile add parameter for callback, so it can be used without listix
@@ -169,6 +172,17 @@
    - gastona for android
    - lot of changes and fixes since last release in sourceforge
 
+
+   =========================== INITIAL COMMIT github =============================
+   ----------------------
+   date   : 06.12.2015
+   version: v0.60 2011-09-11
+
+   - First Commit in github: Sources as in sourceforge Gastona v0.60 2011-09-11
+
+
+   =========================== OLDER THAN github history =============================
+
    ----------------------
    date   : 12.09.2011
    version: v0.60.110912
@@ -177,7 +191,7 @@
 
    - New command AUDIO2BUFFER with some signal processing capabilities
    - initial vector graphic capabilities, pseudo SVG viewer etc
-   - allow paramaters in Mensaka messages
+   - allow parameters in Mensaka messages
    - new zRadioButtonGroup widget (facilitates a lot working with radio buttons)
    - New options PATTERN, APPEND and modifiers :keep and :opt in command PARSONS
    - Fix : loose some SQL results in some race conditions!
@@ -208,7 +222,7 @@
    version: v0.48.100831
 
    - Several fixes
-   - Asume tmp directory as the temporary directory if present (root or subdir)
+   - Assume tmp directory as the temporary directory if present (root or subdir)
    - Detect accents and other unusual characters in temporary directory path and
      show a warning if found (e.g. sqlite cannot open a database with such path names!)
 
@@ -217,7 +231,7 @@
    version: v0.40.100428
 
    - New commands DBMORE, XMELON and PARSER EVA
-   - Many fixes and inprovements (143 change lists!)
+   - Many fixes and improvements (143 change lists!)
 
    ----------------------
    date   : 22.11.2009
@@ -225,9 +239,9 @@
 
    - Gastona Welcome: filter in tree and sample browser, error detection and label indicator
    - Implement STRCONV NUM-ENG and FIX
-   - Document hided commands INFILE and LOOP TEXT
+   - Document hidden commands INFILE and LOOP TEXT
    - Fix error in PARSONS with patter after last group, add to-line info in parsed records
-   - Fix error in JAVAJ MASK. Relayouting containers with radio button panel was wrong
+   - Fix error in JAVAJ MASK. Re-layouting containers with radio button panel was wrong
    - New syntax of DATABASE command : SCHEMA
    - Diverse improvements in error messages and other fixes
 
@@ -246,11 +260,11 @@
    date   : 18.10.2009
    version: v0.36.091018
 
-   - Add new suported operative system Mac OS X
+   - Add new supported operative system Mac OS X
    - Fix "too long path" problem in temporary files, it caused problems in Mac OSX
      and in some XP configurations
    - Fix an unjustified error message on command "SCAN, REMOVE"
-   - Elminate autoscroll in main tree for Linux and Mac OS X
+   - Eliminate auto-scroll in main tree for Linux and Mac OS X
    - Changes in documentation texts
    - Place a root node in the main tree to facilitate opening nodes
    - other minor changes

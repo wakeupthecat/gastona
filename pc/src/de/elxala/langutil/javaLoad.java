@@ -296,6 +296,18 @@ public class javaLoad extends Component
       if (fio.exists ())
       {
          log.dbg (2, "getSomeHowImageIcon", "load image file \"" + resourceName + "\"");
+         //try {
+         //URL u = new URL(resourceName);
+         //URLConnection con = u.openConnection();
+         //con.setUseCaches(false);
+         //Image img = Toolkit.getDefaultToolkit().createImage(new URLImageSource(u, con));         
+         //    return img;
+         //}
+         //catch (Exception)
+         //{
+         //    return null;
+         //}
+         
          return new ImageIcon (resourceName);
       }
 //      else System.out.println ("image file " + resourceName + " NOT found!");

@@ -1,3 +1,12 @@
+/*
+Copyright (C) 2018-2020 Alejandro Xalabarder Aulet
+License : GNU General Public License (GPL) version 3
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*/
+
    // Object to generate deep connected SQL SELECT queries
    //
    // The function deepTable returns an object which has two methods

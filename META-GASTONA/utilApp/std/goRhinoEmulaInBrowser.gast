@@ -60,8 +60,8 @@
       //       isFromJarOrResources   : function () { return false; },
       //       isStream               : function () { return false; },
       //       fopen                  : function (name, mode) { return false; },
-      //       writeLine              : function (str) { },
-      //       writeString            : function (str) { },
+      //       writeLine              : function (str) { out (str); },
+      //       writeString            : function (str) { out (str); },
       //       fclose                 : function () { },
       //       readLines              : function () { return []; },
       //       readLine               : function (str) { return null; }
