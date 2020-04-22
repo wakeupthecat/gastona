@@ -222,6 +222,9 @@ public class zSliderLabels extends JPanel implements ChangeListener, MensakaTarg
       helper = new basicAparato (this, new widgetEBS (map_name, null, null));
       slider = new JSlider ();
 
+      // needed to have a typical UI slider in windows (from Windows 7 the default slider is quite stupid)
+      slider.setUI(new javax.swing.plaf.basic.BasicSliderUI (slider));
+
       evaInfoLayX = prepareEvaLayout (true);
       evaInfoLayY = prepareEvaLayout (false);
       currentLayout = evaInfoLayX;
