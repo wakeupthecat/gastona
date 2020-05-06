@@ -87,6 +87,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          , out   , a row or more rows has been selected
       2  , out   , a row from the table has been double clicked (see also selected.COLNAME attribute)
 
+      scrollToRow , in  , scroll to make visible a row given. A negative number starts from bottom. Example: MSG, widgetName, -1
+
 <! (see  //(o) TODO_zWidgets_zTable drag & drop on table.)
 <!      droppedFiles, out , If files drag & drop enabled this message indicates that the user has dropped files (see attribute 'droppedFiles')
 <!      droppedDirs , out, If directories drag & drop is enabled this message indicates that the user has dropped directories (see attribute 'droppedDirs')
@@ -402,6 +404,41 @@ public class zTable extends JTable
       //<<onColumChange>> getColumnModel ().addColumnModelListener (this);
    }
 
+   /**
+      Tries to scroll to the requested row, if requestedRow is negative it will scroll from the bottom
+      If circleScroll is positive it will accept requestedRow beyond the maximum number of rows
+      returns true if the scroll was successful
+
+      Examples:
+         given that max rows is 100
+
+         scrollToRow (0, true);     // scroll to the beginning
+         scrollToRow (132, true);   // scroll to position 32 (132 % 100)
+         scrollToRow (132, false);  // returns false
+         scrollToRow (-20,  xxx);   // scroll the 20th row from the bottom
+         scrollToRow (-120, true);  // scroll the 20th row from the bottom
+         scrollToRow (-120, false); // returns false
+
+   */
+   public void scrollToRow (int requestedRow, boolean circleScroll)
+   {
+      int maxR = helper.ebsTable ().getTotalRecords ();
+      if (maxR == 0 ||
+          (! circleScroll && (requestedRow >= maxR || requestedRow < -maxR)))
+          return; // scroll not possible
+
+      // this works for positive and negative requested rows as well as for circle scroll
+      // the double module operation is to ensure a positive result
+      //    e.g.  100-420 % 100 = -20
+      //          (100 + (100-420 % 100)) % 100 = 80
+      int row = (maxR + (maxR + requestedRow) % maxR) % maxR;
+
+      // call native widget method!
+      //
+      this.scrollRectToVisible(getCellRect(row, 0, true));
+   }
+
+
    public boolean takePacket (int mappedID, EvaUnit euData, String [] pars)
    {
       switch (mappedID)
@@ -429,44 +466,32 @@ public class zTable extends JTable
             reflectSelectedIndexesOnWidget ();
             //
 
-             //(o) TODO_zWidgets_zTable drag & drop on table. Behaviour of dropping into JTable not ok.
+            //(o) javaj_zWidgets_zTable NO drag & drop on table. Behaviour of dropping into JTable not ok.
              //    If we enable this only will be possible to drop into a table row (uninteresting)
              //    and unlike JList IS NOT POSSIBLE TO drop onto an empty table (unacceptable)
+            //
 //            if (dndHandler == null)
 //            {
 //               if (helper.ebsTable ().isDroppable ())
 //               {
-//                  // made it "dropable capable"
-//
-//                  // drag & drop ability
-//                  //
-//                  /**
-//                      Make the zWidget to drag'n'drop of files or directories capable
-//                      Note that the zWidget is not subscribed to the drag'n'drop message itself ("%name% droppedFiles" or ..droppedDirs")
-//                      therefore it will not take any action on this event. It is a task of a controller to
-//                      examine, accept, process and insert into the widget the files if desired and convenient
-//
-//                      Note that at this point the control for the zWidget (helper.ebs().getControl ())
-//                      is null and we have to update it into the handler when it chanhges
-//                  */
-//                  dndHandler = new dndFileTransHandler (
-//                                 helper.ebsTable().getControl (),
-//                                 helper.ebsTable().evaName (""),
-//                                 dndFileTransHandler.arrALL_FIELDS
-//                                 );
-//                  setTransferHandler (dndHandler);
-//               }
-//            }
-//            else
-//            {
-//               // every time the control changes set it to the drag&drop handler
-//               dndHandler.setCommunicationLine (helper.ebsTable().getControl ());
-//            }
+            //        ...
             break;
 
          case widgetConsts.RX_SELECT_DATA:
             helper.doSelect (pars);
             reflectSelectedIndexesOnWidget ();
+            break;
+
+         case basicTableAparato.RX_SCROLL_TO_OFFSET:
+            scrollToRow (pars.length > 0 ? stdlib.atoi (pars[0]): 0, false);
+
+            // --- ok works
+            // int row = pars.length > 0 ? stdlib.atoi (pars[0]): 0;
+            // this.scrollRectToVisible(getCellRect(row, 0, true));
+
+            // --- don't works! why ?
+            // helper.ebsTable ().scrollToRow (pars.length > 0 ? stdlib.atoi (pars[0]): 0);
+            // tryAttackWidget ();
             break;
 
          default:

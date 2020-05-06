@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -53,6 +53,12 @@ import de.elxala.zServices.*;
 */
 public class basicTableAparato extends widgetConsts implements MensakaTarget
 {
+   public static final int RX_SCROLL_TO_OFFSET = RX_MIN_CUSTOM_MAP - 1;
+
+   public static final String sMSG_SCROLL2OFFSET = "scrollToOffset";
+   public static final String sMSG_SCROLL2ROW = "scrollToRow";
+
+
    protected MensakaTarget myOwner = null;
    protected tableEBS pEBS = null;
 
@@ -76,6 +82,9 @@ public class basicTableAparato extends widgetConsts implements MensakaTarget
       Mensaka.subscribe (objWidget, RX_UPDATE_CONTROL, ebsTable().evaName (widgetEBS.sMSG_UPDATE_CONTROL));
       Mensaka.subscribe (objWidget, RX_UPDATE_DATA,    ebsTable().evaName (widgetEBS.sMSG_UPDATE_DATA));
       Mensaka.subscribe (objWidget, RX_SELECT_DATA,    ebsTable().evaName (widgetEBS.sMSG_SELECT_DATA));
+
+      Mensaka.subscribe (objWidget, RX_SCROLL_TO_OFFSET,   ebsTable().evaName (sMSG_SCROLL2OFFSET));
+      Mensaka.subscribe (objWidget, RX_SCROLL_TO_OFFSET,   ebsTable().evaName (sMSG_SCROLL2ROW));
    }
 
    public tableEBS ebsTable ()

@@ -24,6 +24,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
 
+import de.elxala.langutil.*;
 import de.elxala.mensaka.*;
 import de.elxala.Eva.*;
 import de.elxala.Eva.layout.*;
@@ -103,8 +104,11 @@ import javaj.widgets.table.util.*;
 
       data!       , in  , update data
       control!    , in  , update control
+      select!  , in    , //select records. The first parameter is the column name or # or #1 to select by index, Example "MSG, widget select!, #, 2, 4" select the records 2 and 4 (0 based) and "MSG, widget select!, name, Barcelona" selects the first record which name is "Barcelona"
                   , out , a row from the table has been selected (see also selected.COLNAME and subTableSelection attributes)
       2           , out , a row from the table has been double clicked (see also selected.COLNAME attribute)
+
+      scrollToRow , in  , scroll to make visible a row given. A negative number starts from bottom. Example: MSG, widgetName, -1
 
 <! (see  //(o) TODO_zWidgets_zTable drag & drop on table.)
 <!      droppedFiles, out , If files drag & drop enabled this message indicates that the user has dropped files (see attribute 'droppedFiles')
@@ -389,6 +393,41 @@ public class zAsisteTabla extends JPanel
       positioning ();
    }
 
+
+   /**
+      Tries to scroll to the requested row, if requestedRow is negative it will scroll from the bottom
+      If circleScroll is positive it will accept requestedRow beyond the maximum number of rows
+      returns true if the scroll was successful
+
+      Examples:
+         given that max rows is 100
+
+         scrollToRow (0, true);     // scroll to the beginning
+         scrollToRow (132, true);   // scroll to position 32 (132 % 100)
+         scrollToRow (132, false);  // returns false
+         scrollToRow (-20,  xxx);   // scroll the 20th row from the bottom
+         scrollToRow (-120, true);  // scroll the 20th row from the bottom
+         scrollToRow (-120, false); // returns false
+
+   */
+   public void scrollToRow (int requestedRow, boolean circleScroll)
+   {
+      int maxR = helper.ebsTable ().getTotalRecords ();
+      if (maxR == 0 ||
+          (! circleScroll && (requestedRow >= maxR || requestedRow < -maxR)))
+          return; // scroll not possible
+
+      // this works for positive and negative requested rows as well as for circle scroll
+      // the double module operation is to ensure a positive result
+      //    e.g.  100-420 % 100 = -20
+      //          (100 + (100-420 % 100)) % 100 = 80
+      int row = (maxR + (maxR + requestedRow) % maxR) % maxR;
+
+      // call native widget method!
+      //
+      theTable.scrollRectToVisible(theTable.getCellRect(row, 0, true));
+   }
+
    public boolean takePacket (int mappedID, EvaUnit euData, String [] pars)
    {
       switch (mappedID)
@@ -439,6 +478,9 @@ public class zAsisteTabla extends JPanel
 
             break;
 
+         case basicTableAparato.RX_SCROLL_TO_OFFSET:
+            scrollToRow (pars.length > 0 ? stdlib.atoi (pars[0]): 0, false);
+            break;
          default:
             return false;
       }

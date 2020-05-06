@@ -278,7 +278,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <sqlexpressions>
       //      expr, desc
       //
-      //      "date('now')", //Compute the current date
+      //      "date('now')", //Current date
+      //      "datetime ()", //Current Greenwich date time
+      //      "datetime(strftime('%s', datetime()), 'unixepoch', 'localtime')", //Current local date time
       //      "date('now','start of month','+1 month','-1 day')", //Compute the last day of the current month
       //      "date('now','start of year','+9 months','weekday 2')", //Compute the date of the first Tuesday in October for the current year
       //      "datetime(1092941466, 'unixepoch')", //Compute the date and time given a unix timestamp 1092941466

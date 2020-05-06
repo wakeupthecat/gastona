@@ -91,6 +91,83 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       udpClientServer
       simple Gastona UDP debug client
+      UDPsicoleg
+
+   <UDPsicoleg>
+      //#javaj#
+      //
+      //   <frames> main, UDPsicoleg v0.1 listening on port 18881, 600, 200
+      //
+      //   <layout of main>
+      //      EVA, 4, 4, 2, 2
+      //
+      //        ,     ,  , X
+      //      X , oSal, -, -, -, -
+      //        , bInvColor, lFormat, rgMessageFormat, bClear, bInfo
+      //
+      //#data#
+      //
+      //   <RONDA> 1
+      //
+      //   <colBack> +025022087
+      //   <colFore> +155101222
+      //
+      //   <rgMessageFormat orientation> X
+      //   <rgMessageFormat>
+      //        label   , "sample", format
+      //        ip&port , "IP:port -> [sample]", //@<p2>:@<p3> -> [@<p1>]
+      //        port    , ":port -> [sample]", //:@<p3> -> [@<p1>]
+      //        message , "[sample]", //[@<p1>]
+      //        clean   , "sample", //@<p1>
+      //
+      //#listix#
+      //
+      //   <main>
+      //      -->, rgMessageFormat select!, #1, 1
+      //      LSX, Info
+      //      UDP, SET SERVER, UDPsicoleg, 18881
+      //
+      //   <Info>
+      //      //Welcome to UDPsicoleg v.0.1
+      //      //
+      //      //To send messages from a gastona script
+      //      //from the same computer just call
+      //      //
+      //      //   UDP, SEND ONCE, localhost, 18881, //your message in a bottle!
+      //      //
+      //      //listening ...
+      //      //
+      //      //
+      //      @<BLICK>
+      //
+      //   <-- bInvColor>
+      //      LSX, changeColor
+      //
+      //   <-- bInfo>
+      //      LSX, Info
+      //
+      //   <-- rgMessageFormat>
+      //      @<rgMessageFormat selected.sample>
+      //      //
+      //
+      //   <-- UDPsicoleg udp>
+      //      @<rgMessageFormat selected.format>
+      //      @<BLICK>
+      //
+      //   <-- bClear>
+      //      -->, oSal clear
+      //
+      //   <BLICK>
+      //      TIMER, START, changeColor, 200, 2
+      //
+      //   <changeColor>
+      //      CASE, @<RONDA>
+      //          , 1, -->, oSal control!, backColor, @<colFore>, foreColor, @<colBack>
+      //          , 1, NUM=, RONDA, 0
+      //          , 0, -->, oSal control!, backColor, @<colBack>, foreColor, @<colFore>
+      //          , 0, NUM=, RONDA, 1
+      //
+      //#**#
 
    <udpClientServer>
       //#javaj#

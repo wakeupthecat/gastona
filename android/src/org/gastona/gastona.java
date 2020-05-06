@@ -54,6 +54,7 @@ public class gastona
    private static final String UNIT_LISTIX        = "listix";
    private static final String UNIT_GASTONA       = "gastona";
    private static final String UNIT_JAVAJ         = "javaj";
+   private static final String UNIT_GUIX          = "guix";
    private static final String UNIT_DATA          = "data";
 
    public EvaUnit unitGastona = null;
@@ -337,9 +338,13 @@ public class gastona
       //
       if (log.getLogDirectory () != null)
       {
-         EvaFile.saveEvaUnit (log.getLogDirectory () + NAME_LINKED_GAST, unitListix);
-         EvaFile.saveEvaUnit (log.getLogDirectory () + NAME_LINKED_GAST, unitData);
-         EvaFile.saveEvaUnit (log.getLogDirectory () + NAME_LINKED_GAST, unitJavaj);
+         //------------------ TODO REPLACE LIKE IN pc gastona
+         //  allUnits.saveFile (log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST, new String [] { "listix", "data", "javaj" });
+
+         // EVAFILE.saveEvaUnit is deprecated!!
+         // EvaFile.saveEvaUnit (log.getLogDirectory () + NAME_LINKED_GAST, new String [] { unitListix, unitData, unitJavaj });
+         //------------------
+
          log.dbg (2, "init", log.getLogDirectory () + NAME_LINKED_GAST + " saved");
       }
 

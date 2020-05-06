@@ -656,6 +656,7 @@ public class gastona
          fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/showFlowPlain.gast", sessionLogDirSlash + "showFlowPlain.gast");
          fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/showFlowCanvas.gast", sessionLogDirSlash + "showFlowCanvas.gast");
          fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/listix2Dot.gast", sessionLogDirSlash + "listix2Dot.gast");
+         fileUtil.copyFile ("META-GASTONA/utilApp/logAnalysis/UDPsicoleg.gast", sessionLogDirSlash + "UDPsicoleg.gast");
       }
 
       loadMetadata ();

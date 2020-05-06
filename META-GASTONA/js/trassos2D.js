@@ -274,6 +274,15 @@ function trassos2D ()
    var DEFAULT_GRAPH_DX = 300;
    var DEFAULT_GRAPH_DY = 200;
    var graffitiPila = [];  // to avoid recurrent graffitis
+   var TT_UNDEF     = -1;
+   var TT_DEFSTYLE  = 0;
+   var TT_IMAGE     = 1;
+   var TT_TEXT      = 2;
+   var TT_TRASS     = 3;
+   var TT_RECT      = 4;
+   var TT_CIRCLE    = 5;
+   var TT_ELLIPSE   = 6;
+   var TT_GRAFFITI  = 7;
 
    return {
       renderCanvasGraffitis : renderCanvasGraffitis,
@@ -288,7 +297,25 @@ function trassos2D ()
 
       autoCasteljau         : autoCasteljau,
       convertPathArrayJ2C   : convertPathArrayJ2C,
+
+      getSVGById            : getSVGById,
+      getCanvasById         : getCanvasById,
+      clearSvg              : clearSvg,
    };
+
+   function getTrassType (str)
+   {
+      if (str === 'z') return TT_TRASS;
+      if (str === 'defstyle' || str === 'def') return TT_DEFSTYLE;
+      if (str === 'rect' || str === 'rec') return TT_RECT;
+      if (str === 'image' || str === 'img') return TT_IMAGE;
+      if (str === 'circle' || str === 'cir') return TT_CIRCLE;
+      if (str === 'ellipse' || str === 'ell') return TT_ELLIPSE;
+      if (str === 'text' || str === 'txt') return TT_TEXT;
+      if (str === 'graffiti' || str === 'gra' || str === 'graf') return TT_GRAFFITI;
+
+      return TT_UNDEF;
+   }
 
    ////////////////////
    // parse2DStyle
@@ -513,7 +540,7 @@ function trassos2D ()
             ctrl[0].setIntoArray (arrCasteljau,  1 , 2); // very first control point  (right from point at index 0)
          }
          if (NP !== arrCasteljau.length)
-            alert ("Error calculating final array NP " + NP + " !== " + (arrCasteljau.length));
+            console.log ("Error: Error calculating final array NP " + NP + " !== " + (arrCasteljau.length));
 
          return arrCasteljau;
       }
@@ -613,6 +640,8 @@ function trassos2D ()
 
    function calcBoundingBox (trasses)
    {
+      var DEF_SIZE_IMG = 100;
+      var DEF_SIZE_CHAR = 25;
       var xx, yy, ii;
       var x0 = null, y0, x1, y1;
 
@@ -631,7 +660,7 @@ function trassos2D ()
          if (y > y1) y1 = y+1;   // avoid dy == 0
       }
 
-      function compute (trass) {
+      function computeTrassa (trass) {
          xx = +(trass[1]);
          yy = +(trass[2]);
          computePair (xx, yy);
@@ -643,9 +672,45 @@ function trassos2D ()
          }
       }
 
+      function computeSquare (x, y, dx, dy) {
+         computePair (x, y);
+         computePair (x+dx, y+dy);
+      }
+
+      function computeRect (trass) {
+         computeSquare (+(trass[1]), +(trass[2]), +(trass[4]), +(trass[5]));
+      }
+
+      function computeCircle (trass) {
+         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[4]), +(trass[4]), +(trass[4]));
+      }
+
+      function computeEllipse (trass) {
+         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[5]), +(trass[4]), +(trass[5]));
+      }
+
+      function computeText (trass) {
+         computeSquare (+(trass[1]), +(trass[2]), (+(trass[4])) * DEF_SIZE_CHAR, DEF_SIZE_CHAR );
+      }
+
       for (var tt in trasses) {
-         if (trasses[tt][0] === 'z')
-            compute (trasses[tt]);
+         switch (getTrassType (trasses[tt][0]))
+         {
+            case TT_TRASS:   computeTrassa  (trasses[tt]); break;
+            case TT_RECT:    computeRect    (trasses[tt]); break;
+            case TT_CIRCLE:  computeCircle  (trasses[tt]); break;
+            case TT_ELLIPSE: computeEllipse (trasses[tt]); break;
+            case TT_TEXT:    computeText    (trasses[tt]); break;
+            case TT_IMAGE:
+               // don't know how to calculate it now ...
+               computeSquare (+(trass[1]), +(trass[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
+               break;
+            case TT_GRAFFITI:
+               // don't know how to calculate it now ...
+               computeSquare (+(trass[1]), +(trass[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
+               break;
+            default: break;
+         }
       }
 
       return { x: x0, y: y0, dx: (x1-x0), dy: (y1-y0) };
@@ -850,14 +915,19 @@ function trassos2D ()
          {
             var lotrass = atrass[rr];
             if (!lotrass || lotrass.length < 3) continue;
-            if (lotrass[0] === "defstyle") {
+
+            switch (getTrassType (lotrass[0]))
+            {
+               case TT_DEFSTYLE:
                styles [lotrass[1]] = makestyle (lotrass[2]);
-            }
-            else if (lotrass[0] === "img") {
+                  break;
+
+               case TT_IMAGE:
                // e.g.   [ "img" ,238, 121, "scale=1.;opacity=1.",  "wakeupthecat.png" ],
                this.renderImage (lotrass[4], +(lotrass[1]), +(lotrass[2]));
-            }
-            else if (lotrass[0] === "text" || lotrass[0] === "txt") {
+                  break;
+
+               case TT_TEXT:
                var estilos = parse2DStyle (styles [lotrass[3]] || lotrass[3]);
 
                if ("font-family" in estilos)
@@ -879,24 +949,11 @@ function trassos2D ()
                   this.ctx.strokeStyle = estilos["stroke"];
                   this.ctx.strokeText (lotrass[4], lotrass[1], lotrass[2]);
                }
-            }
-            else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
-               this.ctx.beginPath();
-               this.ctx.rect (lotrass[1], lotrass[2], lotrass[4], lotrass[5]);
-               applyCanvasStyle (styles, lotrass[3]);
-            }
-            else if (lotrass[0] === "circle" || lotrass[0] === "cir") {
-               this.ctx.beginPath();
-               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[4], 0, 2 * Math.PI, 0);
-               applyCanvasStyle (styles, lotrass[3]);
-            }
-            else if (lotrass[0] === "ellipse" || lotrass[0] === "ell") {
-               // void ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
-               this.ctx.beginPath();
-               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[5], 0, 2 * Math.PI, 0);
-               applyCanvasStyle (styles, lotrass[3]);
-            }
-            else if (lotrass[0] === "z" && lotrass.length >= 6) {
+                  break;
+
+               case TT_TRASS:
+                  if (lotrass.length >= 6)
+                  {
                // 0   1    2     3      4  5...
                // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
                // trassShape2canvas (c2d, form, px, py, style, closep, arrp)
@@ -908,6 +965,34 @@ function trassos2D ()
                            lotrass[4].length > 3 && lotrass[4].substring(3) === 'z', // is closed ?
                            lotrass.slice (5));
                applyCanvasStyle (styles, lotrass[3]);
+            }
+                  break;
+
+               case TT_RECT:
+               this.ctx.beginPath();
+               this.ctx.rect (lotrass[1], lotrass[2], lotrass[4], lotrass[5]);
+               applyCanvasStyle (styles, lotrass[3]);
+                  break;
+
+               case TT_CIRCLE:
+               this.ctx.beginPath();
+               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[4], 0, 2 * Math.PI, 0);
+               applyCanvasStyle (styles, lotrass[3]);
+                  break;
+
+               case TT_ELLIPSE:
+               // void ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
+               this.ctx.beginPath();
+               this.ctx.ellipse (lotrass[1], lotrass[2], lotrass[4], lotrass[5], 0, 2 * Math.PI, 0);
+               applyCanvasStyle (styles, lotrass[3]);
+                  break;
+
+               case TT_GRAFFITI:
+                  console.log ("Error: element graffiti not implemented in canvas!");
+                  break;
+
+               default:
+                  break;
             }
          }
 
@@ -1054,11 +1139,10 @@ function trassos2D ()
 
          applyprop = boundingBoxAndAutoScale (atrass, wi, hi, applyprop.squareratio);
       }
-      var hasScaleAndOffsets = "scalex" in applyprop;
 
       // apply scales and offsets
       //
-      if (hasScaleAndOffsets)
+      if ("scalex" in applyprop)
       {
          gaga.setAttribute ("stroke-width", "" + (1.0 / applyprop.scalex));
          gaga.setAttribute ("transform",
@@ -1074,52 +1158,48 @@ function trassos2D ()
       {
          var lotrass = atrass[rr];
          if (!lotrass || lotrass.length < 3) continue;
-         if (lotrass[0] === "defstyle") {
-            styles [lotrass[1]] = makestyle (lotrass[2]);
-         }
-         else if (lotrass[0] === "gra" || lotrass[0] === "graf" || lotrass[0] === "graffiti") {
 
-            var graffitiName = lotrass[3];
-            var enPila = graffitiPila.indexOf (graffitiName) > -1;
-
-            // "graf", 50, 50, Caballar, 100
-            var graf = restData ? restData[graffitiName]: null;
-            if (graf && !enPila)
+         switch (getTrassType (lotrass[0]))
             {
-               var gelo = document.createElementNS (SVGNamespace, "svg");
-               gelo.setAttribute("width",  lotrass[4] +  "px");
-               gelo.setAttribute("height", lotrass[5]  +  "px");
-               gelo.setAttribute("x", lotrass[1] +  "px");
-               gelo.setAttribute("y", lotrass[2] +  "px");
+            case TT_DEFSTYLE:
+               styles [lotrass[1]] = makestyle (lotrass[2]);
+               break;
 
-               //gelo.setAttribute("preserveAspectRatio", "xMidYMid");
-               //gelo.setAttribute("viewBox", "" + -lotrass[1] + " " + -lotrass[2] + " " + lotrass[4] + " " + lotrass[5] + " ");
-
-               // enter recursive call
-               graffitiPila.push (graffitiName);
-               drawGraffiti2svg (graf, gelo, null, restData);
-               graffitiPila.slice (-1, 1); // pop
-
-               gaga.appendChild (gelo);
-            }
-         }
-         else if (lotrass[0] === "img") {
+            case TT_IMAGE:
             //    [ "img" ,238, 121, "scale=1.;opacity=1.",  "logas.png" ],
             trassImage2svg (gaga,
                            lotrass[1],
                            lotrass[2],
                            styles [lotrass[3]]|| lotrass[3],
                            lotrass[4]);
-         }
-         else if (lotrass[0] === "text" || lotrass[0] === "txt") {
+               break;
+
+            case TT_TEXT:
             //    [ "text" ,238, 121, "",  "pericollosso" ],
             trassText2svg (gaga,
                            lotrass[1],
                            lotrass[2],
                            styles [lotrass[3]]|| lotrass[3],
                            lotrass[4]);
+               break;
+
+            case TT_TRASS:
+               if (lotrass.length >= 6)
+               {
+                  // 0   1    2     3      4  5...
+                  // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
+                  // trassShape2svg (gaga, form, px, py, styleStr, closep, arrp)
+                  trassShape2svg (gaga,
+                              lotrass[4].substring (0, 3),
+                              lotrass[1],
+                              lotrass[2],
+                              styles [lotrass[3]]|| lotrass[3],
+                              lotrass[4].length > 3 && lotrass[4].substring(3) == 'z',
+                              lotrass.slice (5));
          }
-         else if (lotrass[0] === "rect" || lotrass[0] === "rec") {
+               break;
+
+            case TT_RECT:
             //    [ "rect" ,238, 121, "",  dx, dy, rx, ry ],
             var pato = createSvgElement ("rect", styles [lotrass[3]]|| lotrass[3]);
 
@@ -1131,8 +1211,9 @@ function trassos2D ()
             pato.setAttribute ("rx", lotrass[6]||0);
             pato.setAttribute ("ry", lotrass[7]||0);
             gaga.appendChild (pato);
-         }
-         else if (lotrass[0] === "circle" || lotrass[0] === "cir") {
+               break;
+
+            case TT_CIRCLE:
             //    [ "circle" ,238, 121, "",  dx, dy, rx, ry ],
             var pato = createSvgElement ("circle", styles [lotrass[3]]|| lotrass[3]);
 
@@ -1141,8 +1222,9 @@ function trassos2D ()
             pato.setAttribute ("cy", lotrass[2]);
             pato.setAttribute ("r", lotrass[4]);
             gaga.appendChild (pato);
-         }
-         else if (lotrass[0] === "ellipse" || lotrass[0] === "ell") {
+               break;
+
+            case TT_ELLIPSE:
             //    [ "circle" ,238, 121, "",  rx, ry ],
             var pato = createSvgElement ("ellipse", styles [lotrass[3]]|| lotrass[3]);
 
@@ -1152,18 +1234,36 @@ function trassos2D ()
             pato.setAttribute ("rx", lotrass[4]);
             pato.setAttribute ("ry", lotrass[5]);
             gaga.appendChild (pato);
+               break;
+
+            case TT_GRAFFITI:
+               var graffitiName = lotrass[3];
+               var enPila = graffitiPila.indexOf (graffitiName) > -1;
+
+               // "graf", 50, 50, Caballar, 100
+               var graf = restData ? restData[graffitiName]: null;
+               if (graf && !enPila)
+               {
+                  var gelo = document.createElementNS (SVGNamespace, "svg");
+                  gelo.setAttribute("width",  lotrass[4] +  "px");
+                  gelo.setAttribute("height", lotrass[5]  +  "px");
+                  gelo.setAttribute("x", lotrass[1] +  "px");
+                  gelo.setAttribute("y", lotrass[2] +  "px");
+
+                  //gelo.setAttribute("preserveAspectRatio", "xMidYMid");
+                  //gelo.setAttribute("viewBox", "" + -lotrass[1] + " " + -lotrass[2] + " " + lotrass[4] + " " + lotrass[5] + " ");
+
+                  // enter recursive call
+                  graffitiPila.push (graffitiName);
+                  drawGraffiti2svg (graf, gelo, null, restData);
+                  graffitiPila.slice (-1, 1); // pop
+
+                  gaga.appendChild (gelo);
          }
-         else if (lotrass[0] === "z" && lotrass.length >= 6) {
-            // 0   1    2     3      4  5...
-            // z ,238, 121, "pel", jau, 84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81
-            // trassShape2svg (gaga, form, px, py, styleStr, closep, arrp)
-            trassShape2svg (gaga,
-                        lotrass[4].substring (0, 3),
-                        lotrass[1],
-                        lotrass[2],
-                        styles [lotrass[3]]|| lotrass[3],
-                        lotrass[4].length > 3 && lotrass[4].substring(3) == 'z',
-                        lotrass.slice (5));
+               break;
+
+            default:
+               break;
          }
       }
    }
@@ -1210,6 +1310,15 @@ function trassos2D ()
       }
    }
 
+   function getCanvasById (canvasId)
+   {
+      var arr = [].slice.call(document.getElementsByTagName('canvas'), 0);
+      for (var indx in arr)
+         if (arr[indx].id === canvasId)
+            return arr[indx];
+      return null;
+   }
+
    function renderCanvasGraffitis (uData, scalesAndOffsets)
    {
       // render all canvas graffitis
@@ -1222,6 +1331,16 @@ function trassos2D ()
       }
    }
 
+   function getSVGById (svgId)
+   {
+      var arr = [].slice.call(document.getElementsByTagNameNS (SVGNamespace, "svg"));
+      for (var indx in arr)
+         if (arr[indx].id === svgId)
+            return arr[indx];
+
+      return null;
+   }
+
    function renderSvgGraffitis (uData, scalesAndOffsets)
    {
       // render all svg graffitis
@@ -1229,18 +1348,17 @@ function trassos2D ()
       var arr = [].slice.call(document.getElementsByTagNameNS (SVGNamespace, "svg"));
       for (var indx in arr)
       {
-         //?! clearSvg (arr[indx]);
+         clearSvg (arr[indx]);
          var grafo = arr[indx].id + " graffiti";
          if (uData [grafo])
             drawGraffiti2svg (uData [grafo], arr[indx], scalesAndOffsets, uData);
       }
    }
 
-   //?! is this code necessary ? (taken from some version)
-   //function clearSvg (svgelem)
-   //{
-   //   while (svgelem.lastChild) {
-   //       svgelem.removeChild(svgelem.lastChild);
-   //   }
-   //}
+   function clearSvg (svgelem)
+   {
+      while (svgelem.lastChild) {
+          svgelem.removeChild(svgelem.lastChild);
+      }
+   }
 };

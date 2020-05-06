@@ -202,6 +202,10 @@ public class onFlyWidgetSolver implements widgetSolver_able
                      theComp = new  z2DMiRelos (fullName);
                   else if (miscUtil.startsWithIgnoreCase (fullName, "2Dp"))        // z2DEditRelos
                      theComp = new  z2DEditRelos (fullName);
+                  else if (miscUtil.startsWithIgnoreCase (fullName, "2Dmath"))        // z2DMathFunc
+                     theComp = new  z2DMathFunc ();
+                  //else if (miscUtil.startsWithIgnoreCase (fullName, "2Dcampos"))        // z2DCampos
+                  //   theComp = new  z2DCampos (fullName);
                   else theComp = new JButton ( "?" + fullName);
                }
                else theComp = new JButton ( "?" + fullName);

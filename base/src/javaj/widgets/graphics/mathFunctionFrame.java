@@ -32,7 +32,7 @@ import de.elxala.zServices.*;
    Class specialized in drawing coordinate systems
 
 */
-class mathFunctionFrame
+public class mathFunctionFrame
 {
    private static logger log = new logger (null, "javaj.widgets.graphics.mathFunctionFrame", null);
 

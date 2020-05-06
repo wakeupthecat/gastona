@@ -98,6 +98,12 @@
       //             It is not possible to disable logging to this file. Note that for big loops and
       //             large database queries the file can become very large.
       //
+      //          UDPsicoleg.gast
+      //             Script that can be used as remote debug listener. It works using UDP opening the port 18881.
+      //             Any gastona script can send messages to it just by calling the command "UDP, SEND ONCE, localhost, 18881, //my message!"
+      //             Or replacing "localhost" with the proper IP address if called from another device.
+      //
+      //
       //    3) Enabling the log clients for the next log session
       //
       //          All possible(*) log clients are to be found in the table logClients from logDatabase.db
