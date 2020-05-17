@@ -63,6 +63,13 @@
       //             CLOCK1 : epoch time in milliseconds of the start of the application
       //             CLOCK  : ellapsed time in milliseconds since start of the application
       //
+      //      @<:lsx elapsed [x]>
+      //
+      //          Returns the elapsed time used in the last listix command
+      //             elapsed m : (default) gives the result in milliseconds
+      //             elapsed s : gives the result in seconds
+      //             elapsed human : gives the result in "days, hours, minutes and seconds" as necessary
+      //
       //      @<:lsx TMP [extension]>
       //
       //          Creates and returns the path name of a temporary file with the given extension.

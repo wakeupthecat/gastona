@@ -702,12 +702,12 @@ function trassos2D ()
             case TT_ELLIPSE: computeEllipse (trasses[tt]); break;
             case TT_TEXT:    computeText    (trasses[tt]); break;
             case TT_IMAGE:
-               // don't know how to calculate it now ...
-               computeSquare (+(trass[1]), +(trass[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
+               // ----------- don't know how to calculate it now ...
+               // computeSquare (+(trasses[1]), +(trasses[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
                break;
             case TT_GRAFFITI:
-               // don't know how to calculate it now ...
-               computeSquare (+(trass[1]), +(trass[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
+               // ----------- don't know how to calculate it now ...
+               // computeSquare (+(trasses[1]), +(trasses[2]), DEF_SIZE_IMG, DEF_SIZE_IMG);
                break;
             default: break;
          }

@@ -30,63 +30,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-/*
-   //(o) WelcomeGastona_source_javaj_widgets (k) z2DMathFunc
-
-   ========================================================================================
-   ================ documentation for javajCatalog.gast ===================================
-   ========================================================================================
-
-#gastonaDoc#
-
-   <docType>    javaj_widget
-   <name>       z2DMathFunc
-   <groupInfo>  2D
-   <javaClass>  javaj.widgets.z2DMathFunc
-   <importance> 8
-   <desc>       //2D Math functions
-
-   <help>
-      //
-      // Testing for 2D Math functions
-      //
-      //
-
-   <prefix>  2Dmath
-
-   <attributes>
-      name             , in_out, possibleValues             , desc
-
-                       , in    , (String)                   , //Caption of the checkbox
-      visible          , in    , 0 / 1                      , //Value 0 to make the widget not visible
-      enabled          , in    , 0 / 1                      , //Value 0 to disable the widget
-      selected         , inout , 0 | 1                      , //Value 0 not checked, 1 checked
-
-   <messages>
-
-      msg     , in_out , desc
-
-              ,  out   , check box has been pressed
-      data!   ,  in    , update data
-      control!,  in    , update control
-
-
-   <examples>
-      gastSample
-
-      Demo z2DMath
-
-   <Demo z2DMath>
-      //#javaj#
-      //
-      //    <frames> 2DmathDemo, Demo z2DMathFunc, 600, 500
-      //
-
-#**FIN_EVA#
-
-*/
-
-
 /**
    Implements
       - handling of fucntions
@@ -109,7 +52,6 @@ public class mathFunctionView extends JPanel implements MouseListener, MouseMoti
    {
       addMouseListener (this);
       addMouseMotionListener(this);
-      miMatha = new  mathFunctionFrame ();
       // movement guys (handlers)
 //      zoomDetector  = new zoomTouchDetector (co, this);
 //      trazaDetector = new strokeDetector (co, this);

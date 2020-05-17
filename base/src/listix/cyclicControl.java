@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -22,10 +22,18 @@ import java.util.*;
 
 public class cyclicControl
 {
-   public Vector pilaRecursion = new Vector ();
-   public String cyclusMsg = "";
-   public static Vector lastUsedStack = null;
+   private static int cyclicInstanceStaticCnt = 0;
 
+   // instance counter id
+   public int    cyclicInstanceId = (++ cyclicInstanceStaticCnt);
+
+   // recursion stacks, they have to run in parallel (same pushes, same pops)
+   protected Vector pilaRecursion = new Vector ();
+   protected Vector pilaRecursionStamps = new Vector ();
+
+   public String cyclusErrorMsg = "";
+   public static Vector lastUsedStack = null;
+   public static long lastElapsedMilliseconds = 0;
 
    public cyclicControl()
    {
@@ -48,23 +56,31 @@ public class cyclicControl
 
       if (pilaRecursion.contains (item) || pilaRecursion.size () > 20)
       {
-         cyclusMsg = "";
+         cyclusErrorMsg = "";
          for (int yy = 0; yy < pilaRecursion.size (); yy ++)
          {
-            cyclusMsg += (yy == 0) ? "": " -> ";
-            cyclusMsg += "[" + (String) pilaRecursion.get (yy) + "]";
+            cyclusErrorMsg += (yy == 0) ? "": " -> ";
+            cyclusErrorMsg += "[" + (String) pilaRecursion.get (yy) + "]";
          }
-         cyclusMsg += " -> [" + item + "]";
+         cyclusErrorMsg += " -> [" + item + "]";
          return false;
       }
       //System.out.println ("[[" + pilaRecursion.size () + "]] ((" + item + "))");
+
+      // push in both parallel stacks
       pilaRecursion.add (item);
+      pilaRecursionStamps.add (System.currentTimeMillis ());
       return true;
    }
 
    public void pop ()
    {
+      // compute the elapsed milliseconds for the last call (cycle)
+      lastElapsedMilliseconds = System.currentTimeMillis () - (long) pilaRecursionStamps.get (pilaRecursionStamps.size () - 1);
+
+      // pop both parallel stacks
       pilaRecursion.remove (pilaRecursion.size () -1);
+      pilaRecursionStamps.remove (pilaRecursionStamps.size () -1);
    }
 
    /**
@@ -72,6 +88,21 @@ public class cyclicControl
       Note that it does not return the stack of this instance but the last used stack!
 
       //(o) TODO_listix debug listix format stack: evaluate effects of this approach
+
+           There are two possible solutions but both would require that the instanciator of the
+           cyclicControl object would destroy it explicitly when finished with its use.
+           Unless (in option 1) we destroy them automatically after reaching depth zero within a pop and create a
+           new instance on demand (giving the same handle numer!)
+
+          option 1: keeping all instances internally and return only handles
+
+          option 2: Building a list of pointers to all instances
+
+          Solution option 1 should be fixed better with a pool to avoid constructions and destructions very often
+
+          Solution option 2 would not work!: we don't have any control about destructions
+          and cannot get rid of the pointer automatically when reach depth 0 since we don't know if
+          the object wants to be destroyed or simply is going to be used later
 
       Note that this mechanism does not guarantee that this is the stack of the current
       active listix instance (the last active when the error has been produced), but in many
@@ -87,4 +118,3 @@ public class cyclicControl
       return laPila;
    }
 }
-

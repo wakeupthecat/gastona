@@ -39,7 +39,7 @@ function jGastona (evaConfig, existingPlaceId)
    var getDataAsTextArray = function (name)           { return laData.getDataAsTextArray (name); };
    var getDataCell        = function (name, row, col) { return laData.getDataCell (name, row, col); };
    var setData            = function (name, value)    { return laData.setData (name, value); };
-   var setDataCell        = function (name, row, col) { return laData.setDataCell (name, row, col); };
+   var setDataCell        = function (name, value, row, col) { return laData.setDataCell (name, value, row, col); };
    var setVarTable_DimVal = function (arrVarNames)    { return laData.setVarTable_DimVal (arrVarNames); };
    var getCellEvaUnit     = function (unit, eva, row, col) { return laData.getCellEvaUnit (unit, eva, row, col); };
 
@@ -79,6 +79,7 @@ function jGastona (evaConfig, existingPlaceId)
             getDataAsTextArray: getDataAsTextArray,
             getDataCell: getDataCell,
             setData: setData,
+            setDataCell: setDataCell,
             setVarTable_DimVal : setVarTable_DimVal,
             isEvaValue: isEvaValue,
             isEvaSingleValue: isEvaSingleValue,

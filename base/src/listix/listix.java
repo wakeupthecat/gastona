@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -525,6 +525,27 @@ public class listix
                return "" + de.elxala.zServices.logServer.getMillisStartApplication ();
             }
          }
+
+         //return ellapsed time in (exact!) last listix command
+         //
+         if (lowName.startsWith("elapsed"))
+         {
+            long milli = ciclon.lastElapsedMilliseconds;
+            String pattern = name.substring ("elapsed".length ());
+
+            if (pattern.equals(" s"))
+            {
+               return "" + milli / 1000.;
+            }
+            else if (pattern.equals(" sapiens") || pattern.equals(" human"))
+            {
+               return DateFormat.millisecondsToSapiens (milli);
+            }
+
+            // if (pattern.length () == 0 || pattern.equals(" m"))
+            return "" + milli;
+         }
+
          //return date
          //
          if (lowName.startsWith ("date"))
@@ -615,6 +636,8 @@ public class listix
          // false :listix command
          //
          log.err ("valPrimitive", "unknown \":listix\" primitive [" + name + "] it not equal to lowName (" + lowName + ")");
+
+         // final return of ":lsx" or ":listix" options
          return badVariableValue (name);
       }
 
@@ -1096,7 +1119,7 @@ public class listix
 
 
          //Normal handling
-         log.fatal ("printLsxFormat", "format <" + lsxFormat + "> is cyclic ! (" + ciclon.cyclusMsg + ")");
+         log.fatal ("printLsxFormat", "format <" + lsxFormat + "> is cyclic ! (" + ciclon.cyclusErrorMsg + ")");
          //writeStringOnTarget("((cyclic!))");
          return false;
       }

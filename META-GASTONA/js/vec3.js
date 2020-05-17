@@ -12,27 +12,41 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 ////////////////////
 
 
-function vec3(x, y, z) {
+function vec3(x, y, z)
+{
+   if (x && x.x)
+   {
+      this.x = x.x;
+      this.y = x.y || 0;
+      this.z = x.z || 0;
+   }
+   else
+   {
   this.x = x || 0;
   this.y = y || 0;
   this.z = z || 0;
 }
+}
 
-function vec3cartesian(ccoord) {
+function vec3cartesian(ccoord)
+{
    this.x = ccoord[0]|| 0;
    this.y = ccoord[1]|| 0;
    this.z = ccoord[2]|| 0;
 }
 
-function deg2rad (deg) {
+function deg2rad (deg)
+{
    return Math.PI * deg / 180.;
 }
 
-function rad2deg (rad) {
+function rad2deg (rad)
+{
    return 180. * rad / Math.PI;
 }
 
-function vec3spherical(scoord) {
+function vec3spherical(scoord)
+{
    // scoord given in (r, theta, phi)
    //    r     = radius or module
    //    theta = angle in radians between axis x and the projection of the vector in the plane x-y
@@ -59,24 +73,27 @@ function vec3spherical(scoord) {
    this.z = r * cosPhi;
 }
 
-function vec3polar(radi, angle) {
+function vec3polar(radi, angle)
+{
    return new vec3spherical([ radi, angle ]);
 }
 
-function vec3FromTo (v1, v2) {
+function vec3FromTo (v1, v2)
+{
   var v3 = v2.clone ();
   v3.minus (v1);
   return v3;
 }
 
-function vec3FromArray (arr, indx, dim) {
+function vec3FromArray (arr, indx, dim)
+{
   var v3 = new vec3 ();
   v3.fromArray (arr, indx, dim);
   return v3;
 }
 
-vec3.prototype = {
-
+vec3.prototype =
+{
    toString: function () {
       return this.x + ", " + this.y + ", " + this.z;
    },
@@ -191,4 +208,3 @@ vec3.prototype = {
    //
    // ss + " v3 is " + v3.toString ();
 };
-

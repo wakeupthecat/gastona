@@ -67,10 +67,14 @@
 #listix#
 
    <main>
-      LSX, doGeneration
+      LSX, runGeneration
 
    <-- bGenerate>
+      LSX, runGeneration
+
+   <runGeneration>
       LSX, doGeneration
+      // done in @<:lsx elapsed sapiens>
 
    <doGeneration>
       //@<:lsx CLOCK>
@@ -87,6 +91,9 @@
       //
       //well done!
       //
+      //checking consistency ...
+      //
+      DB,, EXECUTE, @<:infile gastonaDocScript.sql>
 
    <bigScript>
       LSX, sql gastonaDocCreate

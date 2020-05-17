@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -93,28 +93,29 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          7   ,   3       , //Converts the text given in 'EvaSource' into a string, the result is printed out into the current file or standard output or place into the Eva 'EvaTarget' if given
          8   ,   3       , //Converts the string UTC date 'dateAsString' (greater than 1970-01-01) into a long value
          9   ,   3       , //Converts the UTC date 'milisecSince1970' given as long into a string date
-        10   ,   3       , //Formats 'number' to a fix point of 'nDecimals'
-        11   ,   3       , //Formats 'number' to a typical engineer format
-        12   ,   3       , //Converts the Eva variable 'EvaSource' into a text placing it into 'EvaTarget'
-        13   ,   3       , //Parses an eva varible given as text in 'EvaSource' placing the result into 'EvaTarget'
-        14   ,   3       , //generates a text into EvaTarget from the listix format given in EvaSource. Note that if there are listix "@" variables in the source text the listix replacement will be performed.
-        15   ,   3       , //Converts a string into a text to be inserted in html (mainly convert < > & and ")
-        16   ,   3       , //Converts a html text into a string (e.g. "&lt;" will be converted to <)
-        17   ,   3       , //Solve whenever possible the relative path symbols (. and ..) from a path
-        18   ,   3       , //Concat to paths using the native directory separator if needed
-        19   ,   3       , //Returns the canonical path from a one given (see java )
-        20   ,   3       , //Converts a text into a valid name for a variable, file name, sql column name etc (i.e. ISO 9660 Joliet compliant)
-        21   ,   3       , //Encode a string using a encoding model (e.g. UTF-8)
-        22   ,   3       , //Encode a text from a given variable using a encoding model (e.g. UTF-8)
-        23   ,   3       , //Encode a text from file using a encoding model (e.g. UTF-8)
-        24   ,   3       , //Decode a string using a encoding model (e.g. UTF-8)
-        25   ,   3       , //Decode the content of a variable using a encoding model (e.g. UTF-8)
-        26   ,   3       , //Escape a string using a escape style (supported HTML and LATEX)
-        27   ,   3       , //Unescape a string using a escape style (supported HTML and LATEX)
-        28   ,   3       , //Xor encryption with shift mechanism
-        29   ,   3       , //Generate java script code for painting a specific scence where using "trazos"
-        30   ,   3       , //Saves into a file an image given by paths
-        31   ,   3       , //Calculate the hash value (md5 or crc32) of a file
+        10   ,   3       , //Converts time duration given in milliseconds to more human readable format
+        11   ,   3       , //Formats 'number' to a fix point of 'nDecimals'
+        12   ,   3       , //Formats 'number' to a typical engineer format
+        13   ,   3       , //Converts the Eva variable 'EvaSource' into a text placing it into 'EvaTarget'
+        14   ,   3       , //Parses an eva varible given as text in 'EvaSource' placing the result into 'EvaTarget'
+        15   ,   3       , //generates a text into EvaTarget from the listix format given in EvaSource. Note that if there are listix "@" variables in the source text the listix replacement will be performed.
+        16   ,   3       , //Converts a string into a text to be inserted in html (mainly convert < > & and ")
+        17   ,   3       , //Converts a html text into a string (e.g. "&lt;" will be converted to <)
+        18   ,   3       , //Solve whenever possible the relative path symbols (. and ..) from a path
+        19   ,   3       , //Concat to paths using the native directory separator if needed
+        20   ,   3       , //Returns the canonical path from a one given (see java )
+        21   ,   3       , //Converts a text into a valid name for a variable, file name, sql column name etc (i.e. ISO 9660 Joliet compliant)
+        22   ,   3       , //Encode a string using a encoding model (e.g. UTF-8)
+        23   ,   3       , //Encode a text from a given variable using a encoding model (e.g. UTF-8)
+        24   ,   3       , //Encode a text from file using a encoding model (e.g. UTF-8)
+        25   ,   3       , //Decode a string using a encoding model (e.g. UTF-8)
+        26   ,   3       , //Decode the content of a variable using a encoding model (e.g. UTF-8)
+        27   ,   3       , //Escape a string using a escape style (supported HTML and LATEX)
+        28   ,   3       , //Unescape a string using a escape style (supported HTML and LATEX)
+        29   ,   3       , //Xor encryption with shift mechanism
+        30   ,   3       , //Generate java script code for painting a specific scence where using "trazos"
+        31   ,   3       , //Saves into a file an image given by paths
+        32   ,   3       , //Calculate the hash value (md5 or crc32) of a file
 
    <syntaxParams>
       synIndx, name         , defVal, desc
@@ -150,92 +151,94 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       9      , LONG-DATE           ,     , //
       9      , milisecSince1970    ,     , //Date given as a long representing the milliseconds from 1-Jan-1970
 
-      10     , NUM-FIX          ,      , //
-      10     , number           ,      , //Number to convert
-      10     , nDecimals        ,      , //Decimal positions to get
+      10     , TMILLIS-HUMAN    ,     , //
+      10     , milliseconds     ,     , //milliseconds to convert
 
-      11     , NUM-ENG          ,      , //
+      11     , NUM-FIX          ,      , //
       11     , number           ,      , //Number to convert
+      11     , nDecimals        ,      , //Decimal positions to get
 
-      12     , EVA-TEXT         ,      , //
-      12     , EvaSource        ,      , //Name of Eva variable containing to be converted to text
-      12     , EvaTarget        ,      , //Name of Eva variable where the text will be placed
+      12     , NUM-ENG          ,      , //
+      12     , number           ,      , //Number to convert
 
-      13     , TEXT-EVA         ,      , //
-      13     , EvaSource        ,      , //Name of Eva variable containing the text to be parsed as Eva
-      13     , EvaTarget        ,      , //Name of Eva variable to place the parsed text
+      13     , EVA-TEXT         ,      , //
+      13     , EvaSource        ,      , //Name of Eva variable containing to be converted to text
+      13     , EvaTarget        ,      , //Name of Eva variable where the text will be placed
 
-      14     , GEN EVA          ,      , //
-      14     , EvaTarget        ,      , //Name of Eva variable where to place the generation
-      14     , EvaSource        ,      , //Name of Eva variable containing the listix format to generate
+      14     , TEXT-EVA         ,      , //
+      14     , EvaSource        ,      , //Name of Eva variable containing the text to be parsed as Eva
+      14     , EvaTarget        ,      , //Name of Eva variable to place the parsed text
 
-      15     , TEXT-HTMLTEXT    ,      , //
-      15     , text             ,      , //Text to convert into Html text (e.g. "<" to "&lt;")
+      15     , GEN EVA          ,      , //
+      15     , EvaTarget        ,      , //Name of Eva variable where to place the generation
+      15     , EvaSource        ,      , //Name of Eva variable containing the listix format to generate
 
-      16     , HTMLTEXT-TEXT    ,      , //
-      16     , htmlText         ,      , //Html text to convert into normal text (e.g. "&lt;" to "<")
+      16     , TEXT-HTMLTEXT    ,      , //
+      16     , text             ,      , //Text to convert into Html text (e.g. "<" to "&lt;")
 
-      17     , PATH-SOLVE-POINTS,      , //
-      17     , filePath         ,      , //Path to be solved
+      17     , HTMLTEXT-TEXT    ,      , //
+      17     , htmlText         ,      , //Html text to convert into normal text (e.g. "&lt;" to "<")
 
-      18     , PATH-CONCAT      ,      , //
-      18     , filePath1        ,      , //Firts part of the path to concatenate
-      18     , filePath2        ,      , //Second part of the path to concatenate
+      18     , PATH-SOLVE-POINTS,      , //
+      18     , filePath         ,      , //Path to be solved
 
-      19     , PATH-CANONICAL   ,      , //
-      19     , filePath         ,      , //Path to be converted into canonical path. Also
+      19     , PATH-CONCAT      ,      , //
+      19     , filePath1        ,      , //Firts part of the path to concatenate
+      19     , filePath2        ,      , //Second part of the path to concatenate
 
-      20     , TEXT-VARNAME     ,      , //
-      20     , text             ,      , //text to be converted
+      20     , PATH-CANONICAL   ,      , //
+      20     , filePath         ,      , //Path to be converted into canonical path. Also
 
-      21     , ENCODE STR       ,       , //
-      21     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
-      21     , stringToEncode   ,       , //String to be encoded
+      21     , TEXT-VARNAME     ,      , //
+      21     , text             ,      , //text to be converted
 
-      22     , ENCODE VAR       ,       , //
+      22     , ENCODE STR       ,       , //
       22     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
-      22     , evaSource        ,       , //Name of Eva variable containing the text to be encoded
+      22     , stringToEncode   ,       , //String to be encoded
 
-      23     , ENCODE FILE      ,       , //
+      23     , ENCODE VAR       ,       , //
       23     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
-      23     , fileName         ,       , //Name of file containing the text to be encoded
+      23     , evaSource        ,       , //Name of Eva variable containing the text to be encoded
 
-      24     , DECODE STR       ,       , //
+      24     , ENCODE FILE      ,       , //
       24     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
-      24     , stringToDecode   ,       , //String to be decoded
+      24     , fileName         ,       , //Name of file containing the text to be encoded
 
-      25     , DECODE VAR       ,       , //
+      25     , DECODE STR       ,       , //
       25     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
-      25     , evaSource        ,       , //Name of Eva variable containing the text to be decoded
+      25     , stringToDecode   ,       , //String to be decoded
 
-      26     , ESCAPE STR       ,       , //
-      26     , escapeStyle      ,       , //Supported escape styles HTML and LATEX, for URL use ENCODE STR, for exaple "ENCODE STR, UTF-8"
-      26     , stringToEscape   ,       , //String to be escaped
+      26     , DECODE VAR       ,       , //
+      26     , encodingModel    ,       , //Encoding model, for example UTF-8 or ISO-8859-1, the value * will use the current encoding model (see DB CONFIG command), no value will use the intern encoding model
+      26     , evaSource        ,       , //Name of Eva variable containing the text to be decoded
 
-      27     , UNESCAPE STR    ,       , //
+      27     , ESCAPE STR       ,       , //
       27     , escapeStyle     ,       , //Supported escape styles HTML and LATEX, for URL use ENCODE STR, for exaple "ENCODE STR, UTF-8"
-      27     , stringToUnescape,       , //String to be unescaped
+      27     , stringToEscape   ,       , //String to be escaped
 
-      28     , XOR ENCRYPT     ,       , //
-      28     , keyString       ,       , //String containig the key
-      28     , offset1         , 0     , //Offset used to shift the key
-      28     , mult            , 0     , //Multiplier to shift the key
-      28     , offset2         , 0     , //Second offset used to shift the key
+      28     , UNESCAPE STR    ,       , //
+      28     , escapeStyle     ,       , //Supported escape styles HTML and LATEX, for URL use ENCODE STR, for exaple "ENCODE STR, UTF-8"
+      28     , stringToUnescape,       , //String to be unescaped
 
-      29     , 2DTRAZOS-JS     ,       , //
-      29     , evaName         ,       , //Variable name (eva) containing the 2d trazos
-      29     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trassos2D.js is included
-      29     , canvasX         , 0     , //If > 0 width of canvas where the image has to fit
-      29     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
-      29     , offset0         , 0     , //If 1 then clear the offsets to 0, 0
+      29     , XOR ENCRYPT     ,       , //
+      29     , keyString       ,       , //String containig the key
+      29     , offset1         , 0     , //Offset used to shift the key
+      29     , mult            , 0     , //Multiplier to shift the key
+      29     , offset2         , 0     , //Second offset used to shift the key
 
+      30     , 2DTRAZOS-JS     ,       , //
+      30     , evaName         ,       , //Variable name (eva) containing the 2d trazos
+      30     , useLib          , 1     , //If 1 it is assumed that the library META-GASTONA/js/trassos2D.js is included
+      30     , canvasX         , 0     , //If > 0 width of canvas where the image has to fit
+      30     , canvasY         , 0     , //If > 0 height of canvas where the image has to fit
+      30     , offset0         , 0     , //If 1 then clear the offsets to 0, 0
 
-      30     , 2DPATHS-FILE    ,       , //
-      30     , evaName         ,       , //Variable name (eva) containing the 2d paths
-      30     , imageFilename   , 1     , //Target file name for image
-      30     , fileType        , 0     , //File type, default is "png"
-      30     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
-      30     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
+      31     , 2DPATHS-FILE    ,       , //
+      31     , evaName         ,       , //Variable name (eva) containing the 2d paths
+      31     , imageFilename   , 1     , //Target file name for image
+      31     , fileType        , 0     , //File type, default is "png"
+      31     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
+      31     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
       32     , 2DTRAZOS-FILE   ,       , //
       32     , evaName         ,       , //Variable name (eva) containing the 2d trazos
@@ -244,10 +247,11 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       32     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
       32     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
-      31     , HASH            ,       , //
-      31     , algorithm       ,       , //Hash algorithm, now md5 or crc32 supported
-      31     , fileName        ,       , //File (real path) which hash wants to be calculated
-      31     , limitMB         , 0     , //If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes
+      33     , HASH            ,       , //
+      33     , algorithm       ,       , //Hash algorithm, now md5 or crc32 supported
+      33     , fileName        ,       , //File (real path) which hash wants to be calculated
+      33     , limitMB         , 0     , //If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes
+
 
 <! XOR ENCRYPT, KEY, offset1, mult, offset2
 <!            , IN FILE KEY,
@@ -668,6 +672,10 @@ public class cmdStrconvert implements commandable
          java.util.TimeZone tz = java.util.TimeZone.getDefault ();
          de.elxala.langutil.DateFormat df = new de.elxala.langutil.DateFormat (new java.util.Date (stdlib.atol (p1)-tz.getOffset (0)));
          strResult = df.get ();
+      }
+      else if (oper.equals ("TMILLIS-HUMAN"))
+      {
+         strResult = DateFormat.millisecondsToSapiens (stdlib.atol (p1));
       }
       else if (oper.equals ("NUM-FIX"))
       {

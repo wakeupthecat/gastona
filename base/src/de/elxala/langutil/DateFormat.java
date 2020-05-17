@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -189,4 +189,49 @@ public class DateFormat
 
       return df.get ();
    }
+
+   public static String quantityToStr (long quantity, String unitname)
+   {
+      return quantity + " " + unitname + (quantity > 1 ? "s": "");
+   }
+
+   public static String millisecondsToSapiens (long milliseconds)
+   {
+      if (milliseconds < 500)
+         return milliseconds + " ms";
+
+      float fseconds = (float) (milliseconds / 1000.);
+      if (fseconds < 60.)
+         return fseconds + " s";
+
+      if (fseconds/60. < 60.)
+      {
+         long minutes = milliseconds / 60000;
+         milliseconds %= 60000;
+         fseconds = (float) (milliseconds / 1000.);
+         return minutes + " min " + fseconds + " s";
+      }
+
+      long years = ((milliseconds / 3600000) / 365) /24;
+      milliseconds %= (long) ((long) 365* (long) 24* (long) 3600000);
+
+      long days = milliseconds / (24*3600000);
+      milliseconds %= (24*3600000);
+
+      //milliseconds %= (24*3600000);
+      long hours = milliseconds / 3600000;
+      milliseconds %= 3600000;
+      long minutes = milliseconds / 60000;
+      milliseconds %= 60000;
+      long seconds = milliseconds / 1000;
+
+      // some kind of accepted precision
+      return (years > 0 ? quantityToStr(years, "year") + ", ": "") +
+             ((years+days > 0) ? quantityToStr(days, "day") + ", ": "") +
+             quantityToStr(hours, "hour") +
+             (years > 0 ? "":
+                   (", " + quantityToStr(minutes, "minute")) +
+                   (days > 60 ? "": ", " + quantityToStr(seconds, "second")));
+   }
+
 };

@@ -26,12 +26,10 @@ import java.util.*;
 public class layComposCyclicControl
 {
    public Vector pilaRecursion = new Vector ();
-   public String cyclusMsg = "";
-   public static Vector lastUsedStack = null;
+   public String cyclusErrorMsg = "";
 
    public layComposCyclicControl()
    {
-      lastUsedStack = pilaRecursion; // points to the last stack used
    }
 
    public int depth ()
@@ -41,16 +39,15 @@ public class layComposCyclicControl
 
    public boolean pushClean (String item)
    {
-      lastUsedStack = this.pilaRecursion;
       if (pilaRecursion.contains (item) || pilaRecursion.size () > 20)
       {
-         cyclusMsg = "";
+         cyclusErrorMsg = "";
          for (int yy = 0; yy < pilaRecursion.size (); yy ++)
          {
-            cyclusMsg += (yy == 0) ? "": " -> ";
-            cyclusMsg += "[" + (String) pilaRecursion.get (yy) + "]";
+            cyclusErrorMsg += (yy == 0) ? "": " -> ";
+            cyclusErrorMsg += "[" + (String) pilaRecursion.get (yy) + "]";
          }
-         cyclusMsg += " -> [" + item + "]";
+         cyclusErrorMsg += " -> [" + item + "]";
          return false;
       }
       //System.out.println ("[[" + pilaRecursion.size () + "]] ((" + item + "))");
@@ -61,26 +58,6 @@ public class layComposCyclicControl
    public void pop ()
    {
       pilaRecursion.remove (pilaRecursion.size () -1);
-   }
-
-   /**
-      Function for log purposes
-      Note that it does not return the stack of this instance but the last used stack!
-
-      //(o) TODO_listix debug listix format stack: evaluate effects of this approach
-
-      Note that this mechanism does not guarantee that this is the stack of the current
-      active listix instance (the last active when the error has been produced), but in many
-      cases it will work
-   */
-   public static String [] getLastFormatStack ()
-   {
-      if (lastUsedStack == null) return new String [0];
-      String [] laPila = new String [lastUsedStack.size ()];
-      for (int ii = 0; ii < lastUsedStack.size (); ii ++)
-         laPila[ii] = (String) lastUsedStack.get (ii);
-
-      return laPila;
    }
 }
 

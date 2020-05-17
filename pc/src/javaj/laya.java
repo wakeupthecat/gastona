@@ -153,7 +153,7 @@ public class laya
          //seems to be cyclic
 
          //Normal handling
-         log.fatal ("recBuildLayout", "layout [" + layoutName + "] is cyclic ! (" + ciclon.cyclusMsg + ")");
+         log.fatal ("recBuildLayout", "layout [" + layoutName + "] is cyclic ! (" + ciclon.cyclusErrorMsg + ")");
          //writeStringOnTarget("((cyclic!))");
          return;
       }
@@ -272,7 +272,7 @@ public class laya
       if (! ciclon.pushClean (layoutName))
       {
          //seems to be cyclic
-         log.fatal ("loadWidgetsOfLayout", "layout [" + layoutName + "] is cyclic ! (" + ciclon.cyclusMsg + ")");
+         log.fatal ("loadWidgetsOfLayout", "layout [" + layoutName + "] is cyclic ! (" + ciclon.cyclusErrorMsg + ")");
          return;
       }
 

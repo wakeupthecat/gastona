@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200506 \"UDPsicoleg\"
+   <gastonaVersion>  //1.2.200516 \"lsxelaps\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

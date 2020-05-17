@@ -8,6 +8,13 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2020-05-17 03:00:00  new :lsx elapsed, millisecondsToSapiens, STRCONV TMILLIS-HUMAN
+      2020-05-22 23:26:12  Fix slider UI in windows
+      2020-05-14 01:27:01  vec3.js new copy constructor
+      2020-05-10 09:56:35  Fix regression in trassos2D.js
+      2020-05-06 22:37:35  UDPsicoleg and inprovement in trassos2D
+      2020-05-06 17:22:43  REMOVE methods scrollToRow from absTableWindow! scrollToRow obtained in zWidget!
+      2020-04-27 17:22:43  message scrollToRow in asiste Table
       2020-04-16 20:17:26	new coordinateIntervalNorm.js
       2020-03-30 21:05:56	vec3.js extension + test
       2020-03-15 02:58:05	Fix empassacsv.jsgo csv without quotes
