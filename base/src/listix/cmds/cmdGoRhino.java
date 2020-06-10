@@ -408,6 +408,11 @@ public class cmdGoRhino implements commandable
          scope.put("log", scope, me.log());
          scope.put("listix", scope, me);
 
+         // ======== Alternative to evaluateString : advantages ? drawbacks ?
+         //
+         // Script scr = cx.compileString(jsSource, "cmdGoRhinoComp.js", 0, null);
+         // scr.exec(cx, scope);
+
          Object result = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
          sal = Context.toString(result);
       }
@@ -415,6 +420,36 @@ public class cmdGoRhino implements commandable
       {
          if (log != null)
           log.err ("GoRhino", "Ecma ERROR [" + e + "] in script : " + introScript (jsSource, log));
+      }
+      catch (org.mozilla.javascript.JavaScriptException ex)
+      {
+         if (log != null)
+         {
+            // String msg = org.mozilla.javascript.tools.ToolErrorReporter.getExceptionMessage(ex); 
+            String msg = "JavaScriptsx [" + ex.details() + "]";
+            log.err("GoRhino", msg + " at " + ex.sourceName() + " (" + ex.lineNumber() + ")" +
+                    "\n" + ex.lineSource() + " at col " + ex.columnNumber()); 
+         }
+      }
+      catch (org.mozilla.javascript.EvaluatorException ex)
+      {
+         if (log != null)
+         {
+            // String msg = org.mozilla.javascript.tools.ToolErrorReporter.getExceptionMessage(ex); 
+            String msg = "Evaluatorx [" + ex.details() + "]";
+            log.err("GoRhino", msg + " at " + ex.sourceName() + " (" + ex.lineNumber() + ")" +
+                    "\n" + ex.lineSource() + " at col " + ex.columnNumber()); 
+         }
+      }
+      catch (org.mozilla.javascript.RhinoException ex)
+      {
+         if (log != null)
+         {
+            // String msg = org.mozilla.javascript.tools.ToolErrorReporter.getExceptionMessage(ex); 
+            String msg = "MesalesRhinales";
+            log.err("GoRhino", msg + " at " + ex.sourceName() + " (" + ex.lineNumber() + ")" +
+                    "\n" + ex.lineSource() + " at col " + ex.columnNumber()); 
+         }
       }
       catch (Exception e)
       {
@@ -424,10 +459,29 @@ public class cmdGoRhino implements commandable
       finally { Context.exit(); }
       return sal;
    }
+   
+    // private static String getExceptionMessage(RhinoException ex) 
+    // { 
+    //     String msg; 
+    //     if (ex instanceof JavaScriptException) { 
+    //         msg = getMessage("msg.uncaughtJSException", ex.details()); 
+    //     } else if (ex instanceof EcmaError) { 
+    //         msg = getMessage("msg.uncaughtEcmaError", ex.details()); 
+    //     } else if (ex instanceof EvaluatorException) { 
+    //         msg = ex.details(); 
+    //     } else { 
+    //         msg = ex.toString(); 
+    //     } 
+    //     return msg; 
+    // } 
 }
 
 
 /*
+
+read
+https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino/Scopes_and_Contexts
+
 
    possible options to implement in future
 

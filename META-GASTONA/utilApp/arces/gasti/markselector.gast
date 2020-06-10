@@ -1,0 +1,174 @@
+#javaj#
+
+   <layout of FmarkSelector>
+      EVA, 4, 4, 2, 2
+
+          ,    , X
+        X , aMarkAll, -
+         , lCombinations, -
+         , kMarkColumn, kAND
+       X , iMarkCompat, -
+         , lNew mark, -
+         , lNode, eNode
+         , lMark, eMarkName
+         , bSaveMark, bRemoveMark
+
+#data#
+
+   <eNode> //common/def
+
+   <aMarkAll rootTitle> Marks
+   <iMarkCompat visibleColumns> markname
+
+   <kMarkColumn selected> 0
+   <kAND selected> 0
+
+#listix#
+
+   <MARKTABLE> thisdb_TableMarks
+
+   <markSelectorRefresh>
+      -->, aMarkAll data!, sqlSelect, //SELECT node||"/"||markname AS node FROM @<MARKTABLE>
+      LSX, markSelectorResetAdditional
+
+   <markSelectorResetAdditional>
+      -->, iMarkCompat data!, sqlSelect, // SELECT markname FROM @<MARKTABLE> WHERE markname = ''
+
+   <-- bSaveMark>
+      CHECK, VAR, sTabala sqlSelect, BOX, I, //No select to store
+      CHECK, !=, "", @<eMarkName>, BOX, I, //Provide a name for the mark
+      DB,, EXECUTE, @<SQL-INSERT-MARK>
+      -->, eMarkName data!,,  ""
+      LSX, markSelectorRefresh
+
+   <-- bRemoveMark>
+      DB,, EXECUTE, //DELETE FROM @<MARKTABLE> WHERE node = '@<:encode eNode>' AND markname = '@<:encode eMarkName>' ;
+      -->, eMarkName data!,,  ""
+      LSX, markSelectorRefresh
+
+   <SQL-INSERT-MARK>
+      //CREATE TABLE IF NOT EXISTS @<MARKTABLE> (node, markname, mainselect, extrawhere);
+      //DELETE FROM @<MARKTABLE> WHERE node = '@<:encode eNode>' AND markname = '@<:encode eMarkName>' ;
+      //INSERT INTO @<MARKTABLE> VALUES ('@<:encode eNode>', '@<:encode eMarkName>', '@<:encode sTabala sqlSelect>',
+      CHECK, VAR, sTabala sqlExtraFilter
+           ,     , //'@<:encode sTabala sqlExtraFilter>');
+           , ELSE, //'');
+
+   <-- aMarkAll>
+      CHECK, VAR, aMarkAll selectedPath, LSX, markSelectorResetAdditional
+      LOOP, SQL,, //SELECT * FROM @<MARKTABLE> WHERE node||"/"||markname = '@<aMarkAll selectedPath>' LIMIT 1
+          ,, -->, iMarkCompat data!, sqlSelect, // SELECT * FROM @<MARKTABLE> WHERE REPLACE(mainselect, " ", "") = REPLACE('@<:encode mainselect>', " ", "")
+          ,, -->, eNode data!,, @<node>
+          ,, -->, eMarkName data!,, @<markname>
+          ,, -->, UPDATE_SQLGRID, SELECT * FROM (@<mainselect>) @<extrawhere>
+
+   <-- iMarkCompat>
+      LSX, markSelectSendSelection
+
+   <-- kMarkColumn>
+      LSX, markSelectSendSelection
+      
+   <-- kAND>
+      LSX, markSelectSendSelection
+
+   <markSelectSendSelection>
+      CHECK, VAR, iMarkCompat subTableSelection,
+      LSX, DBG(m), @<SQL_MARKS>
+      -->, UPDATE_SQLGRID, @<SQL_MARKS>
+
+   <SQL_MARKS>
+      //SELECT * FROM (
+      LOOP, VAR, iMarkCompat subTableSelection
+          , LINK, " @<SQL_UNION_INTERSECT> "
+          ,, LSX, SQL_MARK_NOMARK
+      //) ORDER BY rowid
+
+   <SQL_UNION_INTERSECT>
+      IN CASE, @<kAND selected>
+           , 1   , INTERSECT
+           , ELSE, UNION
+      
+
+   <SQL_MARK_NOMARK>
+      IN CASE, @<kMarkColumn selected>
+           , 1   , // SELECT '@<markname>' AS MARK, * FROM (SELECT * FROM (@<mainselect>) @<extrawhere>)
+           , ELSE, // SELECT * FROM (@<mainselect>) @<extrawhere>
+#**#
+
+
+   <SQL_MARKS>
+      //SELECT DISTINCT rowid, * FROM (
+      LOOP, VAR, iMarkCompat subTableSelection
+          , LINK, " UNION "
+          ,, //@<JS-NEWSELECT> @<extrawhere>
+      //) ORDER BY rowid
+
+   <JS-NEWSELECT>
+      JS, //"@<:encode-strjs mainselect>".replace ("SELECT ", "SELECT rowid, '@<markname>' AS MARK,")
+
+
+
+   SELECT DISTINCT * FROM (
+         SELECT * FROM (SELECT
+                'bos' AS MARK,
+                path."pathStr" AS "path_pathStr" ,
+                tag."tagStr" AS "tag_tagStr" ,
+                xmelon_data."value" AS "value"
+         FROM  xmelon_data , xmelon_pathDef AS "path" , xmelon_tagDef AS "tag"
+         WHERE  xmelon_data."patID" == path."patID"  AND xmelon_data."tagID" == tag."tagID")
+         WHERE (value LIKE '%bo%')
+         UNION
+         SELECT * FROM (SELECT
+                'bos' AS MARK,
+                path."pathStr" AS "path_pathStr" ,
+                tag."tagStr" AS "tag_tagStr" ,
+                xmelon_data."value" AS "value"
+         FROM  xmelon_data , xmelon_pathDef AS "path" , xmelon_tagDef AS "tag"
+         WHERE  xmelon_data."patID" == path."patID"  AND xmelon_data."tagID" == tag."tagID")
+         WHERE (tag_tagStr LIKE '%yea%')) ORDER BY rowid
+
+
+   SELECT * FROM (
+         SELECT * FROM (SELECT
+                'bos' AS MARK,
+                path."pathStr" AS "path_pathStr" ,
+                tag."tagStr" AS "tag_tagStr" ,
+                xmelon_data."value" AS "value"
+         FROM  xmelon_data , xmelon_pathDef AS "path" , xmelon_tagDef AS "tag"
+         WHERE  xmelon_data."patID" == path."patID"  AND xmelon_data."tagID" == tag."tagID")
+         WHERE (value LIKE '%bo%')
+         UNION ALL
+         SELECT * FROM (SELECT
+                'bos' AS MARK,
+                path."pathStr" AS "path_pathStr" ,
+                tag."tagStr" AS "tag_tagStr" ,
+                xmelon_data."value" AS "value"
+         FROM  xmelon_data , xmelon_pathDef AS "path" , xmelon_tagDef AS "tag"
+         WHERE  xmelon_data."patID" == path."patID"  AND xmelon_data."tagID" == tag."tagID")
+         WHERE (value LIKE '%o%'))
+
+
+   idea:
+
+      solo anyadir rowid al select comun
+
+         commonselect = sql.replace ("SELECT ", "SELECT rowid, ")
+
+      formar la condicion
+
+         condi = loop link " OR ", "(" + (("1"+extrawhere).replace ("1WHERE ", "") + ")"
+
+      formar el campo
+
+         loop, link " || "
+             , substr (markname, 1, length(markname)*(("1"+extrawhere).replace ("1WHERE ", ""))
+
+
+      example
+
+         common sql        "SELECT * FROM fulanithos"
+
+         mark conditions   "WHERE cara = 121", "WHERE blablas = 2 ORDER BY cara", ""
+
+
+

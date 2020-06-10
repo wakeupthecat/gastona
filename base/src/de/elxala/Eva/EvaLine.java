@@ -277,7 +277,7 @@ public class EvaLine implements java.io.Serializable
       if (arr_Column.length == 1)
       {
          // we print out the escape column only if not ended with blank!
-         // since this end blanks would be erroniously trimmed
+         // since these end blanks would be erroneously trimmed
          if (!arr_Column[0].endsWith (" ") && !arr_Column[0].endsWith ("\t"))
          {
             return START_LITERAL_2 + arr_Column[0];

@@ -1,20 +1,26 @@
-2020.02.16
+2020.05.30
 
    name    : jastServer.gast
    argument: jast file
    desc    : Call micohttp serving a page where jGastona library is loaded and the jast script executed
+
+
+   syntax  :  jastServer jastfile [ outputhtmlFileName ]
 
    JAST script may contain
 
          1. client GUI and js logic in the units #javaj#, #data# and #listix#
          2. server responses and optional extra js code in #server#.
             ** Note server unit has to be found after the javaj, data and listix units!
-            this is because we inject the clien units using command "IN FILE" with
+            this is because we inject the client units using command "IN FILE" with
             the regular expression "#server#" for the end of loading
+
+   if the second paramter is given, then a html file with the name is generated instead
+   of serving the page
 
 #javaj#
 
-    <frames> oConso
+    <frames> oConso, jastServer
 
 #listix#
 
@@ -26,9 +32,21 @@
           , MERGE, ADD
           , UNIT2LOAD, server
 
+      CHECK, NUM, @<:lsx paramCount> < 2, LSX, ONLY_GENERATE, @<p2>
       CHECK, VAR, serverONCE
-           ,     , MICOHTTP, ONCE
+           ,     , LSX, ONLY_ONCE
            , ELSE, MICOHTTP, start, monoMico
+
+   <ONLY_GENERATE>
+      GEN, @<p1>, GET /
+      -->, javaj doExit
+
+   <ONLY_ONCE>
+      MICOHTTP, ONCE
+      TIMER, START, salida, 3000, 1
+      
+   <salida>
+      -->, javaj doExit
 
    <loadVAR>
       CHECK, VAR, @<p1>

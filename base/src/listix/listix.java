@@ -664,7 +664,7 @@ public class listix
       //      where
       //         PRIMITIVE       OPT
       //         path            win, linux
-      //         encode          utf8, iso- latex, html ... raw (to avoid listix var solving within the var content)
+      //         encode          utf8, iso- latex, html, strjs ... raw (to avoid listix var solving within the var content)
       //         decode          (same as encode)
       //         xorencrypt      (they and indices are given in the property gastona.xorencrypt.key)
 

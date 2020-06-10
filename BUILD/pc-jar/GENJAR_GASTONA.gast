@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200516 \"lsxelaps\"
+   <gastonaVersion>  //1.2.200610 \"arcemar2\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

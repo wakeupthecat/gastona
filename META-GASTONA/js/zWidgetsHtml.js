@@ -35,6 +35,14 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
                'k': // checkbox group
                'i': // list
 
+       it is possible to set any other html tag declaring it in "htmltag of"
+       which update the property "src" as its data
+
+       example
+
+            <htmltag of myVideo> video
+
+
 */
 
 //"use strict";

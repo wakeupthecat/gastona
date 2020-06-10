@@ -4,17 +4,19 @@
       META-GASTONA/utilApp/std/ExportBasicDialog.gasti
       META-GASTONA/utilApp/arces/gasti/sqliteHelpData.gasti
       META-GASTONA/utilApp/arces/gasti/sqliteHelpGUI.gasti
+      META-GASTONA/utilApp/arces/gasti/markselector.gast
 
 #javaj#
 
    <frames>
-      FF, ARCess v0.6, 920, 650
+      Fmain, ARCess mako2 v0.7.20200610, 920, 650
+      FmarkSelector, Mark selector v0.1
 
    <sysDefaultFonts>
       Tahoma, 11, 1, *
       Consolas, 14, 0, TextArea.font
 
-   <layout of FF>
+   <layout of Fmain>
       EVA, 5, 5, 5, 5
 
         ---,        ,  X
@@ -32,7 +34,7 @@
 
        ZZZ,               ,   X      ,             ,
           ,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
-          ,  lSQLQuery    , eSQLQuery,  bRun       ,   +
+          ,  lSQLQuery    , eSQLQuery,  bRun       , kMarks
 
    <layout of tabas>
       TABBED,
@@ -100,6 +102,8 @@
 
 #listix#
 
+   <DBG(m)> UDP, SEND ONCE, localhost, 18881, @<p1>
+
    <main>
       @<-- bClear Consoles>
       <! === evaluateArguments
@@ -115,6 +119,19 @@
 
    <-- kSort>          LSX, update deepTree
    <-- eFilterTabVie>  LSX, update deepTree
+
+   <-- kMarks>
+      CHECK, =, @<kMarks selected>, 1, -->, FmarkSelector hide
+      
+      LSX, markSelectorRefresh
+      -->, Fmain tellPosAndSize
+      NUM=, FmarkSelector posX, @<Fmain posX> + @<Fmain sizeX>
+      NUM=, FmarkSelector posY, @<Fmain posY>
+      NUM=, FmarkSelector sizeY, @<Fmain sizeY>
+      NUM=, FmarkSelector sizeX, 200
+      -->, FmarkSelector control!
+      -->, FmarkSelector show
+   
 
    <update deepTree>
       MSG, aDeepColumns data!, sqlSelect, //SELECT deepColumn FROM dbtemp.theDBDeepSchema WHERE deepColumn LIKE '%@<:encode eFilterTabVie>%' @<ORDER_OR_NOT>
@@ -164,11 +181,11 @@
    <-- aDeepColumns>
       CHECK, VAR, aDeepColumns selectedPath
       CHECK, !=, "", @<aDeepColumns selectedPath>
+      -->, UPDATE_SQLGRID, @<sql deep>
 
-      VAR=, sqlDeepDeveloped, @<sql deep>
-
-      -->, eSQLQuery data!, ,@<sqlDeepDeveloped>
-      -->, sTabala data!, sqlSelect, @<sqlDeepDeveloped>
+   <-- UPDATE_SQLGRID>
+      -->, eSQLQuery data!, ,@<p1>
+      -->, sTabala data!, sqlSelect, @<p1>
       LSX, ExportBasic set (gridName dbName), sTabala, ""
 
    <sql deep>

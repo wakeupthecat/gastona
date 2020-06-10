@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +58,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          1   , name         ,       , //Name of the timer and of the listix format to execute
          1   , periodMilli  ,       , //Period in milliseconds between ticks
          1   , repetitions  ,       , //Maximum number of repetitions
+         1   , initialCall  ,  0    , //Set it to 1 if the first execution has to be performed immediately
          2   , STOP         ,       ,
          2   , name         ,       , //Name of the timer and of the listix format to execute
 
@@ -114,6 +115,7 @@ public class cmdTimer implements commandable
       public int periodMilli = 1000;
       public int maxRepeat = 5;
       public int count = 0;
+      public boolean immediat = false;
 
       public void start ()
       {
@@ -136,7 +138,7 @@ public class cmdTimer implements commandable
          };
 
          timo = new Timer ();
-         timo.scheduleAtFixedRate (tasca, 0, periodMilli);
+         timo.scheduleAtFixedRate (tasca, (immediat ? 0: periodMilli), periodMilli);
       }
 
       public void stop ()
@@ -180,9 +182,6 @@ public class cmdTimer implements commandable
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
       String oper = cmd.getArg(0).toUpperCase ();
-      String name = cmd.getArg(1);
-      int period = stdlib.atoi (cmd.getArg(2));
-      int repet  = stdlib.atoi (cmd.getArg(3));
 
       theTimer.stop ();
 
@@ -191,9 +190,10 @@ public class cmdTimer implements commandable
          try
          {
             theTimer.ptrListix = that;
-            theTimer.name = name;
-            theTimer.periodMilli = period;
-            theTimer.maxRepeat = repet;
+            theTimer.name        = cmd.getArg(1);
+            theTimer.periodMilli = stdlib.atoi (cmd.getArg(2));
+            theTimer.maxRepeat   = stdlib.atoi (cmd.getArg(3));
+            theTimer.immediat    = stdlib.atoi (cmd.getArg(4)) != 0;
             theTimer.start ();
          }
          catch (Exception e)

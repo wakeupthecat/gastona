@@ -1,0 +1,13 @@
+#gastona#
+
+   <fusion>
+      META-GASTONA/utilApp/std/ExportBasicDialog.gasti
+      gasti/sqliteHelpData.gasti
+      gasti/sqliteHelpGUI.gasti
+      gasti/markselector.gast
+      arces.gast, N
+
+#listix#
+
+   <main>
+     -->, eDBName data!,, F:\PAPERS\PERSONAL\Personal.papV032
