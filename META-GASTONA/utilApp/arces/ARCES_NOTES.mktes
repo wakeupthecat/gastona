@@ -1,5 +1,37 @@
 #h ARCESS notes
 
+-- 2020-06-13 new better generated SQL for marks
+
+   - sort tree
+   - checkbox NOT and OnlyMainSQL
+   - trim sqlmain and extraSQL before store them
+   - new SQL generation
+
+--- New SQL generation
+
+See exemplox.gast, similar to this one
+
+      LSX, SQL_GEN, UNION, IN
+      
+      <SQL_GEN>
+         // SELECT rowid,
+         //        CASE  WHEN @<COND1> THEN "c1 AAA"
+         //              WHEN @<COND2> THEN "c2 BBB"
+         //              WHEN @<COND3> THEN "c3 CCC"
+         //              ELSE "c? ---"
+         //        END AS condi,
+         //        desc
+         // FROM tlog
+         // WHERE rowid @<p2> (
+         //       SELECT rowid FROM (@<SQLC1>)
+         //       @<p1>
+         //       SELECT rowid FROM (@<SQLC2>)
+         //       @<p1>
+         //       SELECT rowid FROM (@<SQLC3>)
+         //    )
+         // ORDER BY rowid
+
+
 -- 2020-06-10 improve Dialog for Marks
 
       - Dialog side aligned

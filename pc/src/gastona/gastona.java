@@ -744,9 +744,10 @@ public class gastona
 
    public static void showAboutGastona (String [] aa)
    {
+      String rest = "\nCopy" + "right (c) 200" + "7-2020" + "\nAlej" + "andro Xal" + "abarder A" + "ulet\nwww.wa" + "keupthe" + "cat.com";
       javax.swing.JOptionPane.showMessageDialog (
             null,
-            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + "\nCopyright (c) 2007-2018\nAlejandro Xalabarder Aulet\nwww.wakeupthecat.com",
+            "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + rest,
             "About",
             javax.swing.JOptionPane.INFORMATION_MESSAGE);
    }

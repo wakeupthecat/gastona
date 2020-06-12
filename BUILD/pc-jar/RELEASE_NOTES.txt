@@ -9,6 +9,7 @@
    -------------------------------------------------
 
 
+      2020-06-13 00:42:00  more improvements in arces mark selector
       2020-06-10 19:43:23  improve arces mark selector
       2020-06-10 22:00:00  Arces mark selector
       2020-05-17 05:03:00  Discontinue/remove version for java before 1.4 pcJav14
