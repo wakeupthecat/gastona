@@ -9,7 +9,7 @@
 #javaj#
 
    <frames>
-      Fmain, ARCess mako2 v0.7.20200610, 920, 650
+      Fmain, ARCess mako3 v0.8.20200618, 920, 650
       FmarkSelector, Mark selector v0.1
 
    <sysDefaultFonts>
@@ -182,6 +182,11 @@
       CHECK, VAR, aDeepColumns selectedPath
       CHECK, !=, "", @<aDeepColumns selectedPath>
       -->, UPDATE_SQLGRID, @<sql deep>
+
+    <-- aDeepColumns parent>
+      <! --- try "SELECT * FROM xxx"
+      LOOP, SQL,, //SELECT name FROM sqlite_master WHERE type IN ('table', 'view') AND name = '@<aDeepColumns selectedPath>' LIMIT 1
+          ,, -->, UPDATE_SQLGRID, //SELECT * FROM @<aDeepColumns selectedPath>
 
    <-- UPDATE_SQLGRID>
       -->, eSQLQuery data!, ,@<p1>

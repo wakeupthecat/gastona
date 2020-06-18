@@ -790,7 +790,7 @@ public class cmdStrconvert implements commandable
             that.log().dbg (2, "STRCONV", "path-canonical II [" + p1 + "]");
          }
 
-         File fi = new File (p1);
+         File fi = new File2 (p1);
          try
          {
             strResult = fi.getCanonicalPath ();

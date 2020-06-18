@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -142,7 +142,7 @@ public class cmdIntent implements commandable
          {
             ArrayList<Uri> arrUri = new ArrayList<Uri> ();
             for (int ii = 0; ii < filesList.size (); ii ++)
-               arrUri.add (Uri.fromFile(new File((String) filesList.get (ii))));
+               arrUri.add (Uri.fromFile(new File2 ((String) filesList.get (ii))));
             procura.putParcelableArrayListExtra (Intent.EXTRA_STREAM, arrUri);
          }
 
@@ -242,7 +242,7 @@ public static void email(Context context, String emailTo, String emailCC, String
     ArrayList<Uri> uris = new ArrayList<Uri>();
     //convert from paths to Android friendly Parcelable Uri's
     for (String file : filePaths)
-        uris.add (Uri.fromFile(new File(file)));
+        uris.add (Uri.fromFile(new File2 (file)));
 
     emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
     context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));

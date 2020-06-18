@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005..2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -458,7 +458,7 @@ public class cmdZip implements commandable
          //NOTE: FOR JAR FILES IT IS MANDATORY USING / INSTEAD OF \ !!! (TO AVOID THE ERROR MESSAGE "Invalid or corrupt jar file!");
 
          ZipEntry entry = new ZipEntry(entrySingle.replace('\\', '/'));
-         File fil = new File (entryFull);
+         File fil = new File2 (entryFull);
          long filesTime = fil.lastModified ();
          entry.setTime (filesTime);
          entry.setSize (fil.length ());
@@ -618,7 +618,7 @@ public class cmdZip implements commandable
                }
 
                // set date
-               File fi = new File (targetFileName);
+               File fi = new File2 (targetFileName);
                fi.setLastModified (entry.getTime ());
                continue;
             }
@@ -661,7 +661,7 @@ public class cmdZip implements commandable
                if (!memoryFile)
                {
                   // set date
-                  File fi = new File (targetFileName);
+                  File fi = new File2 (targetFileName);
                   fi.setLastModified (entry.getTime ());
                }
             }
@@ -753,8 +753,8 @@ public class cmdZip implements commandable
 
       if (setDateTimeFromFile)
       {
-         File fiori  = new File (fileToZip);
-         File figzip = new File (targetZip);
+         File fiori  = new File2 (fileToZip);
+         File figzip = new File2 (targetZip);
          figzip.setLastModified (fiori.lastModified ());
       }
 
@@ -849,13 +849,13 @@ public class cmdZip implements commandable
       {
          if (dateTimeOption.equalsIgnoreCase ("gz") || dateTimeOption.equalsIgnoreCase ("gzip"))
          {
-            File figzip = new File (oriZip);
-            File fiori  = new File (targetFile);
+            File figzip = new File2 (oriZip);
+            File fiori  = new File2 (targetFile);
             fiori.setLastModified (figzip.lastModified ());
          }
          else
          {
-            File fiori  = new File (targetFile);
+            File fiori  = new File2 (targetFile);
             fiori.setLastModified (DateFormat.getAsLong (dateTimeOption));
          }
       }

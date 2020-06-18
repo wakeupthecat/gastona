@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -24,7 +24,7 @@ import java.awt.Dimension;
 
 import de.elxala.Eva.*;
 import de.elxala.langutil.*;
-import de.elxala.langutil.filedir.fileUtil;
+import de.elxala.langutil.filedir.*;
 
 /**
 */
@@ -93,7 +93,7 @@ public class fileDialog
       String dirName = "";
       File fil = fileUtil.getNewFile (thisDir);
       if (! fil.exists ())
-         fil = new File (".");
+         fil = new File2 (".");
       try { dirName = fil.getCanonicalPath (); } catch (Exception e) {}
       //
       // fin de fix

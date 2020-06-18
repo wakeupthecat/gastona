@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -24,7 +24,6 @@ import java.net.*;
 import java.awt.Component;
 import javax.swing.ImageIcon;
 import de.elxala.zServices.*;
-//import de.elxala.langutil.*;
 import de.elxala.langutil.filedir.*;
 
 public class javaLoad extends Component
@@ -130,7 +129,7 @@ public class javaLoad extends Component
       //
       boolean ok = true;
 
-      File afile = new File (onePathOrJar);
+      File afile = new File2 (onePathOrJar);
 
       // convert file into url
       //

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019 Alejandro Xalabarder Aulet
+Copyright (C) 2019-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -208,7 +208,7 @@ public class cmdProcessImage implements commandable
    private BufferedImage openImage (String srcFileName)
    {
       BufferedImage image;
-      File imgFile = new File(srcFileName);
+      File imgFile = new File2 (srcFileName);
 
       try {
          image = ImageIO.read(imgFile);

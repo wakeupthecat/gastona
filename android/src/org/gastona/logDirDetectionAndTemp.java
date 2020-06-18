@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -59,11 +59,11 @@ public class logDirDetectionAndTemp
          // detection of directory "gastonaLog" or "sessionLog"
          //
          strSessDir = "gastonaLog";
-         File checkFile = new File (strSessDir);
+         File checkFile = new File2 (strSessDir);
          if (!checkFile.exists () || !checkFile.isDirectory())
          {
             strSessDir = "sessionLog";
-            checkFile = new File (strSessDir);
+            checkFile = new File2 (strSessDir);
             if (!checkFile.exists () || !checkFile.isDirectory())
             {
                // no log at all !
@@ -78,7 +78,7 @@ public class logDirDetectionAndTemp
 
    protected static void setSessionLogDir (String dirName)
    {
-      File sessDir = new File (dirName);
+      File sessDir = new File2 (dirName);
       if (!sessDir.exists ()) sessDir.mkdirs ();
       if (!sessDir.exists ())
       {

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2015 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -100,7 +100,7 @@ public class cmdTouch implements commandable
       String fileName = cmd.getArg (0);
       String dateStr = cmd.getArg (1);
 
-      File fil = new File (fileName);
+      File fil = new File2 (fileName);
 
       if (dateStr == null || dateStr.length () == 0 || dateStr.equalsIgnoreCase ("now"))
       {

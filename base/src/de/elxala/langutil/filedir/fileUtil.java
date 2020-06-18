@@ -1,6 +1,6 @@
 /*
 java packages for gastona
-Copyright (C) 2005-2015  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@ import java.util.*;
 import java.io.*;
 import de.elxala.zServices.*;
 import de.elxala.langutil.*;
+import de.elxala.langutil.filedir.*;
 
 /**
    class fileUtil
@@ -295,10 +296,10 @@ public class fileUtil
          // Asegurar directorio temporal (debido a "gastonaTemp")
          // Seguramente es necesario hacelo asi, aunque podri'a ser suficiente
          // hacerlo solo la primera vez que se cree un fichero temporar "delete on exit"
-         File tmpDir = new File (tempdir);
+         File tmpDir = new File2 (tempdir);
          tmpDir.mkdirs ();
 
-         uniqFileTmp = File.createTempFile(prefix, sufix, new File (tempdir));
+         uniqFileTmp = File.createTempFile(prefix, sufix, new File2 (tempdir));
          log.dbg (2, "createTemporal", "temp file to create \"" + uniqFileTmp + "\"");
          if (tryToRemoveItOnExit)
          {
@@ -340,7 +341,7 @@ public class fileUtil
 
       //delete the file and do mkdirs to create it as directory using the same name!
       //
-      File tDir = new File (tempDir);
+      File tDir = new File2 (tempDir);
       tDir.delete();
       if (!tDir.mkdirs())
       {
@@ -370,7 +371,7 @@ public class fileUtil
          return true;
       }
       // ensure directory
-      File dirFile = new File (fullFilePath);
+      File dirFile = new File2 (fullFilePath);
       // System.out.println ("1 dirfile = " + dirFile);
 
       dirFile = dirFile.getParentFile();
@@ -465,7 +466,7 @@ public class fileUtil
 //System.out.println ("mkdirs ii " + ii + " subpath [" + subPath + "]");
          if (subPath.length () > 0)
          {
-            File fi = new File (concatPaths (dirBase, subPath));
+            File fi = new File2 (concatPaths (dirBase, subPath));
             if (!lastOneIsFile || ii < dirList.size ()-1)
             {
 //System.out.println ("mkdirs mkdir");
@@ -492,13 +493,13 @@ public class fileUtil
 
    public static File doubleCheckFile (String pathName)
    {
-      File pathFi = new File (pathName.length () == 0 ? ".": pathName);
+      File pathFi = new File2 (pathName.length () == 0 ? ".": pathName);
       if (!pathFi.exists ())
       {
          // Second try
          // This workaround is needed sometimes usually when current directory has been changed, no idea why this happens!
          //
-         pathFi = new File (pathFi.getAbsolutePath ());
+         pathFi = new File2 (pathFi.getAbsolutePath ());
          if (pathFi.exists ())
             log.warn ("Workaround for false 'file not exists' required for [" + pathName + "] [" + pathFi.getPath () + "]");
       }
@@ -512,7 +513,7 @@ public class fileUtil
 
       String cannon = ".";
       try { cannon = reference.getCanonicalPath(); } catch (Exception e) {}
-      return getRootDirectoryOf (new File (cannon), rootMark);
+      return getRootDirectoryOf (new File2 (cannon), rootMark);
    }
 
    private static File getRootDirectoryOf (File referenceFile, String rootMark)
@@ -611,8 +612,8 @@ public class fileUtil
 
       if (copyFile (fromFullPath, toFullPath, false))
       {
-         File src = new File (fromFullPath);
-         File tgt = new File (toFullPath);
+         File src = new File2 (fromFullPath);
+         File tgt = new File2 (toFullPath);
 
          if (src != null && src.exists() && src.isFile() &&
              tgt != null && tgt.exists() && tgt.isFile() &&

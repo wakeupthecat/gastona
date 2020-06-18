@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +18,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package javaj.widgets.kits;
 
+import de.elxala.langutil.filedir.*;
 import java.io.*;
 //import javax.swing.*;
 //import java.awt.Dimension;
@@ -64,9 +65,9 @@ public class fileDialog
 //      //                 at javax.swing.JFileChooser.<init>(JFileChooser.java:288)
 //      //
 //      String dirName = "";
-//      File fil = new File (thisDir);
+//      File fil = new File2 (thisDir);
 //      if (! fil.exists ())
-//         fil = new File (".");
+//         fil = new File2 (".");
 //      try { dirName = fil.getCanonicalPath (); } catch (Exception e) {}
 //      //
 //      // fin de fix

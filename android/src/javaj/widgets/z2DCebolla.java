@@ -53,6 +53,7 @@ public class z2DCebolla extends uniSceneInMotionView
    private final int FLUSH = 25;
    private final int FLUSH_TRAZO = 26;
    private final int FLUSH_JS = 27;
+   private final int SET_REDUCE_ALGORITHM = 28;
 
    private basicAparato helper = null;
    private Bitmap backgBitmap = null;
@@ -83,6 +84,7 @@ public class z2DCebolla extends uniSceneInMotionView
       Mensaka.subscribe (this, REDUCE_POINTS, map_name + " reducePoints");
       Mensaka.subscribe (this, SET_STYLE, map_name + " setStyle");
       Mensaka.subscribe (this, CLEAR, map_name + " clear");
+      Mensaka.subscribe (this, SET_REDUCE_ALGORITHM, map_name + " setReduceAlgorithm");
    }
 
    //-i- interface iWidget
@@ -194,6 +196,11 @@ public class z2DCebolla extends uniSceneInMotionView
          case REDUCE_POINTS:
             miCebolla.createReducedCurrent (getPar1Int (pars, 0));
             render ();
+            break;
+
+         case SET_REDUCE_ALGORITHM:
+            //?? miCebolla.setReduceAlgorithm (getPar1Str (pars, ""));
+            //?? render ();
             break;
 
          case SET_STYLE:

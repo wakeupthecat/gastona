@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005-2019 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -257,7 +257,7 @@ public class microToolInstaller
       //
       if (utilSys.isOSNameWindows () && toolLogicName.equalsIgnoreCase("sqlite"))
       {
-         if ((new File ("sqlite3.exe")).exists ())
+         if ((new File2 ("sqlite3.exe")).exists ())
          {
             log.dbg (2, "getExeToolPath", "sqlite is local!");
             return "sqlite3.exe";
@@ -373,7 +373,7 @@ public class microToolInstaller
          }
          if (temporalPolicy)
          {
-            File fio = new File (target);
+            File fio = new File2 (target);
             fio.deleteOnExit ();
          }
       }

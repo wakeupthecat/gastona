@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2014 Alejandro Xalabarder Aulet
+Copyright (C) 2014-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -186,7 +186,7 @@ public class cmdScreenshot implements commandable
       String parent = filo.getParent ();
       if (parent != null && parent.length () > 0)
       {
-         File destDir = new File (filo.getParent ());
+         File destDir = new File2 (filo.getParent ());
          destDir.mkdirs ();
       }
 

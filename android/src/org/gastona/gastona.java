@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 to 2012 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -297,8 +297,8 @@ public class gastona
             else
             {
                //check if tmp dir
-               File tmpDir = new File (System.getProperty ("java.io.tmpdir", ""));
-               File gasDir = new File (dirOfGastFile);
+               File tmpDir = new File2 (System.getProperty ("java.io.tmpdir", ""));
+               File gasDir = new File2 (dirOfGastFile);
 
                String sTmpDir = tmpDir.getPath ();
                String sGasDir = gasDir.getPath ();

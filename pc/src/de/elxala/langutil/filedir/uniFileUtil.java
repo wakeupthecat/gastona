@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005-2018  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -68,18 +68,18 @@ public class uniFileUtil
       if (explicitTmpDir != null)
       {
          //    1) explicit given temp dir (property gastona.tmp.dir)
-         tmpDir = new File (explicitTmpDir);
+         tmpDir = new File2 (explicitTmpDir);
       }
       else
       {
          //    2) if relative ./tmp folder exists then IT IS THE BASE TEMP DIR
          //    3) if absolute /tmp (or \gastona in windows *) folder exists then IT IS THE BASE TEMP DIR !!!
          //    4) take it from java.io.tmpdir property
-         tmpDir = new File ("tmp");
+         tmpDir = new File2 ("tmp");
          if (!tmpDir.exists () || !tmpDir.isDirectory ())
-            tmpDir = utilSys.isSysUnix ? new File ("/tmp"): new File ("/gastona");
+            tmpDir = utilSys.isSysUnix ? new File2 ("/tmp"): new File2 ("/gastona");
          if (!tmpDir.exists () || !tmpDir.isDirectory ())
-            tmpDir = new File (System.getProperty("java.io.tmpdir", "."));
+            tmpDir = new File2 (System.getProperty("java.io.tmpdir", "."));
       }
 
       try { tempDirBase = tmpDir.getCanonicalPath (); } catch (Exception e) {}

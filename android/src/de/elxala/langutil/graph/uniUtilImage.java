@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 package de.elxala.langutil.graph;
+
+import de.elxala.langutil.filedir.*;
 
 /*
 */
@@ -149,7 +151,7 @@ public class uniUtilImage
       try
       {
           // Save as PNG
-          File file = new File(fileName);
+          File file = new File2 (fileName);
           ImageIO.write(ima, formatName, file);
       }
       catch (IOException e)

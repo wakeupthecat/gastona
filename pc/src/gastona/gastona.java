@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005..2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -220,7 +220,6 @@ import de.elxala.langutil.filedir.*;
 import de.elxala.mensaka.*;
 import de.elxala.langutil.*;
 import de.elxala.zServices.*;
-import de.elxala.langutil.filedir.fileUtil;
 import javax.swing.SwingUtilities;
 import de.elxala.db.*;
 
@@ -602,8 +601,8 @@ public class gastona
             else
             {
                //check if tmp dir
-               File tmpDir = new File (System.getProperty ("java.io.tmpdir", ""));
-               File gasDir = new File (dirOfGastFile);
+               File tmpDir = new File2 (System.getProperty ("java.io.tmpdir", ""));
+               File gasDir = new File2 (dirOfGastFile);
 
                String sTmpDir = tmpDir.getPath ();
                String sGasDir = gasDir.getPath ();
@@ -647,7 +646,7 @@ public class gastona
          log.dbg (2, "init", log.getLogDirectory () + gastonaCtes.NAME_LINKED_GAST + " saved");
 
 //         //try to clean sqlite log file
-//         File fi = new File (log.getLogDirectory () + de.elxala.db.sqlite.clientCaller.SQLITE_LOG_FILE_NAME);
+//         File fi = new File2 (log.getLogDirectory () + de.elxala.db.sqlite.clientCaller.SQLITE_LOG_FILE_NAME);
 //         if (fi.exists ())
 //            fi.delete ();
 

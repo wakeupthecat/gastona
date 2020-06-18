@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -334,7 +334,7 @@ CODIGO PARA ......
 
 
             // make dir if necessary
-            File eldir  = new File (dirOutput);
+            File eldir  = new File2 (dirOutput);
             if (!eldir.exists ())
             {
                System.out.println ("creating directory " + eldir);
@@ -342,7 +342,7 @@ CODIGO PARA ......
             }
 
             System.out.println ("ripping " + urlname);
-            File yabasta  = new File ("BASTA");
+            File yabasta  = new File2 ("BASTA");
 
             int total = 0;
             boolean endOfStream = false;
@@ -360,7 +360,7 @@ CODIGO PARA ......
                FileOutputStream roso = null;
                try
                {
-                  roso = new FileOutputStream (new File (outFileName));
+                  roso = new FileOutputStream (new File2 (outFileName));
 
                   int charo = -1;
                   int kanto = 0;
