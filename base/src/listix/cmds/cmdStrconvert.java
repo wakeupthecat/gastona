@@ -115,7 +115,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
         29   ,   3       , //Xor encryption with shift mechanism
         30   ,   3       , //Generate java script code for painting a specific scence where using "trazos"
         31   ,   3       , //Saves into a file an image given by paths
-        32   ,   3       , //Calculate the hash value (md5 or crc32) of a file
+        32   ,   3       , //Saves into a file an image given by trassos
+        33   ,   3       , //Calculate the hash value (crc32, md5, sha1 or sha256) of a file
 
    <syntaxParams>
       synIndx, name         , defVal, desc
@@ -240,7 +241,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       31     , sizeX           , 0     , //If > 0 sizeX (width) for the final image
       31     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
-      32     , 2DTRAZOS-FILE   ,       , //
+      32     , 2DTRASSOS-FILE  ,       , //
       32     , evaName         ,       , //Variable name (eva) containing the 2d trazos
       32     , imageFilename   , 1     , //Target file name for image
       32     , fileType        , 0     , //File type, default is "png"
@@ -248,7 +249,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       32     , sizeY           , 0     , //If > 0 sizeY (height) for the final image
 
       33     , HASH            ,       , //
-      33     , algorithm       ,       , //Hash algorithm, now md5 or crc32 supported
+      33     , algorithm       , md5   , //Hash algorithm, crc32, md5, sha1 and sha256 are supported
       33     , fileName        ,       , //File (real path) which hash wants to be calculated
       33     , limitMB         , 0     , //If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes
 
@@ -833,9 +834,9 @@ public class cmdStrconvert implements commandable
          // in encryption nor decryption case
          OptSolveVar = false;
       }
-      else if (oper.equals ("2DTRAZOS-JS") || oper.equals ("TRAZOS-JS"))
+      else if (oper.equals ("2DTRASSOS-JS") || oper.equals ("TRASSOS-JS") || oper.equals ("2DTRAZOS-JS") || oper.equals ("TRAZOS-JS"))
       {
-         //    STRCONV, TRAZOS-JS, evaname, uselib, width, height, offset
+         //    STRCONV, TRASSOS-JS, evaname, uselib, width, height, offset
 
          Eva source = that.getReadVarEva (p1);
          boolean optimize = ! p2.equals ("0"); // default is 1
@@ -844,8 +845,8 @@ public class cmdStrconvert implements commandable
          int telaY = stdlib.atoi (cmd.getArg(4));
          boolean offset0 = 1 == stdlib.atoi (cmd.getArg(5));
 
-         // simple composition for "trazos" by passing that.getGlobalData ()
-         //    all trazos (with the only exception of the main one) has to be contained in data unit
+         // simple composition for "trassos" by passing that.getGlobalData ()
+         //    all trassos (with the only exception of the main one) has to be contained in data unit
          //    no relative variation: offset, resize or rotation possible
          //
          strResult = javaj.widgets.graphics.objects.editablePaths.trazosToJavaScript (source, that.getGlobalData (), optimize, telaX, telaY, offset0);
@@ -856,20 +857,15 @@ public class cmdStrconvert implements commandable
          dosD2File ("paths", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
          strResult = "";
       }
-      else if (oper.equals ("2DTRAZOS-FILE") || oper.equals ("TRAZOS-FILE"))
+      else if (oper.equals ("2DTRASSOS-FILE") || oper.equals ("TRASSOS-FILE") || oper.equals ("2DTRAZOS-FILE") || oper.equals ("TRAZOS-FILE"))
       {
-         //    STRCONV, 2DTRAZOS-FILE, evaname, pngFileName, filetype[png], dx, dy
-         dosD2File ("trazos", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
+         //    STRCONV, 2DTRASSOS-FILE, evaname, pngFileName, filetype[png], dx, dy
+         dosD2File ("trassos", that.getReadVarEva (p1), p2, p3, cmd.getArg(4), cmd.getArg(5));
          strResult = "";
       }
       else if (oper.equals ("HASH") || oper.equals ("HASH-FILE"))
       {
-         strResult = "";
-         if (p1.equalsIgnoreCase ("md5"))
-            strResult = hashos.md5 (p2, stdlib.atoi (p3));
-         else if (p1.equalsIgnoreCase ("crc") ||
-                  p1.equalsIgnoreCase ("crc32"))
-            strResult = hashos.crc32 (p2, stdlib.atoi (p3));
+         strResult = hashos.hash (p1, p2, stdlib.atoi (p3));
       }
       else
       {

@@ -855,7 +855,7 @@ INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', 'x', 'ROOTLABEL', 'rootDescription
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'RECURSIVE', '1/0', '1', '~If ~41~4 (default) then the search of files will be recursive, otherwise simple');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'FILTER', 'option, string', '', 'Option might be +/- E,F or D or </> T, S (see filter options help)');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'EXTENSIONS', 'string', '', 'comma or space separated list of extensions to admit');
-INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'ADD HASH', 'algorithm, limitMB', 'md5', 'Creates a new column with the hash applied to the file content, it can be either md5 or crc32. Additionally a limit 1000 x byte can be given to make a faster hash in case of huge files');
+INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '1', 'ADD HASH', 'algorithm, limitMB', 'SHA1', 'Creates a new column with the hash applied to the file content, it can be either SHA1, SHA256, MD5 or CRC32. Additionally a limit in MB can be given to make a faster hash of a part of the file');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('SCAN', '3', 'ROOTPATH', 'rootPath', '', 'Specify the rootPath to be deleted');
 /* START PROCESSING ..\..\base\src\listix\cmds\cmdScreenshot.java */
 
@@ -933,7 +933,8 @@ INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '28', '3', 'Unescape a string u
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '29', '3', 'Xor encryption with shift mechanism');
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '30', '3', '~Generate java script code for painting a specific scence where using ~3trazos~3');
 INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '31', '3', 'Saves into a file an image given by paths');
-INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '32', '3', 'Calculate the hash value (md5 or crc32) of a file');INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '0', 'SUBSTR', '', '');
+INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '32', '3', 'Saves into a file an image given by trassos');
+INSERT INTO tlsxCmdSyntaxHead VALUES ('STRCONV', '33', '3', 'Calculate the hash value (crc32, md5, sha1 or sha256) of a file');INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '0', 'SUBSTR', '', '');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '1', 'string', '', 'String source');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '2', 'offset', '', 'zero based offset position start of the resulting substring to obtain');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '1', '3', 'length', '', 'maximal length of the desired substring');
@@ -1023,14 +1024,14 @@ INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '86', 'imageFilename', 
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '87', 'fileType', '0', '~File type, default is ~3png~3');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '88', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '31', '89', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '90', '2DTRAZOS-FILE', '', '');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '90', '2DTRASSOS-FILE', '', '');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '91', 'evaName', '', 'Variable name (eva) containing the 2d trazos');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '92', 'imageFilename', '1', 'Target file name for image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '93', 'fileType', '0', '~File type, default is ~3png~3');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '94', 'sizeX', '0', 'If > 0 sizeX (width) for the final image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '32', '95', 'sizeY', '0', 'If > 0 sizeY (height) for the final image');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '33', '96', 'HASH', '', '');
-INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '33', '97', 'algorithm', '', 'Hash algorithm, now md5 or crc32 supported');
+INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '33', '97', 'algorithm', 'md5', 'Hash algorithm, crc32, md5, sha1 and sha256 are supported');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '33', '98', 'fileName', '', 'File (real path) which hash wants to be calculated');
 INSERT INTO tlsxCmdSyntaxParams VALUES ('STRCONV', '33', '99', 'limitMB', '0', 'If 0 (height) the hash will use all bytes of the file else only the given limit x million bytes');INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '22', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');
 INSERT INTO tlsxCmdSyntaxOpts VALUES ('STRCONV', '23', 'SOLVE VAR', '1 / 0', '1', 'Set to 1 if want to solve variables, e.g. @<myvar> or set to 0 to treat it as literal');

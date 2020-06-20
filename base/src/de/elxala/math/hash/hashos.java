@@ -1,6 +1,6 @@
 /*
 package de.elxala
-(c) Copyright 2019 Alejandro Xalabarder Aulet
+(c) Copyright 2019-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -22,7 +22,10 @@ import java.io.*;
 import java.io.InputStream;   // for files from jar file (resources)
 import java.util.zip.CRC32;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
+import de.elxala.langutil.*;
+
 
 // Tiempos con buffer de 50000
 //    se tarda unos 5 min en hacer el crc de un fichero de 5 GB
@@ -49,143 +52,105 @@ import java.math.BigInteger;
  
 public class hashos
 {
-   private static int B_LIMIT = 0;
-   private static int B_READ = 1;
-   private static int BUFFER_SIZE = 2500000;
-
-   public static double atof (String sDob)
-   {
-      double reto = 0.;
-
-      try {
-         reto = Double.parseDouble(sDob);
-      }
-      catch (Exception e) {}
-
-      return reto;
-   }
-
-   public static FileInputStream openFileBinary (String fileName)
-   {
-      FileInputStream m_fis = null;
-      
-      try
-      {
-         m_fis = new FileInputStream (fileName);
-      }
-      catch (Exception e)
-      {
-      }
-      return m_fis;
-   }
-
-   public static void closeFile (FileInputStream m_fis)
-   {
-      if (m_fis != null)
-         try { m_fis.close (); } catch (Exception e) {}
-   }
-   
-   public static int readBytes (FileInputStream m_fis, byte [] cbuf, int [] byteState)
-   {
-      if (m_fis == null) return -1;
-      if (byteState[B_LIMIT] != 0 && byteState[B_READ] >= byteState[B_LIMIT]) return -1;
-     
-      
-      int quant;
-      try
-      {
-         quant = m_fis.read (cbuf);
-      }
-      catch (Exception e)
-      {
-         //log.err ("readBytes", "exception reading the file [" +  m_FileName  + "] " + e.toString ());
-         // System.out.print ("Erroures!");
-         return -1;
-      }
-
-      if (byteState[B_LIMIT] != 0)
-         byteState[B_READ] += quant;
-      
-      int massa = byteState[B_READ] > byteState[B_LIMIT] ? byteState[B_READ] - byteState[B_LIMIT]: 0;
-
-      return quant - massa;
-   }
-
-   public static String md5 (String filename)
-   {
-      return md5 (filename, 0);
-   }
-   
-   public static String md5 (String filename, int limitMB)
-   {
-      MessageDigest md5 = null;
-      int [] bytesCtrl = { limitMB * 1000000, 0 };
-      
-      try {
-         md5 = MessageDigest.getInstance("MD5");
-      } catch (Exception e) { return ""; }
-         
-      md5.reset();
-      
-      int tants = 0;
-      byte [] paquet = new byte[BUFFER_SIZE];
-      FileInputStream fitxer = openFileBinary (filename);
-      if (fitxer != null)
-      {
-         do {
-            tants = readBytes(fitxer, paquet, bytesCtrl);
-            if (tants >= 0)
-               md5.update (paquet, 0, tants);
-         } while (tants != -1);
-         closeFile (fitxer);
-         BigInteger bigInt = new BigInteger(1, md5.digest());
-         return bigInt.toString(16);
-      }
-      return "";
-   }
-      
    public static String crc32 (String filename)
    {
       return crc32 (filename, 0);
-   }
-   
+      }
+
    public static String crc32 (String filename, int limitMB)
    {
-      int [] bytesCtrl = { limitMB * 1000000, 0 };
       CRC32 crc = new CRC32();
-         
-      int tants = 0;
-      byte [] paquet = new byte[BUFFER_SIZE];
-      FileInputStream fitxer = openFileBinary (filename);
-      if (fitxer != null)
+      
+      try
       {
-         do {
-            tants = readBytes(fitxer, paquet, bytesCtrl);
-            if (tants >= 0)
-               crc.update (paquet, 0, tants);
-         } while (tants != -1);
-         closeFile (fitxer);
-         return "" + crc.getValue();
+         FileInputStream fis = new FileInputStream(filename);
+
+         if (fis == null)
+            return "";
+
+         byte[] data = new byte[1024*1024];
+         int read = 0;
+         while ((--limitMB != 0) && (read = fis.read(data)) != -1)
+            crc.update(data, 0, read);
+         fis.close ();
       }
-      return "";
+      catch (Exception ex)
+      {
+      }
+
+      return "" + crc.getValue();
+   }
+
+   
+   public static StringBuffer hashStrBuff (String alg, String file, int limitMB) throws NoSuchAlgorithmException, IOException
+   {
+      MessageDigest hashi = MessageDigest.getInstance(alg.toUpperCase ());
+      FileInputStream fis = new FileInputStream(file);
+     
+      if (fis == null)
+         return new StringBuffer ();
+      
+      byte[] data = new byte[1024*1024];
+      int read = 0;
+      while ((--limitMB != 0) && (read = fis.read(data)) != -1)
+         hashi.update(data, 0, read);
+
+      fis.close ();
+      byte[] hashBytes = hashi.digest();
+      
+      StringBuffer sb = new StringBuffer();
+      for (int ii = 0; ii < hashBytes.length; ii ++)
+         sb.append(Integer.toString((hashBytes[ii] & 0xff) + 0x100, 16).substring(1));
+
+      return sb;
+   }
+
+   public static String hash (String algo, String fileName)
+   {
+      return hash (algo, fileName, 0);
+   }
+   
+   public static String getDefaultAlgo ()
+   {
+      // faster than sha1 and sha256
+      return "MD5";   
+   }
+
+   public static String hash (String algo, String fileName, int limitMB)
+   {
+      String ALGO = algo.toUpperCase ();
+      if (ALGO.equals (""))       ALGO = getDefaultAlgo ();
+      if (ALGO.equals ("SHA1"))   ALGO = "SHA-1";
+      if (ALGO.equals ("SHA256")) ALGO = "SHA-256";
+      if (ALGO.equals ("CRC"))    ALGO = "CRC-32";
+      if (ALGO.equals ("CRC32"))  ALGO = "CRC-32";
+      
+      if (ALGO.equals ("CRC-32"))
+         return crc32 (fileName, limitMB);
+         
+      StringBuffer sbuf = new StringBuffer  ();
+      try
+      {
+         sbuf = hashStrBuff (ALGO, fileName, limitMB);
+      }
+      catch (Exception ex)
+   {
+   }
+   
+      return sbuf.toString();
    }
  
    public static void main(String[] aa)
    {
       if (aa.length != 3)
       {
-         System.out.println("hashos method(md5/crc32) firstMBytes(0,N) filename");
+         System.out.println("hashos method(SHA-1, SHA-256, MD5, CRC-32) firstMBytes(0,N) filename");
          return;
       }
       String algo = aa[0];
-      int limit = (int) atof (aa[1]);
+      int limit = (int) stdlib.atof (aa[1]);
       String file = aa[2];
       
-      if (algo.equalsIgnoreCase ("md5"))
-         System.out.println("md5 [" + md5 (file, limit) + "]");
-      else if (algo.equalsIgnoreCase ("crc") || algo.equalsIgnoreCase ("crc32"))
-         System.out.println("crc32 [" + crc32 (file, limit) + "]");
-      else 
-         System.out.println("easyhash [campeon!]");
+      System.out.println(algo + " [" + hash (algo, file, limit) + "]");
     }
 }

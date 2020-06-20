@@ -140,6 +140,28 @@ public class goFile extends ScriptableObject
    {
       return theFile.readLine () ? theFile.TheLine (): null;
    }
+   
+   // @TODO: with these two functions we would be able to read and write binary files as well
+   //
+   // @JSFunction
+   // public Object readBytes (byte [] bytes) throws IOException
+   // {
+   //    int res = theFile.readBytes (bytes
+   //
+   //    Scriptable scope = ScriptableObject.getTopLevelScope(this);
+   //    Context cx = Context.getCurrentContext();
+   //    return cx.newObject(scope, "Int", res);
+   // }
+   //
+   // @JSFunction
+   // public Object writeBytes (byte [] data, int offset, int len) throws IOException
+   // {
+   //    boolean res = theFile.writeBytes (data, offset, len);
+   //
+   //    Scriptable scope = ScriptableObject.getTopLevelScope(this);
+   //    Context cx = Context.getCurrentContext();
+   //    return cx.newObject(scope, "Int", res);
+   // }
 
     /**
      * Finalizer.

@@ -9,6 +9,7 @@
    -------------------------------------------------
 
 
+      2020-06-21 00:10:00  Add sha-1, sha-256 to STRCONV HASH and SCAN HASH option
       2020-06-18 21:51:00  File2 to fix quotes issue in java.io.File
       2020-06-13 00:42:00  more improvements in arces mark selector
       2020-06-10 19:43:23  improve arces mark selector

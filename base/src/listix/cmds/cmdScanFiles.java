@@ -134,7 +134,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       1      , RECURSIVE    ,   1/0              , "1"    , //If '1' (default) then the search of files will be recursive, otherwise simple
       1      , FILTER       ,  "option, string"  , ""     , //Option might be +/- E,F or D or </> T, S (see filter options help)
       1      , EXTENSIONS   ,  "string"          , ""     , //comma or space separated list of extensions to admit
-      1      , ADD HASH     ,  "algorithm, limitMB", "md5", //Creates a new column with the hash applied to the file content, it can be either md5 or crc32. Additionally a limit 1000 x byte can be given to make a faster hash in case of huge files
+      1      , ADD HASH     ,  "algorithm, limitMB", "SHA1", //Creates a new column with the hash applied to the file content, it can be either SHA1, SHA256, MD5 or CRC32. Additionally a limit in MB can be given to make a faster hash of a part of the file
 
       3      , ROOTPATH     ,  "rootPath"    ,         , //Specify the rootPath to be deleted
 
@@ -432,9 +432,13 @@ public class cmdScanFiles implements commandable
       //option ROOTLABEL
       //
       String [] optHash = cmd.takeOptionParameters(new String [] { "HASH", "ADDHASH" });
-      if (optHash != null && optHash.length > 0)
+
+      String hashAlgo = (optHash == null) ? null: (optHash.length > 0 && optHash[0].length () > 0) ? optHash[0]: hashos.getDefaultAlgo ();
+      int    hashLimitMB = (optHash != null && optHash.length > 0 && optHash[0].length () > 0) ? stdlib.atoi (optHash[1]): 0;
+
+      if (hashAlgo != null)
       {
-         theLog.dbg (2, "SCAN", "option HASH = '" + optHash[0] + "'" + (optHash.length > 1 ? (" limit " + optHash[1] + " x1000 bytes"): ""));
+         theLog.dbg (2, "SCAN", "option HASH = '" + hashAlgo + "'" + (hashLimitMB > 0 ? " limit " + hashLimitMB + " MB": ""));
       }
 
       boolean currentIsRecursive = true;
@@ -486,7 +490,7 @@ public class cmdScanFiles implements commandable
          return 1;
       }
 
-      createSchema (dbName, optHash);
+      createSchema (dbName, hashAlgo);
       // preparation root ID
       //
 
@@ -526,8 +530,6 @@ public class cmdScanFiles implements commandable
 
       // String [] ristra = new String [] { dirSolo, nameSolo, extension, dateStr, "" + farray[indxToca].length () };
       List cosas = null;
-      String algo = (optHash != null && optHash.length > 0) ? optHash[0]: null;
-      int hashLimMB = (optHash != null && optHash.length > 1) ? stdlib.atoi(optHash[1]): 0;
       do
       {
          // cosas = moto.scanN (100);
@@ -538,14 +540,10 @@ public class cmdScanFiles implements commandable
             String [] record = (String []) cosas.get (jj);
             String hashstr = null;
 
-            if (algo != null)
+            if (hashAlgo != null)
             {
                // fullpath is record[5]
-               if (algo.equalsIgnoreCase ("md5"))
-                  hashstr = hashos.md5 (record[5], hashLimMB);
-               else if (algo.equalsIgnoreCase ("crc") ||
-                        algo.equalsIgnoreCase ("crc32"))
-                  hashstr = hashos.crc32 (record[5], hashLimMB);
+               hashstr = hashos.hash (hashAlgo, record[5], hashLimitMB);
             }
 
             String values = rootID + ", " + (fileID ++) + ", ";
@@ -578,7 +576,7 @@ public class cmdScanFiles implements commandable
 
    // create a database
    //
-   private void createSchema (String dbName, String [] optHash)
+   private void createSchema (String dbName, String hashAlgo)
    {
       sqlSolver myDB = new sqlSolver ();
 
@@ -589,7 +587,7 @@ public class cmdScanFiles implements commandable
                         " (rootID int, rootLabel text, pathRoot text, rootType text, timeLastScan text, UNIQUE(rootID));");
       myDB.writeScript ("CREATE TABLE IF NOT EXISTS " + FILES_TABLE () +
                         " (rootID int, fileID int, pathFile text, fileName text, extension text, date text, size int, " +
-                        ((optHash != null && optHash.length > 0) ? optHash[0] + ", " : "") +
+                        ((hashAlgo != null) ? hashAlgo.replace("-", "").toLowerCase () + ", " : "") +
                         " UNIQUE(rootID, fileID));");
 
       // o-o  Add deepSql connections info

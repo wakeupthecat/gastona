@@ -170,7 +170,7 @@ public class uniUtilImage
    {
       graphicObjectLoader oblo = new graphicObjectLoader ();
 
-      if (grafFormat != null && grafFormat.equalsIgnoreCase ("trazos"))
+      if (grafFormat != null && (grafFormat.equalsIgnoreCase ("trassos") || grafFormat.equalsIgnoreCase ("trazos")))
            oblo.loadObjectFromEvaTrazos ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
       else oblo.loadObjectFromEva       ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
 
