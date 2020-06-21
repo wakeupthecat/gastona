@@ -57,4 +57,22 @@ public class strUtil
                      .replace ("\\[", "[").replace ("\\]", "]").replace ("\\.", ".")
                      .replace ("\\)", ")").replace ("\\(", "(").replace ("\\\\", "\\");
    }   
+
+
+   // converts a string to a string escaped for a C, C++, java or javascript string (literal string)
+   //
+   //
+   public static String stringToLiteraltStr (String raw)
+   {
+      return raw.replace ("\\", "\\\\").replace("\"", "\\\"")
+                .replace("\'", "\\\'").replace ("\t", "\\t")
+                .replace("\n", "\\n").replace("\r", "\\r");
+   }
+
+   public static String literalStrToString (String litstr)
+   {
+      return litstr.replace("\\r", "\r").replace("\\n", "\n")
+                   .replace ("\\t", "\t").replace("\\\'", "\'")
+                   .replace("\\\"", "\"").replace("\\\\", "\\");
+   }
 }

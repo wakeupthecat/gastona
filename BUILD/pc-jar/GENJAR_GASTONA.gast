@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200620 \"hasha1\"
+   <gastonaVersion>  //1.2.200621 \"strlit\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
