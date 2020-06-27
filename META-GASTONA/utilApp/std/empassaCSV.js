@@ -100,7 +100,7 @@ function empassaCVS (cvsFileName, sal)
              {
                 if (str[pi] != '\"') pi ++;
                 else
-                    if (str[pi+1] == '\"')
+                    if (pi+1 < FI && str[pi+1] == '\"')
                     {
                       // double ""
                       // add a part including one " and continue

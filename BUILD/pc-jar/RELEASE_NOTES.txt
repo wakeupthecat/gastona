@@ -8,7 +8,8 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
-      2020-06-25 21:55:26  Faster empassaCSV.js
+      2020-06-27 19:07:33  new command CSV for parsing CSV into DB
+      2020-06-25 21:55:26  new hashes sha-1,sha-256, faster empassaCSV.js
       2020-06-21 00:10:00  Add sha-1, sha-256 to STRCONV HASH and SCAN HASH option
       2020-06-18 21:51:00  File2 to fix quotes issue in java.io.File
       2020-06-13 00:42:00  more improvements in arces mark selector

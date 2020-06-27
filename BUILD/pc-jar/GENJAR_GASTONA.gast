@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200625 \"empassV2\"
+   <gastonaVersion>  //1.2.200627 \"csvcmd\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -179,10 +179,12 @@
 
    <copias>
       LOOP, EVA, traspasosTo
+         , LINK, ""
          ,, IF, @<toSubDir>,
          ,,   , ""         , VAR=, copyTargetDir, @<fromSubDir>
          ,,   , ELSE       , VAR=, copyTargetDir, @<toSubDir>
          ,, LOOP, FILES, @<BASE DIR GASTONA>/@<fromSubDir>
+         ,,     , LINK, ""
          ,,     ,, FILEUTIL, COPY, @<fullPath>, @<destDir>/@<copyTargetDir>/@<fullSubPath>
 
    <compila java>
