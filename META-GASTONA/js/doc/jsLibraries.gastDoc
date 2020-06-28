@@ -297,7 +297,6 @@
       //      //       arro.push (["defstyle", sty, stylesGraella[sty]]);
       //      //    var MAR = 20;
       //      //    arro.push (["rec", x0-MAR, y0-MAR, "fc:black", x1-x0+2*MAR, y1-y0+2*MAR]);
-      //      //    arro.push (["z", x0, y0, "fc:gray", "rect", x1-x0, y1-y0]);
       //      //
       //      //    for (var xx = x0; xx <= x1; xx += incx)
       //      //       arro.push (["z", xx, y0, "grid", "pol", 0, y1-y0]);

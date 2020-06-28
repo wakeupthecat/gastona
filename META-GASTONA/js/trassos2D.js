@@ -600,7 +600,7 @@ function trassos2D ()
 
    function boundingBoxAndAutoScale (trasses, width, height, squareratio, marginPercent)
    {
-      marginPercent = marginPercent || 10;
+      marginPercent = marginPercent || 0;
 
       // auto scale, offset and center image
       //
@@ -682,15 +682,15 @@ function trassos2D ()
       }
 
       function computeCircle (trass) {
-         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[4]), +(trass[4]), +(trass[4]));
+         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[4]), +(trass[4])*2, +(trass[4])*2);
       }
 
       function computeEllipse (trass) {
-         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[5]), +(trass[4]), +(trass[5]));
+         computeSquare (+(trass[1])-(trass[4]), +(trass[2])-(trass[5]), +(trass[4])*2, +(trass[5])*2);
       }
 
       function computeText (trass) {
-         computeSquare (+(trass[1]), +(trass[2]), (+(trass[4])) * DEF_SIZE_CHAR, DEF_SIZE_CHAR );
+         computeSquare (+(trass[1]), +(trass[2]), trass[4].length * DEF_SIZE_CHAR, DEF_SIZE_CHAR);
       }
 
       for (var tt in trasses) {
