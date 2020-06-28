@@ -161,7 +161,7 @@ public class cmdCsv implements commandable
       if (dbName.length () == 0)
          dbName = cmd.getListix ().getDefaultDBName ();
 
-      boolean optCSVFile2DB = cmd.meantConstantString (oper, new String [] { "FILE2DB", "XML", "XML2DB" } );
+      boolean optCSVFile2DB = cmd.meantConstantString (oper, new String [] { "FILE2DB", "CSV2DB" } );
 
       if (cmd.getLog().isDebugging (2))
          cmd.getLog().dbg (2, "CSV", "execute with : oper [" + oper + "] fileSource [" + fileSource + "] dbName [" +  dbName + "] prefix [" + tablePrefix + "]");
