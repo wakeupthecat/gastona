@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -65,7 +65,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxParams>
       synIndx, name                 , defVal             , desc
-         1   , data|formats|listix  ,                    , //Target EvaUnit, either data or formats (or equivalently listix)
+         1   , data|listix|formats|dump,                 , //Target EvaUnit or dump (no target). Target can be data or listix (old formats)
          1   , fileName             ,                    , //File name where the EvaUnit 'unitFormats' is to be found
 
    <options>
@@ -134,6 +134,10 @@ public class cmdLoadUnit implements commandable
       {
          uTarget = cmd.getListix ().getGlobalFormats ();
       }
+      else if (targetUnit.equals("dump") || targetUnit.equals("") || targetUnit.equals("-"))
+      {
+         uTarget = null;
+      }
       else
       {
          cmd.getLog ().err ("LOAD UNIT", "LOAD wrong unit target (first parameter), given \"" + targetUnit + "\", it should be either 'data', 'formats' or 'listix'");
@@ -169,10 +173,17 @@ public class cmdLoadUnit implements commandable
 
       // Getting the unit source (to merge)
       //
-      cmd.getLog ().dbg (2, "LOAD UNIT", "load unit [" + unit2Load + "] from [" + fileName + "] merge type " + mergeType + " (" + iMergeType + ")");
+      cmd.getLog ().dbg (2, "LOAD UNIT", "load unit [" + unit2Load + "] into [" + targetUnit + "] from [" + fileName + "] merge type " + mergeType + " (" + iMergeType + ")");
       EvaUnit uSource = EvaFile.loadEvaUnit (fileName, unit2Load);
 
+      if (uTarget != null)
+      {
       uTarget.merge (uSource, iMergeType);
+      }
+      else
+      {
+         that.writeStringOnTarget ("" + uSource);
+      }
 
       cmd.checkRemainingOptions ();
       return 1;
