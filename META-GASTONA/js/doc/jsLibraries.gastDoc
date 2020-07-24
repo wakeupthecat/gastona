@@ -332,6 +332,7 @@
       //      // vdata["grido graffiti"].push (["z", -40, 0, "fu1", "pol", 10, -40, 20, 40, 50, 0]);
       //      // vdata["grido graffiti"].push (["z", -40, 0, "fu2", "bez", 10, -40, 20, 40, 50, 0]);
       //      // vdata["grido graffiti"].push (["z", -40, 0, "fu3", "jau", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["tex", 0, 0, "letra", "(last entry to be remplaced with the formula)"]);
       //      // var lastons = vdata["grido graffiti"];
       //      //
       //
