@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2020  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,9 @@ package de.elxala.langutil.filedir;
 
 import de.elxala.zServices.logger;
 import java.io.*;
-//import java.io.InputStream;
-//import java.io.FileOutputStream;
 import java.net.URL;
+import de.elxala.langutil.streams.*;
+
 
 /**
    class urlUtil
@@ -68,6 +68,42 @@ public class urlUtil
       return false;
    }
 
+   protected static streamURLRipper rippo = null;
+   protected static String useURLstreamSource = null;
+
+   public static boolean streamURLStart (String urlName, String targetFileName)
+   {
+      if (urlName != null && urlName.length () > 0)
+      {
+         useURLstreamSource = urlName;
+      }
+
+      if (!urlExists (useURLstreamSource))
+      {
+         // error already logged
+         return false;
+      }
+
+      rippo = new streamURLRipper  (useURLstreamSource, targetFileName);
+      if (rippo == null)
+         return false;
+
+      rippo.start ();
+      return true;
+   }
+
+   public static boolean streamURLContinue (String targetFileName)
+   {
+      return (rippo != null) ? rippo.changeTarget (targetFileName): streamURLStart (null, targetFileName);
+   }
+
+   public static void streamURLStop ()
+   {
+      if (rippo != null)
+         rippo.stopGlobal ();
+
+      rippo = null;
+   }
 
    public static boolean copyUrl (String urlName, String dirTarget, String fullPathTarget)
    {

@@ -107,6 +107,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          7   , sourceName ,             , //Path of the file or resource to be moved
          7   , targetName ,             , //?File name target or directory name if the option AUTOSUBPATH?NEWNAME is given
 
+         8   , STREAM URL,              , //
+         8   , action,        START     , //START, CHANGE TARGET or STOP
+         8   , resourceName,            , //URL stream to be saved, empty string will use last url if any (START) or target file in case of (CHANGE TARGET)
+         8   , targetName,              , //Target filename (START)
+
+
    <examples>
       gastSample
 
@@ -264,6 +270,29 @@ public class cmdResourceUtil implements commandable
          {
             that.log ().err ("RESUTIL", "URL copy from [" + resourceName + "] to [" + toFileName + "] failed!");
          }
+      }
+      else if (cmd.meantConstantString (subCmd, new String [] { "STREAMURL", "URLRIPPER" } ))
+      {
+         String action = cmd.getArg(1);
+         if (cmd.meantConstantString (action, new String [] { "START", "BEGIN", "RUN" }))
+         {
+            String resourceName = cmd.getArg(2);
+            String toFileName = cmd.getArg(3);
+            if (!urlUtil.streamURLStart (resourceName, toFileName))
+            {
+               that.log ().err ("RESUTIL", "URL streaming from [" + resourceName + "] to [" + toFileName + "] failed!");
+            }
+         }
+         else if (cmd.meantConstantString (action, new String [] { "CHANGETARGET", "CONTINUE" }))
+         {
+            String toFileName = cmd.getArg(2);
+            if (!urlUtil.streamURLContinue (toFileName))
+            {
+               that.log ().err ("RESUTIL", "continue URL streaming to [" + toFileName + "] failed!");
+            }
+         }
+         else if (cmd.meantConstantString (action, new String [] { "STOP", "END" }))
+            urlUtil.streamURLStop ();
       }
 
       cmd.checkRemainingOptions ();
