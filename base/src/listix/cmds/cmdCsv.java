@@ -136,6 +136,7 @@ public class cmdCsv implements commandable
           "CSVPARSER",
           "PARSECSV",
           "PARSE-CSV",
+          "EMPASSACSV",
        };
    }
 

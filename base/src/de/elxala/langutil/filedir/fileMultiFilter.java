@@ -80,7 +80,7 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
             +F  the file 'textFilter' will be included (all files do not added with +F ...)
             -F  the file 'textFilter' will be excluded (all files do not excluded with -F ...)
 
-            Java Regular expresions are accepted as 'textFilter'
+            Java Regular expressions are accepted as 'textFilter'
 
           Examples:
 

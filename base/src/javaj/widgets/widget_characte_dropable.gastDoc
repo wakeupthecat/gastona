@@ -37,7 +37,7 @@
       //              ,, @<fullPath>
       //
       //    Note:
-      //    Unfortunatelly some common widgets are not able to be droppable due to some unresolved
+      //    Unfortunately some common widgets are not able to be droppable due to some unresolved
       //    technical issues. For example if making text widgets droppable then copy/paste text seems
       //    not to work and tables seems only to accept drop on an element, thus empty tables would
       //    not accept any drop.

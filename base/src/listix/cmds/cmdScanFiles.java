@@ -89,7 +89,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      +F  the file matching 'regexp' will be included (excluding all ...)
       //      -F  the file matching 'regexp' will be excluded (including all ...)
       //
-      //      Java Regular expresions are accepted as 'textFilter'
+      //      Java Regular expressions are accepted as 'textFilter'
       //         Examples:
       //
       //            -E, "obj"      exclude extensions obj
@@ -300,7 +300,7 @@ OLD OLD OLD OLD OLD -------------------------------------
                +F  the file 'textFilter' will be included (excluding ... the rest)
                -F  the file 'textFilter' will be excluded (including ... the rest)
 
-               Java Regular expresions are accepted as 'textFilter'
+               Java Regular expressions are accepted as 'textFilter'
                   examples
 
 
@@ -434,7 +434,7 @@ public class cmdScanFiles implements commandable
       String [] optHash = cmd.takeOptionParameters(new String [] { "HASH", "ADDHASH" });
 
       String hashAlgo = (optHash == null) ? null: (optHash.length > 0 && optHash[0].length () > 0) ? optHash[0]: hashos.getDefaultAlgo ();
-      int    hashLimitMB = (optHash != null && optHash.length > 0 && optHash[0].length () > 0) ? stdlib.atoi (optHash[1]): 0;
+      int    hashLimitMB = (optHash != null && optHash.length > 1 && optHash[0].length () > 0) ? stdlib.atoi (optHash[1]): 0;
 
       if (hashAlgo != null)
       {
@@ -458,7 +458,6 @@ public class cmdScanFiles implements commandable
                filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
             }
          }
-
 
          String [] extensionStr = cmd.takeOptionParameters("EXTENSIONS");
          if (extensionStr != null)
@@ -512,7 +511,6 @@ public class cmdScanFiles implements commandable
       myDB.closeScript ();
       myDB.runSQL (dbName);
 
-
       if (! entriesScanStart (pathRoot, optZip, currentIsRecursive, filtrum))
       {
          theLog.dbg (2, "SCAN", "no entries or previous error scanning \"" + pathRoot + "\"");
@@ -520,7 +518,6 @@ public class cmdScanFiles implements commandable
       }
       // pathGetFiles moto = new pathGetFiles();
       // moto.initScan (pathRoot, "", currentIsRecursive, filtrum);
-
 
       // scan & save
       //
@@ -572,7 +569,6 @@ public class cmdScanFiles implements commandable
       cmd.checkRemainingOptions ();
       return 1;
    }
-
 
    // create a database
    //

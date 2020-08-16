@@ -85,7 +85,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    CALL, //myCommandXY "@<myFile1>"
       //
-      //  could solve the problem. Unfortunatelly there is no golden rule for using quotation marks in
+      //  could solve the problem. Unfortunately there is no golden rule for using quotation marks in
       //  system commands or executables, although using them is usually the proper way, for each new
       //  command we want to call it has to be checked.
       //

@@ -37,10 +37,10 @@
               , ELSE, LSX, genDB, @<p1>
 
          DB CONFIG, DEFAULT, @<p1>.db
-         -->, sContent data!, sqlSelect, //SELECT * FROM atauCVSCells
+         -->, sContent data!, sqlSelect, //SELECT * FROM atauCSVCells
          LISTIX, ExportBasic set (gridName dbName), sContent, ""
 
-         LOOP, SQL,, //SELECT * FROM atauCVSIncidences
+         LOOP, SQL,, //SELECT * FROM atauCSVIncidences
              , HEAD, //===== @<:lsx ROWS> Incidences!
              ,, in line @<lineNr>: @<desc>
              , TAIL, //
@@ -59,9 +59,9 @@
       JS, //@<jsgoScript>
 
    <jsgoScript>
-      //var empa = empassaCVS ();
+      //var empa = empassaCSV ();
       //
-      //empa.cvs2SqliteScript ("@<:path-linux p1>", "@<:path-linux tmpsql>");
+      //empa.csv2SqliteScript ("@<:path-linux p1>", "@<:path-linux tmpsql>");
       //
       //@<:infile META-GASTONA/utilApp/std/empassaCSV.js>
       //""

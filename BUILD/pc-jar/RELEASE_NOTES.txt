@@ -8,6 +8,9 @@
    GASTONA RELEASE NOTES (from most recent to oldest)
    -------------------------------------------------
 
+      2020-08-16  fix recent regression in trassos2D
+      2020-08-09  FIX toVariableName (replace minus and dot characters)      
+      2020-08-02  new style for repetition of trassos 
       2020-07-24 	new target "dump" in command LOAD UNIT
       2020-07-13 	fix coordinateIntervalNorm.js
       2020-07-02 	new streamURLRipper

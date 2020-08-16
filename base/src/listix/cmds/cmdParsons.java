@@ -106,14 +106,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       // (Note the regular expressions are naiv, not robust enough, for simplicity)
       //
       //
-      // Regular expresions in PARSONS
+      // Regular expressions in PARSONS
       // ------------------------------------------------
       //
       // The key to get something parsed is the ability (or possibility) of finding the right "pattern".
       // For that PARSONS use standard java regular expressions (see java.util.regex.Pattern documentation).
       //
       // A regular expression can describe things like, beginning of line, one or more blanks, containg
-      // or not containing this or that character etc. Unfortunatelly the regular expressions are not
+      // or not containing this or that character etc. Unfortunately the regular expressions are not
       // preciselly easy to read but they are a proved powerful way of finding matches. To illustrate
       // this briefly, let us see an example. A text containing id, name and telephone in this way
       //

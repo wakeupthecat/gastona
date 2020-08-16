@@ -9,7 +9,10 @@
 // the input parameter is either a file given as string array or as string containing the whole text
 // including line ends.
 //
-function empassaCVS (cvsFileName, sal)
+// NOTE: The listix command CSV uses the same algorithm but since it is implemented in java
+//       is much faster, so if possible use that listix command instead.
+//
+function empassaCSV (csvFileName, sal)
 {
    var QUOT = '\"';
    var sepaCh = ",";
@@ -18,7 +21,7 @@ function empassaCVS (cvsFileName, sal)
    var fo;
 
    return {
-      cvs2SqliteScript  : cvs2SqliteScript,
+      csv2SqliteScript  : csv2SqliteScript,
       csvStrOrArr2obj   : csvStrOrArr2obj,
       csvStrUTF82obj    : csvStrUTF82obj,
    };
@@ -27,9 +30,9 @@ function empassaCVS (cvsFileName, sal)
    {
       nIncidence ++;
       if (nIncidence == 100)
-         fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", 'too much incidences, stop storing them!');");
+         fo.writeLine ("INSERT INTO atauCSVIncidences VALUES (" + nIncidence + ", " + linenr + ", 'too much incidences, stop storing them!');");
       if (nIncidence < 100)
-         fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", '" + desc + "');");
+         fo.writeLine ("INSERT INTO atauCSVIncidences VALUES (" + nIncidence + ", " + linenr + ", '" + desc + "');");
    }
 
    // trim also for IE8
@@ -141,6 +144,16 @@ function empassaCVS (cvsFileName, sal)
          eline.push (doescape ? escapeStr (cell): cell);
       } while (pi < FI);
 
+      // allow finishing with empty string. Example:
+      //    name, tel
+      //    Justine, 991
+      //    Lalia,
+      //
+      if (headColNames.size () > 0 &&
+          (eline.size () + 1) == headColNames.size () &&
+          str[FI-1] == sepaCh)
+         eline.push ("");
+
       return eline;
    }
 
@@ -185,11 +198,11 @@ function empassaCVS (cvsFileName, sal)
       }
 
       // fo.writeLine ("# from header [" + heastr + "]");
-      fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSCells (" + headColNames.join (", ") + ");");
-      fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCVSIncidences (incidenceNr, lineNr, desc);");
+      fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCSVCells (" + headColNames.join (", ") + ");");
+      fo.writeLine ("CREATE TABLE IF NOT EXISTS atauCSVIncidences (incidenceNr, lineNr, desc);");
    }
 
-   function cvs2SqliteScript (fileName, outSqlfile)
+   function csv2SqliteScript (fileName, outSqlfile)
    {
       headColNames = [];
       nIncidence = 0;
@@ -211,7 +224,7 @@ function empassaCVS (cvsFileName, sal)
             {
                var lineValues = parseCsvLine (leos, true);
                if (lineValues.length == headColNames.length)
-                  fo.writeLine ("INSERT INTO atauCVSCells VALUES ('" + lineValues.join ("', '") + "');");
+                  fo.writeLine ("INSERT INTO atauCSVCells VALUES ('" + lineValues.join ("', '") + "');");
                else
                   outIncidence (linenr, lineValues.length + " cells generated but " + headColNames.length + " are required");
 
@@ -220,7 +233,7 @@ function empassaCVS (cvsFileName, sal)
             fo.writeLine ("COMMIT;");
          }
          if (nIncidence > 0)
-            fo.writeLine ("INSERT INTO atauCVSIncidences VALUES (" + nIncidence + ", " + linenr + ", 'final count of incidences " + nIncidence + "');");
+            fo.writeLine ("INSERT INTO atauCSVIncidences VALUES (" + nIncidence + ", " + linenr + ", 'final count of incidences " + nIncidence + "');");
          fo.fclose ();
          fix.fclose ();
       }

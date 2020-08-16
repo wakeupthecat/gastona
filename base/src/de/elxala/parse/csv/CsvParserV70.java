@@ -29,7 +29,7 @@ public class CsvParserV70
    public char VAR_SEPA_CH = ',';
    public char VAR_QUOTE = '"';
    public boolean autodetectSeparator = true;
-   public List headColNames;
+   public List headColNames = null;
 
    public CsvParserV70 ()
    {
@@ -185,6 +185,14 @@ public class CsvParserV70
          //
          eline.add (cell);
       } while (pi < FI);
+
+      // allow finishing with empty string. Example:
+      //    name, tel
+      //    Justine, 991
+      //    Lalia,
+      //
+      if (headColNames != null && eline.size () + 1 == headColNames.size () && str.charAt (FI-1) == VAR_SEPA_CH)
+         eline.add ("");
 
       return eline;
    }

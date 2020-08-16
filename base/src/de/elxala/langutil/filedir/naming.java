@@ -39,7 +39,7 @@ public class naming
    public static String toVariableName (String text)
    {
       if (text.length () == 0) return "_";
-      return toNameISO_9660Joliet (text.replaceAll ("\\.", "_"));
+      return reduceName (text, true);
    }
 
    // allow array as parameter for static call JAVAJ STATIC
@@ -63,11 +63,6 @@ public class naming
       return fullname.substring (0, 56) + uniqueNr;
    } 
 
-   public static String toNameISO_9660Joliet (String fileName)
-   {
-      return toNameISO_9660Joliet (fileName, true);
-   }
-   
    /**
       for instance, when burning a CD with files
       the name of the files has to be ISO 9660-Joliet
@@ -75,9 +70,21 @@ public class naming
       file name length <= 64
       file name do not contain strange characters (like ';' typically when saving internet pages with IExplorer)
    */
-   public static String toNameISO_9660Joliet (String fileName, boolean allowMinusChar)
+   public static String toNameISO_9660Joliet (String fileName)
    {
-      String ss = upto64LenName (fileName);
+      return reduceName (fileName, false);
+   }
+
+
+   protected static String reduceName (String name, boolean valid4Variable)
+   {
+      if (valid4Variable && name.length () > 0 && name.charAt (0) >= '0' && name.charAt (0) <= '9')
+      {
+         // don't allow starting with 0..9
+         name = "v" + name;
+      }
+      
+      String ss = upto64LenName (name);
 
       for (int ii = 0; ii < ss.length (); ii ++)
       {
@@ -85,14 +92,12 @@ public class naming
          if ((ica >= '0' && ica <= '9') ||
              (ica >= 'A' && ica <= 'Z') ||
              (ica >= 'a' && ica <= 'z') || 
-             ica == '.' || (allowMinusChar && ica == '-') || ica == '_') continue;
+             (ica == '_') ||
+             (!valid4Variable && (ica == '-' || ica == '.'))) continue;
          ss = ss.replace (ica, '_');
       }
 
-      // do not allow starting with number, as the convention for variable and function names
-      String firstChar = (ss.length () > 0 && ss.charAt (0) >= '0' && ss.charAt (0) <= '9' ) ? "n": "";
-
-      return firstChar + ss;
+      return ss;
    }
 
    //ensure a path name is ISO 9660 Joliet

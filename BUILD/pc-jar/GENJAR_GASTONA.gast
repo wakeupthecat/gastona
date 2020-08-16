@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200723 \"loadumpa\"
+   <gastonaVersion>  //1.2.200816 \"trass2dregge\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

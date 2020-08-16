@@ -69,14 +69,15 @@ public class cyclicControl
 
       // push in both parallel stacks
       pilaRecursion.add (item);
-      pilaRecursionStamps.add (System.currentTimeMillis ());
+      pilaRecursionStamps.add (new long [] { System.currentTimeMillis () });
       return true;
    }
 
    public void pop ()
    {
       // compute the elapsed milliseconds for the last call (cycle)
-      lastElapsedMilliseconds = System.currentTimeMillis () - (long) pilaRecursionStamps.get (pilaRecursionStamps.size () - 1);
+      int lastindx = pilaRecursionStamps.size () - 1;
+      lastElapsedMilliseconds = System.currentTimeMillis () - ((long []) pilaRecursionStamps.get (lastindx))[0];
 
       // pop both parallel stacks
       pilaRecursion.remove (pilaRecursion.size () -1);
