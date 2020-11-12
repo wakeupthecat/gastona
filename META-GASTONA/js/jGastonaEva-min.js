@@ -1,10 +1,10 @@
 /*
-jGastonaEva-min.js version 0.201903 / 2ddotter
-composed by Eva.js + EvaLayout.js + LayoutManager.js + httSaco.js + zWidgetsHtml.js + jGastona.js + codiFinestreta.js minified
+jGastonaEva-min.js version 0.202009 dbg2min
+composed by Eva.js + EvaLayout.js + LayoutManager.js + httSaco.js + zWidgetsHtml.js + jGastona.js minified
 is part of the open source project https://github.com/wakeupthecat/gastona
 
-Copyright (C) 2015-2019 Alejandro Xalabarder Aulet
-@license : GNU General Public License (GPL) version 3
+Copyright (C) 2015-2020 Alejandro Xalabarder Aulet
+@license : GNU General Public License (GPL) version 3 + comercial license through OpenSoftwareCongoFee
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A

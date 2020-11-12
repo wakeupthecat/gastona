@@ -16,20 +16,18 @@
 
    <help>
       //
-      // A very important added value in Gastona is the database and specifically SQL ability which is
-      // present in many widgets (javaj) and commands (listix). Final sql queries are processed by the
-      // database engine sqlite (www.sqlite.org). Sqlite (specifically sqlite3) is usually installed
-      // as default standard package in Linux and MAC OS X systems, for windows sqlite3.exe is contained
-      // in gastona.jar and it will be used internally when required.
+      // A very important added value in Gastona is the database and SQL ability which is
+      // present in many widgets (javaj) and commands (listix). Internally Gastona is built using the
+      // database engine sqlite (www.sqlite.org).
       //
-      // Having integrated an own SQL engine is specially powerful. An application can use it whenever
-      // needed without worrying about external installations, starting/restarting server services etc.
-      // In other words, you just concentrate in the SQL language which is actually the only thing
-      // that contribute to the functionality of the application.
+      // Having integrated in the language a native SQL engine is especially powerful. An application
+      // can use it whenever needed without worrying about external installations, starting/restarting
+      // server services etc.. In other words, one just need to concentrate in the SQL language which
+      // is actually the only thing that contributes to the functionality of an application.
       //
-      // Of course, it allows the development of typically database applications (e.g. master tables,
-      // views and reports) but this is far away of being the only feature. Just mention some more
-      // benefits:
+      // It allows of course, the development of typically database applications (e.g. master tables,
+      // views and reports) but this is far away of being the only possibility.
+      // Just to mention some more other benefits:
       //
       //   - It extends directly the script language (Listix) with the Standard Query Language (SQL).
       //     All sqlite core functions (length, trim, replace ...) as well as data and time functions
@@ -37,35 +35,42 @@
       //     are used
       //
       //       <today according to sqlite>
-      //          LOOP, SQL,, //SELECT date('now') AS value;
-      //              ,, @<value>
+      //          LOOP, SQL,, //SELECT date('now') AS mydate
+      //              ,, @<mydate>
       //
-      //       (see documentation for sqlite functions at http://www.sqlite.org/lang.html)
+      //       (for more functions see sqlite documentation official site http://www.sqlite.org/lang.html)
       //
       //   - It permits using a entire database as "exchange format". For example some listix commands place
       //     complex or just huge results into a database using a predefined schema. This can be done
       //     on permanent, cache or just temporary databases as needed. By doing that the development
       //     flexibility is increased enormously, it is enough to know the database name and the schema
       //     to query the results in any desired way and as many times as wanted. See for example the
-      //     listix commands SCAN and PARSONS.
+      //     listix commands SCAN, PARSONS, XMELON and JSON.
       //
       //   - The logic of many tasks even not related traditionally with databases can be solved using
-      //     SQL (e.g. calculations, handling and comparison of lists, tables or even trees!).
-      //     Thinking in this kind of solution is not always easy (at least for me!), whereas an algorithmic
-      //     solution might be designed more or less quickly, the SQL equivalent requires sometimes
-      //     very good skills. But with the realization it happens exactly the contrary, the algorithmic
-      //     solution is much larger, error prone and remains inflexible while SQL uses few sentences
-      //     that really compacts the logic.
+      //     SQL (e.g. calculations, handling and comparison of lists, tables or even trees).
+      //     Thinking in this kind of solution is not always easy (at least for me!).
+      //     Even if designing and thinking in the algorithm solution may seem easier and sometimes straightforward
+      //     compared to the SQL way, when it comes to its development it happens exactly the contrary, the algorithmic
+      //     solution is much larger, error prone and remains inflexible while SQL uses few sentences that really compacts
+      //     the logic being in the end a much cleaner and flexible solution.
+      //
+      // Examples of the last point, using SQL for the logic can be found in META-GASTONA\WelcomeGastona\WelcomeGastona.gast
+      // which is the documentation and reference tool for Gastona, the logging mechanism used by Gastona and many others.
+      // Maybe one good representative example that shows the power of the SQL approach versus the algorithm approach is the
+      // sample called "simple compare dirs demo" (can be found in WelcomeGastona). It performs a comparison between two directories
+      // in terms of file name, size and data (no content). All comparisons are done using just 6 SELECT statements! try to develop
+      // the pure algorithmic way in any language to see the difference.
+      //
+      // Although mastering SQL is not something that can be learnt in "two days", it has to be definitely demystified. 
+      // Very important SQL features like sorting, filtering and grouping making computations are actually very easy to understand 
+      // and can be applied without a big effort.
+      //
+      // The combination sqlite + Gastona makes working with databases even easier, for instance creating a
+      // table and querying it is made so trivially that one can think in using SQL even for little tasks like
+      // sorting a small list etc.
       //
       //
-      // Although mastering SQL is not something that can be learnt in "two days", it has to be definitely
-      // demystified. Very important SQL features like sorting, filtering and grouping are actually easy
-      // to understand and can be applied without a big effort. The combination sqlite + Gastona makes
-      // working with databases even easier, for instance creating a table and querying it is made so
-      // trivially that one can think in using SQL even for little tasks like sorting a small list etc.
-      //
-      //
-
 
    <examples>
       gastSample

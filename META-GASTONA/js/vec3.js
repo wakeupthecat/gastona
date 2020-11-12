@@ -14,6 +14,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 function vec3(x, y, z)
 {
+   // if first parameter is a vec3 !
    if (x && x.x)
    {
       this.x = x.x;
@@ -28,70 +29,6 @@ function vec3(x, y, z)
 }
 }
 
-function vec3cartesian(ccoord)
-{
-   this.x = ccoord[0]|| 0;
-   this.y = ccoord[1]|| 0;
-   this.z = ccoord[2]|| 0;
-}
-
-function deg2rad (deg)
-{
-   return Math.PI * deg / 180.;
-}
-
-function rad2deg (rad)
-{
-   return 180. * rad / Math.PI;
-}
-
-function vec3spherical(scoord)
-{
-   // scoord given in (r, theta, phi)
-   //    r     = radius or module
-   //    theta = angle in radians between axis x and the projection of the vector in the plane x-y
-   //    phi   = angle in radians between axis z and the vector
-   //
-   //NOTE: THIS IT IS NOT the ISO convention as expl. in Wikipedia 
-   //      but rather the convention used in mathematics and engineering
-   //
-   //   these two vectors v1 and v2 in the x-y plane are the same
-   //        var v1 = vec3cartesian (1, 1);
-   //        var v2 = vec3spherical (Math.sqrt(2), deg2rad(45));
-   //
-   
-   var r = scoord[0]||0;
-   var sinTheta = Math.sin (scoord[1]||0);
-   var cosTheta = Math.cos (scoord[1]||0);
-
-   // Note: only default angle is 90 degrees (no z component) but if angle is 0 it has to be computed
-   var sinPhi = (scoord[2] !== undefined) ? Math.sin (scoord[2]): 1.;
-   var cosPhi = (scoord[2] !== undefined) ? Math.cos (scoord[2]): 0.;
-
-   this.x = r * sinPhi * cosTheta;
-   this.y = r * sinPhi * sinTheta;
-   this.z = r * cosPhi;
-}
-
-function vec3polar(radi, angle)
-{
-   return new vec3spherical([ radi, angle ]);
-}
-
-function vec3FromTo (v1, v2)
-{
-  var v3 = v2.clone ();
-  v3.minus (v1);
-  return v3;
-}
-
-function vec3FromArray (arr, indx, dim)
-{
-  var v3 = new vec3 ();
-  v3.fromArray (arr, indx, dim);
-  return v3;
-}
-
 vec3.prototype =
 {
    toString: function () {
@@ -101,7 +38,10 @@ vec3.prototype =
    fromArray: function(arr, indx, dim) {
       dim = dim||3;
       var base = (indx||0)*dim;
-      this.set (arr[base], arr[1+base], (dim > 2 ? arr[2+base]: 0));
+
+      // +(var) ensures the result is a number even if var is a string
+      //
+      this.set (+(arr[base]), +(arr[1+base]), (dim > 2 ? +(arr[2+base]): 0));
    },
 
    setIntoArray: function(arr, indx, dim) {
@@ -208,3 +148,68 @@ vec3.prototype =
    //
    // ss + " v3 is " + v3.toString ();
 };
+
+function deg2rad (deg)
+{
+   return Math.PI * deg / 180.;
+}
+
+function rad2deg (rad)
+{
+   return 180. * rad / Math.PI;
+}
+
+function vec3FromTo (v1, v2)
+{
+   var v3 = v2.clone ();
+   v3.minus (v1);
+   return v3;
+}
+
+function vec3FromArray (arr, indx, dim)
+{
+   var v3 = new vec3 ();
+   v3.fromArray (arr, indx, dim);
+   return v3;
+}
+
+function vec3cartesian(ccoord)
+{
+   this.x = ccoord[0]|| 0;
+   this.y = ccoord[1]|| 0;
+   this.z = ccoord[2]|| 0;
+}
+
+function vec3spherical(scoord)
+{
+   // scoord given in (r, theta, phi)
+   //    r     = radius or module
+   //    theta = angle in radians between axis x and the projection of the vector in the plane x-y
+   //    phi   = angle in radians between axis z and the vector
+   //
+   //NOTE: THIS IT IS NOT the ISO convention as expl. in Wikipedia
+   //      but rather the convention used in mathematics and engineering
+   //
+   //   these two vectors v1 and v2 in the x-y plane are the same
+   //        var v1 = vec3cartesian (1, 1);
+   //        var v2 = vec3spherical (Math.sqrt(2), deg2rad(45));
+   //
+
+   var r = scoord[0]||0;
+   var sinTheta = Math.sin (scoord[1]||0);
+   var cosTheta = Math.cos (scoord[1]||0);
+
+   // Note: only default angle is 90 degrees (no z component) but if angle is 0 it has to be computed
+   var sinPhi = (scoord[2] !== undefined) ? Math.sin (scoord[2]): 1.;
+   var cosPhi = (scoord[2] !== undefined) ? Math.cos (scoord[2]): 0.;
+
+   this.x = r * sinPhi * cosTheta;
+   this.y = r * sinPhi * sinTheta;
+   this.z = r * cosPhi;
+}
+
+function vec3polar(radi, angle)
+{
+   return new vec3spherical([ radi, angle ]);
+}
+

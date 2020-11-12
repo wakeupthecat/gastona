@@ -20,37 +20,39 @@
       //
       // The development of Graphic User Interface applications (GUI) using languages like C, C++ or java
       // are, in general arduous and the final results are, since they are compiled languages, quite
-      // unflexible. Furthermore most of the times the code needed is quite repetitive by always using
-      // the same mechanics (e.g. fill this list, get that selected value etc). As a matter of fact,
-      // many typical GUI requirements are expressed easily using few words, making it hard to believe
-      // that its realization can take so much effort. The idea of using an appropiate scripting language
-      // for this type of development is not new (e.g. Tcl-Tk).
+      // inflexible. Furthermore most of the times the code needed is quite repetitive by always using
+      // the same mechanics (e.g. fill this list, get that selected value, etc..). 
       //
-      // Other scripting languages like Perl or Phyton have also demonstrated the weakness of these compiled
-      // languages in tasks like parsing, text or report generation and batch processing which are needed
-      // very often in applications and tools.
+      // But why is so hard to program GUI parts ? As a matter of fact, many typical GUI requirements are 
+      // expressed easily using few sentences, making it hard to believe that its realization can take so 
+      // much effort. So, it would not be nice being able to build the GUI part just typing almost only 
+      // some key words of that sentences (e.g. label, button, list) ?
+      //
+      // Regarding the logic many scripting languages have also demonstrated the weakness of these compiled
+      // languages in tasks like parsing, text generation, batch processing, etc.., which are very often
+      // needed in applications and tools.
       //
       // Yet another kind of language, SQL, solves in a natural way many typical tasks that a GUI application
       // might need like sorting lists, searching items, filtering and many other problematics which solution
-      // in an algorithmic way result expensive in all senses. But it seems to be reserved for purely
-      // database applications because its implementation is, in general, again ardous. The reason for
-      // these difficulties lies not, for sure, in the SQL as language.
+      // in an algorithmic way result expensive in all senses. So again, it would not be nice being able
+      // to use SQL as part of the scripting language out of the box ?
       //
       // The approach of Gastona is not to be a complete language but to cover the gaps mentioned
       // through a mini-script language, but still having the possibility to program functionality
       // in another language when this appears to be the best choice. In other words, just program
-      // what has to be programmed and use for the rest configuration, scripting and SQL.
+      // what has to be programmed and for the rest use configuration, scripting and SQL.
       //
       // Using Gastona many applications can be developed without programming a solely line of
       // code in java. For example this WelcomeGastona including the generation of the documentation
       // has been made using only Gastona scripts.
       //
-      // Anyway, learning a new language needs always some effort, it has to be a good reason to do
-      // that. I sincerely belive that developing with Gastona has reached a very acceptable Feature/Effort
-      // ratio and not less important, not requiring at all a high and specialized programming level.
-      // Hopefully it helps to demistify the GUI development and the SQL language making them
-      // closer to so many people that know what they want from an application but that, for any reason,
-      // cannot achieve its development.
+      // The syntax is quite unconventional, actually much closer to a configuration than a language in many cases.
+      // For that a simple separated comma structure is used everywhere. But actually learning it as first language 
+      // should not be that hard.
+      //
+      // Hopefully it helps to demystify GUI development and SQL language making them
+      // closer to many people that, knowing what they want from an application, are not able
+      // to achieve its development using other more complex languages.
       //
 
    <examples>

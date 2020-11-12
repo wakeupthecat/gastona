@@ -168,7 +168,7 @@
 
    <showDocCurrentItem>
       <! Intended Loop for 1 record
-      LOOP, SQL,, //SELECT * FROM (@<SQL_DOC_EXT>) WHERE node = '@<CURRENT_NODE>';
+      LOOP, SQL,, //SELECT * FROM (@<SQL_DOC_EXT>) WHERE node = '@<CURRENT_NODE>'
           ,, -->, lContext & Name data!,, //@<structType> : @<name>
           ,, @<build help text>
           ,, @<get samples>
@@ -207,14 +207,14 @@
       //   LIST OF ATTRIBUTES:
       //   ----------------------------------------
       //
-      LOOP, SQL,, //SELECT * FROM tZWidgetAttributes WHERE widName = '@<name>';
+      LOOP, SQL,, //SELECT * FROM tZWidgetAttributes WHERE widName = '@<name>'
           ,, //      @<flechita> <NAME@<name join>> @<possibleValues> @<desc detail>
       //
       //
       //   LIST OF MESSAGES:
       //   ----------------------------------------
       //
-      LOOP, SQL,, //SELECT * FROM tZWidgetMessages WHERE widName = '@<name>';
+      LOOP, SQL,, //SELECT * FROM tZWidgetMessages WHERE widName = '@<name>'
           ,, //      @<flechita> "NAME@<msg join>" @<desc detail>
 
    <desc detail>
@@ -245,7 +245,7 @@
       CHECK, =, @<structType>, listix_command
       //
       //
-      LOOP, SQL,, //SELECT *, tlsxCmdSyntaxHead.desc AS synDesc FROM tlsxCmdSyntaxParams LEFT JOIN tlsxCmdSyntaxHead USING (cmdName, synIndx) WHERE cmdName = '@<name>' ORDER BY synIndx+0, paramIndx+0;
+      LOOP, SQL,, //SELECT *, tlsxCmdSyntaxHead.desc AS synDesc FROM tlsxCmdSyntaxParams LEFT JOIN tlsxCmdSyntaxHead USING (cmdName, synIndx) WHERE cmdName = '@<name>' ORDER BY synIndx+0, paramIndx+0
           ,, @<addOneSyntax>
 
    <addOneSyntax>
@@ -254,7 +254,7 @@
       //      @<print syntax desc>
       //      @<cmdName>, @<syntax parameters>
       //
-      LOOP, SQL,, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x');
+      LOOP, SQL,, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x')
           ,, //       , @<optionName>, @<parameters>
       @<detail parameters & options>
       //
@@ -276,13 +276,13 @@
       //
       //
       //
-      LOOP, SQL,, //SELECT *, paramIndx+1 AS parNo FROM tlsxCmdSyntaxParams WHERE cmdName = '@<name>' AND synIndx = '@<current syntax index>' ORDER BY paramIndx+0;
+      LOOP, SQL,, //SELECT *, paramIndx+1 AS parNo FROM tlsxCmdSyntaxParams WHERE cmdName = '@<name>' AND synIndx = '@<current syntax index>' ORDER BY paramIndx+0
           ,, //        P) @<paramName> [@<defVal>] @<:decode desc>
       //
       //
 <!      //      --- OPTIONS DETAIL:
       //
-      LOOP, SQL,, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x');
+      LOOP, SQL,, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x')
           ,, //        O) @<optionName> [@<defVal>] @<:decode desc>
 
    <! samples, iSamples and xSample
@@ -374,6 +374,5 @@
      //   document.body.innerHTML = "<hr>"  + Viz(decodeURIComponent (miData), "svg");
      //
      //</script></body></html>
-      
 
 #**#

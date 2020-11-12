@@ -16,14 +16,13 @@
 
    <help>
       //
-      //   Gastona, Copyright (c) 2009-2014 Alejandro Xalabarder Aulet
+      //   Gastona, Copyright (c) 2009-2020 Alejandro Xalabarder Aulet
       //
       //   --- NO WARRANTY -------------
       //
       //   This program is free software; you can redistribute it and/or modify it under
       //   the terms of the GNU General Public License as published by the Free Software
-      //   Foundation; either version 3 of the License, or (at your option) any later
-      //   version.
+      //   Foundation version 3
       //
       //   This program is distributed in the hope that it will be useful, but WITHOUT ANY
       //   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -39,13 +38,12 @@
       //
       //   WelcomeGastona is just a script that documents the Gastona "language", it contains lots of
       //   samples that can be run directly. It still allows to make changes in the sample scripts and
-      //   run them after it, but note that the editor is limited, it is recomended to use another editor
+      //   run them after it, but note that the editor is limited, it is recommended to use another editor
       //   when making bigger changes on the sample.
       //
-      //   All the samples are specially designed for not writing or changing any files on your system,
-      //   using for that exclusively temporary files. This reduces somehow the capability of demonstration
-      //   in some cases but it makes the samples safer so they can be launched even without knowing what
-      //   are they for.
+      //   All the samples are specially designed for not writing or changing any files on your system but
+      //   temporary files. This reduces somehow the capability of demonstration in some cases but it makes 
+      //   the samples safer so they can be launched even without knowing what are they for.
       //
 
    <examples>

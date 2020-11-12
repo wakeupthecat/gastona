@@ -173,8 +173,34 @@ public class cmdSetVariable implements commandable
             SET VAR, myVar, @<campo>...etc...blabla
 
       */
-      String variableName = cmd.getArg (0);  // parameter 1
+      String variableName = cmd.getArg (0, true);      // (*) parameter 1
       String value        = cmd.getArg (1, solveLsx);  // parameter 2
+
+      /**
+         (*) solve or not solve the variable name
+         Now (2020-08-22) set solve to true, so in a command like
+
+            SET VAR, myVar@<EXTRA>, @<campo>...etc...blabla
+
+         the variable name can be built with the value of @<EXTRA>
+
+         This was actually the original behaviour, but it was changed in
+
+            CHANGE 10006/10683 (projectID/bildID)
+                  cmdSetVariable.java, 2009-06-13 14:23:50
+
+         due to some issues with an ambiguous syntax including "=" in the second parameter
+         to solve formulas. This last problematic syntax with "=" was removed from cmdSetVariable
+         when the new command "SET NUM" (cmdSetNumeric.java) was introduced two months later
+
+            CHANGE 10006/10765 (projectID/bildID)
+                  cmdSetVariable.java, 2009-08-25 17:57:40
+                  cmdSetNumeric.java, 2009-08-25 17:56:38
+
+         In conclusion: it is OK and safe to solve the variable name, reason for removing it was not clean enough
+                        furthermore variable names including characters "@<>" are forbidden, so there is no
+                        possibility that the intention is to have a variable name like "aaa@<something>", no way.
+      */
 
       // Set the first column value
       //

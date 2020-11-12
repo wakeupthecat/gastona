@@ -156,7 +156,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       2      , sqliteDBName , (default db), //Database from which the query will be executed. If not given a global and temporary database will be used instead.
       2      , SelectQuery ,              , //Select query (also sqlite pragma is accepted)
 
-      3      , FILES        ,             , //
+      3      , FILES | DIRS ,             , //
       3      , path         ,             , //Path to be scaned recursively for file names
       3      , extension    ,             , //File name extension to be included, also comma separated extensions are possible
       3      , ...          ,             , //Further extensions

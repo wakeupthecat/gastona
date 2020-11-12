@@ -22,7 +22,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.200816 \"trass2dregge\"
+   <gastonaVersion>  //1.2.201012 \"redoc\"
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona

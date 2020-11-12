@@ -16,59 +16,70 @@
 
    <help>
       //
-      // Gastona is text based, a whole application may be placed into a single text file using any
-      // text editor. It is still possible to develope parts in java language but this documentation
-      // will focus mainly in the functionality just using only the "Gastona scripting", which provides
-      // quite large and amazing functionality.
+      // Gastona is a scripting language, as such a whole application might written into a single text 
+      // file using for that any text editor. It is still possible to develop or extend parts in java 
+      // language easily but this documentation will focus mainly in the functionality just using scripting 
+      // which provides a quite large and amazing functionality.
       //
       // Gastona, Javaj and Listix "story"
       // -----------------------------------
       //
       // The Gastona approach has not been designed from the begining at all, it is actually the result
-      // of fusioning two different "language-tools" that were developed separately and with totally
+      // of uniting two different "language-tools" that were developed separately and with totally
       // different purposes. One is "Javaj" designed for rapid development of GUI applications and
       // the second is "Listix" designed as a generic command line text generator. Interestingly, it
-      // is also the fusion of two different worlds: The atractive User Interface world and the
+      // is also the fusion of two different worlds: The attractive User Interface world and the
       // "Black screen" command line world.
       //
       // If we take Gastona, Javaj and Listix as characters, this is the short story of their development:
       //
-      // Javaj is a software arquitect specialized in User Interfaces and have a box of smart widgets
+      // Javaj is a software arquitect specialized in User Interfaces having a box of smart widgets
       // that he places onto a frame in many possible ways (layouts). Once the widgets are shown, and
-      // acording to the Javaj philosophy, a java developer should programm java classes to control
+      // according to the Javaj philosophy, a java developer should develop java classes to control
       // the widgets (Javaj controllers).
       //
       // Listix is a command line program capable of doing very big jobs, calling other programs,
       // parsing files and generating his own results into text files. To instruct Listix what to do
       // there is a set of commands that Listix will execute efficiently. The only problem is that Listix
-      // seems to be condemned to run always on a "black sreen".
+      // seems to be condemned to run always within a "black screen".
       //
       // Gastona knowing the ability of both decided making them to work together. On one side the many
       // times mechanical work of the Javaj controllers could be done easily by Listix and on the other
-      // side many good Listix scripts could have a nice face provided by Javaj.
+      // side many good and useful Listix scripts could have a nice face provided by Javaj, deriving thus
+      // in a win-win relationship for both.
       //
       // Gastona Structure
       // --------------------------------
       //
-      // The text (script) is structured in four units : #gastona#, #javaj#, #listix# and #data#
-      // Each unit is just a set of variables, each one can hold from a single string to a table or
-      // other more complex structures. The meaning of these variables depends entirely on the context
-      // and on who makes use of it.
+      // The script is structured in four units : #gastona#, #javaj#, #listix# and #data#
+      // Each unit is just a set of variables, each one can hold from a single string, list of string or tables
+      // being able therefore of containing relative complex structures.
+      //
+      // The meaning of these variables depends entirely on the context and on who makes use of it.
       //
       // Briefly explained:
       //
-      //  - Javaj find in the unit #javaj# all the widgets to be used and how to place them in frames
+      //  - #javaj# unit mainly contains all widgets to be used and how to place them in frames or windows
       //
-      //  - Javaj widgets find its data, or better said its initial data, in the section #data#
+      //  - #data# unit where Javaj widgets find its data, or better said its initial data
       //
-      //  - Listix find all "work to do" in the units #listix# and #data#
+      //  - #listix# unit together with #data# unit is where Listix find all "work to do"
       //
-      //  - Gastona has also an own unit, but it has not the importance of the rest.
+      //  - #gastona# has also an own unit, but less important for now
       //
-      // Since Listix has access to #data# it has access to widgets' data too, this is needed since
-      // we want Listix to control the widgets.
+      // It can be clearly seen a MVC pattern built in this structure. 
+      // Where #data# plays the Model, #javaj# the View and #listix# the Control roles respectively.
       //
-      // Here a very basic sample to illustrate all this
+      // The relationship between M, V and C is explained with one example
+      //
+      //    - Javaj creates a button with label "Press me" and an edit field next to it (two widgets)
+      //    - the edit field widget get its data from #data# 
+      //    - when the user changes the field text, this emits a specific message
+      //    - when the user presses the button, a specific message is emitted
+      //    - listix can receive the message from the button and do stuff 
+      //      like changing the data of the text in #data# and send a message for the widget to refresh the view
+      //
+      // and here the code that do this example
       //
       //    #javaj#
       //
@@ -88,13 +99,19 @@
       //          SET VAR, eField, "Hello Sample"
       //          MESSAGE, eField data!
       //
-      // Running the sample would display a frame with a button labeled "Press Me" and a edit field
+      // Running the sample would display a frame with a button labelled "Press Me" and a edit field
       // having the text "Default data", once the button is pressed the edit field will change its
       // content with "Hello Sample".
       //
-      // Javaj and Listix are documented separately. Most of this documentation consists in fact in
-      // two references: a reference of all layouts and widgets of Javaj and a reference of all Listix
-      // commands.
+      // Two more things to mention: 
+      //
+      //    - The #data# unit uses the blackboard principle, being public actually to all widgets and listix
+      //
+      //    - The messages from widgets and from listix to widgets are also public for everyone and
+      //      follow a simple schema. For example a button named "bMyButton" send precisely the message "bMyButton" when clicked.
+      //
+      // Javaj and Listix are documented separately. 
+      // For javaj we have a reference of javaj widgets (zWidgets) and for listix a reference of listix commands
       //
       // About layouts ...
       // All layouts in Javaj are intuitive and easy to use. Using the one called EVALAYOUT together
@@ -107,10 +124,12 @@
       // to understand easily the rest.
       //
       // About Listix ...
-      // For a basic control of the widgets few things has to be learnt and these are repeated in all
-      // samples. Nevertheless the Listix commands offers much more functionality. Every command has its
-      // own syntax that can be more or less complex. But, as it happen with libraries, not all the
-      // commands has to be learned in order to write useful scripts.
+      // Listix is definitively unconventional, its syntax and logic may look weird the first time 
+      // it is seen because it is not similar to any script language at all. However there are actually 
+      // just a couple of simple rules that together with the commands allows listix to do all the stuff.
+      // Basic control of widgets using listix is easy and it is repeated in all samples, apart from that
+      // there is many functionality provided by its commands. There are from low level commands like SET VAR
+      // to very complex and powerful high level commands like MicoHTTP which is a HTTP server.
       //
       // Eva format
       // --------------------------------
@@ -120,11 +139,15 @@
       // documentation on "EvaFormatV1.1.pdf"(*) but maybe this few indications would be enough to
       // understand it:
       //
+      // While reading line by line an Eva file, following rules apply
+      //
+      //    Leading and trailin spaces and tabs are trimmed
+      //
       //    Empty lines as well as lines starting with <! or #! are ignored (comments)
       //
       //    #uuu# starts a unit named "uuu", the rest of the line is not used
       //
-      //    <eee> starts an eva variable named "eee", the rest of the line MAY BE part of its content
+      //    <eee> starts an eva variable named "eee" within the current unit, the rest of the line MAY BE part of its content
       //
       //    An Eva variable can consist of 1 or more rows
       //
