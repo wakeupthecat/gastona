@@ -1,0 +1,114 @@
+#h 2020-11-12 Proposal new listix command UDPGOS, UDPTRACE or UDPOUT
+
+-- Idea
+
+The idea is standardize something that is already possible using for example
+the gastona sample script UDPsicoleg
+
+Using UDPsicoleg we can add any message in our script and this will be collected
+by UDPsicoleg on the port 18881 as it is said on starting it
+
+      Welcome to UDPsicoleg v.0.1
+
+      To send messages from a gastona script
+      from the same computer just call
+
+         UDP, SEND ONCE, localhost, 18881, //your message in a bottle!
+
+      listening ...
+
+The issue here is that we have to change our script adding messages and enable/disable them
+depending on our purpose when executing the script.
+
+It would be interesting to have some mechanism to configure if we want to enable or disable
+a set of these UDP messages or all them. And when disabled the messages are ignored before parameter or
+option evaluation so the impact in the performance of the script is almost zero.
+
+-- Several desired features
+
+We can think about the command name and its aliases, something like
+
+      UTELL
+      UDPGOS
+      UDPTRACE
+      UDPOUT
+      UGOS
+      UTRACE
+      UOUT
+      UCRY
+      ==>
+
+Then decide which features we want to have and support in the first or future extensions
+
+--- Enable/Disable messages
+
+First we should be able to choose between being an UDP server broadcasting the messages through a port
+or a client sending messages to a hypothetical target server specified by an IP address and a port.
+
+For example
+
+      <! ===== we act as udp server from port 18881
+      UDPGOS, CONFIG, annibal, SERVE, 18881
+
+      <! ===== we send as client to a server listening in 123.12.12.200::18881
+      UDPGOS, CONFIG, blower , SENDTO, 18881, 123.12.12.200
+
+      UDPGOS, START, annibal
+      UDPGOS, STOP, annibal
+
+START could also accept the same parameters as CONFIG and act as CONFIG+START if further parameters are specified
+
+For instance, following option parameters and default values
+
+      UDPGOS, START, [<name> (gastonaUDPgos)], [<role> (SENDTO)], [<port> (18881)], [<ip> (localhost)]
+
+Also it is possible to think of having a configuration in some table, for example
+
+      <UDPmyConfig>
+         name     , role    ,  port    , host
+         annibal  , SERVER  ,  19991
+         blower   , SENDTO  ,  18881   , 123.12.12.200
+
+      UDPGOS, CONFIGPLAN, UDPmyConfig
+
+Finally if UDPGOS agents are not configured or are stopped then no process but simply skipping the
+sending message command will be performed, neither evaluation of parameters or options and its parameters.
+
+--- How and What to send
+
+We have to think about what to send, a simple string or something more elaborated like having some protocol
+
+for example
+
+      UDPGOS, annibal, //hola comostás ?
+
+      UDPGOS, annibal, MSG0..9|WARN|ERR|SEVERE|FATAL, //hola comostás ?
+            , *VARS  , myVari1, anotherVar, EtcVar
+            
+that is, using the same levels as logserver where SEVERE and FATAL levels send a callstack of 
+the program and FATAL finish the application as well (for example)
+
+Or sending custom structures
+
+      UDPGOS, annibal, STRUCT/incidence
+            , desc   , //something rare happened
+            , name   , @<eName>
+            , notes  , @<myNotes>
+            , *VARS  , myVari1, anotherVar, EtcVar
+
+--- Packaging format
+
+Finally decide how to pack the message and values associated. For example
+
+      udpJSON { udpgos: annibal, type: MSG7, message: "hola comostás ?", var: [ { name: "blabla", ...}, { notes: "lsajkd" }}
+      udpEVA #udpgos-message# \n <agentname> annibal \n ..."
+      udpSTR annibal: "hola comostás ?" \n desc: lksjdla ...
+      udpRAW ....................
+      
+this can be given in UTELL, CONFIG being udpRAW as default
+      
+-- Other targets
+
+MicoHTTP could also use this mechanism instead of using the console which interferes so much with other
+
+Also GEN could accept UTELL agent as target and eventually set an UTELL agent as System.out and or default listix target.
