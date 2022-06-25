@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -57,8 +57,10 @@ import de.elxala.zServices.*;
          // while (!passOut.hasFinished ()) Thread.sleep (50);
 
    Note:
-   This class is inspired (if not identic) in StreamGobbler.java from an article called
+   This class was inspired (the version with readline)
+   in the sample StreamGobbler.java from the article
    "When Runtime.exec () won't" by Michael C.Daconta
+   https://www.infoworld.com/article/2071275/when-runtime-exec---won-t.html?page=2
 
 */
 public class streamPass extends Thread
@@ -102,34 +104,34 @@ public class streamPass extends Thread
          BufferedReader BR_ = new BufferedReader (new InputStreamReader (IS_));
 
          char [] subafa = new char[901];
-         int cantos = 0;
+         int quants = 0;
 
          do
          {
-            cantos = BR_.read(subafa, 0, 900);
-            if (cantos > 0 && PW != null)
+            quants = BR_.read(subafa, 0, 900);
+            if (quants > 0 && PW != null)
             {
-               PW.write (subafa, 0, cantos);
+               PW.write (subafa, 0, quants);
                PW.flush ();
             }
-            if (cantos == 0)
+            if (quants == 0)
             {
                Thread.sleep (50);
             }
-         } while (cantos >= 0);
+         } while (quants >= 0);
 
-         // Note : cannot close the stream (we does not own it)
+         // Note : cannot close the stream (we do not own it)
          if (PW != null) PW.flush ();
       }
 
       catch (IOException ioe)
       {
-         log().severe ("streamPass::run", "exception " + ioe);
+         log().severe ("streamPass::run", "IOException " + ioe);
          //ioe.printStackTrace ();
       }
       catch (InterruptedException ie)
       {
-         log().severe ("streamPass::run", "exception " + ie);
+         log().severe ("streamPass::run", "InterruptedException " + ie);
          //ie.printStackTrace ();
       }
 
