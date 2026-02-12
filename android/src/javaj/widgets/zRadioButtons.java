@@ -158,7 +158,7 @@ public class zRadioButtons extends RadioGroup implements MensakaTarget, izWidget
          {
             RadioButton radio = new RadioButton(getContext ());
 
-            // ACHTUNG! hier getId () gibt's -1 zurück !!! ??? w i e  a u c h  i m m e r!
+            // ACHTUNG! hier getId () gibt's -1 zurueck !!! ??? w i e  a u c h  i m m e r!
             //radioIDs [ii] = radio.getId ();
 
             radio.setTextSize (sysFonts.getStandardTextSizeInScaledPixels ());

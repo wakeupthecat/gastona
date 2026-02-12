@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -38,59 +38,64 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Loops are performed using the commands LOOP TABLE and RUN LOOP. All loops do basically the
-      // same: execute a format (body) for each row of a table. Each syntax of LOOP TABLE determines
-      // in a different way how the table to be looped is obtained, from a varible, a SQL etc.
-      // The table itself does not have to be a real table, for example "LOOP, FOR, ii, 1, 10" would
-      // loop a virtual table of one column named "ii" containing the values 1, 2, 3, .. 10 in its rows.
+      //Loops are performed using the commands LOOP TABLE and PARTIAL LOOP. All loops do basically the
+      //same: execute a format (body) for each row of a table. Each syntax of LOOP TABLE determines
+      //in a different way where the table to be looped comes from, it is obtained a variable, a SQL etc.
       //
-      // During the loop the format being executed (body) can access the values of the columns by its name
-      // and also row information, specifically during the loop following variables can be accessed
+      //The table itself does not have to be a real table, for example
+      //
+      //          LOOP, FOR, ii, 100, 110
+      //              , BODY, //@<ii>
+      //
+      //would loop a virtual table of one column named "ii" containing the values 100, 101, 102, .. 110 in its rows.
+      //
+      //--- Loop specific variables
+      //
+      //During the loop the format being executed (body) can access the values of the columns by its name
+      //and also row information, specifically during the loop following variables can be accessed
       //
       //    @<:lsx ROWS> : number of rows in the loop
       //    @<:lsx ROW>  : number of current row
-      //    @<COLUMNNAME> : value of the column named COLUMNNAME in the current row
       //
-      // If a column has the same name as other already existent variable, then the column hides temporally
-      // the variable. As soon as the loop is finished, the variable will become again "visible".
-      // This kind of "masking variables" happens as well when loop is executed within another loop, and so on.
+      //If a column has the same name as other already existent variable, then the column hides temporally
+      //the variable. As soon as the loop is finished, the variable will become again "visible".
       //
-      // Body of the loop
-      // -----------------------
+      //This kind of "masking variables" happens as well when loop is executed within another loop, and so on.
       //
-      // The body of the loop are in general text and/or commands or both mixed. It can be passed using
-      // the option BODY as many times as lines has the body. For example:
+      //--- Body of the loop
+      //
+      //The body of the loop are in general text and/or commands or both mixed. It can be passed using
+      //the option BODY as many times as lines has the body. For example:
       //
       //          LOOP, arguments...
       //              , BODY, //first line of body
       //              , BODY, //second line etc
       //
-      // Since BODY is the default option of LOOP, it is possible to omit it
+      //Since BODY is the default option of LOOP, it is possible to omit it
       //
       //          LOOP, arguments...
       //              ,, //first line of body
       //              ,, //second line etc
       //
-      // As said before the body might contain any text combination of text and commands, actually the body
-      // acts as a virtual listix format. But of course it is still possible to separate it physically.
-      // For example
+      //As said before the body might contain any text combination of text and commands, actually the body
+      //acts as a virtual listix format. But of course it is still possible to separate it physically.
+      //
+      //For example
       //
       //          LOOP, arguments...
       //              ,, @<my body>
       //
-      // or
+      //or
       //          LOOP, arguments...
       //              ,, LISTIX, my body
       //
-      // HEAD, TAIL and "IF EMPTY"
-      // -----------------------------
+      //--- HEAD, TAIL and "IF EMPTY"
       //
-      // As the option BODY, HEAD, TAIL and IF EMPTY are also virtual listix formats that might be given
+      //As the option BODY, HEAD, TAIL and IF EMPTY are also listix formats that might be given in-line
       //
+      //--- Looping the loop
       //
-      // Looping the loop
-      // -----------------------
-      // Inner loops (loop within a loop) are of course possible and often necessary. For example
+      //Inner loops (loop within a loop) are possible and quite often necessary. For example
       //
       //    <format1>
       //       LOOP, FOR, indx, 1, 10
@@ -98,37 +103,59 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //           ,, LOOP, FOR, subIndx, 1, 5
       //           ,,     ,, //   Sub-Index @<subIndx>
       //
-      // One special inner loop is done by the syntax COLUMNS. "LOOP, COLUMNS" is by definition a nested loop,
-      // since it always acts on the current row of the "outer" loop (previous loop before LOOP COLUMNS).
-      // What it really loops is a virtual table with two columns: "columnName" and "columnValue", which
-      // contain as much rows as columns has the outer loop. For example if looping the table
+      //--- Special Loop COLUMNS
       //
-      //       <table>
-      //          id1  , id2,  lastID, name
-      //          011  , aaa,  AAAAAA, Product A
-      //          022  , bbb,  BBBBBB, Product A++
+      //As already explained the BODY have access to all column values of the loop table at each row.
       //
-      // calling LOOP, COLUMNS on the second record will loop the table
+      //Which columns and values are active can be reached using a special loop syntax: LOOP, COLUMNS
+      //
+      //The virtual table that LOOP, COLUMNS iterates is one having two columns: columnName and columnValue
+      //and having as many records (rows) as columns has the outer loop.
+      //
+      //For example if looping the table
+      //
+      //       <people>
+      //          name   , country , city
+      //          Sylvia , US      , NY
+      //          Justine, DR Congo, Goma
+      //
+      //calling LOOP, COLUMNS on the second record will loop the virtual table
       //
       //       "<virtual table>"
       //          columnName, columnValue
-      //          id1       , 022
-      //          id2       , bbb
-      //          lastID    , BBBBBB
-      //          name      , Product A++
+      //          name      , Justine
+      //          country   , DR Congo
+      //          city      , Goma
       //
-      // This can be very useful, for example the loop
+      //Which is a kind of transposition for each row of the the outer loop
       //
-      //    LOOP, SQL,, //SELECT * FROM mytable
+      //          columns "people": name, country , city
+      //          rows "COLUMNS":
+      //                   name
+      //                   country
+      //                   city
+      //
+      //LOOP COLUMNS can be very useful, for example the loop
+      //
+      //    LOOP, SQL,, //SELECT * FROM people LIMIT 5
       //        ,, //Record #@<:lsx ROW>
       //        ,, LOOP, COLUMNS
       //        ,,     ,, //@<columnName>: @<columnValue>
       //        ,,
       //
-      // prints out all records of the given query.
+      //outputs all records with all column names for the given SQL select.
       //
-
-
+      //Another way of doing that getting the columNames only once can be achieved
+      //with following command that uses the section HEADER for the column names
+      //
+      //    LOOP, SQL,, //SELECT * FROM people LIMIT 5
+      //        , HEADER, LOOP, COLUMNS
+      //        , HEADER,     , LINK, ", ",
+      //        , HEADER,     ,     , @<columName>
+      //        , BODY  , LOOP, COLUMNS
+      //        , BODY  ,     , LINK, ", "
+      //        , BODY  ,     ,     , @<columValue>
+      //
 
    <aliases>
       alias
@@ -175,6 +202,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName  , parameters                  , defVal, desc
           x  , BODY        , subcommand                  ,       , //Executed on each iteration, note that this is the default option thus the word "BODY" can be omited
+          x  , IF EMPTY    , subcommand                  ,       , //Executed in case there are no element in the loop
           x  , HEAD        , subcommand                  ,       , //Executed (if rows >= 1) before the body execution of the first row. On executing HEAD loop column variables are set to the first row
           x  , TAIL        , subcommand                  ,       , //Executed (if rows >= 1) after the body execution of the last row. On executing TAIL there are not loop column variables set
           x  , IF NO RECORD, subcommand                  ,       , //Executed if the table to loop result in 0 rows that is the table is empty.
@@ -186,7 +214,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
           x  , END ROW     , numerical expression        ,  -1   , //End the loop at this row. The value -1 or no value means end of table
           x  , LIMIT ROWS  , numerical expression        ,  -1   , //Maximum number of rows to be iterated. The value -1 or no value means no limit
           3  , EXTENSIONS  , "extension, extension"      ,       , //Add extensions as is done in the arguments extension
-          3  , PATHFILTERS , "opt, regexp, ..."          ,       , //Add filters for path elements like +-E (extension) +-D (directory) +-F (filename). Example, : -D, \.git, -D, lint
+          3  , PATHFILTERS , "opt, regexp, ..."          ,       , //Add filters for path elements like +-E (extension) +-D (directory) +-F (filename). It can be either given in separate parameters or all in one comma separated string. Example : "-D, \.git, -D, lint"
           3  , RECURSIVE   , 1/0                         , "1"   , //If '1' (default) then the seach of files will be recusive otherwise not
 
    <examples>
@@ -194,9 +222,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
       first loop
       multiplication tables
+      looping files
 
    <first loop>
-
       //#javaj#
       //
       //   <frames>  oConsolar, "first loop"
@@ -236,6 +264,29 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <opera>
       //      =, mulA * mulB
       //
+
+    <looping files>
+        //#javaj#
+        //
+        //   <frames> oConsol
+        //
+        //#listix#
+        //
+        //   <main0>
+        //      // First 3 files found:
+        //      //
+        //      LOOP, FILES, .
+        //          ,, CHECK, <=, @<:lsx ROW>, 2, BREAK,,
+        //          ,, //
+        //          ,, //--- Record @<:lsx ROW>
+        //          ,, //
+        //          ,, //
+        //          ,, LOOP, COLUMNS
+        //          ,,     ,, //@<columnName>: [@<columnValue>]
+        //      //
+        //      //
+        //      //fi del llistat!
+
 
 #**FIN_EVA#
 */

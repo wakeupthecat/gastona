@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -27,7 +27,7 @@ package gastona;
 
 #gastonaDoc#
 
-   <docType>    gastona_variables
+   <docType>    gastona_ variables
    <name>       //Variables of unit #gastona#
    <groupInfo>  variables
    <javaClass>  de.elxala.langutil.graph.sysLookAndFeel
@@ -52,10 +52,10 @@ package gastona;
       //
       //---- Variable <sessionLog>
       //
-      // In general just creating the folder sessionLog in the folder where the script
+      // In general just creating the folder named either gastonaLog or sessionLog in the folder where the script
       // is found would activate a trace activity into files in that directory.
       //
-      // This can be done also using the variable <sessionLog> setting there the
+      // This can also be done using the variable <sessionLog> setting there the
       // folder to be used.
       //
       // The general debug level for all modules can be set using the variable
@@ -71,7 +71,7 @@ package gastona;
       //          clientName, maxLogLevel
       //          ...
       //
-      //-- Variable <UDP_DEBUG_PORT>
+      //-- Variable <DEBUG_UDP_PORT>
       //
       //    If this variable is set, then the given port (if empty then the value 11882 is used)
       //    will be opened for UDP communication and for debug output purposes. A client can open the
@@ -84,6 +84,10 @@ package gastona;
       //
       //    then it will receive the debug output according to the debug level set unless it
       //    switches the debug to OFF.
+      //
+      //-- Variable <DEBUG_LEVEL>
+      //
+      //    Sets the global debug level for the script
       //
       //-- Different debug console pop ups
       //
@@ -142,6 +146,7 @@ package gastona;
       //       R                 Replace: The entire variable will be replaced with the new one
       //       T                 Table Append: The variable except the first line (column names) will appended
       //       N                 New variables: only the variables which are new are added and the already existent keep its content unchanged
+      //       X                 Explicit, only variables starting with <*XXX <+XXX <-XXX or <=XXX can have the same name as existing ones and then : * replace, + add at end, - add at begining, = only add if not present
       //
       //    NOTE: This mechanism is not recursive, variables <fusion> found in loaded files will
       //          have no effect!
@@ -347,10 +352,23 @@ public class gastona
 
       if (unitGastona != null)
       {
+         if (unitGastona.getEva ("DEBUG_UDP_PORT") != null)
+         {
+            int port = stdlib.atoi (unitGastona.getEva ("DEBUG_UDP_PORT").getValue ());
+            logServer.setUDPDebugPort (port);
+         }
+         // alias to be deprecated
+         //
          if (unitGastona.getEva ("UDP_DEBUG_PORT") != null)
          {
             int port = stdlib.atoi (unitGastona.getEva ("UDP_DEBUG_PORT").getValue ());
             logServer.setUDPDebugPort (port);
+         }
+
+         if (unitGastona.getEva ("DEBUG_LEVEL") != null)
+         {
+            int port = stdlib.atoi (unitGastona.getEva ("DEBUG_LEVEL").getValue ());
+            logServer.configureGlobalLogLevel (port);
          }
 
          if (unitGastona.getEva ("sessionLog") != null)
@@ -499,7 +517,24 @@ public class gastona
 
    private static void detectLogDir ()
    {
-      //(o) gastona_traces enable or not the several traces
+      //(o) gastona_debug configuring log server
+      //
+
+      // most early detection : UDP debug
+      // this allows non intrusive highest debug level, for example for the initialization of any gastona script
+      //
+      {
+         String str = "gastonaLogUDP.eva";
+         File checkFile = fileUtil.getNewFile (str);
+         if (checkFile.exists () && checkFile.isFile())
+         {
+            logServer.setUDPPushLogConfigFile (str);
+            System.out.println ("gastona::detectLogDir setUDPPushLogConfigFile with [" + str + "]");
+         }
+      }
+
+      // detection of property or directory gastonaLog / sessionLog
+      //
       //
       String strSessDir = System.getProperty (gastonaCtes.PROP_SESSION_LOG_DIR, "");
       if (strSessDir == null || strSessDir.length () == 0)
@@ -659,11 +694,6 @@ public class gastona
       }
 
       loadMetadata ();
-
-      // ensure the service lsx2Html
-      log.dbg (3, "init", "loading agent for messages listix to html");
-      new servMsgLsx2Html ();
-
       log.dbg (3, "init", "loading agent mensaka for listix");
 
       String [] bb = org.gastona.commonGastona.getReducedArguments (aa);
@@ -743,7 +773,8 @@ public class gastona
 
    public static void showAboutGastona (String [] aa)
    {
-      String rest = "\nCopy" + "right (c) 200" + "7-2020" + "\nAlej" + "andro Xal" + "abarder A" + "ulet\nwww.wa" + "keupthe" + "cat.com";
+      // small vainila obfuscation
+      String rest = "\nCopy" + "right (c) 200" + "7-20" + "25" + "\nAlej" + "andro Xal" + "abarder A" + "ulet\nwww.wa" + "keupthe" + "cat.com";
       javax.swing.JOptionPane.showMessageDialog (
             null,
             "Gastona v" + gastonaVersion.getVersion () + "\nBuilt on " + gastonaVersion.getBuildDate () + rest,

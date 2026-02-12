@@ -1,0 +1,221 @@
+// It generates a cross table in HTML format from a SQL base an X and Y fields and an aggregate (e.g. SUM or COUNT)
+//
+// Example:
+//
+//    supposing we have the table
+//        myMovements (movNr, date, clientId, area, import)
+//
+//    we can generate a cross-table of sells per area and month as follows
+//
+//     var graella = {
+//        title   : "My cross-table title",
+//        sqlbase : "SELECT * FROM myMovements",
+//        DB      : "MyTable.db",
+//        dim     : [  { name: "Areas", expr: "area",               nmax:  20, sortType: 1 },
+//                     { name: "Month", expr: "SUBSTR(date, 1, 7)", nmax: 100, sortType: 3 },
+//                  ],
+//        cellValue : "SUM(import)",
+//     };
+//
+//     tauleta (params);
+//
+
+function tauleta (params)
+{
+   var iX = 0;
+   var iY = 1;
+
+   var celles = [];
+   var hashes = {};
+   var totals = [ {}, {} ];
+   var totalSorted = [ [], [] ];
+   var maxCellSum = 0;
+   var totalTotal = 0;
+   var RESTSYMB = '~';
+
+   function out (eso)
+   {
+      listix.printTextLsx (eso);
+      listix.newLineOnTarget ();
+   }
+
+   function genCelles ()
+   {
+      // NOTE: in select dim, x and y we want to ensure they are strings, we will build ".. IN ('val1', ...) " filters on them
+      //
+      function sqlSumes (iDim)
+      {
+         return "SELECT dim FROM " +
+                "  (SELECT " + params.dim[iDim].expr + "||'' AS dim, " +  // ensure the dimension is a string!
+                               params.cellValue + " AS suma " +
+                "    FROM (" + params.sqlbase + ") "  +
+                "    GROUP BY dim " +
+                "    ORDER BY suma DESC " +
+                "    LIMIT " + params.dim[iDim].nmax +
+                "   )";
+      }
+
+      function sqlCells (inx, iny)
+      {
+         return   "SELECT " +
+                  params.dim[iX].expr + "||'' AS x, " +  // ensure the dimension is a string
+                  params.dim[iY].expr + "||'' AS y, " +  // ensure the dimension is a string
+                  params.cellValue  + " AS suma " +
+                  "   FROM (" + params.sqlbase + ") " +
+                  "   WHERE " +
+                  "       x " + (inx ? "IN": "NOT IN") + "(" + expINxs + ") AND" +
+                  "       y " + (iny ? "IN": "NOT IN") + "(" + expINys + ")" +
+                  " GROUP BY x,y";
+      }
+
+      var arrDims = [];
+      var fix = new goSqlSelect (params.DB, sqlSumes (iX));
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         arrDims.push (fix.getValue (ii, 0));
+
+      var expINxs = "'" + arrDims.join ("', '") + "'";
+
+      arrDims = [];
+      fix = new goSqlSelect (params.DB, sqlSumes (iY));
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         arrDims.push (fix.getValue (ii, 0));
+
+      var expINys = "'" + arrDims.join ("', '") + "'";
+
+      // cells x, y, sum
+      //
+      fix = new goSqlSelect (params.DB, sqlCells (true, true));
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         celles.push ({ x: fix.getValue (ii, 0), y: fix.getValue (ii, 1), sum: +(fix.getValue (ii, 2)) });
+
+      // REST row (all X's)
+      //
+      fix = new goSqlSelect (params.DB, "SELECT x, SUM(suma) AS sum FROM (" + sqlCells (true, false) + ") GROUP BY x");
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         celles.push ({ x: fix.getValue (ii, 0), y: RESTSYMB, sum: +(fix.getValue (ii, 1)) });
+
+      // REST column (all Y's)
+      //
+      fix = new goSqlSelect (params.DB, "SELECT y, SUM(suma) AS sum FROM (" + sqlCells (false, true) + ") GROUP BY y HAVING sum > 0");
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         celles.push ({ x: RESTSYMB, y: fix.getValue (ii, 0), sum: +(fix.getValue (ii, 1)) });
+
+      // REST x REST
+      fix = new goSqlSelect (params.DB, "SELECT * FROM (SELECT SUM(suma) AS sum FROM (" + sqlCells (false, false) + ")) WHERE sum > 0");
+      for (var ii = 0; ii < fix.getRecordCount (); ii ++)
+         celles.push ({ x: RESTSYMB, y: RESTSYMB, sum: +(fix.getValue (ii, 0)) });
+   }
+
+   function processCelles ()
+   {
+      // create a dictionary of all cells and make the totals
+      hashes = {};
+      maxCellSum = 0;
+      for (var indx in celles) {
+         hashes[celles[indx].x + RESTSYMB + celles[indx].y] = celles[indx];
+         totals[iX][celles[indx].x] = (totals[iX][celles[indx].x]||0) + celles[indx].sum;
+         totals[iY][celles[indx].y] = (totals[iY][celles[indx].y]||0) + celles[indx].sum;
+         if (maxCellSum < celles[indx].sum)
+             maxCellSum = celles[indx].sum;
+         totalTotal += celles[indx].sum;
+      }
+
+      function sortDim (iDim)
+      {
+         switch (params.dim[iDim].sortType) {
+            case 2: totalSorted[iDim] = Object.keys(totals[iDim]).sort (function(a,b) { return totals[iDim][a] - totals[iDim][b]; }); break;
+            case 3: totalSorted[iDim] = Object.keys(totals[iDim]).sort (function(a,b) { return a > b ? 1: -1; }); break;
+            case 4: totalSorted[iDim] = Object.keys(totals[iDim]).sort (function(a,b) { return a < b ? 1: -1; }); break;
+            //case 1:
+            default:
+               totalSorted[iDim] = Object.keys(totals[iDim]).sort (function(a,b) { return totals[iDim][b] - totals[iDim][a]; });
+               break;
+         }
+      }
+
+      sortDim (iX);
+      sortDim (iY);
+   }
+
+   function printsBrut ()
+   {
+      out ("sorted X : " + totalSorted[iX].join (", "));
+      out ("sorted Y : " + totalSorted[iY].join (", "));
+      var pero = [];
+      for (var yy in totalSorted[iY])
+      {
+         var ydim = totalSorted[iY][yy];
+         pero = [ ydim];
+         for (var xx in totalSorted[iX])
+         {
+            var xdim = totalSorted[iX][xx];
+            var key = xdim + RESTSYMB + ydim;
+            if (hashes[key])
+                 pero.push (hashes[key].sum);
+            else pero.push (0);
+         }
+         out (pero.join (" | ") + " TOTAL = " + totals[iY][ydim]);
+      }
+      pero = [ "TOTAL X = "];
+      for (var xx in totalSorted[iX])
+      {
+         var xdim = totalSorted[iX][xx];
+         pero.push (totals[iX][xdim]||0);
+      }
+      out (pero.join (" | "));
+   }
+
+   function printsHtml ()
+   {
+      function getHtmlColor (sum)
+      {
+          var cols = [ "#FFFFFF", "#fafaf8", "#f0f0f0", "#ebe8e0",
+                       "#d7dbb7", "#e1e86c", "#f9fe18", "#df94f8",
+                       "#ff8080", "#fba54f", "#FF6666" ];
+          return cols [Math.ceil ((cols.length-1) * sum / maxCellSum)];
+      }
+
+      out ("<html>");
+      out ("  TAULETA: <b>" + params.title + " </b><br><br>");
+      out ("");
+      out ("       db       : " + params.DB + "<br>");
+      out ("       sql base : " + params.sqlbase + "<br>");
+      out ("       " + params.dim[iX].name + "   : " + params.dim[iX].nmax + " x " + params.dim[iX].expr + "<br>");
+      out ("       " + params.dim[iY].name + "   : " + params.dim[iY].nmax + " x " + params.dim[iY].expr + "<br>");
+      out ("       valor    : <b>" + params.cellValue + "</b>");
+      out ("<br><br><br>");
+      out ("<table border=1 cellspacing='0'>");
+      out ("<tr><td align=center> " + params.dim[iX].name + " / " + params.dim[iY].name);
+      for (var xx in totalSorted[iX])
+      {
+         out ("<td align=center width='100px'>" + totalSorted[iX][xx]);
+      }
+      out ("<td> ---TOTAL---</tr>");
+
+      for (var yy in totalSorted[iY])
+      {
+         var ydim = totalSorted[iY][yy];
+         out ("  <tr><td> " + ydim);
+         for (var xx in totalSorted[iX])
+         {
+            var xdim = totalSorted[iX][xx];
+            var key = xdim + RESTSYMB + ydim;
+            if (hashes[key])
+                 out ("<td align=right bgcolor='" + getHtmlColor (hashes[key].sum) + "'> " + hashes[key].sum);
+            else out ("<td>");
+         }
+         out ("<td align=right> " + totals[iY][ydim]);
+      }
+      out ("<tr><td align=center> ---TOTAL---");
+      for (var xx in totalSorted[iX])
+      {
+         var xdim = totalSorted[iX][xx];
+         out ("<td align=right> " + (totals[iX][xdim]||0));
+      }
+      out ("<td align=right>" + totalTotal + "</tr></table>");
+      out ("</html>");
+   }
+   genCelles ();
+   processCelles ();
+   printsHtml ();
+}

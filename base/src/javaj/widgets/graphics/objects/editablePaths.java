@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -30,10 +30,11 @@ import de.elxala.Eva.*;
 */
 public class editablePaths
 {
-   private ediTrazo currentET = null;;
+   private ediTrass currentET = null;;
    private int changesCounter = 0;
 
-   public List arrEdiTrazos = new Vector (); // Vector<ediTrazo> ~ (Trazo = Stroke)
+   protected styleSet headStyles = new styleSet ();
+   protected List arrEdiTrassos = new Vector (); // Vector<ediTrass> ~ (Trass = Stroke)
 
    private uniRect recBounds = null;
 
@@ -50,15 +51,43 @@ public class editablePaths
       return changesCounter;
    }
 
+   public styleSet getStyleMap ()
+   {
+      return headStyles;
+   }
+
    public uniRect getBounds ()
    {
       if (recBounds == null)
       {
          recBounds = new uniRect ();
-         for (int ii = 0; ii < arrEdiTrazos.size (); ii ++)
-            recBounds.union (((ediTrazo)arrEdiTrazos.get (ii)).getBounds ());
+         for (int ii = 0; ii < arrEdiTrassos.size (); ii ++)
+            recBounds.union (((ediTrass)arrEdiTrassos.get (ii)).getBounds ());
       }
       return recBounds;
+   }
+
+   // returns last trass inciated with different add methods
+   // otherwise null
+   public ediTrass getCurrentTrass ()
+   {
+      return currentET;
+   }
+
+   // assing intern currentET by index
+   // this can affect editablePaths object
+   // use with knowledge!
+   public void setCurrentTrassByIndex (int trassIndx)
+   {
+      currentET = trassIndx < 0 || trassIndx >= arrEdiTrassos.size () ? null:
+                  (ediTrass) arrEdiTrassos.get(trassIndx);
+   }
+
+   public boolean trassVisibleInRect (int trassIndx, uniRect rec2)
+   {
+      if (trassIndx < 0 || trassIndx >= arrEdiTrassos.size ())
+         return false;
+      return ((ediTrass) arrEdiTrassos.get(trassIndx)).getBounds ().intersectRect (rec2);
    }
 
    public void computeBounds (uniRect rec, boolean bol)
@@ -94,45 +123,56 @@ public class editablePaths
       changesCounter ++;
    }
 
-   public int getTrazosSize ()
+   public int getTrassosSize ()
    {
-      return arrEdiTrazos.size ();
+      return arrEdiTrassos.size ();
    }
 
-   public ediTrazo getTrazo (int indx)
+   // returns the last trass index or -1
+   public int getLastTrassIndx ()
    {
-      if (indx < 0 || indx >= arrEdiTrazos.size ())
+      return arrEdiTrassos.size () - 1;
+   }
+
+   public void addTrass (ediTrass trass)
+   {
+      arrEdiTrassos.add (trass);
+   }
+
+   public ediTrass getTrass (int indx)
+   {
+      if (indx < 0 || indx >= arrEdiTrassos.size ())
          return null;
-      return ((ediTrazo) arrEdiTrazos.get(indx));
+      return ((ediTrass) arrEdiTrassos.get(indx));
    }
 
    // public void setAzimut2all (float azimut)
    // {
       // changesCounter ++;
-      // for (int ii = 0; ii < arrEdiTrazos.size (); ii ++)
-         // ((ediTrazo) arrEdiTrazos.get(ii)).azimut = azimut;
+      // for (int ii = 0; ii < arrEdiTrassos.size (); ii ++)
+         // ((ediTrass) arrEdiTrassos.get(ii)).azimut = azimut;
    // }
 
    public void setStyle2all (String style)
    {
       changesCounter ++;
-      for (int ii = 0; ii < arrEdiTrazos.size (); ii ++)
-         ((ediTrazo) arrEdiTrazos.get(ii)).style = style;
+      for (int ii = 0; ii < arrEdiTrassos.size (); ii ++)
+         ((ediTrass) arrEdiTrassos.get(ii)).style = style;
    }
 
-   public void setStyleToTrazo (int indxTrazo, String style)
+   public void setStyleToTrass (int indxTrass, String style)
    {
-      if (indxTrazo >= 0 && indxTrazo < getTrazosSize ())
-         ((ediTrazo) arrEdiTrazos.get(indxTrazo)).style = style;
+      if (indxTrass >= 0 && indxTrass < getTrassosSize ())
+         ((ediTrass) arrEdiTrassos.get(indxTrass)).style = style;
    }
 
-   // starts a new Trazo (path) at point x, y
-   // returns the Trazo index of the new element
+   // starts a new Trass (path) at point x, y
+   // returns the Trass index of the new element
    //
-   public int startTrazoAt (float x, float y)
+   public int startTrassAt (float x, float y)
    {
       moveTo (x, y);
-      return getTrazosSize() - 1;
+      return getLastTrassIndx();
    }
 
 
@@ -140,23 +180,23 @@ public class editablePaths
    // y nosotros solo somos parte de un unipath! (editablePaths)
    //
    //private svgLikePathParser2uniPath  pathParser = new svgLikePathParser2uniPath ();
-   // public void parseTrazoFlexiformat (float x, float y, String strStyle, String strTrazo)
+   // public void parseTrassFlexiformat (float x, float y, String strStyle, String strTrass)
    // {
-      // int indxTrazo = startTrazoAt ((float) stdlib.atof (xval), (float) stdlib.atof (yval));
+      // int indxTrass = startTrassAt ((float) stdlib.atof (xval), (float) stdlib.atof (yval));
       // pathParser.parsePathStringOnUnipath (uPath, data);
-      // uPath.getEdiPaths ().setStyleToTrazo (indxTrazo, style);
+      // uPath.getEdiPaths ().setStyleToTrass (indxTrass, style);
    // }
 
-   // public void parseTrazosFromEva (EvaUnit evaTrazos)
+   // public void parseTrassosFromEva (EvaUnit evaTrassos)
    // {
-      // if (evaTrazos == null) return;
+      // if (evaTrassos == null) return;
    // }
 
-   public static String trazosToJavaScript (Eva evaTrazos, EvaUnit euTrazosLib, boolean optim, int telaX, int telaY, boolean center)
+   public static String trassosToJavaScript (Eva evaTrassos, EvaUnit euTrassosLib, boolean optim, int telaX, int telaY, boolean center)
    {
       editablePaths este = new editablePaths ();
 
-      este.parseTrazosFromEva (evaTrazos, euTrazosLib);
+      este.parseTrassosFromEva (evaTrassos, euTrassosLib);
       float scale = 0.9f * este.getScaleToFit (telaX, telaY);
 
       String scaleAndOffset = "";
@@ -181,57 +221,59 @@ public class editablePaths
    //        z, 488, 160, "fc:+217070000", "jau,37,14,22,51,8,86,-10,0,-3,27,-12,-28,5,38,-11,-2,-6,-37,5,-80,-11,-45,-19,-14"
    //        z, 128,  83, "fc:+217070000", "jau,-22,-23,0,27"
    //
-   public void parseTrazosFromEva (Eva evaTrazos)
+   public void parseTrassosFromEva (Eva evaTrassos)
    {
-      parseTrazosFromEva (evaTrazos, null);
+      parseTrassosFromEva (evaTrassos, null);
    }
 
-   public void parseTrazosFromEva (Eva evaTrazos, EvaUnit euTrazosLib)
+   public void parseTrassosFromEva (Eva evaTrassos, EvaUnit euTrassosLib)
    {
-      if (evaTrazos == null) return;
+      if (evaTrassos == null) return;
 
-      //log.dbg (2, "parseTrazosFromEva", "have trazos data of rows " + evaTrazos.rows ());
-      for (int ii = 0; ii < evaTrazos.rows (); ii ++)
+      //log.dbg (2, "parseTrassosFromEva", "have trassos data of rows " + evaTrassos.rows ());
+      for (int ii = 0; ii < evaTrassos.rows (); ii ++)
       {
-         EvaLine eline = evaTrazos.get(ii);
-         String orden = evaTrazos.getValue (ii, 0).toLowerCase ();
+         EvaLine eline = evaTrassos.get(ii);
+         String orden = evaTrassos.getValue (ii, 0).toLowerCase ();
 
-         if (orden.equals ("z")) // "z" de trazo
+         currentET = null;
+
+         if (orden.equals ("z")) // "z" de trass
          {
-            String xval = evaTrazos.getValue (ii, 1);
-            String yval = evaTrazos.getValue (ii, 2);
-            String style = evaTrazos.getValue (ii, 3);
-            String data = evaTrazos.getValue (ii, 4);
+            String xval = evaTrassos.getValue (ii, 1);
+            String yval = evaTrassos.getValue (ii, 2);
+            String style = evaTrassos.getValue (ii, 3);
+            String data = evaTrassos.getValue (ii, 4);
 
-            parseTrazo ((float) stdlib.atof (xval), (float) stdlib.atof (yval), style, data);
+            parseTrass ((float) stdlib.atof (xval), (float) stdlib.atof (yval), style, data);
          }
          else if (orden.equals ("defstyle"))
          {
-            styleGlobalContainer.addOrChangeStyle (evaTrazos.getValue (ii, 1), evaTrazos.getValue (ii, 2));
+            headStyles.addStyle (evaTrassos.getValue (ii, 1), evaTrassos.getValue (ii, 2));
          }
          else if (orden.equals ("ref"))
          {
             //     ref, varname, [*planned?* posx, posy, scalex, scaley, rotation ]
             //
 
-            // simple composition for "trazos" by passing a EvaUnit as "trazos library" together with the main Eva
+            // simple composition for "trassos" by passing a EvaUnit as "trassos library" together with the main Eva
             // no relative variation: offset, resize or rotation supported yet
             //
 
-            if (euTrazosLib != null && simpleRecursiveCtrl < 20)
+            if (euTrassosLib != null && simpleRecursiveCtrl < 20)
             {
                simpleRecursiveCtrl ++;
-               parseTrazosFromEva (euTrazosLib.getEva (evaTrazos.getValue (ii, 1)), euTrazosLib);
+               parseTrassosFromEva (euTrassosLib.getEva (evaTrassos.getValue (ii, 1)), euTrassosLib);
                simpleRecursiveCtrl --;
             }
             else
             {
-               //log.err ("parseTrazosFromEva", "reference " + evaTrazos.getValue (ii, 1) + " too deep!");
+               //log.err ("parseTrassosFromEva", "reference " + evaTrassos.getValue (ii, 1) + " too deep!");
             }
          }
          else
          {
-            //log.err ("parseTrazosFromEva", "orden \"" + orden + "\" no reconocida todavia!");
+            //log.err ("parseTrassosFromEva", "orden \"" + orden + "\" no reconocida todavia!");
          }
       }
    }
@@ -240,22 +282,22 @@ public class editablePaths
 
    //
    //   por ejemplo:
-   //   parseTrazo (138, 121, "fc:+217070000", "jau,84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81");
+   //   parseTrass (138, 121, "fc:+217070000", "jau,84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81");
    //
-   public void parseTrazo (float x, float y, String strStyle, String strTrazo)
+   public void parseTrass (float x, float y, String strStyle, String strTrass)
    {
-      int indxTrazo = startTrazoAt (x, y);
-      getTrazo (indxTrazo).parseForm (strTrazo);
-      getTrazo (indxTrazo).style = strStyle;
+      int indxTrass = startTrassAt (x, y);
+      getTrass (indxTrass).parseForm (strTrass);
+      getTrass (indxTrass).style = strStyle;
    }
 
-   public void requiredTrazo (float x, float y, int forma)
+   public void requiredTrass (float x, float y, int forma)
    {
       if (currentET == null || !currentET.isForm (forma))
       {
          // either no currentET yet or currentET was of not void and for another type
-         currentET = new ediTrazo (x, y, forma);
-         arrEdiTrazos.add (currentET);
+         currentET = new ediTrass (x, y, forma);
+         addTrass (currentET);
       }
       else if (currentET.isEmpty ())
       {
@@ -268,7 +310,7 @@ public class editablePaths
    {
       changesCounter ++;
 
-      requiredTrazo (x, y, ediTrazo.FORM_POLYGONE);
+      requiredTrass (x, y, ediTrass.FORM_POLYGONE);
       lastX = x;
       lastY = y;
    }
@@ -278,13 +320,13 @@ public class editablePaths
       changesCounter ++;
       lastX += x;
       lastY += y;
-      requiredTrazo (lastX, lastY, ediTrazo.FORM_POLYGONE);
+      requiredTrass (lastX, lastY, ediTrass.FORM_POLYGONE);
    }
 
    public void lineTo (float x, float y)
    {
       changesCounter ++;
-      requiredTrazo (lastX, lastY, ediTrazo.FORM_POLYGONE);
+      requiredTrass (lastX, lastY, ediTrass.FORM_POLYGONE);
       currentET.addPairAbs (x, y);
       lastX = x;
       lastY = y;
@@ -298,7 +340,7 @@ public class editablePaths
    public void cubicTo (float cx1, float cy1, float cx2, float cy2, float x, float y)
    {
       changesCounter ++;
-      requiredTrazo (lastX, lastY, ediTrazo.FORM_PATH_CUBIC);
+      requiredTrass (lastX, lastY, ediTrass.FORM_PATH_CUBIC);
       currentET.addPairAbs (cx1, cy1);
       currentET.addPairAbs (cx2, cy2);
       currentET.addPairAbs (x, y);
@@ -314,7 +356,7 @@ public class editablePaths
    public void quadTo (float cx, float cy, float x, float y)
    {
       changesCounter ++;
-      requiredTrazo (lastX, lastY, ediTrazo.FORM_PATH_QUAD);
+      requiredTrass (lastX, lastY, ediTrass.FORM_PATH_QUAD);
       currentET.addPairAbs (cx, cy);
       currentET.addPairAbs (x, y);
       lastX = x;
@@ -329,7 +371,7 @@ public class editablePaths
    public void autoCasteljauPoint (float x, float y)
    {
       changesCounter ++;
-      requiredTrazo (lastX, lastY, ediTrazo.FORM_PATH_AUTOCASTELJAU);
+      requiredTrass (lastX, lastY, ediTrass.FORM_PATH_AUTOCASTELJAU);
       currentET.addPairAbs (x, y);
       lastX = x;
       lastY = y;
@@ -352,9 +394,9 @@ public class editablePaths
       changesCounter ++;
 
       // one shot element
-      //if (!currentET.isEmpty () || !currentET.isForm (ediTrazo.FORM_RECTANGLE))
+      //if (!currentET.isEmpty () || !currentET.isForm (ediTrass.FORM_RECTANGLE))
 
-      requiredTrazo (rec.left (), rec.top(), ediTrazo.FORM_RECTANGLE);
+      requiredTrass (rec.left (), rec.top(), ediTrass.FORM_RECTANGLE);
       currentET.addPairRel (rec.width (), rec.height ());
       currentET.addValue (rx);
       currentET.addValue (ry);
@@ -370,7 +412,7 @@ public class editablePaths
       changesCounter ++;
 
       // one shot element
-      requiredTrazo (cx - radius, cy - radius, ediTrazo.FORM_OVAL);
+      requiredTrass (cx - radius, cy - radius, ediTrass.FORM_OVAL);
       currentET.addPairRel (radius + radius, radius + radius);
    }
 
@@ -384,7 +426,7 @@ public class editablePaths
       changesCounter ++;
 
       // one shot element
-      requiredTrazo (oval.left (), oval.top(), ediTrazo.FORM_OVAL);
+      requiredTrass (oval.left (), oval.top(), ediTrass.FORM_OVAL);
       currentET.addPairRel (oval.width (), oval.height ());
    }
 
@@ -398,7 +440,7 @@ public class editablePaths
       changesCounter ++;
 
       // one shot element
-      requiredTrazo (oval.left (), oval.top(), ediTrazo.FORM_ARC);
+      requiredTrass (oval.left (), oval.top(), ediTrass.FORM_ARC);
 
       currentET.addPairRel (oval.width (), oval.height ());
       currentET.addValue (startAngle);
@@ -410,23 +452,11 @@ public class editablePaths
       addArc (new uniRect (false, lastX, lastY, dx, dy), startAngle, sweepAngle);
    }
 
-
-   //(o) TODO_dump trazos
-
-   //
-   //  dump first (tambien) styleGlobalContainer
-   //
-   //  collect all styles and trazos into a varible eva
-   //  para poder salvarlo en fichero, db etc
-   //  y convertirlo en javascript
-   //
-
-
    public String toString (int indx)
    {
-      if (indx < 0 || indx >= arrEdiTrazos.size ())
+      if (indx < 0 || indx >= arrEdiTrassos.size ())
          return null;
-      return ((ediTrazo) arrEdiTrazos.get(indx)).toString ();
+      return ((ediTrass) arrEdiTrassos.get(indx)).toString ();
    }
 
    public String toString ()
@@ -434,6 +464,9 @@ public class editablePaths
       int ii = 0;
       String str = null;
       StringBuffer s = new StringBuffer ();
+
+      s.append (headStyles.toString ());
+      s.append ("\n");
 
       while ((str = toString (ii++)) != null)
          s.append (str + "\n");
@@ -443,8 +476,9 @@ public class editablePaths
 
    public void dumpIntoEva (Eva eva)
    {
-      for (int ii = 0; ii < arrEdiTrazos.size (); ii ++)
-         eva.addLine (new EvaLine (((ediTrazo) arrEdiTrazos.get(ii)).toStringArray ()));
+      headStyles.dumpIntoEva (eva);
+      for (int ii = 0; ii < arrEdiTrassos.size (); ii ++)
+         eva.addLine (new EvaLine (((ediTrass) arrEdiTrassos.get(ii)).toStringArray ()));
    }
 
    public String toJavaScriptCode ()
@@ -474,323 +508,8 @@ public class editablePaths
       return str.length () > 6 ? str.substring (str.length ()-6): str;
    }
 
-
-   // optimized uses META-GASTONA/js/trassos2D.js as function
-   // while optimized generates all javascript code necesary without including anything
-   //
-   public StringBuffer buildJavaScriptCode (int trazoIndx, boolean optimized)
+   public StringBuffer buildJavaScriptCode (int trassIndx, boolean optimized)
    {
-      ediTrazo et = getTrazo (trazoIndx);
-      if (et == null || et.isEmpty ()) return null;
-
-      StringBuffer sb = new StringBuffer ();
-
-      String strFill = "null";
-      String strStroke = "null";
-      String strDraw = "";
-      String strStyle = "";
-
-      //(o) TODO_jagui_graphic buildJavaScriptCode, aplicar estilos, falta stroke size, transparencias de fill y stroke, rotación ...
-      //
-      styleObject estilo = styleGlobalContainer.getStyleObjectByName (et.style);
-      if (estilo.hasFill ())
-      {
-         strFill = "\"#" + toColorString (estilo.getFillPaint ()) + "\"";
-         if (! optimized)
-         {
-            strStyle = "c2d.fillStyle = " + strFill + ";";
-            strDraw = "c2d.fill ();";
-         }
-      }
-      if (estilo.hasStroke ())
-      {
-         strStroke = "\"#" + toColorString (estilo.getStrokePaint ()) + "\"";
-         strStyle += "c2d.strokeStyle = " + strStroke + ";";
-         strDraw += "c2d.stroke ();";
-      }
-      else
-      {
-         // duda ... siempre hay stroke ?
-         strStroke = "\"#000000\"";
-         strStyle += "c2d.strokeStyle = 'rgba(0,0,0,0)';";
-         strDraw += "c2d.stroke ();";
-      }
-
-      switch (et.trazoForm)
-      {
-         case ediTrazo.FORM_OVAL:
-         {
-             // truco para pintar un oval! scale (dx, dy) -> arco centrado de radio 1!!! -> restore
-             double sx = et.getPointX(0) / 2.;  // lo convertimos a radio x
-             double sy = et.getPointY(0) / 2.;  // lo convertimos a radio y
-             if (sx == 0.) sx = 1.;
-             if (sy == 0.) sy = 1.;
-
-             //(o) TODO_jagui_graphic falta aplicar rotación ... donde hacerlo ?
-             //               idea:
-             //                  save ()
-             //                  translate (cx, cy)
-             //                  scale (sx, sy)
-             //                  rotate (-angulo);
-             //                  arc (0, 0, 1, 0, 2*Math.PI, false);
-             //                  restore ()
-             //
-             sb.append ("c2d.beginPath();");
-             sb.append ("c2d.save();");
-             sb.append ("c2d.scale(" + sx + ", " + sy + ");");
-             sb.append ("c2d.arc(" + (et.getPosX()+sx) / sx + ", " + (et.getPosY()+sy) / sy + ", 1, 0, 2 * Math.PI, false);");
-             sb.append ("c2d.restore();");
-             sb.append (strStyle);
-             sb.append (strDraw);
-
-            // JAVA
-            //   objEllipse2D = new Ellipse2D.Float (et.getPosX(), et.getPosY(), et.getPointX(0), et.getPointY(0));
-         }
-         break;
-         case ediTrazo.FORM_ARC:
-         {
-            // JAVA SCRIPT
-            // JAVA
-            //objArc2D = new Arc2D.Float (Arc2D.OPEN);
-            //objArc2D.setFrame (et.getPosX(), et.getPosY(), et.getPointX(0), et.getPointY(0));
-            //objArc2D.setAngleStart(et.getValueAt (2));  // startAngle
-            //objArc2D.setAngleExtent(et.getValueAt (3)); // sweepAngle
-
-            // ?? work ??
-            sb.append ("c2d.beginPath();");
-            sb.append ("c2d.arc(" + et.getPosX() + ", " + et.getPosY() + ", " + et.getPointX(0) + ", " +
-                       et.getValueAt(2) + " * Math.PI / 360., " +
-                       et.getValueAt(3) + " * Math.PI / 360., false);");
-             sb.append (strStyle);
-             sb.append (strDraw);
-         }
-         break;
-         case ediTrazo.FORM_RECTANGLE:
-         {
-            sb.append ("c2d.beginPath();");
-            sb.append (strStyle);
-            if (estilo.hasFill ())
-               sb.append ("c2d.fillRect(" + et.getPosX() + ", " + et.getPosY() + ", " +  et.getPointX(0) + ", " + et.getPointY(0) + ");");
-            sb.append ("c2d.strokeRect(" + et.getPosX() + ", " + et.getPosY() + ", " +  et.getPointX(0) + ", " + et.getPointY(0) + ");");
-            // JAVA
-            // objRect2D = new RoundRectangle2D.Float ();
-            // objRect2D.setRoundRect(et.getPosX(), et.getPosY(),
-            //                        et.getPointX(0), //width
-            //                        et.getPointY(0), //height
-            //                        et.getPointX(1), //radius x
-            //                        et.getPointY(1)); //radius y
-         }
-         break;
-         case ediTrazo.FORM_POLYGONE:
-         {
-            if (optimized)
-            {
-               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"pol\", " +
-                          et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
-                          ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
-                          ", [");
-            }
-            else
-            {
-               sb.append ("c2d.beginPath();");
-               sb.append ("c2d.moveTo(" + et.getPointAbsX(0) + ", " + et.getPointAbsY(0) + ");");
-               sb.append ("var arrPtos = [");
-            }
-            for (int pp = 1; pp < et.getPairsCount (); pp ++)
-            {
-               sb.append ((pp != 1 ? ", ": "") + et.getPointAbsX(pp) + ", " + et.getPointAbsY(pp));
-            }
-            if (optimized)
-            {
-               sb.append ("]);");
-            }
-            else
-            {
-               sb.append ("];\n for (var ii = 0; ii < arrPtos.length; ii += 2) { c2d.lineTo (arrPtos[ii], arrPtos[ii+1]); }\n");
-               if (et.isClosed ())
-                  sb.append ("c2d.closePath();");
-               sb.append (strStyle);
-               sb.append (strDraw);
-            }
-         }
-         break;
-         case ediTrazo.FORM_PATH_CUBIC:
-         {
-            if (optimized)
-            {
-               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"cub\", " +
-                          et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
-                          ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
-                          ", [");
-            }
-            else
-            {
-               sb.append ("c2d.beginPath();");
-               sb.append ("c2d.moveTo(" + et.getPointAbsX(0) + ", " + et.getPointAbsY(0) + ");");
-               sb.append ("var arrPtos = [");
-            }
-            for (int pa = 1; pa < et.getPairsCount (); pa += 3)
-            {
-               sb.append ((pa != 1 ? ", ": "") + et.getPointAbsX(pa) + ", " +  et.getPointAbsY(pa) + ", " +
-                                                 et.getPointAbsX(pa+1) + ", " + et.getPointAbsY(pa+1) + ", " +
-                                                 et.getPointAbsX(pa+2) + ", " + et.getPointAbsY(pa+2));
-            }
-
-            if (optimized)
-            {
-               sb.append ("]);");
-            }
-            else
-            {
-               sb.append ("];\nfor (var ii = 0; ii < arrPtos.length; ii += 6) { c2d.bezierCurveTo (arrPtos[ii], arrPtos[ii+1], arrPtos[ii+2], arrPtos[ii+3], arrPtos[ii+4], arrPtos[ii+5]); }\n");
-               if (et.isClosed ())
-                  sb.append ("c2d.closePath();");
-                sb.append (strStyle);
-                sb.append (strDraw);
-            }
-         }
-         break;
-
-         case ediTrazo.FORM_PATH_QUAD:
-         {
-            if (optimized)
-            {
-               sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"qua\", " +
-                          et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
-                          ", " + strFill + ", " + strStroke + ", " + et.isClosed () +
-                          ", [");
-            }
-            else
-            {
-               sb.append ("c2d.beginPath();");
-               sb.append ("c2d.moveTo(" + et.getPointAbsX(0) + ", " + et.getPointAbsY(0) + ");");
-               sb.append ("var arrPtos = [");
-            }
-
-            for (int pp = 1; pp < et.getPairsCount (); pp += 2)
-            {
-               sb.append ((pp != 1 ? ", ": "") + et.getPointAbsX(pp) + ", " +  et.getPointAbsY(pp) + ", " +
-                                                 et.getPointAbsX(pp+1) + ", " + et.getPointAbsY(pp+1));
-            }
-            if (optimized)
-            {
-               sb.append ("]);");
-            }
-            else
-            {
-               sb.append ("];\nfor (var ii = 0; ii < arrPtos.length; ii += 4) { c2d.quadraticCurveTo (arrPtos[ii], arrPtos[ii+1], arrPtos[ii+2], arrPtos[ii+3]); }\n");
-               if (et.isClosed ())
-                  sb.append ("c2d.closePath();");
-                sb.append (strStyle);
-                sb.append (strDraw);
-            }
-         }
-         break;
-
-         case ediTrazo.FORM_PATH_AUTOCASTELJAU:
-         {
-            float lx = et.getPointAbsX(0);
-            float ly = et.getPointAbsY(0);
-
-            if (et.getPairsCount () < 3)
-            {
-               if (optimized)
-               {
-                  sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"pol\", " +
-                             et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
-                             ", " + strFill + ", " + strStroke + ", false" +
-                             ", [" + (lx + et.getPointX(1)) + ", " + (ly + et.getPointY(1)) + "]);");
-               }
-               else
-               {
-                  sb.append ("c2d.beginPath();");
-                  sb.append ("c2d.moveTo(" + et.getPointAbsX(0) + ", " + et.getPointAbsY(0) + ");");
-                  sb.append ("c2d.lineTo(" + (lx + et.getPointX(1)) + ", " + (ly + et.getPointY(1)) + ");");
-                  sb.append (strStyle);
-                  sb.append (strDraw);
-               }
-            }
-            else
-            {
-               vect3f [] ctrlP = null;
-               vect3f prevCtrPt = null;
-               vect3f lastCtrlPt = null;
-               float lastXabs = et.getPointAbsX(et.getPairsCount ()-1);
-               float lastYabs = et.getPointAbsY(et.getPairsCount ()-1);
-
-               vect3f p0 = new vect3f (lastXabs, lastYabs);
-               vect3f p1 = new vect3f (lx, ly);
-               vect3f p2 = new vect3f (lx + et.getPointX(1), ly + et.getPointY(1));
-
-               if (et.isClosed ())
-               {
-                  ctrlP = polyAutoCasteljauPPT.getControlPoints (p0, p1, p2);
-                  prevCtrPt = new vect3f (ctrlP[1]);
-                  lastCtrlPt = new vect3f (ctrlP[0]);
-               }
-
-               if (optimized)
-               {
-                  sb.append ("trassos2D().trassShapeNoSyncCanvas (c2d, \"cub\", " +
-                             et.getPointAbsX(0) + ", " + et.getPointAbsY(0) +
-                             ", " + strFill + ", " + strStroke + ", false" +  // closing this curve is more complicated ...
-                             ", [");
-               }
-               else
-               {
-                  sb.append ("c2d.beginPath();");
-                  sb.append ("c2d.moveTo(" + et.getPointAbsX(0) + ", " + et.getPointAbsY(0) + ");");
-                  sb.append ("var arrPtos = [");
-               }
-
-               for (int dd = 1; (dd+1) < et.getPairsCount (); dd ++)
-               {
-                  p0.set (lx, ly);
-                  p1.set (et.getPointAbsX(dd),    et.getPointAbsY(dd));
-                  p2.set (et.getPointAbsX(dd+1),  et.getPointAbsY(dd+1));
-                  ctrlP = polyAutoCasteljauPPT.getControlPoints (p0, p1, p2);
-                  if (prevCtrPt == null) prevCtrPt = new vect3f (ctrlP[0]);
-
-                  sb.append ((dd != 1 ? ", ": "") + prevCtrPt.x + ", " + prevCtrPt.y + ", " + ctrlP[0].x + ", " + ctrlP[0].y + ", " + p1.x + ", " + p1.y);
-                  prevCtrPt.set(ctrlP[1]);
-
-                  lx =  et.getPointAbsX(dd);
-                  ly =  et.getPointAbsY(dd);
-               }
-
-               // actual closing the curve
-               //
-               if (et.isClosed ())
-               {
-                  p0.set (lx, ly);
-                  p1.set (lastXabs, lastYabs);
-                  p2.set (et.getPointAbsX(0), et.getPointAbsY(0));
-                  ctrlP = polyAutoCasteljauPPT.getControlPoints (p0, p1, p2);
-
-                  sb.append (", " + prevCtrPt.x + ", " + prevCtrPt.y + ", " + ctrlP[0].x + ", " + ctrlP[0].y + ", " + lastXabs + ", " + lastYabs);
-                  sb.append (", " + ctrlP[1].x + ", " + ctrlP[1].y + ", " + lastCtrlPt.x + ", " + lastCtrlPt.y + ", " + et.getPointAbsX(0) + ", " + et.getPointAbsY(0));
-               }
-               else
-               {
-                  sb.append (", " + prevCtrPt.x + ", " + prevCtrPt.y + ", " + prevCtrPt.x + ", " + prevCtrPt.y + ", " + lastXabs + ", " + lastYabs);
-               }
-
-               if (optimized)
-               {
-                  sb.append ("]);");
-               }
-               else
-               {
-                  sb.append ("];\nfor (var ii = 0; ii < arrPtos.length; ii += 6) { c2d.bezierCurveTo (arrPtos[ii], arrPtos[ii+1], arrPtos[ii+2], arrPtos[ii+3], arrPtos[ii+4], arrPtos[ii+5]); }\n");
-                  sb.append (strStyle);
-                  sb.append (strDraw);
-               }
-            }
-         }
-         break;
-      }
-      return sb;
+      return ediTrass2JScanvas.buildJavaScriptCode (getTrass (trassIndx), headStyles, optimized);
    }
-
 }
-

@@ -53,6 +53,7 @@ public class uniSceneInMotionView extends JPanel implements MouseListener, Mouse
    {
       addMouseListener (this);
       addMouseMotionListener(this);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void assignNewScene (ISceneInMotion theScene)

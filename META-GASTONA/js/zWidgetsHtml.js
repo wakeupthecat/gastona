@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2018,2109 Alejandro Xalabarder Aulet
+Copyright (C) 2018-2026 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -16,24 +16,28 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
    @desc
       zWidgets based on html + Css
 
+               'v'   : canvas
+               'g'   : svg
+               'd'   : div
+               'h1'  : header 1
+               'h2'  : header 2
+               'h3'  : header 3
+               'n'   : link (login ?)
+               'u'   : upload file selector
+               'pass': password
+               'p'   : paragraph
 
-               'd': // div
-               'n': // link (login ?)
-               'b': // button
-               'e': // text input
-               'u': // upload file selector
-               'm': // image
-               'p': // password
-               'h1': header
-               'h2': header
-               'h3': header
-               'l': // label
-               'x': // text area
-               't': // simple table
-               'c': // combo
-               'r': // radio group
-               'k': // checkbox group
-               'i': // list
+               'l'   : label
+               'b'   : button
+               'e'   : text input
+               'x'   : text area
+               'm'   : image
+
+               'i'   : list
+               't'   : simple table
+               'c'   : combo
+               'r'   : radio group
+               'k'   : checkbox group
 
        it is possible to set any other html tag declaring it in "htmltag of"
        which update the property "src" as its data
@@ -41,7 +45,6 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
        example
 
             <htmltag of myVideo> video
-
 
 */
 
@@ -52,12 +55,14 @@ function zWidgets (htmlStamm, laData, mensaka)
    "use strict";
 
    var javajzWidgets = {};
+   var SVGNamespace = "http://www.w3.org/2000/svg";
 
    return {
       // public functions to export
 
       addWidget          : addWidget,
       deliverMsgToWidget : deliverMsgToWidget,
+      deliverMsgToAllWidgets: deliverMsgToAllWidgets,
       defaultSize4widget : defaultSize4widget,
       doMoveWidget       : doMoveWidget,
       doShowWidget       : doShowWidget,
@@ -81,17 +86,33 @@ function zWidgets (htmlStamm, laData, mensaka)
    //alias
    function getzWidgetByName (nam) { return getWidgetByName (nam); }
 
-   function deliverMsgToWidget (wname, msg)
+   function deliverMsgToWidget (wname, msg, params)
    {
       var zwidget = getWidgetByName (wname);
       if (! zwidget) return false;
 
       if (zwidget[msg]) {
-         zwidget[msg] (); // update data
+         zwidget[msg] (params); // update data
          return true;
       }
-      alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
+      // silent here ...
+      // alert ("ERROR (updateWidget) zwidget /" + zwidget.id + "/ with no 'data!' message");
       return false;
+   }
+
+   function deliverMsgToAllWidgets (msg, params)
+   {
+      var some = 0;
+      for (zwid in javajzWidgets)
+      {
+         var theW = javajzWidgets[zwid];
+         if (theW[msg])
+         {
+            some ++;
+            theW[msg] (params);
+         }
+      }
+      return some;
    }
 
    function defaultSize4widget (wname, oRect)
@@ -165,13 +186,22 @@ function zWidgets (htmlStamm, laData, mensaka)
    //    return elmeOrId;
    // }
 
-   function setValueToElement (element, valueStr)
+   function htmlEscape(str)
    {
-      if (element)
+      return String(str).replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+   }
+
+   function setValueToElement (element, valueStr, escapeHtml)
+   {
+      if (element && typeof valueStr !== undefined)
       {
          if (typeof element.value === "string")
               element.value = valueStr;
-         else element.innerHTML = valueStr;
+         else element.innerHTML = escapeHtml ? htmlEscape(valueStr): valueStr;
       }
    }
 
@@ -202,16 +232,19 @@ function zWidgets (htmlStamm, laData, mensaka)
       }
 
       var updateSimpleLabel = function () {
-         this.innerHTML = (laData.dataUnit[name] ? laData.getDataCell (name) : var2Text (name));
+         this.innerHTML = htmlEscape(laData.getDataUnit()[name] ? laData.getDataCell (name) : var2Text (name));
       }
       var updateSimpleLabel2 = function () {
-         this.innerHTML = (laData.dataUnit[name] ? laData.getDataCell (name) : var2Text (name.substr(1)));
+         this.innerHTML = htmlEscape(laData.getDataUnit()[name] ? laData.getDataCell (name) : var2Text (name.substr(1)));
       }
       var updateSimpleValue = function () {
          setValueToElement (this, laData.getDataCell (name));
       }
       var updateSimpleSrc = function () {
-         this.src = laData.getDataCell (name);
+         if (laData.existsDataVar (name))
+         {
+            this.src = laData.getDataCell (name);
+         }
       }
       var updateResetValue = function () {
          this.value = '';
@@ -226,34 +259,44 @@ function zWidgets (htmlStamm, laData, mensaka)
          mensaka(name);
       }
       var assignValue = function () {
-         laData.dataUnit[name][0] = [ this.value||"?" ];
+         if (laData.getDataUnit()[name] === undefined)
+         {
+            laData.getDataUnit()[name] = [[ "" ]];
+         }
+         laData.getDataUnit()[name][0] = [ this.value||"?" ];
          signalName ();
       };
       var assignText = function ()
                        {
-                           laData.dataUnit[name] = [ [ ] ];
+                           laData.getDataUnit()[name] = [[ ]];
                            var text = this.value||"?";
                            var rows = str2lineArray (text);
                            for (var rr in rows)
-                              laData.dataUnit[name][rr] = [ rows[rr] ];
+                              laData.getDataUnit()[name][rr] = [ rows[rr] ];
 
                            signalName ();
                        };
 
-      var hayTagOf = laData.dataUnit["htmltag of " + name];
+      var hayTagOf = laData.getDataUnit()["htmltag of " + name];
       if (hayTagOf)
       {
          // direct html tag (e.g. <htmltag of lasona> audio
          //
          zwid = fabricaStandard (hayTagOf, name, { "data!": updateSimpleSrc });
       }
-      else {
-
-         var hayClassOf = laData.dataUnit["class of " + name];
+      else
+      {
+         var hayClassOf = laData.getDataUnit()["class of " + name];
          var widgetclass = hayClassOf ? hayClassOf[0][0] : name;
 
          switch (widgetclass.charAt (0))
          {
+            case 'g':
+               zwid = fabricaSVG (name, { onclick: signalName, "data!": function () { console.log ("data! method not set for svg element!") }  } );
+               break;
+            case 'v':
+               zwid = fabricaStandard ("canvas", name, { onclick: signalName, "data!": function () { console.log ("data! method not set for canvas element!") }  } );
+               break;
             case 'd':
                zwid = fabricaStandard ("div", name, { "data!": updateSimpleLabel  } );
                break;
@@ -292,7 +335,10 @@ function zWidgets (htmlStamm, laData, mensaka)
                break;
 
             case 'p': // password
-               zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
+               if (widgetclass.length >= 4 && widgetclass.substr(0, 4) == 'pass')
+                  zwid = fabricaStandard ("input", name, { type: "password", placeholder: "password", onchange: assignValue, "data!": updateSimpleValue } );
+               else
+                  zwid = fabricaStandard ("p", name, { "data!": updateSimpleLabel } );
                break;
 
             //(o) TOCHECK: some strange thing happen when two h's are put beside in EVALAYOUT
@@ -308,21 +354,17 @@ function zWidgets (htmlStamm, laData, mensaka)
             case 'x':
                {
                   var updata = function () {
-                        var tex = "", row;
-                        if (!laData.isEvaEmpty (laData.dataUnit[this.id]))
-                           for (row in laData.dataUnit[this.id])
-                              tex += laData.dataUnit[this.id][row] + "\n";
-                        setValueToElement (this, tex);
+                        var texArr = laData.getDataAsTextArray(this.id);
+                        setValueToElement(this, texArr ? texArr.join ("\n"): "");
                      }
                   zwid = fabricaStandard ("textarea", name, { placeholder: var2Text(name), "data!": updata, onchange: assignText } );
                }
                break;
 
-
             case 't': // simple table
                {
                   var updata = function () {
-                        var etabla, rowele, colele, row, col, evaData = laData.dataUnit[this.id];
+                        var etabla, rowele, colele, row, col, evaData = laData.getDataUnit()[this.id];
 
                         // create new html table
                         while (this.hasChildNodes())
@@ -349,7 +391,7 @@ function zWidgets (htmlStamm, laData, mensaka)
                                  colele = document.createElement (row === "0" ? "th": "td");
 
                                  // use instead ? colele.value = evaData[row][col];
-                                 setValueToElement (colele, evaData[row][col]);
+                                 setValueToElement (colele, evaData[row][col], true);
                                  rowele.appendChild (colele);
                               }
                               etabla.appendChild (rowele);
@@ -381,9 +423,13 @@ function zWidgets (htmlStamm, laData, mensaka)
 
          deliverMsgToWidget (name, "data!");
 
-         // experimental! all widgets need data!
-         if (!laData.dataUnit[name])
-            laData.dataUnit[name] = [ [ "" ] ];
+         // we can't do this
+         // for instance a button may not have
+         // data but it has actually implicit data (widget name substring 1)
+         //
+         //   // experimental! all widgets need data!
+         //   if (!laData.getDataUnit()[name])
+         //      laData.getDataUnit()[name] = [ [ "" ] ];
       }
    }
 
@@ -416,9 +462,20 @@ function zWidgets (htmlStamm, laData, mensaka)
       return str2;
    }
 
+   function fabricaSVG (name, atts)
+   {
+      var ele = document.createElementNS (SVGNamespace, "svg");
+      return setStandardElem (ele, name, atts);
+   }
+
    function fabricaStandard (typestr, name, atts)
    {
       var ele = document.createElement (typestr);   // "label" "button" etc
+      return setStandardElem (ele, name, atts);
+   }
+
+   function setStandardElem (ele, name, atts)
+   {
       ele["id"] = name;
       ele.style.visibility = "hidden";
       ele.spellcheck = false; // per default FALSE !!!
@@ -428,9 +485,9 @@ function zWidgets (htmlStamm, laData, mensaka)
       }
 
       // ensure a variable in data unit if not already exists
-      // for the value (NOTE: for some reason it does not work for typestr === "textarea")
-      if (typestr === "input" && !laData.dataUnit[name])
-         laData.dataUnit[name] = [[ "" ]];
+      // for the value (NOTE: for some reason it does not work for ele === "textarea")
+      if (ele === "input" && laData.getDataUnit()[name] === undefined)
+         laData.getDataUnit()[name] = [[ "" ]];
 
       // Interpret attributes of element as follows
       //
@@ -441,14 +498,14 @@ function zWidgets (htmlStamm, laData, mensaka)
       //    <elem other>   val     elem.other = val
       //
 
-      for (var dd in laData.dataUnit)
+      for (var dd in laData.getDataUnit())
       {
          // i.e. <eText class> //'btn
          // i.e. <eText onchange> //alarm("me change!");
          if (strStartsWith (dd, name + " "))
          {
             var attrib = dd.substr(name.length + 1);
-            var value = laData.dataUnit[dd];
+            var value = laData.getDataUnit()[dd];
 
             if (strStartsWith (attrib, "on")) {
                // notification to some event (e.g. "onkeyup", "onwheel" etc)
@@ -489,7 +546,7 @@ function zWidgets (htmlStamm, laData, mensaka)
 
    function fabricaLista (name)
    {
-      var orient = laData.dataUnit[name + " orientation"]||"X";
+      var orient = laData.getDataUnit()[name + " orientation"]||"X";
       if (name.charAt (0) == 'c') return fabricaSelectList (name, false);
       if (name.charAt (0) == 'i') return fabricaSelectList (name, true);
       if (name.charAt (0) == 'r') return fabricaGrupo (name, "radio", false);
@@ -552,7 +609,7 @@ function zWidgets (htmlStamm, laData, mensaka)
          //        and update on item change (enough)
          //
          if (este["uid"])
-            laData.dataUnit[name + " " + este["uid"] + ".checked"] = [[ este.checked ? "1": "0" ]];
+            laData.getDataUnit()[name + " " + este["uid"] + ".checked"] = [[ este.checked ? "1": "0" ]];
 
          // TODO: fill variables <name uid.column> vvvv when checked is 1 and delete them when checked is 0!
          //
@@ -564,15 +621,15 @@ function zWidgets (htmlStamm, laData, mensaka)
       {
          // note : these attributes has to be clear and set again on any item change
          //
-         if (selectAllColumnsFromTable (laData.dataUnit, name, value||""))
+         if (selectAllColumnsFromTable (laData.getDataUnit(), name, value||""))
          {
-            laData.dataUnit[name + "_value"] = [[ value||"?" ]]; // to have a single variable
-            laData.dataUnit[name + "_uid"] = [[ este["uid"] ]]; // to have a single variable
+            laData.getDataUnit()[name + "_value"] = [[ value||"?" ]]; // to have a single variable
+            laData.getDataUnit()[name + "_uid"] = [[ este["uid"] ]]; // to have a single variable
          }
          else
          {
-            delete laData.dataUnit[name + "_value"];
-            delete laData.dataUnit[name + "_uid"];
+            delete laData.getDataUnit()[name + "_value"];
+            delete laData.getDataUnit()[name + "_uid"];
          }
       }
       mensaka(name);
@@ -616,15 +673,15 @@ function zWidgets (htmlStamm, laData, mensaka)
    //
    function getColName (unitname, colname)
    {
-      if (!laData.dataUnit[unitname] || !laData.dataUnit[unitname][0] || laData.dataUnit[unitname][0].length < 1)
+      if (!laData.getDataUnit()[unitname] || !laData.getDataUnit()[unitname][0] || laData.getDataUnit()[unitname][0].length < 1)
       {
          console.log ("ERROR: No column can be used as label in list " + unitname + "!");
          return null;
       }
 
-      var indxLabel = laData.dataUnit[unitname][0].indexOf (colname);
+      var indxLabel = laData.getDataUnit()[unitname][0].indexOf (colname);
       if (indxLabel == -1) indxLabel = 0;
-      return laData.dataUnit[unitname][0][indxLabel];
+      return laData.getDataUnit()[unitname][0][indxLabel];
    }
 
 
@@ -647,32 +704,32 @@ function zWidgets (htmlStamm, laData, mensaka)
 
       ele["data!"] = function () {
 
-      // tableTrans is an object like
-      // {
-      //    label: ["mygod", "save", "queen"];
-      //    value: [1223, 188198, 555];
-      //    selected: ["0", "1", "0"];
-      // }
+            // tableTrans is an object like
+            // {
+            //    label: ["mygod", "save", "queen"];
+            //    value: [1223, 188198, 555];
+            //    selected: ["0", "1", "0"];
+            // }
 
             // clear old content
             while (this.hasChildNodes())
                this.removeChild(this.firstChild);
 
-            var tableTrans = table2ColumnObj (laData.dataUnit[name]);
+            var tableTrans = table2ColumnObj (laData.getDataUnit()[name]);
 
-      // get from data the column to be used as label
-      //
-      var labelcol = getColName (name, "label");
+            // get from data the column to be used as label
+            //
+            var labelcol = getColName (name, "label");
             if (!labelcol) return;
-      var labels = tableTrans[labelcol];
+            var labels = tableTrans[labelcol];
 
-      for (var ii in labels)
-      {
-         var subele = document.createElement ("option");
-         addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans);
-         subele.appendChild (document.createTextNode(labels[ii]));
+            for (var ii in labels)
+            {
+               var subele = document.createElement ("option");
+               addCommonAttributesToCheckableItem (subele, ii, name, labels[ii], tableTrans);
+               subele.appendChild (document.createTextNode(labels[ii]));
                this.appendChild (subele);
-      }
+            }
          };
 
       return ele;
@@ -687,66 +744,66 @@ function zWidgets (htmlStamm, laData, mensaka)
       ele.style.visibility = "hidden";
 
       ele["data!"] = function () {
-         var orient = laData.dataUnit[name + " orientation"]||"X";
-         var tableTrans = table2ColumnObj (laData.dataUnit[name]);
-      // tableTrans is an object like
-      // {
-      //    label: ["mygod", "save", "queen"];
-      //    value: [1223, 188198, 555];
-      //    selected: ["0", "1", "0"];
-      // }
+         var orient = laData.getDataUnit()[name + " orientation"]||"X";
+         var tableTrans = table2ColumnObj (laData.getDataUnit()[name]);
+         // tableTrans is an object like
+         // {
+         //    label: ["mygod", "save", "queen"];
+         //    value: [1223, 188198, 555];
+         //    selected: ["0", "1", "0"];
+         // }
 
          // clear old content
          while (this.hasChildNodes())
             this.removeChild(this.firstChild);
 
-      // get from data the column to be used as label
-      //
-      var labelcol = getColName (name, "label");
-         if (!labelcol);
-      var labels = tableTrans[labelcol];
-
-      // *** Own width calculation
-      // we have to estimate width, for some reason if not specified
-      // width (offsetWidth) per default is the whole width whereas the height is
-      // correctly calculated from the content.
-      var widthEstim = 0;
-
-      //cannot do this here like in fabricaSelect, but to be done on each element
-      //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
-      for (var ii in labels)
-      {
-         var subelem = document.createElement ("input");
-         subelem["type"] = tipo;
-         addCommonAttributesToCheckableItem (subelem, ii, name, labels[ii], tableTrans);
-
-         // choose the selection type
-         subelem["selectionType uid.checked"] = multipleSelect;
-
-         // create the attribute "uid".checked
-         // for example
-         //       <kgCities BCN.checked> "1"
+         // get from data the column to be used as label
          //
-         if (subelem["selectionType uid.checked"])
-            laData.dataUnit[name + " " + subelem["uid"] + ".checked"] = [[ subelem["checked"] ? "1": "0" ]];
+         var labelcol = getColName (name, "label");
+         if (!labelcol);
+         var labels = tableTrans[labelcol];
 
-         //Estimate width of the subelem's label
-         // for a more accurate measure it should be taken into account the final font
-         // which might be not know right now (?!)
-         var estimW = 12 * labels[ii].length; // mean 12px per char
+         // *** Own width calculation
+         // we have to estimate width, for some reason if not specified
+         // width (offsetWidth) per default is the whole width whereas the height is
+         // correctly calculated from the content.
+         var widthEstim = 0;
 
-         subelem["data!"] = function () { };
-         subelem.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
-         if (orient == "Y" || orient == "V") {
+         //cannot do this here like in fabricaSelect, but to be done on each element
+         //ele.addEventListener ("change", function () { whenChangeTableSelection (name, this.value); });
+         for (var ii in labels)
+         {
+            var subelem = document.createElement ("input");
+            subelem["type"] = tipo;
+            addCommonAttributesToCheckableItem (subelem, ii, name, labels[ii], tableTrans);
+
+            // choose the selection type
+            subelem["selectionType uid.checked"] = multipleSelect;
+
+            // create the attribute "uid".checked
+            // for example
+            //       <kgCities BCN.checked> "1"
+            //
+            if (subelem["selectionType uid.checked"])
+               laData.getDataUnit()[name + " " + subelem["uid"] + ".checked"] = [[ subelem["checked"] ? "1": "0" ]];
+
+            //Estimate width of the subelem's label
+            // for a more accurate measure it should be taken into account the final font
+            // which might be not know right now (?!)
+            var estimW = 12 * labels[ii].length; // mean 12px per char
+
+            subelem["data!"] = function () { };
+            subelem.addEventListener ("change", function () { whenChangeTableSelection (name, this, this.value); });
+            if (orient == "Y" || orient == "V") {
                this.appendChild (document.createElement ("br"));
-            widthEstim = Math.max (widthEstim, estimW);
-         }
-         else {
-            widthEstim += estimW;
-         }
+               widthEstim = Math.max (widthEstim, estimW);
+            }
+            else {
+               widthEstim += estimW;
+            }
             this.appendChild (subelem);
             this.appendChild (document.createTextNode(labels[ii]));
-      }
+         }
          this.style.width = widthEstim + "px";
       };
 

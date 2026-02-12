@@ -2,7 +2,7 @@
 
     Demonstrates how to use xmelon listix command and visualizes
     the database it generates.
-    
+
 #gastona#
 
    <fusion>
@@ -78,7 +78,7 @@
 
    <bSearchFile DIALOG> FILE
    <bSearchFile image> javaj\img\leaf.png
-   
+
    <rgXMLorJSON orientation> X
    <rgXMLorJSON>
       label, value   , selected, syntax
@@ -93,8 +93,8 @@
    <-- bXMeLon parse>        LSX, PARSE IT
    <-- eXmlSourceFileOrDir>  LSX, PARSE IT
    <-- eExtensions>          LSX, PARSE IT
-   
-   <-- rgXMLorJSON> 
+
+   <-- rgXMLorJSON>
       CHECK, VAR, rgXMLorJSON selected.value
       -->, eExtensions data!,, @<rgXMLorJSON selected.value>
 
@@ -111,8 +111,8 @@
    <xmelonSYNTAX>
       CHECK, VAR, rgXMLorJSON selected.syntax, FILE2DB
       @<rgXMLorJSON selected.syntax>
-      
-      
+
+
    <PARSE IT>
       CHECK, DIR, @<eXmlSourceFileOrDir>, LSX, PARSE FILE
       LSX, PARSE DIR
@@ -135,8 +135,8 @@
    <finalize xmelon DB>
       XMELON, CONTENT VIEWS
       DB,, SCHEMA, theDBSchema
-      DEEPDB, LOAD CONNECTIONS,, theDBConnections, 1
-      DEEPDB, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
+      DBMORE2, LOAD CONNECTIONS,, theDBConnections, 1
+      DBMORE2, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
       MSG, aSchema data!
       -->, lStatus data!,, //done in @<elapsed> seconds
 
@@ -147,7 +147,8 @@
    <elapsed> =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
 
    <sql deep>
-      DBMORE, TOSQL, aSchema selectedMultiPath
+      DBMORE2, TOSQL
+            , VAR DEEP COLUMNS, aSchema selectedMultiPath
             , VARCONNECTIONS, theDBConnections
             , DEEP COL HEADER, 1
             , LINE BREAK, 0

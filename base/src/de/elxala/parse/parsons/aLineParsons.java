@@ -1,6 +1,6 @@
 /*
 package de.elxala
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -22,7 +22,8 @@ package de.elxala.parse.parsons;
    Alejandro Xalabarder
 
 
-   20.03.2008 17:50    created
+   2024-08-29 20:11 Last change
+   2008-03-20 17:51 Creation
 */
 
 import java.util.*;
@@ -36,112 +37,279 @@ import de.elxala.zServices.*;
 /**
    class aLineParsons
    @author Alejandro Xalabarder Aulet
-   @date   2008
+   @date   2008-2024
 
    Class to facilitate parsing lines.
    This class is the kern of the Listix command PARSONS (used directly in listix/cmds/cmdParsons.java)
    See documentation of the listix command in welcomeGastona.
    Provides also a command line call (see main)
 
-   20.03.2008 17:51 Creation
-   29.02.2012 00:41 Remove modificators :keep and :optional, they weren't really implemented
-                    (just ":keep" was used and worked but because of a BUG!!! fixed on 25-02-2012, see bildID 11536)
-                    The idea to have these modificators here is not good, as well as keeping an old value is wrong
-                    ":keep" can be implemented in a higher level (cmdParsons) using an agent table (master)
-                    old value is thought for delta-records but delta-records has to be done of filtered tables, thus
-                    this delta built while parsing hardly seems to be useful.
-
-   2019.02.16 15:20 preparation for supporting smooth header values
-
-                    Supporting last-record and inclusion of special references to other last-record agents would
-                    be valuable, for instance
-
-                        parsons, ...
-                               , TABLE, header
-                               ,      , orderNr, orderDate, //Ref: (.*) Date: (.*)
-                               , TABLE, lines
-                               ,      , #orderNr, prodId, desc, quantity, price, //   (.*),(.*),(.*),(.*)
-
-                    could benefit from the last orderNr of the table header
-
-                    other syntaxes are possible, for instance
-
-                           #fieldname=agent_tablename.field
-
-                    being more flexible
-                        - handle different names
-                        - be able to specify any field from any agent table
-
-                    First thing to do in aLineParsons to support this syntax is not expecting a capture group for such fields
-
-                    In order to facilitate the implementation all "#" fields have to be found at the beginning of the
-                    field list!
-
+   2008-03-20 17:51 Creation
 
 */
 public class aLineParsons
 {
-   public class fieldType
-   {
-      public String name = null;
-      public String value = null;
+    private parsonsColumn [] currentRecord = new parsonsColumn [0];
+    private parsonsColumn [] currentOptRecord = new parsonsColumn [0];
 
-      public fieldType (String fieldName)
-      {
-         name = fieldName;
-      }
-   };
+    //
+    //  Note: Pattern array + offset fields are candidate to be sub-classed unfortunatelly (with the java version I do compile) we would need a separate file
+    //        (sub-classing the same as sub-functioning was an important language feature removed from Pascal in the very firt C design for no reason)
+    //
 
-   private fieldType [] currentRecord = new fieldType [0];
+    private int [] offsetFields = new int [0];               // on each pattern starts a field, this is the index of this field
+    private Pattern [] arrPatterns = new Pattern [0];        // array of patterns to check for each line
 
-   private int [] offsetFields = new int [0];     // on each pattern starts a field, this is the index of this field
-   private Pattern [] arrPatterns = new Pattern [0];  // array of patterns to check for each line
-   private Pattern [] arrAntiPatterns = new Pattern [0];  // array of patterns to check for each line
+    private int [] offsetOptColFields = new int [0];         // on each pattern starts a field, this is the index of this field
+    private Pattern [] arrOptColPatterns = new Pattern [0];  // array of patterns for optional columns
 
-   private int nextPattern = -1;           // current pattern to start with while scanning a line
-   private boolean recordComplete = false;
-   private boolean ready = false;
+    private Pattern [] arrAntiPatterns = new Pattern [0];    // array of patterns to check for each line
 
-   private logger log = new logger (this, "de.elxala.parse.parsons.aLineParsons", null);
+    private int nextPattern = -1;           // current ordinary pattern to start with while scanning a line
+    private boolean recordComplete = false;
+    private boolean ready = false;
 
-   public Eva patternMap     = new Eva ();               // original description of the pattern-Field mapping
-   public Eva antiPatternList = new Eva ();              // patterns to be ignored
+    private logger log = new logger (this, "de.elxala.parse.parsons.aLineParsons", null);
 
-   public aLineParsons ()
-   {
-      patternMap = new Eva ("field pattern map");
-      ready = false;
-   }
+    public Eva regularColumnPatternMap = new Eva ();      // original description of the ordinary pattern-Field mapping
 
-   public aLineParsons (Eva thePatternMap)
-   {
-      patternMap = thePatternMap;
-      ready = false;
-   }
+    public aLineParsons ()
+    {
+    }
 
-   public void setAntiPatternList (Eva theAntiPatternList)
-   {
-      antiPatternList = theAntiPatternList;
-      ready = false;
-   }
+    public aLineParsons (Eva thePatternMap)
+    {
+        setRegularPatternList (thePatternMap);
+    }
 
-   public void addFieldsPatternMap (String allInOne)
-   {
-      patternMap.addLine (new EvaLine (allInOne));
-      ready = false;
-   }
+    public aLineParsons (Eva thePatternMap, Eva optionalPatternMap)
+    {
+        setRegularPatternList (thePatternMap);
+        setOptionalPatternList (optionalPatternMap);
+    }
 
-   public void addFieldsPatternMap (String pattern, String [] fields)
-   {
-      patternMap.addLine (new EvaLine (fields));
+    public aLineParsons (Eva thePatternMap, Eva optionalPatternMap, Eva antiPatternMap)
+    {
+        setRegularPatternList (thePatternMap);
+        setOptionalPatternList (optionalPatternMap);
+        setAntiPatternList (antiPatternMap);
+    }
 
-      patternMap.addCol (pattern, patternMap.rows()-1);
-      ready = false;
-   }
+    public boolean isValid ()
+    {
+        // some null value indicates errors in last compilation
+        //
+        return arrPatterns != null && arrAntiPatterns != null && arrOptColPatterns != null;
+    }
 
-   public Pattern [] getPatterns ()
+    public boolean setRegularPatternList (Eva patternMap)
+    {
+        //NOTE: <offsetFields> is also set but we only set to null <arrPatterns> for traking purposes
+        arrPatterns = compileRegularPatternList (patternMap);
+        return arrPatterns != null;
+    }
+
+    public boolean setAntiPatternList (Eva patternMap)
+    {
+        arrAntiPatterns = compileAntiPatternList (patternMap);
+        return arrAntiPatterns != null;
+    }
+
+    public boolean setOptionalPatternList (Eva patternMap)
+    {
+        //NOTE: <offsetOptColFields> is also set but we only set to null <arrOptColPatterns> for traking purposes
+        arrOptColPatterns = compileOptionalPatternList (patternMap);
+        return arrOptColPatterns != null;
+    }
+
+    protected Pattern []  compileRegularPatternList (Eva regularColumnPatternMap)
+    {
+        //  patternMap example
+        //
+        //    <patternFieldMap>
+        //         recordId, date, //record: (.*) date: (.*)
+        //         clientid, // client: (.*)
+        //
+        log.dbg (5, "init", "setRegularPatternList [" + regularColumnPatternMap + "]");
+
+
+        // --- CREATE AND COMPILE REGULAR PATTERNS
+        //
+        offsetFields = new int [regularColumnPatternMap.rows ()];
+        Pattern [] pattArr  = new Pattern [regularColumnPatternMap.rows ()];
+        List stdCamps = new Vector();
+        int offsetIndx = 0;
+
+        for (int ii = 0; ii < regularColumnPatternMap.rows (); ii ++)
+        {
+            if (regularColumnPatternMap.cols (ii) < 2)
+            {
+                log.err ("init", "no pattern found at row " + ii + " (the rowNS has only one column)");
+                return null;
+            }
+
+            int nchamps = regularColumnPatternMap.cols (ii) - 1;
+            String thePattern = regularColumnPatternMap.getValue (ii, nchamps); // nchamps is also the pattern index
+
+            offsetFields[ii] = offsetIndx;
+            offsetIndx += nchamps;
+
+            try
+            {
+                pattArr[ii] = Pattern.compile (thePattern);
+            }
+            catch (PatternSyntaxException e)
+            {
+                log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+            catch (Exception e)
+            {
+                log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+
+            // search for field names
+            for (int cc = 0; cc < nchamps; cc ++)
+            {
+                String fname = regularColumnPatternMap.getValue (ii, cc);
+                if (fname.length () == 0) continue;
+
+                parsonsColumn fi = new parsonsColumn (fname);
+
+                if (stdCamps.contains (fi))
+                {
+                    log.err ("init", "duplicated field names (" + fi.getName () + ") are not allowed!");
+                    return null;
+                }
+
+                // add new field
+                stdCamps.add (fi);
+                log.dbg (5, "init", "add field " + fi.getName () + " at index " + (stdCamps.size ()-1));
+            }
+        }
+
+        // build the array of fields and values from the list
+        //
+        currentRecord = new parsonsColumn [stdCamps.size ()];
+        log.dbg (5, "init", "filedNames of size " + stdCamps.size () + " created");
+
+        for (int ii = 0; ii < currentRecord.length; ii ++)
+        {
+            currentRecord[ii] = (parsonsColumn) stdCamps.get (ii);
+            log.dbg (5, "init", "filedNames [" + ii + "] = \"" + currentRecord[ii].getName () + "\"");
+        }
+        nextPattern = 0;
+
+        return pattArr;
+    }
+
+    protected Pattern [] compileAntiPatternList (Eva antiPatternList)
+    {
+        // --- CREATE AND COMPILE ANTI PATTERNS
+        //
+        Pattern [] pattArrr = new Pattern [antiPatternList.rows ()];
+        for (int ii = 0; ii < antiPatternList.rows (); ii ++)
+        {
+            String thePattern = antiPatternList.getValue (ii, 0);
+
+            try
+            {
+                pattArrr[ii] = Pattern.compile (thePattern);
+            }
+            catch (PatternSyntaxException e)
+            {
+                log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+            catch (Exception e)
+            {
+                log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+        }
+        return pattArrr;
+    }
+
+    protected Pattern [] compileOptionalPatternList (Eva optionalColumnPatterMap)
+    {
+        // --- CREATE AND COMPILE OPTIONAL COLUMN PATTERNS
+        //
+        offsetOptColFields = new int [optionalColumnPatterMap.rows ()];
+        Pattern [] pattArrr  = new Pattern [optionalColumnPatterMap.rows ()];
+        List optCamps = new Vector();
+        int offsetIndx = 0;
+
+        for (int ii = 0; ii < optionalColumnPatterMap.rows (); ii ++)
+        {
+            if (optionalColumnPatterMap.cols (ii) < 2)
+            {
+                log.err ("init", "no pattern found at row " + ii + " (the rowNS has only one column)");
+                return null;
+            }
+
+            int nchamps = optionalColumnPatterMap.cols (ii) - 1;
+            String thePattern = optionalColumnPatterMap.getValue (ii, nchamps); // nchamps is also the pattern index
+
+            offsetOptColFields[ii] = offsetIndx;
+            offsetIndx += nchamps;
+
+            try
+            {
+                pattArrr[ii] = Pattern.compile (thePattern);
+            }
+            catch (PatternSyntaxException e)
+            {
+                log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+            catch (Exception e)
+            {
+                log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
+                return null;
+            }
+
+            // search for field names
+            for (int cc = 0; cc < nchamps; cc ++)
+            {
+                String fname = optionalColumnPatterMap.getValue (ii, cc);
+                if (fname.length () == 0) continue;
+
+                parsonsColumn fi = new parsonsColumn (fname);
+
+                if (optCamps.contains (fi))
+                {
+                    log.err ("init", "duplicated field names (" + fi.getName () + ") are not allowed!");
+                    return null;
+                }
+
+                // add new field
+                optCamps.add (fi);
+                log.dbg (5, "init", "add field " + fi.getName () + " at index " + (optCamps.size ()-1));
+            }
+        }
+
+        // build the array of fields and values from the list
+        //
+        currentOptRecord = new parsonsColumn [optCamps.size ()];
+        log.dbg (5, "init", "filedNames of size " + optCamps.size () + " created");
+
+        for (int ii = 0; ii < currentOptRecord.length; ii ++)
+        {
+            currentOptRecord[ii] = (parsonsColumn) optCamps.get (ii);
+            log.dbg (5, "init", "filedNames [" + ii + "] = \"" + currentOptRecord[ii].getName () + "\"");
+        }
+        return pattArrr;
+    }
+
+   public Pattern [] getRegularPatterns ()
    {
       return arrPatterns;
+   }
+
+   public Pattern [] getOptionalPatterns ()
+   {
+      return arrOptColPatterns;
    }
 
    public Pattern [] getAntiPatterns ()
@@ -159,13 +327,8 @@ public class aLineParsons
       return arrAntiPatterns != null && arrAntiPatterns.length > 0;
    }
 
-
    public boolean ignoreLine (String lineStr)
    {
-      if (!ready)
-         if (!init ())
-            return false; // conservative
-
       for (int pp = 0; pp < arrAntiPatterns.length; pp ++)
       {
          Matcher matcher = null;
@@ -187,152 +350,14 @@ public class aLineParsons
       return false;
    }
 
-   /**
-      <patternFieldMap>
-
-         fileName   , //FileName: (.*)
-         time       , //Timestamp: (.*)
-         Camera     , //Camera: (.*)
-         ISO        , //ISO speed: (.*)
-
-         shutter, units, //Shutter: (.*) (.*)
-
-
-   */
-   public boolean init ()
+   public parsonsColumn [] getCurrentRecord ()
    {
-      log.dbg (5, "init", "analyzing pattern [" + patternMap + "]");
-//System.out.println ("patternMap is " + patternMap);
-      // recognizing the fields
-      //
-      List campos = new Vector();
-
-      offsetFields = new int [patternMap.rows ()];
-      arrPatterns  = new Pattern [patternMap.rows ()];
-      arrAntiPatterns  = new Pattern [antiPatternList.rows ()];
-
-      int offset = 0;
-      boolean isOptional = false;
-      boolean toBeKept = false;
-
-      // for each row an antiPattern
-      //
-      for (int ii = 0; ii < antiPatternList.rows (); ii ++)
-      {
-         String thePattern = antiPatternList.getValue (ii, 0);
-
-         try
-         {
-            arrAntiPatterns[ii] = Pattern.compile (thePattern);
-         }
-         catch (PatternSyntaxException e)
-         {
-            log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
-            return false;
-         }
-         catch (Exception e)
-         {
-            log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
-            return false;
-         }
-      }
-
-
-      // for each row a pattern and one or more fields
-      //
-      for (int ii = 0; ii < patternMap.rows (); ii ++)
-      {
-         isOptional = false;
-         toBeKept = false;
-         if (patternMap.cols (ii) < 2)
-         {
-            log.err ("init", "no pattern found at row " + ii + " (the rowNS has only one column)");
-            return false;
-         }
-
-         // same numeric value with two different meanings!
-         int pattIndx, nchamps;
-         pattIndx = nchamps = patternMap.cols (ii) - 1;
-
-         String thePattern = patternMap.getValue (ii, pattIndx);
-
-         //change 24.02.2012 23:57
-         // !!! Fix error introduced on      2011-03-11 22:28:14 (bildID 11306, fileID 68641 from IProject db)
-         //     compare with aLineParsons of 2010-01-08 22:23:44 (bildID 11138, fileID 63588)
-         offsetFields[ii] = offset;
-         offset += nchamps;
-
-         // NOTA: 25.02.2012 01:50
-         //seguramente es correcto reemplazar las dos últimas líneas por
-         //   offsetFields[ii] = campos.size ();
-         //y simplemente eliminar la variable offset
-
-         try
-         {
-            arrPatterns[ii] = Pattern.compile (thePattern);
-         }
-         catch (PatternSyntaxException e)
-         {
-            log.err ("init", "PatternSyntaxException compiling expresion [" + thePattern + "]." + e);
-            return false;
-         }
-         catch (Exception e)
-         {
-            log.severe ("init", "exception compiling expresion [" + thePattern + "]." + e);
-            return false;
-         }
-
-         // search for field names
-         for (int cc = 0; cc < patternMap.cols (ii) - 1; cc ++)
-         {
-            String fname = patternMap.getValue (ii, cc);
-
-            if (fname.length () == 0) continue;
-            if (fname.charAt(0) == '#') continue; // support of "#" fields that are not actually in the pattern
-
-            fieldType fi = new fieldType (fname);
-
-
-            //(o) TODO change this, since List::contains (object) does not detect equal objects (only for strings, int etc ?)
-            //    anyway the error is detected by SQL "...duplicate column name: xxx"
-            //
-            if (campos.contains (fi))
-            {
-               log.err ("init", "duplicated field names (" + fi.name + ") are not allowed!");
-               return false;
-            }
-
-            // add new field
-            campos.add (fi);
-            log.dbg (5, "init", "add field " + fi.name + " at index " + (campos.size ()-1));
-         }
-      }
-
-      // build the array of fields and values from the list
-      //
-      currentRecord = new fieldType [campos.size ()];
-
-      log.dbg (5, "init", "filedNames of size " + campos.size () + " created");
-
-      for (int ii = 0; ii < currentRecord.length; ii ++)
-      {
-         currentRecord[ii] = (fieldType) campos.get (ii);
-         log.dbg (5, "init", "filedNames [" + ii + "] = \"" + currentRecord[ii].name + "\"");
-      }
-
-      nextPattern = 0;
-
-      log.dbg (5, "init", "init successed");
-      ready = true;
-      return true;
+      return currentRecord;
    }
 
-   public fieldType [] getCurrentRecord()
+   public parsonsColumn [] getCurrentOptionalColumnsRecord ()
    {
-      if (!ready)
-         if (!init ())
-            return new fieldType[0];
-      return currentRecord;
+      return currentOptRecord;
    }
 
    private void newRecord()
@@ -348,7 +373,11 @@ public class aLineParsons
       nextPattern = 0;
       for (int ii = 0; ii < currentRecord.length; ii ++)
       {
-         currentRecord[ii].value = null;
+         currentRecord[ii].setValue (null);
+      }
+      for (int ii = 0; ii < currentOptRecord.length; ii ++)
+      {
+         currentOptRecord[ii].setValue ("");
       }
    }
 
@@ -370,14 +399,88 @@ public class aLineParsons
    */
    public int scan(String lineStr)
    {
-      if (!ready)
-         if (!init ())
-            return 0;
+      //--- BAD IDEA --- implement instead mark pattern which match things without capturing anything
+      //   // we clear the record mainly to avoid trailing optional values
+      //   //
+      //   // since we are based on regular columns to close the record (last column matched => new record)
+      //   // it is not possible to handle optional columns either before the first regular column or
+      //   // after the last one. Also the fact that optionals do not consume anything of the line
+      //   // makes it difficult to handle the issue.
+      //   //
+      //   if (nextPattern == 0)
+      //      resetRecord ();
 
+      scanForOptionalColumns (lineStr);
+      return scanForOrderedColumns (lineStr);
+   }
+
+   protected void scanForOptionalColumns (String lineStr)
+   {
+      String INFO = "scanForOptionalColumns";
+
+      if (arrOptColPatterns.length == 0)
+      {
+         log.dbg (7, INFO, "line [" + lineStr + "] check with no optional column patterns");
+         return;
+      }
+
+      for (int oo = 0; oo < arrOptColPatterns.length; oo ++)
+      {
+         int optIndx = offsetOptColFields[oo];
+         log.dbg (7, INFO, "line [" + lineStr + "] check optional column patterns [" + oo + "]");
+
+         Matcher matcher = null;
+         try
+         {
+            matcher = arrOptColPatterns[oo].matcher(lineStr);
+         }
+         catch (Exception e)
+         {
+            log.err (INFO, "Exception calling matcher\n" + e);
+            return;
+         }
+         if (matcher == null)
+         {
+            log.err (INFO, "Problems calling matcher\n");
+            return;
+         }
+
+         if (matcher.find())
+         {
+            log.dbg (5, INFO, "matcher found optcol index [" + oo + "]");
+
+            if (matcher.groupCount() == 0)
+            {
+               log.dbg (5, INFO, "no groups found, set whole line at index " + oo);
+               currentOptRecord [optIndx].setValue (lineStr);
+               log.dbg (9, INFO, "currentOptRecord [" + optIndx + "] = \"" + currentOptRecord[optIndx].getName ()+ "\" now is (" + currentOptRecord[optIndx].getValue () + ")");
+            }
+            else
+            {
+               for (int ii = 1; ii <= matcher.groupCount(); ii++)
+               {
+                  if (optIndx + ii - 1 >= currentOptRecord.length)
+                  {
+                     log.err (INFO, "too few fields (" + currentRecord.length + ") respect pattern (" +  (optIndx +  matcher.groupCount()) + ")");
+                  }
+                  else
+                  {
+                     log.dbg (7, INFO, " index = " + optIndx + " item (" + matcher.start(ii) + " to " + matcher.end(ii) + ")" );
+                     currentOptRecord[optIndx + ii - 1].setValue (matcher.group(ii));
+                     log.dbg (9, INFO, "currentOptRecord [" + (optIndx + ii -1) + "] = \"" + currentOptRecord[(optIndx + ii -1)].getName () + "\" now is (" + currentOptRecord[(optIndx + ii -1)].getValue () + ")");
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   protected int scanForOrderedColumns (String lineStr)
+   {
       if (arrPatterns.length == 0)
       {
-         log.dbg (7, "scan", "line [" + lineStr + "] check with no patterns, return 0");
-         return 0; // nothing to
+         log.dbg (7, "scan", "line [" + lineStr + "] check with no patterns, return " + lineStr.length ());
+         return lineStr.length (); // nothing to
       }
 
       if (nextPattern >= arrPatterns.length)
@@ -431,11 +534,11 @@ public class aLineParsons
             // it matches (matcher.find()) but no group is found => it means that the patter contain no groups!
             // therefore the line must be the result (value of first field)
 
-            log.dbg (5, "scan", "no groups founds, set whole line at index " + miroIndx);
+            log.dbg (5, "scan", "no groups found, set whole line at index " + miroIndx);
 
             if (miroIndx >= 0 && miroIndx < currentRecord.length)
             {
-               currentRecord [miroIndx].value = lineStr;
+               currentRecord [miroIndx].setValue (lineStr);
             }
             else
             {
@@ -483,7 +586,7 @@ public class aLineParsons
             String grapo = matcher.group(ii);
             log.dbg (7, "machado", " index = " + ii + " row = " + row + " offset = " + offset +
                         " item (" + matcher.start(ii) + " to " + matcher.end(ii) + ")" );
-            currentRecord[offset + ii - 1].value = matcher.group(ii);
+            currentRecord[offset + ii - 1].setValue (matcher.group(ii));
 
             // NOTE: See documentation of Matcher.start (int)
             //       return value : The index of the first character captured by the group, or -1 if the match was successful but "The index of the first character captured by the group, or -1 if the match was successful but the group itself did not match anything
@@ -528,6 +631,13 @@ public class aLineParsons
          return;
       }
 
+      Eva fpOptMap = eu.getEva ("optionalColPatterMap");
+      if (fpOptMap == null)
+      {
+         System.out.println ("ERROR: Eva <optionalColPatterMap> not found in unit #scanTest# of " + aa[0]);
+         return;
+      }
+
       TextFile fix = null;
       Eva eData = null;
 
@@ -555,7 +665,8 @@ public class aLineParsons
       // ... ok, we have all!
       //
 
-      aLineParsons sr = new aLineParsons(fpMap);
+      aLineParsons sr = new aLineParsons (fpMap, fpOptMap);
+
       if (conTrace)
       {
          System.out.println ("NOTE: At the moment trace is only possible with gastona sessionLog directory!");
@@ -595,7 +706,11 @@ public class aLineParsons
          System.out.println ("new record!");
          for (int jj = 0; jj < sr.currentRecord.length; jj ++)
          {
-            System.out.println ("   " + sr.currentRecord[jj].name + " = [" + sr.currentRecord[jj].value + "]");
+            System.out.println ("   " + sr.currentRecord[jj].getName () + " = [" + sr.currentRecord[jj].getValue () + "]");
+         }
+         for (int jj = 0; jj < sr.currentOptRecord.length; jj ++)
+         {
+            System.out.println ("   OPT: " + sr.currentOptRecord[jj].getName () + " = [" + sr.currentOptRecord[jj].getValue () + "]");
          }
       }
       return limitRecords == 0 || Nrecords < limitRecords;

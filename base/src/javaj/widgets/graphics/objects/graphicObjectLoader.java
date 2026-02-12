@@ -141,59 +141,59 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       }
    }
 
-   // Static method to load in a uniPath a graphic given in trazos format
+   // Static method to load in a uniPath a graphic given in trassos format
    //
-   public static void loadUniPathFromEvaTrazos (uniPath uPath, Eva evaTrazos)
+   public static void loadUniPathFromEvaTrassos (uniPath uPath, Eva evaTrassos)
    {
-      if (evaTrazos == null) return;
+      if (evaTrassos == null) return;
 
       svgLikePathParser2uniPath pParser = new svgLikePathParser2uniPath ();
 
-      log.dbg (2, "loadUniPathFromEvaTrazos", "have graphic data of rows " + evaTrazos.rows ());
-      for (int ii = 0; ii < evaTrazos.rows (); ii ++)
+      log.dbg (2, "loadUniPathFromEvaTrassos", "have graphic data of rows " + evaTrassos.rows ());
+      for (int ii = 0; ii < evaTrassos.rows (); ii ++)
       {
-         EvaLine eline = evaTrazos.get(ii);
-         String orden = evaTrazos.getValue (ii, 0).toLowerCase ();
-         String xval = evaTrazos.getValue (ii, 1);
-         String yval = evaTrazos.getValue (ii, 2);
-         String style = evaTrazos.getValue (ii, 3);
-         String data = evaTrazos.getValue (ii, 4);
+         EvaLine eline = evaTrassos.get(ii);
+         String orden = evaTrassos.getValue (ii, 0).toLowerCase ();
+         String xval = evaTrassos.getValue (ii, 1);
+         String yval = evaTrassos.getValue (ii, 2);
+         String style = evaTrassos.getValue (ii, 3);
+         String data = evaTrassos.getValue (ii, 4);
 
-         if (orden.equals ("z")) // "z" de trazo
+         if (orden.equals ("z")) // "z" de trass
          {
-            int indxTrazo = uPath.getEdiPaths ().startTrazoAt ((float) stdlib.atof (xval), (float) stdlib.atof (yval));
+            int indxTrass = uPath.getEdiPaths ().startTrassAt ((float) stdlib.atof (xval), (float) stdlib.atof (yval));
             pParser.parsePathStringOnUnipath (uPath, data);
-            uPath.getEdiPaths ().setStyleToTrazo (indxTrazo, style);
+            uPath.getEdiPaths ().setStyleToTrass (indxTrass, style);
          }
          else if (orden.equals ("defstyle"))
          {
-            styleGlobalContainer.addOrChangeStyle (evaTrazos.getValue (ii, 1), evaTrazos.getValue (ii, 2));
+            styleGlobalContainer.addOrChangeStyle (evaTrassos.getValue (ii, 1), evaTrassos.getValue (ii, 2));
          }
          else
          {
-            log.err ("loadUniPathFromEvaTrazos", "orden \"" + orden + "\" no reconocida todavia!");
+            log.err ("loadUniPathFromEvaTrassos", "orden \"" + orden + "\" no reconocida todavia!");
          }
       }
    }
 
-   public void loadObjectFromEvaTrazos (String objectName, Eva evaTrazos)
+   public void loadObjectFromEvaTrassos (String objectName, Eva evaTrassos)
    {
-      loadObjectFromEvaTrazos (objectName, evaTrazos, null, "111", null);
+      loadObjectFromEvaTrassos (objectName, evaTrassos, null, "111", null);
    }
 
-   public void loadObjectFromEvaTrazos (String objectName, Eva evaTrazos, Eva pressTrazos, String basicMov, offsetAndScale posScala)
+   public void loadObjectFromEvaTrassos (String objectName, Eva evaTrassos, Eva pressTrassos, String basicMov, offsetAndScale posScala)
    {
-      if (evaTrazos == null) return;
+      if (evaTrassos == null) return;
 
       super.name = objectName;
       super.movil.setBasicMovement (basicMov);
       super.setCurrentPosAndScale (posScala);
 
-      graphicObjectLoader pressOb = (pressTrazos != null) ? new graphicObjectLoader (): null;
+      graphicObjectLoader pressOb = (pressTrassos != null) ? new graphicObjectLoader (): null;
       if (pressOb != null)
       {
          pressOb.loadObjectFromEva ("", // name not important
-                                    pressTrazos,     // shapes for the press object
+                                    pressTrassos,     // shapes for the press object
                                     null,       // IMPORTANT: IT MUST BE NULL !!! if not we have recursive calls
                                     "",         // basic move not important, it has to follow the one from the master object
                                     null);      // posScala not important, it has to follow the one from the master object
@@ -201,7 +201,7 @@ public class graphicObjectLoader extends objectGraph implements svgSaxListener
       super.clickCtrl.setClickObj (pressOb);
 
       uniPath miUPath = new uniPath ();
-      loadUniPathFromEvaTrazos (miUPath, evaTrazos);
+      loadUniPathFromEvaTrassos (miUPath, evaTrassos);
       super.addElement (miUPath);
    }
 

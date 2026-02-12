@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-(c) Copyright 2005,2106 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -112,8 +112,10 @@ public class logServer
    private static TextFile logBatchFile = null;
    private static boolean errorDue2FopenDone = false;
 
-   private static udpSocketLogAgent udpAgent = null;
+   private static udpSocketLogAgent udpAgent = null;  // this listen to a port for a client and answer + send messages to last client
    public static int DEFAULT_UPD_DEBUG_PORT = 11882;
+
+   private static udpPushLogger theUDPpushLogger = null; // this simply push messages to an IP+Port (defaukt 127.0.0.1:11883)
 
    public static void resetStatic ()
    {
@@ -140,6 +142,11 @@ public class logServer
    public static int getDefaultMaxLogLevel ()
    {
       return LOG_DEBUG_1;
+   }
+
+   public static boolean hasPushLogger ()
+   {
+      return theUDPpushLogger != null;
    }
 
 
@@ -209,11 +216,7 @@ public class logServer
             for (int ii = 0; ii < listClientNames.size (); ii ++)
             {
                String cliName = (String) listClientNames.get (ii);
-               //TEST-TEST-TEST-TEST-TEST-TEST
-               //int cliLevel = -1; //getClientLogLevel (cliName);
                int cliLevel = getClientLogLevel (cliName);
-
-               // System.out.println ("LOGO A \"" + cliName + "\" con su cliLevel " + cliLevel + " !!!");
                logOneRegisteredClient (firstClientID + ii, cliName, cliLevel, null);
             }
             closeBatchFile ();
@@ -223,9 +226,19 @@ public class logServer
 
    public static void configure (int maxGlobalLevel)
    {
+      configureGlobalLogLevel (maxGlobalLevel);
+   }
+
+   public static void configureGlobalLogLevel (int maxGlobalLevel)
+   {
       if (maxGlobalLevel == -1) return;
       globalLogLevel = maxGlobalLevel;
       logNativePrinter.message ("logServer", "Configure globalLogLevel " + maxGlobalLevel);
+   }
+
+   public static int getGlobalLogLevel ()
+   {
+      return globalLogLevel;
    }
 
    public static void configure (int maxGlobalLevel, Eva clientConf)
@@ -251,12 +264,6 @@ public class logServer
    {
       return directory2Log;
    }
-
-//   public static void configure (String client, int [] levels)
-//   {
-//      System.err.println ("ERROR: logServer esto no funciona todavi'a campeo'n!");
-//       // futuro
-//   }
 
    private static boolean openBatchFile ()
    {
@@ -297,7 +304,7 @@ public class logServer
 
 //         //( o) elxala_logServer very first message! from logServer time stamp of currentMillis 0
 //         //
-//         String time0Stamp = (new DateFormat ("yyyy.MM.dd HH:mm:ss.S", new java.util.Date(time0milliseconds))).get ();
+//         String time0Stamp = (new DateFormat ("yyyy.MM.dd HH:mm:ss.S", new java.util.Date(getMillisStartApplication ()))).get ();
 //
 //         globCounter ++;
 //         logBatchFile.writeLine ("INSERT INTO logMessages VALUES (" +
@@ -343,6 +350,19 @@ public class logServer
          udpAgent = new udpSocketLogAgent (udpagentName, port > 0 ? port: DEFAULT_UPD_DEBUG_PORT);
    }
 
+   public static void setDebugLevel (int level)
+   {
+      logServer.configure (level);
+   }
+
+   public static void setUDPPushLogConfigFile (String configFile)
+   {
+      // read configuration in future, by now set default port and maximum level for all !
+      //
+      theUDPpushLogger = new udpPushLogger ();
+      configureGlobalLogLevel (19); // maximum level initially for UDPPush
+   }
+
    private static void logError (String context, String errorMsg)
    {
       if (context != null)
@@ -381,10 +401,7 @@ public class logServer
          return ;
       }
 
-      //System.out.println ("VEAMOS si REGISTRAMOS A \"" + cli.clientStr + "\" !!");
       boolean alreadyRec = listClientNames.contains (cli.clientStr);
-
-      //System.out.println ("VAYA! YA " + ((alreadyRec) ? "SI": "NO") + "ESTABA!");
 
       //(o) elxala_logServer_TODO Syncronize to allow multithreading
 
@@ -402,28 +419,18 @@ public class logServer
             int indx = listClientNames.indexOf (cli.clientStr);
             if (indx != -1)
                cli.clientID = firstClientID + indx;
-            // else "strange!"
-
-            //cli.myMaxLevel = getClientLogLevel (cli.clientStr);
          }
          // else alreadyRec and clientID assigned .. nothing to do
       }
       else // not alreadyRec
       {
-         //System.out.println ("BIEN VAMOS PAYA MACHO \"" + cli.clientStr + "\"");
          // record it in the list
          cli.clientID = firstClientID + listClientNames.size ();
          listClientNames.add (cli.clientStr);
 
-         //System.out.println ("YA ESTAS METID \"" + cli.clientStr + "\"");
-
-         // CRITIC STEP :
-
          cli.myMaxLevel = getClientLogLevel (cli.clientStr);
          cli.levelValidStamp = currentValidStamp;
-         // System.out.println ("LOGO AL MONOLITICO \"" + cli.clientStr + "\" con su cliLevel " + cli.myMaxLevel + " !!!");
          logRegisteredClient (cli);
-         //System.out.println ("HEMOS registerado a '" + cli.clientStr + "'");
       }
    }
 
@@ -547,15 +554,9 @@ public class logServer
       // check if level already assigned to the client
       if (cli.unknownLevel () || cli.levelValidStamp < currentValidStamp)
       {
-         //System.out.println ("Este cliente es un desconocido total " + cli.clientStr);
          cli.myMaxLevel = getClientLogLevel (cli.clientStr);
          cli.levelValidStamp = currentValidStamp;
-         //System.out.println ("AHORA tenemos " + cli.myMaxLevel);
       }
-      //else
-      //{
-      //   System.out.println ("Es bien conocido que este cliente " + cli.clientStr + " tiene un level de " + cli.myMaxLevel);
-      //}
 
       // now the client level must be ok
       if (msgLevel <= cli.myMaxLevel)
@@ -590,6 +591,19 @@ public class logServer
    private static boolean pendingFirstMessage = false;
    private static boolean yoMismo = false;
 
+   public static String formatValues (String [] extraInfo, String joinstr)
+   {
+      if (extraInfo == null) return "";
+      StringBuffer sb = new StringBuffer ();
+      for (int ii = 0; ii < extraInfo.length; ii ++)
+      {
+         sb.append (de.elxala.db.utilEscapeStr.escapeStrTruncate(extraInfo[ii], MAX_TEXT));
+         if (ii != extraInfo.length - 1)
+            sb.append (joinstr);
+      }
+      return sb.toString ();
+   }
+
    protected static void storeMessage (logClient cli, int msgLevel, String context, String message, String [] extraInfo, StackTraceElement[] stackElements)
    {
       if (! isLogging (cli, msgLevel))
@@ -597,8 +611,16 @@ public class logServer
          return;
       }
 
+      if (theUDPpushLogger != null)
+      {
+         theUDPpushLogger.emitMessage (elapsedMillis (), cli, msgLevel, context, message, extraInfo, stackElements);
+         return; // if configured ONLY udpPush will send messages!
+      }
+
       if (udpAgent != null)
-         udpAgent.emitMessage (msgLevel, context, message, extraInfo, stackElements);
+      {
+         udpAgent.emitMessage (elapsedMillis (), cli, msgLevel, context, message, extraInfo, stackElements);
+      }
 
       if (pendingFirstMessage)
       {
@@ -682,14 +704,7 @@ public class logServer
       {
          StringBuffer msgForm = new StringBuffer ((context.length () > 0) ? context + " : ":"");
          msgForm.append (message);
-         if (extraInfo != null)
-         {
-            msgForm.append (" [");
-            for (int ii = 0; ii < extraInfo.length; ii ++)
-               msgForm.append ((ii == 0 ? "": "|") + extraInfo[ii]);
-            msgForm.append ("]");
-         }
-
+         msgForm.append (formatValues (extraInfo, ", "));
          logNativePrinter.message (cli.clientStr, msgForm.toString ());
       }
 
@@ -705,20 +720,15 @@ public class logServer
             {
                // Custom table message
                //write custom log
-               StringBuffer specialValues = new StringBuffer ();
-               for (int ii = 0; ii < extraInfo.length; ii ++)
-               {
-                  specialValues.append (", '" + de.elxala.db.utilEscapeStr.escapeStrTruncate(extraInfo[ii], MAX_TEXT) + "'");
-               }
                logBatchFile.writeLine ("INSERT INTO logCustom_" + cli.clientStr + " VALUES (" +
                                       (globCounter + "") + ", '" +
                                       (elapsedMillis() + "") + "', " +
                                       cli.clientID + ", '" +
                                       (msgLevel + "") + "', '" +
                                       context + "', '" +
-                                      de.elxala.db.utilEscapeStr.escapeStrTruncate(message, MAX_TEXT) + "'" +
-                                      specialValues.toString () +
-                                      ");");
+                                      de.elxala.db.utilEscapeStr.escapeStrTruncate(message, MAX_TEXT) + "', '" +
+                                      formatValues (extraInfo, "', '") +
+                                      "');");
             }
             else
             {
@@ -836,8 +846,7 @@ public class logServer
 
    // TIME CONTROL
 
-   private static long initMilis = System.currentTimeMillis ();
-   private static long time0milliseconds = initMilis;
+   private static long time0milliseconds = System.currentTimeMillis ();
 
    public static long getMillisStartApplication ()
    {
@@ -847,6 +856,6 @@ public class logServer
    public static long elapsedMillis ()
    {
       // NOTE: no overflow of the difference is possible in the praxis (many hundred of years!)
-      return System.currentTimeMillis () - initMilis;
+      return System.currentTimeMillis () - getMillisStartApplication ();
    }
 }

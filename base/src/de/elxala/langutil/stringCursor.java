@@ -41,4 +41,16 @@ public class stringCursor
 
    public char charPoint () { return charPoint (0); }
    public char charPoint (int plus) { return indx+plus < 0 || indx+plus >= strval.length () ? 0: strval.charAt (indx+plus); }
+
+   public String strPoint ()
+   {
+      return strPoint (0);
+   }
+
+   public String strPoint (int plus)
+   {
+      if (indx+plus < 0) return strval;
+      if (indx+plus >= strval.length ()) return "";
+      return strval.substring (indx+plus);
+   }
 }

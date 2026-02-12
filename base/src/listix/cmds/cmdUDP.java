@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -45,7 +45,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <aliases>
       alias
       UDP
-
 
    <syntaxHeader>
       synIndx, importance, desc
@@ -240,26 +239,32 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <main>
       //      //
-      //      // Very simple debug udp client for gastona applications
-      //      // including android gastona scripts.
+      //      // Very simple debug udp client using internally the native
+      //      // gastona component udpSocketLogAgent. This works for gastona jar and
+      //      // for android as well.
       //      //
       //      // Your application has to open a UDP port for debug messages.
       //      // This can be done by including this at the top of the script
       //      //
       //      //       #gastona#
       //      //
-      //      //           <UDP_DEBUG_PORT>
+      //      //           <DEBUG_UDP_PORT>
+      //      //
+      //      // if not entered the port number is 11882 per default.
+      //      // also the desired global debug level can be set here through the variable DEBUG_LEVEL
+      //      // for example
+      //      //
+      //      //           <DEBUG_LEVEL> 3
       //      //
       //      // Then start your gastona application.
       //      //
-      //      // Enter the right values for IP and UDP port if for example
-      //      // your aplication run in another computer or device or it has
+      //      // Here, in the UDP client enter the right values for IP and UDP port
+      //      // this is needed  if for example your application runs in another device or it has
       //      // chosen another UDP port (gastona uses 11882 by default).
       //      //
-      //      // Press Connect and choose the debug level.
+      //      // Press Connect and choose or change the debug level
       //      //
-      //      // When interacting with your application you should see debug messages
-      //      // on the client.
+      //      // When interacting with your application you should see debug messages on the client side.
       //
       //   <-- bConnect>
       //      UDP, SET CLIENT, pincho, @<eIPGastona>, @<eUdpPort>

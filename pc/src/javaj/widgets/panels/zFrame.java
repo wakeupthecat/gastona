@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005, 2009 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,8 @@ package javaj.widgets.panels;
 
 import javaj.widgets.basics.*;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.*;
 import java.io.*;
 import javax.swing.*;
@@ -231,8 +233,9 @@ import javaj.*;
 public class zFrame extends JFrame implements MensakaTarget, ComponentListener
 {
    private frameAparato helper = null;
-   private logger log_widgetPos = new logger (this, "javaj_widgetPos", new String [] { "paintCount", "name", "posX", "posY", "dx", "dy" });
 
+   private static logger log_widgetPos = new logger (null, "javaj_widgetPos", new String [] { "paintCount", "name", "posX", "posY", "dx", "dy" });
+   private static logger log = new logger (null, "javaj.widgets.frame", null);
 
    // to store visible attribute while not having control
    private boolean isVisibleStored = true;
@@ -240,6 +243,8 @@ public class zFrame extends JFrame implements MensakaTarget, ComponentListener
    // to know if real visibility is allowed (wait for once message javajEBS.msgSHOW_FRAMES)
    private boolean migthShow = false;
    private int nPaints = 0;
+
+
 
    public zFrame (String map_name)
    {
@@ -249,6 +254,9 @@ public class zFrame extends JFrame implements MensakaTarget, ComponentListener
       addComponentListener (this);
 
       helper = new frameAparato ((MensakaTarget) this, new frameEBS (map_name, null, null));
+
+		addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
+      log.dbg (4, "zFrame \"" + map_name + "\" created");
    }
 
    public void setVisible (boolean janein)
@@ -402,27 +410,32 @@ public class zFrame extends JFrame implements MensakaTarget, ComponentListener
          {
             setTitle (dataTitle);
          }
-         
+
          Image ima = getImageApp ();
          if (ima != null)
             setIconImage (ima);
       }
    }
-   
+
    public Image getImageApp ()
    {
       ImageIcon imai = javaLoad.getSomeHowImageIcon (helper.ebs ().getSimpleDataAttribute ("iconApp"));
-      if (imai == null)
-      {
-         Eva graFormat = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti format");
-         Eva egraff = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti");
-         if (egraff != null)
-         {
-            //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??
 
-            String gFor = graFormat == null ? "paths": graFormat.getValue ();
-            imai = new ImageIcon (uniUtilImage.graffitiToBufferedImage (egraff, gFor, 32, 32, null));
-         }
+      boolean have = imai != null;
+
+      Eva graFormat = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti format");
+      Eva egraff = helper.ebsFrame ().getAttribute (helper.ebsFrame ().DATA, "graffiti");
+      if (egraff != null)
+      {
+         //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??
+
+         String gFor = graFormat == null ? "paths": graFormat.getValue ();
+         imai = new ImageIcon (uniUtilImage.graffitiToBufferedImage (egraff, gFor, 32, 32, null));
+
+         if (imai != null)
+            log.dbg (0, egraff.Nom + (have ? " overrides default iconApp": " sets the IconApp"));
+         else
+            log.dbg (0, "not found graffiti icon for frame, " + getName () + (have ? "using default gastona IconApp": "no app icon!"));
       }
 
       return (imai == null) ? null: imai.getImage ();

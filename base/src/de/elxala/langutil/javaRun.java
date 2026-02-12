@@ -30,10 +30,10 @@ import de.elxala.zServices.*;
 
    The problem with executing just Runtime.exec and then call waitFor is that if the
    program executed writes output on stderr or stdout there is absolute no handling of
-   these streams and the procees could be blocked or just not been executed.
+   these streams and the process could be blocked or just not been executed.
 
-   See pitfall article "When Runtime.exec () won't" by Michael C.Daconta
-   (http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html)
+   reference article "When Runtime.exec () won't" by Michael C.Daconta
+   (https://www.infoworld.com/article/2071275/when-runtime-exec---won-t.html)
 
    Example of use: see main
 */

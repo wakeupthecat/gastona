@@ -79,7 +79,7 @@ public class asisteAparato extends tableAparato
 
       if (TEST_WITH_GROUPS)
       {
-         String sqlGroup = utilAsiste.buildSQLGroupBY (eNames, asisteValues, strSQL);
+         String sqlGroup = de.elxala.db.dbMore.sqlSearchFilter.buildSQLGroupBY (eNames, asisteValues, strSQL);
          if (sqlGroup != null)
          {
             log.dbg (2, LOG_CONTEXT, "sql group [" + sqlGroup + "]");
@@ -94,7 +94,7 @@ public class asisteAparato extends tableAparato
       // PREPAR ...
       // SELECT xxxxxx FROM (strSQL) WHERE xxx ORDER BY
 
-      String strFilter = utilAsiste.buildSQLFilterString (eNames, asisteValues);
+      String strFilter = de.elxala.db.dbMore.sqlSearchFilter.buildSQLFilterString (eNames, asisteValues);
 
       log.dbg (2, LOG_CONTEXT, "sql filter [" + strFilter + "]");
 

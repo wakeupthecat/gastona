@@ -28,6 +28,7 @@ import de.elxala.zServices.logger;
 */
 public class httpStreamReader
 {
+   protected String serverName = "";
    private static final int NO_SHIFT = -1;
    private static final int UNKNOWN = -1;
 
@@ -52,8 +53,9 @@ public class httpStreamReader
 
    // RFC1521 says that a boundary "must be no longer than 70 characters, not counting the two leading hyphens".
 
-   public httpStreamReader (InputStream inputStream)
+   public httpStreamReader (String srvName, InputStream inputStream)
    {
+      serverName = srvName;
       inStream = inputStream;
       maxBytesToRead = UNKNOWN;
    }
@@ -143,13 +145,13 @@ public class httpStreamReader
       return totalBytesRead - (decala >= 0 ? (lastLength-decala): 0);
    }
 
-   public static void out (String sa)
+   public void out (String sa)
    {
-      micoHttpServer.out (sa);
+      micoHttpServer.out (serverName, sa);
    }
 
-   public static void out (int level, String sa)
+   public void out (int level, String sa)
    {
-      micoHttpServer.out (level, sa);
+      micoHttpServer.out (serverName, level, sa);
    }
 }

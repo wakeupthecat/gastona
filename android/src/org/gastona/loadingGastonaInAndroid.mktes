@@ -1,0 +1,20 @@
+#h Loading gastona in Android
+
+-- Differences between Desktop and Android
+
+In PC (desktop) gastona uses a virtual machine on each instance for that reason
+all resources: files, network connections, temporary resources etc are freed on 
+exiting the instance.
+
+By contrast in Android we only have one Gastona App which has to lauch all possible
+gastona instances.
+
+-- javaj Layout no composite
+
+Javaj layout is much more limited, actually it only loads one layout, the main layout.
+
+-- Reusing views
+
+
+
+

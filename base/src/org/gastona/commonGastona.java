@@ -1,6 +1,6 @@
 /*
 gastona
-Copyright (C) 2015..2019 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -27,7 +27,6 @@ import de.elxala.mensaka.*;
 import de.elxala.langutil.*;
 import de.elxala.zServices.*;
 import de.elxala.langutil.filedir.fileUtil;
-import javax.swing.SwingUtilities;
 import de.elxala.db.*;
 
 import java.util.*;

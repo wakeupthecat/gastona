@@ -1,0 +1,72 @@
+#javaj#
+
+   <layout of main>
+      EVA, 20, 20, 5, 5
+
+         , 300, X
+         , iDirs       , dFines
+         , eFolder     , +
+       X , iFiles      , +
+         , bOpen       , lFullPath
+
+#data#
+
+   <iDirs>
+      folderid, path
+      gastona javaj, C:\pavoDev\GastonaSources\base\src\javaj
+      gastona listix, C:\pavoDev\GastonaSources\base\src\listix
+      gastona PC, C:\pavoDev\GastonaSources\pc\src
+      gastona js, C:\pavoDev\GastonaSources\META-GASTONA\js
+
+#listix#
+
+   <main>
+      //finestra.attachTo (document.getElementById ("dFines"));
+
+   <-- iDirs>
+      //setData ("eFolder", getDataCell ("iDirs selected.path"));
+      //mensaka ("loadFolder");
+
+   <-- eFolder>
+      //mensaka ("loadFolder");
+
+   <-- iFiles>
+      //setData ("lFullPath", getDataCell ("iFiles selected.fullpath"));
+      //AJAXSend ("getEditorContent",
+      //           "fullpath=" + getDataCell("iFiles selected.fullpath"),
+      //           function (content) { finestra.loadText (content.split ("\n")); });
+
+   <-- bOpen>
+      //AJAXSend ("actionOn", "fullpath=" + getDataCell("iFiles selected.fullpath"));
+
+   <-- loadFolder>
+      //AJAXLoadData ("all", "chosenFolder="+getDataCell ("eFolder"));
+
+#server#
+
+   <extraJS>
+     //@<:infile META-GASTONA/js/codiFinestreta.js>
+     //
+     //   var finestra = codiFinestreta ("", 1, /function/g);
+
+   <POST /getEditorContent>
+      IN FILE, @<fullpath>
+             , SOLVE, 0
+
+   <POST /loadData>
+      CHECK, DIR, @<chosenFolder>
+      //#data#
+      //  <iFiles>
+      //filename, fullpath
+      //
+      LOOP, FILES, @<chosenFolder>
+          ,, //"@<fullSubPath>", "@<fullPath>"
+
+   <POST /jastClientClosed>
+      // ok, se fue!
+
+   <POST /actionOn>
+      CHECK, FILE, @<fullpath>
+      OPEN, @<fullpath>
+
+#**#

@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2006 Alejandro Xalabarder Aulet
+(c) Copyright 2006-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -42,7 +42,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //  Syntax:
       //
-      //    <layout of NAME>
+      //    <lay NAME>
       //       EVALAYOUT, marginX, marginY, gapX, gapY
       //
       //       --grid--   , header col1, ...  , header colN
@@ -111,7 +111,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //         the implementation of the second one as Evalayout would be
       //
-      //             <layout of myFirstLayout>
+      //             <lay myFirstLayout>
       //
       //                EVALAYOUT
       //
@@ -126,9 +126,26 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          case there is nothing to adapt. These columns or rows has to be avoided because
       //          might produce undefined results.
       //
-<...>
-      //    NOTE: EvaLayout is also available for C++ development with Windows Api and MFC,
-      //         see as reference the article http://www.codeproject.com/KB/dialog/EvaLayout.aspx
+      //    Short Syntax <evalay xxx> implicit EVALAYOUT:
+      //
+      //        Evalayout is so extensively used that a short form has been introduced by naming the variable <layeva name>
+      //        in that case we can skip the first line
+      //                  EVALAYOUT, marginX, marginY, gapX, gapY
+      //        the margins and gaps are then taken from a default configuration of 5, 5, 3, 3 or it can be changed
+      //        once using the variable <layeva-config>
+      //
+      //        for example
+      //
+      //            <lay myLay>
+      //              EVALAYOUT, 5, 5, 3, 3
+      //                       , X
+      //                     X , iList
+      //
+      //        can be written using 'layeva' as
+      //
+      //            <layeva myLay>
+      //                  , X
+      //                X , iList
       //
 
    <examples>
@@ -152,7 +169,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <frames>
       //      F, "example layout EVALAYOUT"
       //
-      //   <layout of F>
+      //   <lay F>
       //
       //      EVALAYOUT, 10, 10, 5, 5
       //
@@ -172,7 +189,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <frames>
       //      F, "example 2 layout EVALAYOUT"
       //
-      //   <layout of F>
+      //   <lay F>
       //
       //      EVA, 10, 10, 5, 5
       //
@@ -194,7 +211,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <frames>
       //      F, "example 2 bis layout EVALAYOUT"
       //
-      //   <layout of F>
+      //   <lay F>
       //      EVALAYOUT, 15, 15, 5, 5
       //
       //             ,          ,   X     ,
@@ -213,7 +230,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <frames>
       //      F, "example complex layout"
       //
-      //   <layout of F>
+      //   <lay F>
       //     EVALAYOUT, 15, 15, 5, 5
       //
       //      ---,     80    ,    X     , 110
@@ -226,12 +243,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //         , layOwner  ,    -     , +
       //         ,           ,          , bBoton4
       //
-      //   <layout of layOwner>
+      //   <lay layOwner>
       //      PANEL, Y, Owner Info
       //
       //      LayFields
       //
-      //   <layout of LayFields>
+      //   <lay LayFields>
       //     EVALAYOUT, 5, 5, 5, 5
       //
       //      ---,         ,    X
@@ -249,7 +266,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //    <frames>
       //       Fmain, Centering with EvaLayout demo
       //
-      //    <layout of Fmain>
+      //    <lay Fmain>
       //       EVA
       //
       //         , X,    A     , X
@@ -267,7 +284,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //    <frames>
       //       Fmain, Percenting with EvaLayout demo, 300, 300
       //
-      //    <layout of Fmain>
+      //    <lay Fmain>
       //       EVA, 10, 10, 7, 7
       //
       //         , X    , X   , X     , X

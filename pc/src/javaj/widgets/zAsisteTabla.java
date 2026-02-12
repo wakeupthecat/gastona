@@ -249,6 +249,7 @@ public class zAsisteTabla extends JPanel
    public zAsisteTabla ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
 //(o) TOREVIEW_changesLaptop No se d donde viene o porque este cambio, encontrado en copias de portatil
@@ -273,6 +274,7 @@ public class zAsisteTabla extends JPanel
 */
    public zAsisteTabla (String map_name)
    {
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
       build (map_name);
    }
 
@@ -520,7 +522,7 @@ public class zAsisteTabla extends JPanel
       setCamposAsiste (helper.ebsTable ().getAsisteColumns ());
       fillPane();
       positioning ();
-      
+
       if (isShowing ())
       {
          updateUI ();   // JTable::updateUI
@@ -688,8 +690,8 @@ public class zAsisteTabla extends JPanel
       //System.out.println ("VERLAY " + lay);
 
       gaston.invalidatePreCalc ();
-      
-      if (isShowing ()) 
+
+      if (isShowing ())
       {
          repaint ();
          updateUI ();

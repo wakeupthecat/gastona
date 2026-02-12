@@ -207,9 +207,9 @@ public class widgetEBS extends baseEBS
       return getSimpleAttribute (DATA, sATTR_GRAFFITI_FORMAT);
    }
 
-   public boolean isGraffitiFormatTrazos ()
+   public boolean isGraffitiFormatTrassos ()
    {
-      return "trazos".equalsIgnoreCase (getGraffitiFormat ());
+      return "trassos".equalsIgnoreCase (getGraffitiFormat ());
    }
 
    public Eva getGraffitiPress ()

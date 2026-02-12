@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2014-2109 Alejandro Xalabarder Aulet
+Copyright (C) 2014-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -40,50 +40,50 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Micohttp is a http server that uses listix language to generate the http responses.
+      //Micohttp is a http server that uses listix language to generate the http responses.
       //
-      // The server can be started listening to a specific available TCP/IP port.
-      // Once started it can accept http requests and respond with contents.
+      //The server can be started listening to a specific available TCP/IP port.
+      //Once started it can accept http requests and respond with contents.
       //
-      //## Responding to Http requests
+      //--- Responding to Http requests
       //
-      // Given a general GET request, for instance
+      //Given a general GET request, for instance
       //
       //        GET /myresource?parameters
       //
-      // If the file "myresurce" exists as a physical file starting from the current directory where micoHttp is running,
-      // then the file is served as response for the request.
+      //If the file "myresurce" exists as a physical file starting from the current directory where micoHttp is running,
+      //then the file is served as response for the request.
       //
-      // If the file does not exist then it looks for a listix format or variable with the name "GET /myresource" (in the example)
-      // and if the format exists it is executed and the output sent as response for the request.
+      //If the file does not exist then it looks for a listix format or variable with the name "GET /myresource" (in the example)
+      //and if the format exists it is executed and the output sent as response for the request.
       //
-      // The parameters of the request are passed as if they where variables to the format
+      //The parameters of the request are passed as if they where variables to the format
       //
-      // For example the format
+      //For example the format
       //
       //       <GET /hola>
       //           //Hola @<nombre>!
       //
-      // Will respond with the text
+      //Will respond with the text
       //
       //        "Hola pavo!"
       //
-      // if we do the request
+      //if we do the request
       //
       //        GET /hola?nombre=pavo
       //
-      // The rest of methods like POST, PUT, etc are served using formats as done by GET when the file does not exists.
+      //The rest of methods like POST, PUT, etc are served using formats as done by GET when the file does not exists.
       //
-      // For example a POST receiver delegating the task to another listix format
+      //For example a POST receiver delegating the task to another listix format
       //
       //       <POST /saveThat>
       //          LSX, saveContent
       //          //ok, done
       //
-      //## Variables accesibles while processing a request
+      //--- Accessible variables while processing a request
       //
-      // On each request, if this is going to be processed by a listix format, following
-      // information is accessible via these variables
+      //On each request, if this is going to be processed by a listix format, following
+      //information is accessible via these variables
       //
       //        _myMicoName       Name of the mico server that receives the request (name is given in START syntax)
       //        _requestIP        IP of the client that do the request
@@ -93,19 +93,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //        _uploadedFilesCount  Number of files to be uploaded in case of upload
       //        _uploadedFileX       File name of file X, where X is a number between 0 and _uploadedFilesCount - 1
       //
-      //## Serving files
+      //--- Serving files
       //
-      // The described way of serving files with the method GET is the default one and it limits
-      // the "visibility" to the current directory and subdirectories plus following restrictions:
+      //The described way of serving files with the method GET is the default one and it limits
+      //the "visibility" to the current directory and subdirectories plus following restrictions:
       //
-      // <ul>
-      //    <li> Files or paths starting with "hide_", "hidden_" or "nopublic"
-      //    <li> Files and folders under the directory "hide" or "hidden"
-      // </ul>
+      //      - Files or paths starting with "hide_", "hidden_" or "nopublic"
+      //      - Files and folders under the directory "hide" or "hidden"
       //
-      // But micoHttp can also be abilitated to serve any file in the operative system, so a simple
-      // file server can be built easily with it. This behaviour can be achieved using the option "FILE SERVER STR"
-      // in the syntax START.
+      //But micoHttp has also the ability of serving any file in the operative system, so a simple
+      //file server can be built easily with it. This behaviour can be achieved using the option "FILE SERVER STR"
+      //in the syntax START.
       //
 
    <aliases>
@@ -215,7 +213,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //   <layout of main>
       //      EVA, 10, 10, 5, 5
-      //         , X 
+      //         , X
       //       X , tExpressions
       //         , lDesc,
       //         , layInteract
@@ -676,7 +674,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      //
       //      //  <-- iRequestSamples>
       //      //     //var strcode = getDataCell("iRequestSamples selected.code");
-      //      //     //setData ("xRequestCode", strcode.replace(/?/g, "\n    "));
+      //      //     //setData ("xRequestCode", strcode.replace(/\?/g, "\n    "));
       //      //     //setData ("lRequestDesc", getDataCell("iRequestSamples selected.desc"));
       //      //     //mensaka ("bRunCode");
       //      //

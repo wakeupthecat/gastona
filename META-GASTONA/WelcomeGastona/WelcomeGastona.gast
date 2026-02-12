@@ -6,23 +6,24 @@
 #javaj#
 
    <frames>
-      Fmain, Gastona Welcome
+      Fmain, Gastona Welcome v1.1 2023
       fastIndex, Gastona doc fast index
 
    <sysDefaultFonts>
       Monospaced, 13, 0, TextArea.font
 
-   <layout of Fmain>
+   <lay Fmain>
       EVA, 10, 10, 7, 7
 
         -, 200         ,  X
          , menu        ,  -              , lErrorState
-         , eFilterTree , lContext & Name , -
+         , eFilterTree , lContext & Name , layTulaGeneral
        X , aSrcTree    , layHelpAndSamples, -
-         ,   +         , options          , -
+         ,   +         , options          , bShowInBrowser
          , bFastDoc    , +
 
-   <layout of fastIndex>
+
+   <lay fastIndex>
       EVA, 6, 6, 2, 2
 
          , X
@@ -35,27 +36,50 @@
 
       kDescription, kDetails
 
-   <layout of menu>
+   <lay menu>
       MENU,
 
-      Help   , About Gastona , menuAbout
+      UtilScripts, Arces     , menuArces
+             , JsExecutor    , menuJsExecutor
+             , UDPLogCli2    , menuUDPLogCli2
+             , DR            , menuDR
+      About  , About Gastona , menuAbout
 
-   <layout of layHelpAndSamples>
+   <lay layTulaGeneral>
+      TOOLBAR, 0
+
+      toolArces  , Arces      , javaj/img/book.png
+      toolJsExec , js executor, javaj/img/book.png
+      toolDR     , DR         , javaj/img/folder.png
+
+   <lay layTulaSample>
+      TOOLBAR, 0
+
+      toolUDPLog     , UDPLog ,
+      toolListixGraph, GraphLsx,
+
+   <lay layHelpAndSamples>
       TABBED,
 
       Help           , xHelp
       Samples        , laySamples
       Output consoles, consoles
 
-   <layout of laySamples>
+   <lay laySamples>
       EVA, 10, 10, 5, 5
 
-      ----, 60     , , X, 
+      ----, 60     , , X,
           , iSamples, - , lSampleTitle
        X  ,    +    ,   , xSample, -
-          , eSearchSample, bSearchInSamples, bRun Sample, bGraph listix
+          , eSearchSample, bSearchInSamples, layRunButtons
 
-   <layout of consoles>
+   <lay layRunButtons>
+      EVA, 3, 3, 2, 2
+
+         , X          , X,
+         , bRun Sample,  , layTulaSample
+
+   <lay consoles>
       EVA, 6, 6, 4, 4
 
          ,                 , X
@@ -67,6 +91,8 @@
 
 #data#
 
+   <bUDPLogCli2> UDPLog client
+
    <Fmain posX> 200
    <Fmain posY> 100
 
@@ -74,7 +100,6 @@
    <fastIndex posY> 140
    <fastIndex sizeX> 1300
    <fastIndex sizeY> 600
-
 
    <rgDoctype orientation> X
    <rgDoctype>
@@ -111,7 +136,7 @@
    <xHelp fileName> :mem helpText
 
    <sFastDoc visibleColumns> structType, groupInfo, name, desc
-   <sFastDoc sqlSelect> //SELECT "" AS vacio
+   <sFastDoc sqlSelect> //SELECT '' AS vacio
 
 #listix#
 
@@ -132,7 +157,7 @@
    <-- eFilterTree>  @<updateTree>
 
    <updateTree>
-      -->, aSrcTree data!, sqlSelect, //SELECT node FROM (@<SQL_DOC_EXT> @<Where&OrderBy from FilterTree>) ORDER BY node
+      -->, aSrcTree data!, sqlSelect, //SELECT node FROM (@<SQL_DOC_EXT> @<:sqlfilter @eFilterTree name groupInfo desc helpText>) ORDER BY node
 
    <SQL_DOC_EXT>
       // SELECT
@@ -157,6 +182,19 @@
    <-- aSrcTree>      LSX, setCurrentItem, @<aSrcTree selectedPath>
    <-- kDescription>  @<showDocCurrentItem>
    <-- kDetails>      @<showDocCurrentItem>
+
+   <-- bShowInBrowser>
+      CHECK, !=, "", @<CURRENT_NODE>
+      VAR=, CONTENT_GET, //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
+      MICO, ONCE
+
+   <! ... HELP_VAR is referenced in simpleMarketeHelpHtml.lsx
+   <!
+   <HELP_VAR>
+      //#h @<CURRENT_NODE>
+      //
+      //
+      //@<:infile-raw :mem helpText>
 
    <turn checks(enabled)>
       -->, kDescription control!, enabled, @<p1>
@@ -183,10 +221,11 @@
 
    <help format>
       //
-      // NAME        : @<name>
-      // DOC TYPE    : @<structType>  GROUP: @<groupInfo>  FREQUENCY: @<importance>
-      // JAVA CLASS  : @<javaClass>
-      // DESCRIPTION : @<desc>
+      //     NAME        : @<name>
+      //     GROUP       : @<groupInfo>
+      //     DOC TYPE    : @<structType>  
+      //     JAVA CLASS  : @<javaClass>
+      //     DESCRIPTION : @<desc>
       //
       //@<print help literal>
       //@<attributes and messages>
@@ -204,15 +243,13 @@
 
    <attributes and messages>
       CHECK, =, @<structType>, javaj_widget
-      //   LIST OF ATTRIBUTES:
-      //   ----------------------------------------
+      //--- zWidget Attributes
       //
       LOOP, SQL,, //SELECT * FROM tZWidgetAttributes WHERE widName = '@<name>'
           ,, //      @<flechita> <NAME@<name join>> @<possibleValues> @<desc detail>
       //
       //
-      //   LIST OF MESSAGES:
-      //   ----------------------------------------
+      //--- zWidget Messages
       //
       LOOP, SQL,, //SELECT * FROM tZWidgetMessages WHERE widName = '@<name>'
           ,, //      @<flechita> "NAME@<msg join>" @<desc detail>
@@ -250,12 +287,13 @@
 
    <addOneSyntax>
       VAR=, current syntax index, @<synIndx>
-      //      --------- SYNTAX @<synIndx> ------------------------------
-      //      @<print syntax desc>
+      //--- Command Syntax @<synIndx>
+      //@<print syntax desc>
+      //
       //      @<cmdName>, @<syntax parameters>
       //
-      LOOP, SQL,, //SELECT * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x')
-          ,, //       , @<optionName>, @<parameters>
+      LOOP, SQL,, //SELECT SUBSTR("               ", LENGTH('@<cmdName>') AS tab, * FROM tlsxCmdSyntaxOpts WHERE cmdName = '@<name>' AND (synIndx = '@<current syntax index>' OR synIndx = 'x')
+          ,, //      @<tab>, @<optionName>, @<parameters>
       @<detail parameters & options>
       //
       //
@@ -295,8 +333,7 @@
       @<-- bSearchInSamples>
 
    <-- bSearchInSamples>
-      -->, iSamples data!, sqlSelect, //SELECT * FROM tGastExamples @<Where&OrderBy from FilterSample>
-
+      -->, iSamples data!, sqlSelect, //SELECT * FROM tGastExamples @<:sqlfilter @eSearchSample name gastSample sampleBody>
 
    <-- iSamples>
       CHECK, VAR, iSamples selected.gastSample
@@ -309,24 +346,49 @@
       CHECK, VAR, iSamples selected.sampleBody
       STRCONV, STRE-TEXT, iSamples selected.sampleBody
 
+   <sampleBodyAsText>
+       CHECK, VAR, sampleBody
+       STRCONV, STRE-TEXT, sampleBody
+
    <-- bRun Sample>
       MSG, xSample save
       @<-- bClearConsole1>
       @<-- bClearConsole2>
       GAST, :mem gastScript
-      
-   <-- bGraph listix>
+
+   <-- toolListixGraph>
       GEN, :mem odoto, runJsRunGlassDot
+      VAR=, CONTENT_GET, LSX, GRAPHVIZ_PAGE_STUFF
       MICO, ONCE
       
+   <GET />
+      @<CONTENT_GET>      
+
+   <-- menuUDPLogCli2>  LSX, LAUNCH_UDPLOG
+   <-- toolUDPLog>      LSX, LAUNCH_UDPLOG
+
+   <-- menuDR>     LSX, LAUNCH_DR
+   <-- toolDR>     LSX, LAUNCH_DR
+
+   <-- menuArces>  LSX, LAUNCH_ARCES
+   <-- toolArces>  LSX, LAUNCH_ARCES
+
+   <-- menuJsExecutor> LSX, LAUNCH_JSEXE
+   <-- toolJsExec> LSX, LAUNCH_JSEXE
+
+   <LAUNCH_ARCES>   GAST, META-GASTONA/utilApp/arces/arces.gast
+   <LAUNCH_JSEXE>   LSX, LAUNCH_SAMPLE, javascriptExecutor
+   <LAUNCH_DR>      GAST, META-GASTONA/utilApp/files/DR.gast
+   <LAUNCH_UDPLOG>  GAST, META-GASTONA/utilApp/logAnalysis/UDPLogCli2.gast
+
+   <LAUNCH_SAMPLE>
+      LOOP, SQL,, //SELECT sampleBody FROM tGastExamples WHERE gastSample = '@<:encode p1>'
+          ,, GEN, :mem lanso, sampleBodyAsText
+          ,, GAST, :mem lanso
+          , IF EMPTY, //*** No trovallo [gastSample = '@<:encode p1>']!
+
    <-- menuAbout>
       JAVA STATIC, gastona.gastona, showAboutGastona
-
-   <Where&OrderBy from FilterTree>
-      JAVA STATIC, javaj.widgets.table.util.utilAsiste, getComposedWhereCondition, @<eFilterTree>, name, groupInfo, desc, helpText
-
-   <Where&OrderBy from FilterSample>
-      JAVA STATIC, javaj.widgets.table.util.utilAsiste, getComposedWhereCondition, @<eSearchSample>, name, gastSample, sampleBody
 
    <! ----------------- fast doc
 
@@ -351,19 +413,19 @@
    <!---
    <!--- xSample to dot and show it using viz.js (online)
    <!---
-      
+
    <runJsRunGlassDot> JS, @<JsRunGlassDot>
 
    <JsRunGlassDot>
      //@<:infile META-GASTONA/js/Eva.js>
-     //@<:infile META-GASTONA/utilApp/gastAnalyzer/gastGlass2dot.js>
+     //@<:infile META-GASTONA/utilApp/logAnalysis/gastGlass2dot.js>
      //
      //gastGlass2dot (evaFileUTF82obj ("@<:solve-encode-utf8 xSample>"));
-      
+
    <dotMemFile>
       @<:infile :mem odoto>
-   
-   <GET />
+
+   <GRAPHVIZ_PAGE_STUFF>
      //<html>
      //<head>
      //</head><body>

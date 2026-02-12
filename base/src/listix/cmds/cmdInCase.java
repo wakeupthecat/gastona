@@ -45,15 +45,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       // Examples:
       //
-      //       IF, @<myVar>, =, "TRUE", SETVAR, myText, "Verified myVar is truly true"
-      //       IF, @<myVar>, <>, "TRUE", //Verified myVar is truly not true"
+      //       IF, @<myVar>, =, "TRUE",  //Verified myVar is exactly "TRUE"
+      //       IF, @<myVar>, <>, "TRUE", //Verified myVar is not exactly "TRUE"
       //
-      //       IN CASE, @<myVar>,
-      //              , 0       , //false
-      //              , 1       , //true
-      //              , TRUE    , //true
-      //              , FALSE   , //false
-      //              , ELSE    , BOX, W, "Why your myVar is not boolean?"
+      //       IN CASE, @<myColor>,
+      //              , red     , //strong
+      //              , blue    , //clever
+      //              , lila    , //beautiful
+      //              , ELSE    , //given another color
       //
 
    <aliases>
@@ -126,13 +125,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //           , ELSE, //There are lots of arguments
       //    //
       //    //passed (@<:lsx paramCount>) arguments :
+      //    //
       //    IN CASE, @<:lsx paramCount>, ">"
       //           , 0, // "@<p1>"
-      //           , 1, // , "@<p2>"
-      //           , 2, // , "@<p3>"
-      //           , 3, // , there are more arguments ...
-      //
-      //
+      //           , 1, // ", @<p2>"
+      //           , 2, // ", @<p3>"
+      //           , ELSE, " and more "
+      //           , ELSE, =, @<:lsx paramCount> - 2
+      //           , ELSE, " arguments "
 
    <detecting options>
       //#javaj#

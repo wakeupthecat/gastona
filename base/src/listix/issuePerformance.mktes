@@ -1,0 +1,85 @@
+#h Issue bad performance while executing some listix formats
+
+--- Detected
+
+The problem has been detected in the lasts versions of paperassa, some searchs literally freeze the GUI during long seconds!
+
+--- sqlite discarded
+
+The usual queries in these searchs are very fast in versions
+
+      sqlite321.exe
+      sqlite329.exe
+
+--- sessionLog analysis
+
+
+[] como puede ser que de "-- eSearch" a llamar LSX UPDATE_ALL_CONSULTA tarde 3 segundos ????
+
+
+      <-- eSearch>
+         LSX, UPDATE_ALL_CONSULTA
+
+
+      INSERT INTO logCustom_listix_flow VALUES (10331, '21579', 117, '12', 'flow', 'format', '-- eSearch', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10332, '21701', 117, '13', 'flow', 'cmd', 'LSX', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10333, '21734', 117, '14', 'print', 'Var', 'UPDATE_ALL_CONSULTA', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10334, '21779', 117, '12', 'flow', 'format', 'UPDATE_ALL_CONSULTA', '1');
+
+      INSERT INTO logCustom_listix_flow VALUES (10392, '435837', 117, '12', 'flow', 'format', '-- eSearch', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10393, '438917', 117, '13', 'flow', 'cmd', 'LSX', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10394, '438973', 117, '14', 'print', 'Var', 'UPDATE_ALL_CONSULTA', '1');
+      INSERT INTO logCustom_listix_flow VALUES (10395, '439006', 117, '12', 'flow', 'format', 'UPDATE_ALL_CONSULTA', '1');
+
+
+totalmente incomprensible !!
+entre el "flow" "format" y el "flow" "cmd" NO PASA NADA QUE CONSUMA TIEMPO !!!!
+
+
+         log_flow.dbg (FLOWLEVEL_1, "flow", "format", new String [] { lsxFormat, "" + ciclon.depth () });
+         // produce .... INSERT INTO logCustom_listix_flow VALUES (10392, '435837', 117, '12', 'flow', 'format', '-- eSearch', '1');
+         doFormat (retFormat[0]);
+
+
+
+         public synchronized void doFormat (Eva eFormat)
+         {
+            if (eFormat == null) return;
+            boolean needReturn = false;
+            int rr = 0;
+            while (rr < eFormat.rows ())
+            {
+               // is it a text ? or a command
+               //
+               if (eFormat.cols (rr) > 1)
+               {
+                  log_flow.dbg (FLOWLEVEL_2, "flow", "cmd", new String [] { eFormat.getValue (rr, 0), "" + ciclon.depth () });
+
+                  // produce .... INSERT INTO logCustom_listix_flow VALUES (10393, '438917', 117, '13', 'flow', 'cmd', 'LSX', '1');
+
+
+[] sospecha log_flow.dbg
+
+   
+
+
+[] sospecha de que pueda ser debido a synchronized de printLsxFormat
+
+      public synchronized boolean printLsxFormat (String lsxFormat)
+
+      esto se introdujo en 2014-08-09 12:21:16
+
+
+      listix.java  10023  12162 125749  2014-08-09 12:21:16
+
+         [*] sincronizar todos los métodos publicos (casi todos!) de listix
+         con lo cual la instancia listix bloquea a cualquier segundo thread que quiera usar los métodos
+         permitiendo llamadas recursivas puesto que la sincronización es reentrante (Reentrant Synchronization)
+
+         [*] preparar socket en configureClient y configureServer, así se puede enviar inmediatamente sin esperar al "run"
+         del thread (que es asíncrono y empieza más tarde que nuestra llamada a start ())
+
+         parece que no hay más problemas con el ejemplo
+
+
+         listix.java  10023  12155 125694  2014-08-04 01:31:29

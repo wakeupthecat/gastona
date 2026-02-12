@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -26,6 +26,7 @@ import javax.swing.undo.*;
 
 /**
    make a JTextArea undo-redo capable and recognize automatically Ctrl+Z (undo) and Ctrl+Y (redo)
+   it forwards all key events to javaj.widgets.gestures.keyboard.kybListener as well
 */
 public class undoredoTextArea extends JTextArea implements UndoableEditListener, KeyListener
 {
@@ -97,7 +98,7 @@ public class undoredoTextArea extends JTextArea implements UndoableEditListener,
       }
    }
 
-   public void keyReleased(KeyEvent e)
+   public void keyReleased(KeyEvent ke)
    {
    }
 

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -124,7 +124,7 @@ public class cmdTimer implements commandable
          {
             public void run ()
             {
-               if (count >= maxRepeat) 
+               if (count >= maxRepeat)
                {
                   timo.cancel(); // end the thread
                   return;
@@ -148,7 +148,7 @@ public class cmdTimer implements commandable
       }
    }
 
-   //(o) DOC/listix/adding a new command/2 the command class 
+   //(o) DOC/listix/adding a new command/2 the command class
    //    A class implementing the commandable interface
    //    that is the methods "getNames" and "execute"
    //
@@ -181,7 +181,7 @@ public class cmdTimer implements commandable
    {
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
 
-      String oper = cmd.getArg(0).toUpperCase ();
+      String oper  = cmd.getArg(0).toUpperCase ();
 
       theTimer.stop ();
 
@@ -189,7 +189,7 @@ public class cmdTimer implements commandable
       {
          try
          {
-            theTimer.ptrListix = that;
+            theTimer.ptrListix   = that;
             theTimer.name        = cmd.getArg(1);
             theTimer.periodMilli = stdlib.atoi (cmd.getArg(2));
             theTimer.maxRepeat   = stdlib.atoi (cmd.getArg(3));

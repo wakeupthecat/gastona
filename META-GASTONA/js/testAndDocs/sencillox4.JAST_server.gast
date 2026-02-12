@@ -1,9 +1,0 @@
-#server#
-
-   <extraJS>
-      //
-      //   @<:infile META-GASTONA/js/codiFinestreta.js>
-      //
-
-   <POST /getEditorContent>
-      @<:infile META-GASTONA/js/codiFinestreta.js>

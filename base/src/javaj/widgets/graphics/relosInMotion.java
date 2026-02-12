@@ -99,12 +99,12 @@ public class relosInMotion
 
       ebs = new baseEBS (name, (euRelos != null ? euRelos: new EvaUnit ("data")), null);
 
-      backgroundShape.getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("backGroundShape"));
-      hoursShape     .getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("hoursShape"));
-      minutesShape   .getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("minutesShape"));
-      secondsShape   .getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("secondsShape"));
-      axisShape      .getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("axisShape"));
-      pendulusShape  .getEdiPaths ().parseTrazosFromEva (ebs.getDataAttribute ("pendulusShape"));
+      backgroundShape.getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("backGroundShape"));
+      hoursShape     .getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("hoursShape"));
+      minutesShape   .getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("minutesShape"));
+      secondsShape   .getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("secondsShape"));
+      axisShape      .getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("axisShape"));
+      pendulusShape  .getEdiPaths ().parseTrassosFromEva (ebs.getDataAttribute ("pendulusShape"));
       axisPendulus    = null;
 
       // axis center
@@ -143,8 +143,8 @@ public class relosInMotion
       {
          vect3f dir12Oclock = new vect3f (0, -1, 0); // 0h = y=-1 because "y" axis is downwards!
          vect3f endPos = new vect3f ();
-         vect3f reposo = new vect3f ();        
-         
+         vect3f reposo = new vect3f ();
+
          centerAxis = new vect3f ((float) stdlib.atof (initPos.getValue (0,0)), (float) stdlib.atof (initPos.getValue (0,1)));
 
          if (initPos.cols (0) >= 4)
@@ -154,7 +154,7 @@ public class relosInMotion
             reposo = new vect3f (centerAxis, endPos);
             angleReposoHour = reposo.angleDegrees (dir12Oclock);
          }
-         
+
          if (initPos.cols (0) >= 6)
          {
             // endMinute
@@ -162,7 +162,7 @@ public class relosInMotion
             reposo = new vect3f (centerAxis, endPos);
             angleReposoMinute = reposo.angleDegrees (dir12Oclock);
          }
-         
+
          if (initPos.cols (0) >= 8)
          {
             // endSecond
@@ -236,7 +236,7 @@ public class relosInMotion
          backgroundShape.paintYou (canvas);
 
       boolean hasAxis = centerAxis != null;
-      
+
       angleHour -= angleReposoHour;
       if (hasAxis) canvas.rotate (angleHour, centerAxis.x, centerAxis.y);
       hoursShape.paintYou (canvas);
@@ -246,12 +246,12 @@ public class relosInMotion
       if (hasAxis) canvas.rotate (angleMinute, centerAxis.x, centerAxis.y);
       minutesShape.paintYou (canvas);
       if (hasAxis) canvas.rotate (-angleMinute, centerAxis.x, centerAxis.y);
-      
+
       angleSecond -= angleReposoSecond;
       if (hasAxis) canvas.rotate (angleSecond, centerAxis.x, centerAxis.y);
       secondsShape.paintYou (canvas);
       if (hasAxis) canvas.rotate (-angleSecond, centerAxis.x, centerAxis.y);
-      
+
       if (pendulusShape != null)
       {
          if (axisPendulus == null)

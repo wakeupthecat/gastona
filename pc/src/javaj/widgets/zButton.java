@@ -329,12 +329,14 @@ public class zButton extends JButton implements ActionListener, MensakaTarget
    public zButton ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zButton (String map_name, String slabel)
    {
       super (slabel);
       construct (map_name);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
 //   public java.awt.Dimension getPreferredSize ()

@@ -108,10 +108,10 @@ public class laying
                   if (miscUtil.startsWithIgnoreCase (name, "2D"))
                   {
                      if (miscUtil.startsWithIgnoreCase (name, "2Db")) compos = new zBasicGraphic2D (co, name);
-                     if (miscUtil.startsWithIgnoreCase (name, "2Ds")) compos = new z2DGraphicScenes (co, name);
-                     if (miscUtil.startsWithIgnoreCase (name, "2De")) compos = new z2DCebolla (co, name);
-                     if (miscUtil.startsWithIgnoreCase (name, "2Dj")) compos = new z2DMiRelos (co, name);
-                     if (miscUtil.startsWithIgnoreCase (name, "2Dp")) compos = new z2DEditRelos (co, name);                     
+                      // if (miscUtil.startsWithIgnoreCase (name, "2Ds")) compos = new z2DGraphicScenes (co, name);
+                      // if (miscUtil.startsWithIgnoreCase (name, "2De")) compos = new z2DCebolla (co, name);
+                      // if (miscUtil.startsWithIgnoreCase (name, "2Dj")) compos = new z2DMiRelos (co, name);
+                      // if (miscUtil.startsWithIgnoreCase (name, "2Dp")) compos = new z2DEditRelos (co, name);
                      if (miscUtil.startsWithIgnoreCase (name, "2Dmath")) compos = new z2DMathFunc (co, name);
                      if (miscUtil.startsWithIgnoreCase (name, "2Dcampos")) compos = new z2DCampos (co, name);
                   }

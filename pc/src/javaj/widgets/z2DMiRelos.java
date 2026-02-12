@@ -65,13 +65,13 @@ import de.elxala.zServices.*;
 
      visible          , in    , 0 / 1                     , //Value 0 to make the widget not visible
      enabled          , in    , 0 / 1                     , //Value 0 to disable the widget
-     var              , in    , Eva name                  , //Reference to variable containing the data for this widget. If this atribute is given it will mask the data contained in the attribute "" (usually the data)
+     var              , in    , Eva name                  , //Reference to variable containing the data for this widget. If this attribute is given it will mask the data contained in the attribute "" (usually the data)
 
-     backGroundShape  , in    , Eva                       , //Contains the trazos for the background of the clock if any
-     minutesHandShape , in    , Eva                       , //Contains the trazos for the minutes hand of the clock if any
-     hoursHandShape   , in    , Eva                       , //Contains the trazos for the hour hand of the clock if any
-     secondsHandShape , in    , Eva                       , //Contains the trazos for the second hand of the clock if any
-     axisShape        , in    , Eva                       , //Contains the trazos for the axis of the clock if any
+     backGroundShape  , in    , Eva                       , //Contains the trassos for the background of the clock if any
+     minutesHandShape , in    , Eva                       , //Contains the trassos for the minutes hand of the clock if any
+     hoursHandShape   , in    , Eva                       , //Contains the trassos for the hour hand of the clock if any
+     secondsHandShape , in    , Eva                       , //Contains the trassos for the second hand of the clock if any
+     axisShape        , in    , Eva                       , //Contains the trassos for the axis of the clock if any
 
      axisPosition     , in    , set of coordinates        , //x,y center of axis
      referenceTime    , in    , time string               , //hh:mm:ss of the clock when stopped, the default value is 03:00:00

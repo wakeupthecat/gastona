@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,29 +37,31 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // PARTIAL LOOP or SUB LOOP continues a given loop changing the loop conditions for it.
-      // Note that is not really a nested loop actually it does not start any loop but either:
-      //   continue the current one until one column change its value (option WHILE SAME)
-      //   or
-      //   skips rows while a column has the same value (option ON DIFFERENT)
+      //PARTIAL LOOP or SUB LOOP continues a given loop changing the loop conditions for it.
       //
-      // It is mainly thought for header-detail reports, where the table is suppossed to contain sorted
-      // header-detail information. Using PARTIAL LOOP command such reports can be done using just a single
-      // loop, for instance if we build the following table about sales of products (e.g. using SQL)
+      //Note that is not really a nested loop actually it does not start any loop but do either:
+      //
+      //   - continue the current one until one column change its value (option WHILE SAME)
+      //or
+      //   - skips rows while a column has the same value (option ON DIFFERENT)
+      //
+      //It is mainly thought for header-detail reports, where the table is supposed to contain sorted
+      //header-detail information. Using PARTIAL LOOP command such reports can be done using just a single
+      //loop, for instance if we build the following table about sales of products (e.g. using SQL)
       //
       //       customer, date, product, quantity, price, paid
       //
-      // we could make a report with header "customer", sub-header "date" and detail "products"
-      // using a single loop. For example:
+      //we could make a report with header "customer", sub-header "date" and detail "products"
+      //using a single loop. For example:
       //
       //    <main loop>
       //       LOOP, SQL,, //SELECT * FROM orders
       //          ,, //Customer : @<customer>
       //          ,, //
-      //          ,, PARTIAL LOOP, format for header date,
+      //          ,, PARTIAL LOOP, @<formatForSameDate>
       //          ,,             , WHILE, customer
       //
-      //    <format for header date>
+      //    <formatForSameDate>
       //       //  Date : @<date>
       //       //
       //       PARTIAL LOOP,,
@@ -67,29 +69,31 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //                   ,, //    @<product>, @<quantity> x @<price> = @<paid>
       //
       //
-      // An alternative way would be doing three nested loops, for example
+      //An alternative way would be doing three nested loops, for example
       //
       //    LOOP for all customers
       //        LOOP for all dates of a customer
       //           LOOP for all products in a date of a customer
       //
-      // this would result into "Number of customers" x "Number of dates per customer" loops
-      // and therefore such number of sql queries as well (1).
+      //this would result into "Number of customers" x "Number of dates per customer" loops
+      //and therefore such number of sql queries as well (1: note of readability).
       //
-      // The options WHILE HEADER and DIFFERENT HEADER have a single column name as parameter
-      // but the meaning actually is "either the column or one of the previous columns keep/change its
-      // values", therefore it is important that the table is sorted by the desired header and sub-headers.
+      //The options WHILE HEADER and DIFFERENT HEADER have a single column name as parameter
+      //but the meaning actually is "either the column or one of the previous columns keep/change its
+      //values", therefore it is important that the table is sorted by the desired header and sub-headers.
       //
-      // The first argument of RUN LOOP is a format name (eva variable name) for the loop body, it can be left in blank
-      // if wanted to inline the body but still two columns are needed for the command. For example
+      //The first argument of RUN LOOP is a format name (eva variable name) for the loop body, it can be left in blank
+      //if wanted to inline the body but still two columns are needed for the command. For example
       //
       //       PARTIAL LOOP,,
       //             ,, //inline format
       //             ,, //etc..
       //
-      // (1) Nevertheless, it has to be say that it is still a more intiutive and readable solution that the one using
-      //     PARTIAL LOOP. To improve the readbility of such constructions it could help having two separate commands,
-      //     for instance: "SKIP ROWS WITH SAME" and "LOOP BODY WHILE" instead on only one command with two syntaxes.
+      //--- (1) Note of readability
+      //
+      //Nevertheless, it has to be say that nested loops, although at the cost of performance, is still more intuitive
+      //and readable than using PARTIAL LOOP. To improve the the partial loop idea it could help having two separate commands,
+      //for instance: "SKIP ROWS WITH SAME" and "LOOP BODY WHILE" instead on only one command with two syntaxes.
       //
 
    <aliases>
@@ -166,12 +170,12 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          ,, //-----------------------
       //
       //   <listOfAll>
-      //      PARCIAL LOOP,,
+      //      PARTIAL LOOP,,
       //                  , WHILE, NAME
       //                  ,, // @<KIND> : ( @<listOfPart> )
       //
       //   <listOfPart>
-      //      PARCIAL LOOP,,
+      //      PARTIAL LOOP,,
       //                  , WHILE, KIND
       //                  , LINK, ", "
       //                  ,, //@<NUMBER>
@@ -196,6 +200,7 @@ public class cmdRunLoopTable implements commandable
       return new String [] {
           "RUN LOOP",
           "SUB LOOP",
+          "PARTIAL LOOP",
           "PARCIAL LOOP",
 
           "DO LOOP",

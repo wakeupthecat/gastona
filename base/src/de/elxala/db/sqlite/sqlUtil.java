@@ -131,9 +131,9 @@ public class sqlUtil
    }
 
    public static Eva getGlobalDefaultDBPragmas ()
-      {
+   {
       return globalDefaultPragmas;
-      }
+   }
 
    public static String getGlobalDefaultDBSqlitePragmas ()
    {

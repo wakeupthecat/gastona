@@ -1,0 +1,43 @@
+#javaj#
+
+   <frames> F, "Utility standard scripts", 500, 400
+
+   <layout of F>
+
+      EVA, 6, 6, 4, 4
+
+         ,          , X
+       X , iiScripts, xxScriptCode
+         , lDesc    , lFileName
+         , bLaunch  ,
+
+   <sysDefaultFonts>
+      Consolas, 14, 0, TextArea.font
+
+
+#data#
+
+    <iiScripts visibleColumns> name
+
+    <iiScripts>
+       name      , desc                         , path
+       arces     , sqlite3 db (+ deepdb) viewer , META-GASTONA/utilApp/arces/arces.gast
+       xmelon    , xml to db util               , META-GASTONA/utilApp/xmelon/xmelon.gast
+       dirMe     , search files                 , META-GASTONA/utilApp/dirMe/dirMe.gast
+       editor    , simple text editor           , META-GASTONA/utilApp/editor/EmergencyEditor.gast
+       dirComp   , compare directories          , META-GASTONA/utilApp/files/compareDirs.gast
+       hashAndDup, Hash & duplicated files      , META-GASTONA/utilApp/files/IdenticFiles3.gast
+
+#listix#
+
+   <-- iiScripts>
+      -->, lDesc data!,, @<iiScripts selected.desc>
+      -->, lFileName data!,, @<iiScripts selected.path>
+      CHECK, RFILE, @<iiScripts selected.path>, -->, xxScriptCode data!,, //script not "@<iiScripts selected.path>" not found!
+      -->, xxScriptCode load, @<iiScripts selected.path>
+
+   <-- iiScripts 2>  LSX, LANZA
+   <-- bLaunch>     LSX, LANZA
+   <LANZA>
+       CHECK, VAR, iiScripts selected.path
+       GAST, @<iiScripts selected.path>

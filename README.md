@@ -4,15 +4,15 @@ Gastona is a scripting language to make applications easily. Among other
 features it has out of the box things like
 
 - rapid GUI building
-- SQL integrated
+- SQL (sqlite) and javascript (Rhino) integrated
+- powerful text generator (i.e. HTML)
 - scanning directories and parsing files
-- powerful text generator
-- communications using UDP and an amazing HTTP server integrated
+- communications using integrated UDP and HTTP servers
 
 All these are quite powerful tools for building application and using
 them with Gastona is really straightforward.
 
-It is a GPLv3 open source project implemented in java in two variants
+It is a GPLv3 open source project implemented in java in two variants (*)
 
 - Desktop/PC (gastona.jar) that runs in Windows, Linux, Raspberry Pi and Mac OSX
 - Android App (gastona.apk) for android smart phones and tablets
@@ -20,14 +20,22 @@ It is a GPLv3 open source project implemented in java in two variants
 Both use exactly the same script language so it is possible to develop an
 application and run it in all of these systems.
 
+(*) the two variants in this repository, there are still two other gastona ports in C++ and Python on the way
+
 ## Is Gastona different ?
 
-Yes, it is. It has no similarities to any programming language. The main goal
+Yes, it is. It has no similarities to any programming or scriptimg language. Actually the main goal
 is precisely to save programming effort as much as possible.
 
 This can be achieved with a very pragmatic approach, simplification if you want,
-like to say "a button is a button" etc. And also very important, using an unsophisticated
-but flexible enough data structure for all purposes of the language.
+following the saying "a button is a button". For example if I want an app with a
+label a list and a button, do I need much more than just three words (for instance "lPeople", "iPeople" and "bAction") 
+to put that components on the user interface ? 
+The gastona approach tries to be the closest to that.
+
+Also very important, using for all purposes of the language an unsophisticated 
+but flexible enough data structure. This much more simple structure avoid trees (used in json, xml, html etc)
+and this "stepping out of the tree" results in a much more writable, readable and in the end understandable code.
 
 The best way to learn it is to run the desktop application gastona.jar which comes with
 a complete documentation of the language, widgets and commands. Almost every element in the
@@ -36,20 +44,63 @@ documentation has one or several related sample scripts that can be modified and
 ## Getting Gastona
 
 This Github repository contains the source code for both Desktop (or PC) and Android. Actually many
-sources are shared by the two variants, specifically all what is inside the folder "base".
+java sources are shared by the two variants, specifically all what is inside the folder "base".
 
-The App for Android is available at the Google market for approximately 1 Euro which represents
-a support for the project. It is also available as apk to be installed manually.
-
-Binaries for both desktop and android can be found at
+Binaries (old ones) for both desktop and android apk can be found at
 <a href="https://sourceforge.net/projects/gastona/files/Gastona%20v1.10/">sourceforge.net/projects/gastona/</a>.
+
+For running the interactive documentation
+
+    java -jar gastona.jar
+    
+For running a gastona script within a file like for example myapp.gast
+
+    java -jar gastona.jar myapp.gast
+    
+
+### Hello world 
+
+There are two possible hello world applications: command line or with GUI
+
+Without GUI the code involves only listix component
+
+        ---- helloworld_1.gast
+        #listix#
+
+            <main>
+                //Hello world!
+                
+running 
+
+        java -jar gastona.jar helloworld_1.gast
+        Hello world!
+
+Using a minimal GUI only containing a console
+
+        ---- helloworld_2.gast
+        #javaj#
+            
+            <frames> ooConsole
+
+        #listix#
+
+            <main>
+                //Hello world!
+
+running 
+
+        java -jar gastona.jar helloworld_2.gast
+
+These two examples work directly because these files are contained inside gastona.jar and gastona search 
+for files also inside its own jar
+
 
 ## Small demo
 
 Probably the best introduction even before a tutorial and start learning rules is to see
 a quick demo to have the feeling of how the things are done and what you can get from this language.
 
-### The problem
+### The problem to solve
 
 Suppose we want
 
@@ -101,7 +152,7 @@ executing this script with gastona.jar will result in the desktop application
 
 ![demopc](https://cloud.githubusercontent.com/assets/12417703/18233823/7d653f90-72f2-11e6-848e-6eb8acfff821.png)
 
-the script would also work on Android, but if the device is a phone better use
+the script would also work on Android, but if the device is a smart-phone we better use
 this code for the action
 
          <-- bAction>
@@ -117,16 +168,14 @@ and this would be the result in Android
 I start saying there are two variants of gastona, well a third variant is growing right now
 and it is a javascript library.
 
-If the scripting language turns out to be useful and convenient, could we use it also
-for rendering our application in a browser?
+If the gastona language turns out to be useful and convenient, could it be used for rendering our application in a browser as well?
 
-The answer is yes,  jGastona.js and the family Eva.js, EvaLayout.js and LayoutManager.js can do that. These are
-pure javascript libraries that implement Gastona for a browser. Not thought to be one to one
-compatible with the java variants, which is not possible and also not needed, but just as
-an alternative for developing browser applications.
+The answer is yes, jGastona.js and the family Eva.js, EvaLayout.js and LayoutManager.js can do that. These are
+pure javascript libraries that implement Gastona for a browser. While respect to javaj (GUI) and data there are
+clear resemblances, the listix commands are actually not implemented in js, instead all listix formats only on javascript code.
 
-It is possible to use ajax methods with jGastona to do dynamic web applications using an http server, for example the Gastona
-mini http server MICOHTTP. But now for this demo let's use following static html
+It would be possible to do a dynamic page with jGastona using AJAX for instance driven by the gastona integrated HTTTP server MICOHTTP. 
+But for the demo we just make a static html
 
       <html><body>
       <script src="jGastonaEva-min.js"> </script>
@@ -151,10 +200,10 @@ mini http server MICOHTTP. But now for this demo let's use following static html
             #listix#
 
                <-- iPeople>
-                  //alert ("You have selected " + jgas.getData ('iPeople selected.name'));
+                  //alert ("You have selected " + jast.getData ('iPeople selected.name'));
 
                <-- bAction>
-                  //alert ("Calling " + jgas.getData ('iPeople selected.phone'));
+                  //alert ("Calling " + jast.getData ('iPeople selected.phone'));
       </script>
 
       <script>

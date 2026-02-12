@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -113,14 +113,6 @@ public class onFlyWidgetSolver implements widgetSolver_able
          } while (true);
       }
 
-//      Component co = globalJavaj.getWidgetByName (theName);
-//      if (co == null)
-//      {
-//         // create it
-//         co = solveZWidget (layoutModel, basicName, prefixName, theName, createContainers);
-//      }
-//      else log.dbg (2, "getNativeWidget", "found getWidgetByName \"" + theName + "\"");
-
       return solveZWidget (layoutModel, basicName, prefixName, theName, createContainers);
    }
 
@@ -144,6 +136,13 @@ public class onFlyWidgetSolver implements widgetSolver_able
       char firstLetter  = (baseName.length () > 0) ? baseName.charAt (0): '\n'; // something impossible
       char secondLetter = (baseName.length () > 1) ? baseName.charAt (1): '\n'; // something impossible
 
+      boolean setTitleFrame = secondLetter == firstLetter;
+
+      // if first char is doble then the "second" is the third one
+      if (setTitleFrame)
+         secondLetter = (baseName.length () > 2) ? baseName.charAt (2): '\n'; // something impossible
+
+
       //(o) DOC/javaj/zwidgets specific zWidgets for PC
 
       // z widgets
@@ -155,7 +154,7 @@ public class onFlyWidgetSolver implements widgetSolver_able
          case 'c': theComp = new zComboBox     (fullName); break;
 //         case 'd': theComp = new zSlider       (fullName); break;
          case 'd': theComp = new zSliderLabels (fullName); break;
-         case 'e': theComp = new zEditField    (fullName, iMayLen, iMayLen > 0);  break;
+         case 'e': theComp = new zEditField (fullName, iMayLen, iMayLen > 0); break;
          case 'f': theComp = new xyScrollPane   (new zMiniEditor (fullName)); break;
          case 'g': theComp = new zLeds         (fullName); break;
          case 't':
@@ -201,7 +200,7 @@ public class onFlyWidgetSolver implements widgetSolver_able
                   else if (miscUtil.startsWithIgnoreCase (fullName, "2Dj"))        // z2DMiRelos
                      theComp = new  z2DMiRelos (fullName);
                   else if (miscUtil.startsWithIgnoreCase (fullName, "2Dp"))        // z2DEditRelos
-                     theComp = new  z2DEditRelos (fullName);
+                     theComp = new  z2DCebaEditor (fullName);
                   else if (miscUtil.startsWithIgnoreCase (fullName, "2Dmath"))        // z2DMathFunc
                      theComp = new  z2DMathFunc ();
                   //else if (miscUtil.startsWithIgnoreCase (fullName, "2Dcampos"))        // z2DCampos
@@ -214,12 +213,11 @@ public class onFlyWidgetSolver implements widgetSolver_able
                int tipo = zConsole.STD_BOTH;
                switch (secondLetter)
                {
-                  case 's': /* os */
-                  case 'o': /* oo */
+                  case 's': /* os (standard output) */
                   case '1': /* o1 */
                      theComp = new xyScrollPane (new zConsole (fullName, zConsole.STD_OUTPUT));
                      break;
-                  case 'e': /* oe */
+                  case 'e': /* oe (error) */
                   case '2': /* o2 */
                      theComp = new xyScrollPane (new zConsole (fullName, zConsole.STD_ERROR));
                      break;
@@ -234,7 +232,16 @@ public class onFlyWidgetSolver implements widgetSolver_able
 
          default:
             log.err ("getPrimitiveComponent", "widget not found for component [" + baseName + "/" + fullName + "]");
-            theComp = new JButton ( "?" + fullName); break;
+            theComp = new JButton ( "?" + fullName);
+            break;
+      }
+
+
+      // wrap it with a title frame ?
+      //
+      if (setTitleFrame)
+      {
+         theComp = new titleFrame (theComp, fullName.substring(2));
       }
 
       if (theComp != null)
@@ -246,10 +253,14 @@ public class onFlyWidgetSolver implements widgetSolver_able
 
    private Component solveZWidget (javajEBS layoutModel, String baseName, String prefixName, String fullName, boolean createContainers)
    {
-      String [] params = new String [10];
+      CParameterArray params = new CParameterArray ();
 
       boolean isAPanel = false;
       int  kindOfWidget = layoutModel.kindOfWidget (baseName, params);
+      boolean is_layeva = layoutModel.isLayout_layeva (baseName);
+      
+      // log.dbg (0, "solveZWidget", "widget \"" + baseName + "\" is <layeva xxx> en este sendido " + is_layeva);
+      
 
       // do we already have it ?
       Component compos = globalJavaj.getWidgetByName (fullName);
@@ -274,7 +285,7 @@ public class onFlyWidgetSolver implements widgetSolver_able
             break;
 
          case javajEBS.WID_EXPLICIT:
-            compos = (Component) javaLoad.javaInstanciator (params[0]);
+            compos = (Component) javaLoad.javaInstanciator (params.getStrAt (0));
             if (compos == null)
             {
                // que hasemos ??
@@ -299,7 +310,7 @@ public class onFlyWidgetSolver implements widgetSolver_able
             //       - Arreglar el tema de nulls en params y limitación de 10 haciendo que
             //         kindOfWidget admita una evaLine retornable o asi
             //
-            else if (params[1] != null && params[1].equals ("1"))
+            else if (params.getStrAt (1).equals ("1"))
             {
                log.err ("solveZWidget", "new component, scroll for explicit widget [" + fullName + "]");
                compos = new xyScrollPane (compos);
@@ -321,57 +332,64 @@ public class onFlyWidgetSolver implements widgetSolver_able
                }
             }
             else
-            switch (javajEBS.getLayoutKind (params[0]))
             {
-               case javajEBS.LAY_EVA_MOSAIC:
-               case javajEBS.LAY_EVA_MOSAICX:
-               case javajEBS.LAY_SWITCH_LAYOUT:
-               case javajEBS.LAY_EVA_LAYOUT:
-                  compos = new JPanel ();
-                  break;
+                // due to the special case of <layeva xxx> which is an implicit EVALAYOUT
+                // we have to trick it using this information here
+                //
+                int kindOfW = is_layeva ? javajEBS.LAY_EVA_LAYOUT: javajEBS.getLayoutKind (params.getStrAt (0));
+                switch (kindOfW)
+                {
+                   case javajEBS.LAY_EVA_MOSAIC:
+                   case javajEBS.LAY_EVA_MOSAICX:
+                   case javajEBS.LAY_SWITCH_LAYOUT:
+                   case javajEBS.LAY_EVA_LAYOUT:
+                      compos = new JPanel ();
+                      break;
 
-               case javajEBS.LAY_CONTAINER_ADD:
-                  if (params[1].length () != 0)
-                  {
-                     // se especifica una clase (un panel)
-                     compos = (Component) javaLoad.javaInstanciator (params[1]);
-                  }
-                  break;
+                   case javajEBS.LAY_CONTAINER_ADD:
+                      String compNam = params.getStrAt (1);
+                      if (compNam.length () != 0)
+                      {
+                         // se especifica una clase (un panel)
+                         compos = (Component) javaLoad.javaInstanciator (compNam);
+                      }
+                      break;
 
-               case javajEBS.LAY_PANEL:
-                  compos = new xyPanel ();
-                  compos.setName (fullName);
-                  break;
+                   case javajEBS.LAY_PANEL:
+                      compos = new xyPanel ();
+                      compos.setName (fullName);
+                      break;
 
-               case javajEBS.LAY_RADIO:
-                  compos = new xyRadio ();
-                  compos.setName (fullName);
-                  break;
+                   case javajEBS.LAY_RADIO:
+                      compos = new xyRadio ();
+                      compos.setName (fullName);
+                      break;
 
-               case javajEBS.LAY_SPLIT:
-                  compos = new xySplit ();
-                  compos.setName (fullName);
-                  break;
+                   case javajEBS.LAY_SPLIT:
+                      compos = new xySplit ();
+                      compos.setName (fullName);
+                      break;
 
-               case javajEBS.LAY_TABBED_PANE:
-                  compos = new xJTabbedPane ();
-                  compos.setName (fullName);
-                  break;
+                   case javajEBS.LAY_TABBED_PANE:
+                      compos = new xJTabbedPane ();
+                      compos.setName (fullName);
+                      break;
 
-               case javajEBS.LAY_MENU:
-                  // no se especifica expli'citamente JMenuBar pero lo e's
-                  compos = new JMenuBar ();
-                  break;
+                   case javajEBS.LAY_MENU:
+                      // no se especifica expli'citamente JMenuBar pero lo e's
+                      compos = new JMenuBar ();
+                      break;
 
-               case javajEBS.LAY_TOOLBAR:
-                  // no se especifica expli'citamente JToolBar pero lo e's
-                  compos = new JToolBar ();
-                  break;
+                   case javajEBS.LAY_TOOLBAR:
+                      // no se especifica expli'citamente JToolBar pero lo e's
+                      compos = new JToolBar ();
+                      break;
 
-               default:
-                  // ni se especifica ni na'
-                  log.err ("solveZWidget", "Layout/container [" + params[0] + "] not recognized!");
-                  compos = new JPanel ();
+                   default:
+                      // ni se especifica ni na'
+                      log.err ("solveZWidget", "Layout/container [" + params.getStrAt (0) + "] not recognized!");
+                      compos = new JPanel ();
+                }
             }
 
             // set the fullName if not already set (note that primitive widgets might have already done it)

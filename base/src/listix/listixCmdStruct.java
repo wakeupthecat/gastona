@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -41,14 +41,15 @@ import listix.cmds.commander;
 public class listixCmdStruct
 {
    // save constructor parameters
-   private listix listixPtr = null;
-   private Eva    cmdEvaPtr = null;
-   private int    baseIndx = 0;
-   private int    optOffset = 1;
-   private int    maxIndx = 0;
-   private int    maxArguments = -1;
+   private listix  listixPtr = null;
+   private Eva     cmdEvaPtr = null;
+   private int     baseIndx = 0;
+   private int     optOffset = 1;
+   private boolean doNormOptions = true;
+   private int     maxIndx = 0;
+   private int     maxArguments = -1;
 
-   public String cmdName;
+   public String commandName;
    public String [] arguments = null;
 
    // store the given options with its names normalized
@@ -65,22 +66,35 @@ public class listixCmdStruct
       @param indxComm row index of commandEva where the commnad starts
       @param offsetOptions offset where does the options begin (per default 1)
    */
-   public listixCmdStruct (listix that, Eva commandEva, int indxComm, int offsetOptions)
+   public listixCmdStruct (listix that, Eva commandEva, int indxComm, int offsetOptions, boolean normalizeOpts)
    {
-      construct (that, commandEva, indxComm, offsetOptions);
+      construct (that, commandEva, indxComm, offsetOptions, normalizeOpts);
    }
 
    public listixCmdStruct (listix that, Eva commandEva, int indxComm)
    {
-      construct (that, commandEva, indxComm, 1);
+      construct (that, commandEva, indxComm, 1, true);
    }
 
-   public void construct (listix that, Eva commandEva, int indxComm, int offsetOptions)
+
+   protected String getNormalized (String strname)
    {
+      return strname.toUpperCase().replaceAll (" ", "");
+   }
+
+   protected String getOptionID (String optName)
+   {
+      return doNormOptions ? getNormalized (optName): optName;
+   }
+
+   public void construct (listix that, Eva commandEva, int indxComm, int offsetOptions, boolean normalizeOpts)
+   {
+      givenOptions = new Vector ();
       listixPtr = that;
       cmdEvaPtr = commandEva;
       baseIndx = indxComm;
       optOffset = offsetOptions;
+      doNormOptions = normalizeOpts;
 
       // command must be found
       if (baseIndx >= cmdEvaPtr.rows())
@@ -98,7 +112,7 @@ public class listixCmdStruct
 
       // command name normalized
       //
-      cmdName = cmdEvaPtr.getValue (baseIndx, 0).toUpperCase().replaceAll (" ", "");
+      commandName = getNormalized (cmdEvaPtr.getValue (baseIndx, 0));
 
       // get and solve command arguments
       //
@@ -160,10 +174,10 @@ public class listixCmdStruct
       if (getArgSize () >= minParamSize && getArgSize () <= maxParSize) return true;
 
       if (getArgSize () < minParamSize)
-         getLog().err (cmdName, "too few parameters given, only " + getArgSize () + " are given but it requires at least " + minParamSize + "");
+         getLog().err (commandName, "too few parameters given, only " + getArgSize () + " are given but it requires at least " + minParamSize + "");
 
       if (getArgSize () > maxParSize)
-         getLog().err (cmdName, "too many parameters given, last recognized parameter [" + getArg(maxParSize-1) + "]");
+         getLog().err (commandName, "too many parameters given, last recognized parameter [" + getArg(maxParSize-1) + "]");
       return false;
    }
 
@@ -176,7 +190,6 @@ public class listixCmdStruct
       //return listix.cmds.commander.meantCommand (relaxedString, possibilities);
       return commander.meantCommand (relaxedString, possibilities);
    }
-
 
    /**
       calling this method a search of given options can be re-initialized. For a unique search of
@@ -204,8 +217,7 @@ public class listixCmdStruct
            (ii == baseIndx || cmdEvaPtr.getValue (ii, 0).length () == 0); // check if it is a void listix command
            ii ++)
       {
-         String optStr = (cmdEvaPtr.getValue (ii, 1)).toUpperCase().replaceAll (" ", "");
-
+         String optStr = getOptionID (cmdEvaPtr.getValue (ii, 1));
          //System.out.println ("coll1 opt [" + optStr + "]");
          givenOptions.add (optStr);
          maxIndx = ii;
@@ -249,32 +261,33 @@ public class listixCmdStruct
       else return defaultValue;
    }
 
-   /**
-      Search 'optName' in the given options,
-      if one is found then the option is removed for the next search (methods take..)
-      and the all parameters of the option are returned solved. Otherwise return null
-   */
+   /// takeOptionParameters with one string instead of an array of them and default solved to true
    public String [] takeOptionParameters (String optName)
    {
       return takeOptionParameters (new String [] { optName }, true);
    }
 
-   /**
-      Search 'optName' in the given options,
-      if one is found then the option is removed for the next search (methods take..)
-      and the all parameters of the option are returned solved. Otherwise return null
-   */
+   /// takeOptionParameters with default solved to true
    public String [] takeOptionParameters (String [] optNames)
    {
       return takeOptionParameters (optNames, true);
+   }
+
+   /// takeOptionParameters with default of nparam_solved to -1
+   public String [] takeOptionParameters (String [] optNames, boolean solved)
+   {
+      return takeOptionParameters (optNames, solved, -1);
    }
 
    /**
       Search any of the option names given in the array 'optNames' in the given options,
       if one is found then the option is removed for the next search (methods take..)
       and all parameters of the option are returned solving them if 'solved' is true. Otherwise return null
+      
+      if solved is true and it will solve all parameters if ncolumn_solved is -1 (default)
+      or only until nparam_solved if =! -1
    */
-   public String [] takeOptionParameters (String [] optNames, boolean solved)
+   public String [] takeOptionParameters (String [] optNames, boolean solved, int nparam_solved)
    {
       if (optNames == null || optNames.length == 0) return null;
 
@@ -282,35 +295,37 @@ public class listixCmdStruct
       {
          // normalize option name upper case without spaces!
          //
-         cmdName = optNames[aa].toUpperCase().replaceAll (" ", "");
+         String strOpt = getOptionID (optNames[aa]);
          for (int oo = 0; oo < givenOptions.size (); oo ++)
          {
             String laopt = (String) givenOptions.get(oo);
             if (laopt == null) continue;
-            if (cmdName.equals (laopt))
+            if (strOpt.equals (laopt))
             {
                givenOptions.set(oo, null); // mark it as taken
                int evaindx = baseIndx + optOffset + oo;
 
                if (evaindx > maxIndx) continue; // actually not possible, sanity check
 
-                  // an option in "its place"
-                  //
+               // an option in "its place"
+               //
 
-                  // retrieve and solve, if needed, all the parameters
+               // retrieve and solve, if needed, all the parameters
                EvaLine el = cmdEvaPtr.get(evaindx);
-                  String [] resp = new String [el.cols()-2];
-                  for (int ii = 2; ii < el.cols(); ii ++)
-                  {
-                     resp[ii-2] = (solved ? listixPtr.solveStrAsString (el.get(ii)): el.get(ii));
-                     //System.out.println ("resp[" + ii + "-2]  [" + resp[ii-2] + "]" );
-                  }
-
-                  // >>>> return parameters
-                  return resp;
+               String [] resp = new String [el.cols()-2];
+               for (int ii = 2; ii < el.cols(); ii ++)
+               {
+                  resp[ii-2] = el.get(ii);
+                  if (solved && (nparam_solved == -1 || ii-2 <  nparam_solved))
+                     resp[ii-2] = listixPtr.solveStrAsString (resp[ii-2]);
+                  //System.out.println ("resp[" + ii + "-2]  [" + resp[ii-2] + "]" );
                }
+
+               // >>>> return parameters
+               return resp;
             }
          }
+      }
       return null;
    }
 
@@ -331,12 +346,12 @@ public class listixCmdStruct
       {
          // normalize option name upper case without spaces!
          //
-         cmdName = optNames[aa].toUpperCase().replaceAll (" ", "");
+         String optName = getOptionID (optNames[aa]);
          for (int oo = 0; oo < givenOptions.size (); oo ++)
          {
             String laopt = (String) givenOptions.get(oo);
             if (laopt == null) continue;
-            if (cmdName.equals (laopt))
+            if (optName.equals (laopt))
             {
                givenOptions.set(oo, null); // mark it as taken
                int evaindx = baseIndx + optOffset + oo;
@@ -409,7 +424,7 @@ public class listixCmdStruct
          //System.out.println ("azertamos!");
          count ++;
          if (logError)
-            getLog().err (cmdName, "option [" +  rem + "] has been ignored!");
+            getLog().err (commandName, "option [" +  rem + "] has been ignored!");
       }
       return count;
    }

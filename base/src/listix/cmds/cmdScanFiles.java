@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -38,20 +38,20 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Scan a directory or a zip (or jar) file and set the result into a database.
-      // Having a directory into a database is convenient for searching and filtering
-      // the files in an arbitrary way using sql selects.
-      // If the database does not exists then it is created with the following schema
+      //Scan a directory or a zip (or jar) file and set the result into a database.
+      //Having a directory into a database is convenient for searching and filtering
+      //the files in an arbitrary way using SQL selects.
+      //If the database does not exists then it is created with the following schema
       //
       //       table (scan)_roots : rootID, rootLabel, pathRoot, rootType, timeLastScan
       //       table (scan)_files : rootID, fileID, pathFile, fileName, extension, date, size, [md5 or crc32]
       //       view  (scan)_all   : which is a join of the two tables plus the formed fields fullPath,
       //                            fullParentPath and subPath
       //
-      // Example of entry in the database:
+      //--- Example of entry in the database
       //
-      //       Scanning the directory c:\myDir gives just one file under subdir\text.txt, then the
-      //       fields for the table scan_roots might be
+      //Scanning the directory c:\myDir gives just one file under subdir\text.txt, then the
+      //fields for the table scan_roots might be
       //
       //          rootID        1
       //          rootLabel    "local"
@@ -59,7 +59,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          rootType     "D"
       //          timeLastScan "21-06-2009 21:07"
       //
-      //       and for the table scan_files
+      //and for the table scan_files
       //
       //          rootID      1
       //          fileID      1
@@ -69,18 +69,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          date        "28-03-2003 09:02"
       //          size        182887
       //
-      //       additionally to all these fields, in the view scan_all we found as well
+      //additionally to all these fields, in the view scan_all we found as well
       //
       //          fullPath         "c:\myDir\subdir\text.txt"
       //          fullParentPath   "c:\myDir\subdir"
       //          subpath          "subdir\text.txt"
       //
-      // Pre-filtering the scan
+      //--- Pre-filtering the scan
       //
-      //    For big directories or just because we are only interesting in some kind of files the
-      //    entries in the database might be reduced using multiple pairs of : optFilter, regexp
+      //For big directories or just because we are only interesting in some kind of files the
+      //entries in the database might be reduced using multiple pairs of : optFilter, regexp
       //
-      //    optFilter might be
+      //optFilter might be
       //
       //      +E  the extension matching 'regexp' will be included (excluding all those not included)
       //      -E  the extension matching 'regexp' will be excluded (including all those not excluded)
@@ -89,14 +89,18 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      +F  the file matching 'regexp' will be included (excluding all ...)
       //      -F  the file matching 'regexp' will be excluded (including all ...)
       //
-      //      Java Regular expressions are accepted as 'textFilter'
-      //         Examples:
+      //Java Regular expressions are accepted as 'textFilter'
+      //
+      //Some examples are
       //
       //            -E, "obj"      exclude extensions obj
       //            -F, "\.obj$"    exclude extensions obj
       //            -D, "lint"     exclude the directory "/lint/" and its subdirectories
       //            +F, "Proxy",   add the files which name includes "Proxy"
       //
+      //Note that it is also possible to give the filter in one comma separated string for example
+      //
+      //            "-E, obj, -F, \.obj$, -D, lint"
 
    <aliases>
       alias
@@ -383,11 +387,8 @@ public class cmdScanFiles implements commandable
       //      SCAN,  REMOVE          , DBname
       //
       String oper      = cmd.getArg(0);
-      String dbName    = cmd.getArg(1);
+      String dbName    = that.resolveDBName (cmd.getArg(1));
       String pathRoot  = cmd.getArg(2);
-
-      if (dbName.length () == 0)
-         dbName = that.getDefaultDBName ();
 
       boolean optAdd     = cmd.meantConstantString (oper, new String [] { "ADD", "ADDFILES", "FILES" } );
       boolean optRemove  = cmd.meantConstantString (oper, new String [] { "REMOVE", "DEL", "DELETE" } );
@@ -396,14 +397,24 @@ public class cmdScanFiles implements commandable
       // collect filter criteria (last parameters)
       //
       fileMultiFilter filtrum = new fileMultiFilter ();
-      for (int ii = 3; ii+1 < cmd.getArgSize (); ii += 2)
+
+      if (cmd.getArgSize () == 4)
       {
-         String optFilt = cmd.getArg(ii);
-         String valFilt = cmd.getArg(ii + 1);
+         // we have a comma separated list of filters like "-D, \.git, -D, lint"
+         //
+         filtrum.addCriteriaInAString (cmd.getArg (3));
+      }
+      else
+      {
+         for (int ii = 3; ii+1 < cmd.getArgSize (); ii += 2)
+         {
+            String optFilt = cmd.getArg(ii);
+            String valFilt = cmd.getArg(ii + 1);
 
-         theLog.dbg (2, "SCAN", "optFilt = " + optFilt + "value = " + valFilt);
+            theLog.dbg (2, "SCAN", "optFilt = " + optFilt + "value = " + valFilt);
 
-         filtrum.addCriteria (optFilt, valFilt);
+            filtrum.addCriteria (optFilt, valFilt);
+         }
       }
 
       // collect options
@@ -453,9 +464,18 @@ public class cmdScanFiles implements commandable
          String [] optArr = cmd.takeOptionParameters("FILTERS");
          if (optArr != null)
          {
-            for (int ff = 0; ff+1 < optArr.length; ff += 2)
+            if (optArr.length == 1)
             {
-               filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
+               // we have a comma separated list of filters like "-D, \.git, -D, lint"
+               //
+               filtrum.addCriteriaInAString (optArr[0]);
+            }
+            else
+            {
+               for (int ff = 0; ff+1 < optArr.length; ff += 2)
+               {
+                  filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
+               }
             }
          }
 

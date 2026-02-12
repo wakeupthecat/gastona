@@ -16,16 +16,15 @@
 
    <help>
       //
-      // Listix is the part where the logic of a Gastona application can be implemented. It includes communication with
+      //Listix is the unit where the logic of a Gastona application can be implemented. It includes communication with
       // widgets, reaction to user interaction, calls to intern or external applications, generation of code or
       // whatever kind of text. In fact Listix is a pseudo language having variables, loops and other
       // functionality provided by its commands. Furthermore the language is enhanced with SQL
-      // capability of the enbedded sqlite engine which serveral commands use.
+      //capability of the embedded sqlite engine which some powerful listix commands like SCAN, PARSONS and CSV also use internally.
       //
-      // As it is made in Javaj, the Eva variables are the base structure, and here the units #listix#
+      //As it is made in the GUI builder javaj, Eva variables are the base structure, and here the units #listix#
       // and #data# are used. This organization of the code is not typical in script languages, that is
-      // why it might result difficult to read at the begining. Nevertheless, the mechanics used are
-      // quite simple.
+      //why it might result difficult to read at the beginning. However, the mechanics used are quite simple.
       //
       // Let's take a look at two typical uses of listix which are repeated in almost all samples in this
       // documentation. First the code
@@ -38,11 +37,17 @@
       //
       //    - When the GUI component called "bMyButton" is clicked ...
       //    - Set the value "You pressed...etc" into the variable called "lMyLabel" and ...
-      //    - Send the message "lMyLabel data!"
+      //    - Send the message "lMyLabel data!" which javaj is going to process by updating the label
       //
       // The logic in this case consists in reacting to a widget event (button press) and updating
       // the data of another widget (lMyLabel). The elements used in this code are : the special
       // variable name starting with "--" and two commands : SET VAR and MSG
+      //
+      //The command MSG admits also parameters and using the alias "-->" for MSG
+      //the previous logic can be written like
+      //
+      //    <-- bMyButton>
+      //        -->, lMyLabel data!,, "You pressed the button (admit it)"
       //
       // This other code
       //
@@ -51,19 +56,29 @@
       //
       //    <main>   //@<myName> lives in @<myCity>
       //
-      // would print out "Julia lives in Santiago". In this case there are no commands involved, Listix
-      // is used just as a printer with some kind of text replacement. What is really happening it is
-      // not exactly a simple variable replacement, but indeed is a call to a variable as it where a
-      // procedure. If we imagine listix having a pen or a cursor pointing to the begining of the variable
-      // <main> the text "@<myName>" causes this pen to move to the begining of the variable <myName> and
-      // after finishing it the pen will return to the variable main at the position after "@<myName>".
+      //would print out "Julia lives in Santiago". 
+      //
+      //In this case there are no commands involved, listix is used just as a printer with something that seems a text replacement
+      //of the variables myName and myCity, but actually it is not.
+      //
+      //What is really happening with @<"variable name"> is a call to the variable as it were a function.
+      //
+      //We can imagine listix trying to write the contents of the varible main, when it founds
+      //the "@<myName>" it causes to jump temporarily to the variable "myName". Then when finished with it 
+      //return to main at the point after "@<myName>" and so on. So variables are not replaced but only
+      //navigated.
+      //
       // As we see the variables in listix have a special behaviour, they can call other variables since
-      // they are a kind of "variable-procedure", we will call these variables also "listix formats". The
-      // exact mechanism is explained in "Executing a listix format".
+      //they are a kind of "variable-procedure", we will call these variables also "listix formats".
+      //
+      //A variable in listix may contain text, call to other variables using @<variable> notation and a 
+      //third thing: listix commands.
+      //
+      //--- listix commands
       //
       // Apart from the variables and the text generation, the rest can be done by commands. There are about
-      // 40 commands of very different proposes, from a simple calculation to a process that do a big job
-      // like scanning a directory or parsing a big file. A command has the generic syntax:
+      //40 commands of very different purposes, from a simple calculation to a process that do a big job
+      //like scanning a directory or parsing a big file. A listix command has the generic syntax:
       //
       //       COMMANDNAME, parameter1, parameter2, ..., parameterN
       //                  , option1, optParam1, optParam2, ...
@@ -71,31 +86,31 @@
       //
       // having at least 1 parameter and 0 or more options.
       //
-      // All commands, its parameters and options are documented separatelly. Maybe the most important ones 
+      //All commands, its parameters and options are documented separately. Maybe the most important ones 
       // are: SET VAR (or "VAR="), LOOP TABLE, IN CASE, CALL, LAUNCH, MESSAGE (alias "-->"). There are also 
       // a couple of very powerful commands like DATABASE, SCAN, PARSONS and XMELON that make things, that 
       // usually are ardous or difficult tasks, incredibly easy. Also a set of commands for TCP/IP communication 
       // are available: UDP, HTTPREQUEST, MicoHTTPServer. The last one uses the power of text-generation from listix 
-      // to make possible writing a personal http server in a straighforward way.
+      //to make possible writing a personal http server in a straight forward way.
       //
       // If COMMANDNAME is an empty string and it still has one or more parameters either it can be an
-      // option of a previous command or it is simply a "void command" and it will be skiped (ignored)
-      // by Listix. For example
+      //option of a previous command or it is simply a "void command" and it will be skipped (ignored)
+      //by listix. For example
       //
       //       ,,
       //    or
       //       ,this will be ignored @<egal>, nothing will happens!
       //
-      // the options of a command can be seen also as void commands.
+      //options of a command can be seen also as void commands.
+      //
+      //--- How listix works
       //
       // If we forget for a moment what a command specifically does, we can describe the activity of
-      // listix in more simple way: text generation. And this is the way listix perform it
+      //listix in more simple way: text generation. And this is the way listix performs it
       //
-      // Listix in reallity "execute variables", we call these variables listix formats or simply formats.
-      // A format may contain only two things: text and/or commands. Text elements are used for text generation
-      // and the commands are executed according to its semantics.
+      //---- Executing a listix format
       //
-      // ======== Executing a listix format =============
+      //This are the rules listix follow when calling or executing a format
       //
       //    - A format is read row by row
       //
@@ -103,10 +118,11 @@
       //      somewhere), during this generation if the pattern "@<xxx>" is found, it has de meaning
       //      "execute the format xxx" before continue.
       //
-      //    - If the row has more than one column then it is a listix command. The first column
-      //      contains the command name. In this case listix invoques the command.
+      //    - Otherwise, if the row has more than one column, then it is a listix command. The first column
+      //      is the command name and the next ones the parameters. In this case listix invokes the command
+      //      and when finished it continues with the next row of the format.
       //
-      //   Example of listix format:
+      //An example of listix format can be
       //
       //      <a listix format>
       //          //Text @<call other format> more text @<another format>
@@ -116,9 +132,9 @@
       //          //Continue with @<some format> text
       //          , This will be skiped (void command)
       //
-      // ======== Target of generation =============
+      //--- Target of generation
       //
-      // By default the generation will be performed over the standard ouput (console), but this can
+      //By default the text generation will be performed over the standard output (console), but this can
       // be different when
       //
       //    - a command GENERATE changes the target of the generation, for example to a file
@@ -127,7 +143,7 @@
       //      depends on the command), the generation will be performed in memory and the result placed
       //      in the argument or option, this is known as "solving" a format.
       //
-      // ======== Entry points (entry formats) ==============
+      //--- Entry points
       //
       // The two formats <main0> and <main> are special. They are called by Gastona during the
       // startup of the script
@@ -139,13 +155,70 @@
       //    main
       //       It is called just after setting visible the main frame
       //
-      // Once main0 and main has been executed listix can only react to messages, usually from
-      // widgets.
+      //Once main0 and main has been executed listix can only react to messages, usually from widgets.
       //
-      //    -- MESSAGETEXT
-      //       The formats starting with "-- " (e.g. <-- message>) have associated a message, when this
-      //       message is sent the format is executed by listix. This is the way react to user interaction
-      //       (messages of widgets) or any other event sent through the message mechanism (Mensaka).
+      //Widgets send messages on user interaction, for instance a button named bStore send a 
+      //message named "bStore" every time the button is pressed, a list iCities send the message
+      //"iCities" when some row is selected and "iCities 2" when is double clicked etc.
+      //
+      //listix can notify itself to any message named "MESSAGE" by having a format with the name "-- MESSAGE"
+      //then, every time the message is sent listix execute automatically the format. For example
+      //
+      //    <-- bStore>
+      //       //Someone whant to save something ....
+      //
+      //--- Other triggers for listix commands
+      //
+      //There are other ways apart from the mentioned messages that can be sent from zWidgets but also from
+      //java modules or any other component.
+      //
+      //Here some mini applications showing several events that listix can listen to
+      //
+      //Timer events by using TIMER command
+      //
+      //          #listix#
+      //
+      //             <main> TIMER, START, callMe, 100, 3
+      //
+      //             <callMe> 
+      //                 //timer calls me at @<:lsx CLOCK>
+      //
+      //which might output
+      //
+      //          timer calls me .. 252
+      //          timer calls me .. 365
+      //          timer calls me .. 455
+      //
+      //Example of UDP communication using UDP command
+      //
+      //         #listix#
+      //         
+      //             <main>
+      //                UDP, SET SERVER, Hawai, 1899
+      //                UDP, SEND ONCE, localhost, 1899, //HALOA
+      //         
+      //             <-- Hawai udp>
+      //                //Hawai: Rx "@<p1>" from @<p2>:@<p3>
+      //                UDP, CLOSE, Hawai
+      //               
+      //          OUTPUT:
+      //               Hawai: Rx "HALOA" from 127.0.0.1:53341
+      //
+      //And finally a minimal HTTP Server
+      //
+      //         #listix#
+      //         
+      //             <main>
+      //                MICOHTTP, ONCE
+      //
+      //             <GET />
+      //                //<html>
+      //                //    <b>HALOA</b>
+      //                //</html>
+      //
+      //where the output will be in the browser
+      //
+      //see commands TIMER, UDP and MICOHTTPSERVER for more details and options
       //
 
 

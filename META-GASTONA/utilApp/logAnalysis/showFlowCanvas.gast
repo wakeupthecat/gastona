@@ -38,19 +38,10 @@
      //<html>
      //	<head>
      //		<title>Listix format and commands diagram</title>
-     //		<style type="text/css">
-     //
-     //       textArea {
-     //           height: auto;
-     //           font: 11px/normal  'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-     //       }
-     //
-     //		</style>
      //	</head>
      //<body>
      //
      //   <canvas width="10000" height="10000" id="place"></canvas>
-     //
      //
      //   <script>
      //
@@ -63,7 +54,7 @@
      //  #data#
      //
      //     <distanceAgents> 30
-     //     <distanceTimeUnit> 1
+     //     <distanceTimeUnit> 10
      //     <autoElapsed> true
      //     <maxGapTime> 3
      //

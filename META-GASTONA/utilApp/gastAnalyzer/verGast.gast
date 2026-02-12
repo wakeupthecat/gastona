@@ -25,7 +25,6 @@
          , lRest     , +
        X , iJavajRest, +
 
-
    <layout of layListix>
       EVA, 10, 10, 5, 5
 
@@ -40,14 +39,12 @@
 
       kSingle Variable, kPure Text, kPure Command, kMixed
 
-
 #data#
 
    <eDotExe> dot.exe
 
    <bGastFile DIALOG> FILE
    <bGastFile>  "..."
-
 
    <iFormats visibleColumns> formatName
 
@@ -68,7 +65,6 @@
       VAR=, dotFile, @<:lsx tmp dot>
       VAR=, pngFile, @<:lsx tmp png>
 
-
    <main0>
       @<TMP files>
 
@@ -87,7 +83,6 @@
    <-- kPure Text>       @<review lsxFormats>
    <-- kPure Command>    @<review lsxFormats>
    <-- kMixed>           @<review lsxFormats>
-
 
    <analisis>
       GEN, , gastDBSchema create schema ,, gastDBSchema.lsx
@@ -111,5 +106,4 @@
 
    <see logic png>
       GEN, @<dotFile>, dotGraph lsxLogic, , lsxLogic2dot.lsx
-      CALL, //CMD /C @<eDotExe> -Tpng "@<dotFile>" -o "@<pngFile>"
-      OPEN, @<pngFile>
+      OPEN, @<dotFile>

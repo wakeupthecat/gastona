@@ -39,7 +39,8 @@
       using jGatonaAJAXPost I
       using jGatonaAJAXPost II
       sample jGastona Boletin
-      OnTheFly JAST Secuenci Editor
+      OnTheFly JAST marketes Editor
+      OnTheFly JAST Sequenci Editor
       OnTheFly JAST JAST Editor
       OnTheFly JAST deepTable Editor
       simple CodiFinestreta
@@ -356,7 +357,19 @@
       //      DB,, EXECUTE, //DELETE FROM boletin WHERE id = @<removeId> ;
 
 
-   <OnTheFly JAST Secuenci Editor>
+   <OnTheFly JAST marketes Editor>
+      //   <!  This example is done only in JAST format
+      //   <!  check also JAST launcher jastSelector.jast (commented out) that shows the code of the JAST scripts as well
+      //
+      //#listix#
+      //
+      //    <main>
+      //       GAST, META-GASTONA/utilApp/std/jastServer.gast, META-GASTONA/jast/marketesON_Fly.jast
+      //       <! GAST, META-GASTONA/utilApp/std/jastServer.gast, META-GASTONA/jast/jastSelector.jast
+      //
+       
+       
+   <OnTheFly JAST Sequenci Editor>
       //   <!  We serve an embedded JAST that is an "on the fly" Editor of Sequenci diagrams with a couple of samples
       //
       //#data#
@@ -660,124 +673,125 @@
       //#**#
 
    <Browser Image Viewer>
-      //#javaj#
+      //   #javaj#
       //
-      //   <frames> oServer, PictureViewer server, 400, 200
+      //      <frames> oServer, PictureViewer server, 400, 200
       //
-      //#listix#
+      //   #listix#
       //
-      //   <PATH_IMAGES> @<:sys user.home>/Pictures
+      //      <PATH_IMAGES> @<:sys user.home>/Pictures
       //
-      //   <TOTAL> 0
-      //   <PAGE_COLS> 4
-      //   <PAGE_ROWS> 8
+      //      <TOTAL> 0
+      //      <PAGE_COLS> 4
+      //      <PAGE_ROWS> 8
       //
-      //   <SLIDER_MAX> =, (TOTAL-1)/(PAGE_COLS*PAGE_ROWS)
+      //      <SLIDER_MAX> =, (TOTAL-1)/(PAGE_COLS*PAGE_ROWS)
       //
-      //   <extensions> //jpg, jpeg, png, PNG, gif
+      //      <extensions> //jpg, jpeg, png, PNG, gif
       //
-      //   <main>
-      //      SETPROP, user.dir, @<PATH_IMAGES>
-      //      VAR=, Catalog, filename
-      //      LOOP, FILES, ., @<extensions>
-      //          ,, VAR+, Catalog, @<:path-linux fullSubPath>
-      //          ,, NUM=, TOTAL, TOTAL+1
-      //      MICO, start
+      //      <main>
+      //         SETPROP, user.dir, @<PATH_IMAGES>
+      //         VAR=, Catalog, filename
+      //         LOOP, FILES, ., @<extensions>
+      //            ,, VAR+, Catalog, @<:path-linux fullSubPath>
+      //            ,, NUM=, TOTAL, TOTAL+1
+      //         MICO, start
       //
-      //   <POST /getDataForId>
-      //      NUM=, K, 0
-      //      LOOP, VAR, Catalog
-      //          , START ROW, page * PAGE_COLS * PAGE_ROWS
-      //          , LIMIT ROWS, PAGE_COLS * PAGE_ROWS
-      //          , HEAD, VAR=, pralPath, @<:path-linux filename>
-      //          ,, //mSec@<secINDX>:@<:path-linux filename>
-      //          ,, NUM=, K, K+1
-      //      //
-      //      //
-      //      //@<pralPath>
+      //      <POST /getDataForId>
+      //         NUM=, K, 0
+      //         LOOP, VAR, Catalog
+      //            , START ROW, page * PAGE_COLS * PAGE_ROWS
+      //            , LIMIT ROWS, PAGE_COLS * PAGE_ROWS
+      //            , HEAD, VAR=, pralPath, @<:path-linux filename>
+      //            ,, //mSec@<secINDX>:@<:path-linux filename>
+      //            ,, NUM=, K, K+1
+      //         //
+      //         //
+      //         //@<pralPath>
       //
-      //   <POST /doExplore>
+      //      <POST /doExplore>
       //         CHECK, VAR, pathOpen
       //         LAUNCH, //explorer.exe /n,/e,/select,"@<:path :sys user.dir>\@<:path pathOpen>"
       //
-      //   <secINDX> JS, //Math.floor(@<K> / @<PAGE_COLS>)+""+Math.floor(@<K> % @<PAGE_COLS>)
+      //      <secINDX> JS, //Math.floor(@<K> / @<PAGE_COLS>)+""+Math.floor(@<K> % @<PAGE_COLS>)
       //
-      //   <GET />
+      //      <GET />
       //         //<html> <style> label { font-family: Consolas, color: lightgray } </style> <body bgcolor="black">
-      //      //<script id="mainJast" type="jast">
-      //      //      #javaj#
-      //      //
-      //      //         <layout of main>
-      //      //            EVALAYOUT, 4, 4, 3, 3
-      //      //
+      //         //<script id="mainJast" type="jast">
+      //         //      #javaj#
+      //         //
+      //         //         <layout of main>
+      //         //            EVALAYOUT, 4, 4, 3, 3
+      //         //
       //         //                     , X3   ,  X
       //         //                  X  , mPral,  layGrid
       //         //                     ,   +  ,  bExploreCurrent
       //         //                     ,   +  ,  eSlider
-      //      //
+      //         //
       //         //          <layout of layAlone>
-      //      //                EVA, 4, 4, 2, 2
-      //      //                   , X
-      //      //                 X , mPral
-      //      //
+      //         //                EVA, 4, 4, 2, 2
+      //         //                   , X
+      //         //                 X , mPral
+      //         //
       //         //          <layout of layGrid>
-      //      //            EVALAYOUT, 4, 4, 3, 3
-      //      //
-      //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
-      //          , HEAD, LOOP, FOR, CC, 1, PAGE_COLS
-      //          , HEAD,     , LINK, ""
-      //          , HEAD,     ,, //     , X
-      //          , HEAD, //
-      //          , HEAD, //
-      //          ,, //      X,
-      //          ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
-      //          ,,     , LINK, ", "
-      //          ,,     ,, //mSec@<RR>@<CC>
-      //      //
-      //      //
-      //      //    #data#
-      //      //
-      //      //         <eSlider type> range
-      //      //         <eSlider> 0
-      //      //         <eSlider min> 0
-      //      //         <eSlider max> @<SLIDER_MAX>
-      //      //         <eSlider oninput>   //mensaka ("requestPictures")
+      //         //            EVALAYOUT, 4, 4, 3, 3
+      //         //
+      //         LOOP, FOR, RR, 0, PAGE_ROWS - 1
+      //            , HEAD, LOOP, FOR, CC, 1, PAGE_COLS
+      //            , HEAD,     , LINK, ""
+      //            , HEAD,     ,, //     , X
+      //            , HEAD, //
+      //            , HEAD, //
+      //            ,, //      X,
+      //            ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
+      //            ,,     , LINK, ", "
+      //            ,,     ,, //mSec@<RR>@<CC>
+      //         //
+      //         //
+      //         //    #data#
+      //         //
+      //         //         <eSlider type> range
+      //         //         <eSlider> 0
+      //         //         <eSlider min> 0
+      //         //         <eSlider max> @<SLIDER_MAX>
+      //         //         <eSlider oninput>   //mensaka ("requestPictures")
       //         //         <lPageNr> 0/N
-      //      //
-      //      //      #listix#
-      //      //
-      //      //         <main>
-      //      //            //mensaka ("requestPictures")
-      //      //
-      //      //         <-- mPral>
+      //         //
+      //         //      #listix#
+      //         //
+      //         //         <main>
+      //         //            //mensaka ("requestPictures")
+      //         //
+      //         //         <-- mPral>
       //         //            //mask('main', 'layAlone', '');
-      //      //
-      //      //         <-- bExploreCurrent>
+      //         //
+      //         //         <-- bExploreCurrent>
       //         //            //AJAXSend ("doExplore", "pathOpen=" + getDataCell("mPral"));
       //         //
       //         //         <-- updateMain>
       //         //            //setData ("bExploreCurrent", getDataCell("mPral"));
-      //      //
-      //      //         <-- requestPictures>
-      //      //            //AJAXgetDataForId ("mPral", "page=" + getDataCell("eSlider"), true);
+      //         //
+      //         //         <-- requestPictures>
+      //         //            //AJAXgetDataForId ("mPral", "page=" + getDataCell("eSlider"), true);
       //         //            //
       //         //            //setData ("lPageNr", " " + getDataCell("eSlider") + "/" + getDataCell("eSlider max"));
-      //      //
-      //      LOOP, FOR, RR, 0, PAGE_ROWS - 1
-      //          ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
+      //         //
+      //         LOOP, FOR, RR, 0, PAGE_ROWS - 1
+      //            ,, LOOP, FOR, CC, 0, PAGE_COLS - 1
       //            ,,     ,, //         <-- mSec@<RR>@<CC>>  //setData ("mPral", getData("mSec@<RR>@<CC>")); mensaka ("updateMain");
-      //      //
-      //      //</script>
-      //      //
-      //      //<script>
-      //      //
-      //      //@<:infile META-GASTONA/js/jGastonaEva-min.js>
-      //      //
-      //      //   var jas = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
-      //      //   jas.run ();
-      //      //
-      //      //</script></body></html>
-      //      //
+      //         //
+      //         //</script>
+      //         //
+      //         //<script>
+      //         //
+      //         //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+      //         //
+      //         //   var jas = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+      //         //   jas.run ();
+      //         //
+      //         //</script></body></html>
+      //         //
+
    <simple CodiFinestreta>
       //#listix#
       //

@@ -141,25 +141,25 @@ public class CsvParserV70
          int ini = envolta ? ++pi: pi;
          do
          {
-             if (envolta)
-             {
-                if (str.charAt (pi) != VAR_QUOTE) pi ++;
-                else
-                    if (pi+1 < FI && str.charAt (pi+1) == VAR_QUOTE)
-                    {
-                      // double ""
-                      // add a part including one " and continue
-                      cell += (pi+1 > ini ? str.substring (ini, pi+1): "");
-                      pi += 2;
-                      ini = pi;
-                    }
-                    else break; // close "
-             }
-             else
-             {
-                 if (str.charAt (pi) == VAR_SEPA_CH) break;
-                 pi ++;
-             }
+            if (envolta)
+            {
+               if (str.charAt (pi) != VAR_QUOTE) pi ++;
+               else
+                 if (pi+1 < FI && str.charAt (pi+1) == VAR_QUOTE)
+                 {
+                    // double ""
+                    // add a part including one " and continue
+                    cell += (pi+1 > ini ? str.substring (ini, pi+1): "");
+                    pi += 2;
+                    ini = pi;
+                 }
+                 else break; // close "
+            }
+            else
+            {
+               if (str.charAt (pi) == VAR_SEPA_CH) break;
+               pi ++;
+            }
          } while (pi < FI);
 
          int fi2 = pi;
@@ -205,7 +205,36 @@ public class CsvParserV70
       return cnt;
    }
 
+   public int columnCount ()
+   {
+      return headColNames == null ? 0: headColNames.size ();
+   }
+
+   // columns where the colum name is empty string or starts with "-" are to be ignored
+   //
+   public int validColumnCount ()
+   {
+      int cnt = 0;
+      if (headColNames != null)
+         for (int cc = 0; cc < headColNames.size (); cc ++)
+            if (validColumn (cc)) cnt ++;
+      return cnt;
+   }
+
+   public boolean validColumn (int colno)
+   {
+      if (headColNames == null || colno < 0 || colno > headColNames.size ())
+         return false;
+      String colName = (String) headColNames.get (colno);
+      return colName.length () > 0 && colName.charAt(0) != '-';
+   }
+
    public void processHeader (String heastr)
+   {
+      processHeader (heastr, true);
+   }
+
+   public void processHeader (String heastr, boolean checkAndBeautifyNames)
    {
       // choose separator , ; or tab
       //
@@ -225,6 +254,12 @@ public class CsvParserV70
                VAR_SEPA_CH = ';';
       }
 
+      if (false == checkAndBeautifyNames)
+      {
+         headColNames = parseCsvLine (heastr);
+         return;
+      }
+
       List brutos = parseCsvLine (heastr);
       int heacnt = 1;
 
@@ -240,7 +275,7 @@ public class CsvParserV70
          // also in order to filter last false header if line ends with separator
          if (nam.length () == 0) break;
 
-         nam = "c" + naming.toVariableName (nam).replaceAll ("_", "");
+         nam = "c_" + naming.toVariableName (nam).replaceAll ("_", "");
 
          // some tricky colum name could be repeated if not using while loop
          while (headColNames.indexOf (nam) != -1)

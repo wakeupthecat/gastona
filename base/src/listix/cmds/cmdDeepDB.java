@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -17,7 +17,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 /*
-   //(o) WelcomeGastona_source_listix_command DATABASE
+   //(o) WelcomeGastona_source_listix_command DEEP DB
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -37,65 +37,114 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // DEEP DB acts as an extension of the SQL language, specifically
-      // permits to build complex queries in an easy and readable way. It is based on a concept
-      // called "deep table", which is explained in detail in the article
-      // http://www.codeproject.com/KB/database/thedeeptable.aspx. Basically we define
-      // connections between tables and give them a name. Then we use the connection name to
-      // access related data. This is not limited to a table and its direct connections but
-      // also it is possible to describe connections of connections and so on (deep).
+      // DEEP DB command extremely facilitates joining tables in a database. Not all kind
+      // of joins but probably the most useful ones. For that is used the concept of "Deep Table"
+      // that is introduced in the article https://www.codeproject.com/Articles/75601/The-Deep-Table.
+      //
+      // Two things are the key of this deep table approach: connections between tables and connected column or deep column.
+      //
+      // --- Connections
+      //
+      // A connection has a name and defines how two tables are connected. The concept is similar to the so called
+      // FOREING KEY with the difference that foreing keys are used as constraints while connection as help
+      // for select queries, which is actually a feature not a pure restriction.
       //
       // Example:
       //
-      //    suppose we have following schema
+      // suppose we have these two tables
       //
-      //    table tabArtists  (ID, name)
-      //    table tabAlbum    (albumID, authorID, name, year, price)
+      //        table tabAuthor (auID, name, birthDate, countryCode)
+      //        table tabWork   (workID, authorId, name, date, description)
       //
-      //    and the tables are related by the "productID" <-> "ID" fields.
-      //    This will be our connection that we will call PRODUCT
-      //    and through it we will access the related fields.
+      // we can define the connection
       //
-      //    Then the command:
+      //       author:  tabWork (authorId) <-> tabAuthor (auID)
       //
-      //      DEEP DB, SELECT, tabAlbum
-      //             , CONNECTION, AUTHOR, tabAlbum, authorID, tabArtists, ID
-      //             , FIELD     , albumID
-      //             , FIELD     , AUTHOR name
-      //             , FIELD     , year
+      // --- Deep column
       //
-      //    Would generate the select query:
+      // Given a table that has defined some connection ConnName then a deep column of this table
+      // is expressed as
+      //       ConnName columnConnectedTable
       //
-      //      SELECT
-      //         tabAlbum.albumID AS albumID
-      //         , AUTHOR.name AS AUTHOR_name
-      //         , tabAlbum.year AS year
-      //      FROM
-      //         tabAlbum
-      //         , tabArtists AS AUTHOR
-      //      WHERE
-      //         tabAlbum.authorID == AUTHOR.ID
+      // For example in the previous example, we can express following connected columns
       //
-      //    The connections can be stored in the sqlite database as part of the schema by using
-      //    the command "DEEP DB" in its syntax "SET CONNECTIONS". If this is already done then the
-      //    command can be simplified as:
+      //       author name
+      //       author birthDate
+      //       author countryCode
       //
-      //      DEEP DB, SELECT, tabAlbum
-      //             , FIELDS, albumID, "AUTHOR name", year
+      // but if tabAuthor had a connection, for example with a table tabCoutry (cCode, name) called country
+      // we make a deeper column like
       //
-      //    While the option FIELDS (or COLUMNS) admit more comma separated "deep columns", the
-      //    option FIELD (default one) only admits one but an alias can be given as well as a GROUP BY
-      //    operation, if this is done then a "GROUP BY" select is generated.
+      //       author country name
       //
-      //    Note that DEEP DB does not need knowledge about the complete schema, it just generate a
-      //    select query from the given connections and deep columns.
+      // --- Using DEEP DB to generate a Deep SQL
       //
-
+      // With the sample tables
+      //
+      //        TABLE tabCountry (cCode, name)
+      //        TABLE tabAuthor  (auID, name, birthDate, countryCode)
+      //        TABLE tabWork    (workID, authorId, name, date, description)
+      //
+      // following DEEP DB command
+      //
+      //      DEEP DB, SELECT, tabWork
+      //             , CONNECTION, author, tabWork, authorId, tabAuthor, auID
+      //             , CONNECTION, country, tabAuthor, countryCode, tabCountry, cCode
+      //             ,           , workID
+      //             ,           , name
+      //             ,           , date
+      //             ,           , authorId
+      //             ,           , author name
+      //             ,           , author country name
+      //
+      // (default option is "DEEP COLUMN" therefore may be set empty)
+      //
+      // would generate the select query
+      //
+      //       SELECT
+      //          tabWork.workID AS workID
+      //          , tabWork.name AS name
+      //          , tabWork.name AS date
+      //          , tabWork.authorId AS authorId
+      //          , author.name AS author_name
+      //          , author_country.name AS author_country_name
+      //       FROM
+      //          tabWork
+      //          , tabAuthor AS author
+      //          , tabCountry AS author_country
+      //       WHERE
+      //          tabWork.authorId == author.auID
+      //           AND author.countryCode == author_country.cCode
+      //
+      // a sample output from that SELECT could be something like
+      //
+      //          workID | name            | date   | authorId | author_name     | author_country_name
+      //          -------|-----------------|--------|----------|-----------------|--------------------
+      //           8402  | The man who sold| 1970   | 1023     | David Bowie     | UK
+      //           4318  | Dioptria        | 1970   | 1200     | Pau Riba        | CAT
+      //           7211  | Horses          | 1975   | 1691     | Patti Smith     | US
+      //
+      // --- Other functions
+      //
+      // In the example we provide the connections directly but they can be persist in the database as well
+      // For the example we could set the connections as follows
+      //
+      //       DEEP DB, SET CONNECTIONS, dbname.db
+      //              , CONNECTION, author, tabWork, authorId, tabAuthor, auID
+      //              , CONNECTION, country, tabAuthor, countryCode, tabCountry, cCode
+      //
+      // then we could write the previous DEEP DB SELECT as follows
+      //
+      //      DEEP DB, SELECT, tabWork
+      //             , DBNAME, dbname.db
+      //             , COLUMNS, workID, name, date, date, authorId, author name, author country name
+      //
 
    <aliases>
       alias
       DEEP
       DBDEEP
+      DBMORE2
 
    <syntaxHeader>
       synIndx, importance, desc
@@ -127,11 +176,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <options>
       synIndx, optionName     , parameters       , defVal, desc
             1, DBNAME         , dbName           ,       , If given and EvaConnectionList is NOT given the connections will be retrieve from the table __dbMore_connections of the database
+            1, VARCONNECTIONS , EvaConnectionList,       , Eva name of the variable containing the the connection table definitions (connName, sourceTable, sourceKey, targetTable,  targetKey)
             1, CONNECTION     , "connName, sourceTable, sourceKey, targetTable, targetKey",, Connection given to be stored. A connection that requires more than one key columns can be expressed using more lines with the option CONNECTION
             1, LINE BREAK     , 0 / 1            , 1     , If set to 0 it returns a string with no line breaks
-            1, FIELD          , deep column      ,       , //Deep column in the format "connection connection ... field", this is the default option therefore it is possible to do it without "FIELD"
+            1, VAR DEEP COLUMNS, EvaDeepColumns  ,       , Eva name of the variable containing the the deep columns in the format : "connection connection ... field", [alias]
+            1, DEEP COLUMN    , "deep column, alias",    , //Deep column in the format "connection connection ... field" and optionally an alias, this is the default option so "DEEP COLUMN" can be omitted
+            1, DEEP COLUMN LIST, "deep column, deep column, ...",  , //Comma separated deep column list in format "connection connection ... field", no alias can be given in this option
+            1, DEEP COL HEADER, 0 / 1            , 0     , If set to 1 headers are expected in the first row of EvaDeepColList (actually the first row will be ignored/skiped)
+            1, CONNECTION HEADER, 0 / 1          , 0     , If set to 1 headers are expected in the first row of EvaConnectionList (actually the first row will be ignored/skiped)
 
-            3, CONNECTION     , "connName, sourceTable, sourceKey, targetTable, targetKey",, Connection given to be stored. A connection that requires more than one key columns can be expressed using more lines with the option CONNECTION
+            1, NO QUOTATION, 0 / 1, 0  , //Set it to 1 to not quote column names. Note that then names like "count", "order" etc will not be allow as column names
+            1, SIMPLEST, 0 / 1, 0  ,     //Set it to 1 to get a simpler SELECT query, actually it only can be simplified if there are no deep columns (no connection are used)
 
    <examples>
       gastSample
@@ -139,7 +194,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       DeepDB example
       DeepDB twoSyntaxes
       DeepDB deeper example
-      DeepDB recursive example
+      DeepDB recursive demo
 
    <DeepDB example>
       //#javaj#
@@ -232,26 +287,77 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //             ,     , product country name
       //             ,     , quantity
 
-   <DeepDB recursive example>
+   <DeepDB recursive demo>
       //#javaj#
       //
       //   <frames>
-      //       oConsole, "listix command DEEP DB recursive example", 200, 300
+      //       oConsole, "listix command DEEP DB recursive demo"
+      //
+      //#data#
+      //
+      //   <tabPeople>
+      //     ID, fatherID, motherID, name
+      //      0,        0,        0, -
+      //      1,        0,        0, Pampa
+      //      3,        0,        0, Recaredo
+      //      4,        0,        0, Sivilia
+      //      5,        0,        0, Guanche
+      //      6,        3,        1, Eva
+      //      7,        5,        4, Rulo
+      //      8,        7,        6, Gastona
       //
       //#listix#
       //
-      //   <main0>
-      //      // generated SELECT joining one table with itself
+      //  <main0>
+      //     DB,, CREATE TABLE, tabPeople
+      //     // ============  Original table:
+      //     //
+      //     //
+      //     LOOP, SQL,, //SELECT * FROM tabPeople
+      //         ,HEAD, @<OUT_COLUMNAMES>
+      //         ,, @<OUT_COLUMVALUES>
+      //     //
+      //     //
+      //     // ============  Deep SQL SELECT:
+      //     //
+      //     //@<DEEP_SQL>
+      //     //
+      //     //
+      //     // ============  Deep records:
+      //     //
+      //     //
+      //     LOOP, SQL,, //SELECT * FROM (@<DEEP_SQL>) WHERE fatherID != '00' OR motherID != '00'
+      //         ,HEAD, @<OUT_COLUMNAMES>
+      //         ,, @<OUT_COLUMVALUES>
+      //
+      //   <OUT_COLUMNAMES>
+      //      LOOP, COLUMNS
+      //          , LINK, ", "
+      //          ,, @<columnName>
       //      //
+      //      //
+      //
+      //   <OUT_COLUMVALUES>
+      //      LOOP, COLUMNS
+      //          , LINK, ", "
+      //          ,, @<columnValue>
+      //
+      //   <DEEP_SQL>
       //      DEEP DB, SELECT, tabPeople
       //             , CONN, father, tabPeople, fatherID, tabPeople, ID
       //             , CONN, mother, tabPeople, motherID, tabPeople, ID
       //             ,     , ID
+      //             ,     , fatherID
+      //             ,     , motherID
       //             ,     , name
       //             ,     , father name
       //             ,     , mother name
       //             ,     , mother father name, yayo
       //             ,     , mother mother name, yaya
+      //             ,     , father father name, avi
+      //             ,     , father mother name, avia
+      //
+      //#**#
 
 
 #**FIN_EVA#
@@ -283,6 +389,8 @@ public class cmdDeepDB implements commandable
           "DEEPDB",
           "DBDEEP",
           "DEEP",
+          "DEEPSQL",
+          "DBMORE2",
        };
    }
 
@@ -300,9 +408,9 @@ public class cmdDeepDB implements commandable
 
       String oper         = cmd.getArg(0);
 
-      boolean optTranslate  = cmd.meantConstantString (oper, new String [] { "SELECT", "GETSELECT", "DEEPSELECT" });
-      boolean optLoadConn   = cmd.meantConstantString (oper, new String [] { "GETCONNECTIONS", "LOADCONNECTIONS" });
-      boolean optSaveConn   = cmd.meantConstantString (oper, new String [] { "SETCONNECTIONS", "SAVECONNECTIONS" });
+      boolean optTranslate  = cmd.meantConstantString (oper, new String [] { "SELECT", "GETSELECT", "DEEPSELECT", "DEEPSQL", "TOSQL" });
+      boolean optLoadConn   = cmd.meantConstantString (oper, new String [] { "GETCONNECTIONS", "GETCONN", "LOADCONNECTIONS", "LOADCONN" });
+      boolean optSaveConn   = cmd.meantConstantString (oper, new String [] { "SETCONNECTIONS", "SETCONN", "SAVECONNECTIONS", "SAVECONN" });
       boolean optDeepSchema = cmd.meantConstantString (oper, new String [] { "DEEPSCHEMA", "DEEPCOLUMNS", "PLUSSCHEMA", "EXTENDEDSCHEMA" });
 
       if (optTranslate)       optionDeepSQL (cmd);
@@ -364,7 +472,7 @@ public class cmdDeepDB implements commandable
       //              , CONNECTION, connName, sourceTable, sourceKey, targetTable, targetKey
       //              , CONNECTION, connName, sourceTable, sourceKey, targetTable, targetKey
       //
-      String  dbName = cmd.getArg(1);
+      String  dbName = cmd.getListix ().resolveDBName (cmd.getArg(1));
 
       sqlSolver myDB = new sqlSolver ();
 
@@ -377,7 +485,7 @@ public class cmdDeepDB implements commandable
          myDB.writeScript (deepSqlUtil.getSQL_InsertConnection(connection));
       }
       myDB.closeScript ();
-      myDB.runSQL ((dbName.length () > 0) ? dbName : cmd.getListix ().getDefaultDBName ());
+      myDB.runSQL (dbName);
    }
 
    protected void optionDeepSchema (listixCmdStruct cmd)
@@ -422,7 +530,7 @@ public class cmdDeepDB implements commandable
       //         }
       //      }
 
-      // call fieldConnector1
+      // call deepSchema
       //
       deepSchema boy = new deepSchema ();
       boy.getDeepSchema (theVar, evaSchema, evaConnTab, strTableName);
@@ -432,22 +540,46 @@ public class cmdDeepDB implements commandable
    {
       //      comm____  oper______
       //      DEEP DB, DEEP SELECT  , tableName, aliasBaseTable
+      //             , DBNAME       , dbName
+      //             , VAR CONNECTIONS, EvaConnectionList
+      //             , CONNECTION HEADER, 1
       //             , CONNECTION, ...
-      //             , FIELD     , ...
-      //
+      //             , VAR DEEP COLUMNS, EvaConnectionList
+      //             , DEEP COLUMN     , ...
+      //             , DEEP COLUMN LIST, ...
+      //             , DEEP COLUMN HEADER, 1
+      //             , LINE BREAK, 1
+      //             , NO QUOTATION, 1
+      //             , SIMPLEST, 1
 
-      if (!cmd.checkParamSize (2, 3)) return;
+      if (!cmd.checkParamSize (1, 3)) return;
 
       String baseTableName = cmd.getArg(1);
       String aliasBaseTable = cmd.getArg(2);
 
       String  dbName  = cmd.takeOptionString(new String [] { "DATABASE", "DB", "DBNAME" }, null );
+      String  varConnections = cmd.takeOptionString(new String [] { "VARCONNECTIONS", "VARCONN" }, null );
+      String  varColumns = cmd.takeOptionString(new String [] { "VARCOLUMNS", "VARDEEPCOLUMNS" }, null );
+      boolean titleInLink = "1".equals (cmd.takeOptionString(new String [] { "CONNECTIONSHEADER", "CONNSHEADER", "CONNHEADER" }, "0" ));
+      boolean titleInDeep = "1".equals (cmd.takeOptionString(new String [] { "DEEPCOLUMNSHEADER", "DEEPCOLHEADER", "COLUMNSHEADER", "COLSHEADER", "COLHEADER" }, "0" ));
       boolean newLine = "1".equals (cmd.takeOptionString(new String [] { "LINEBREAK", "NEWLINE" }, "1" ));
+      boolean noquotes = "1".equals (cmd.takeOptionString(new String [] { "NOQUOTATION", "NOQUOTES" }, "0" ));
+      boolean simplest = "1".equals (cmd.takeOptionString(new String [] { "SIMPLEST", "SIMPLE", "SIMPLER" }, "0" ));
 
       // collect connections
       //
       String [] connection = null;
       Eva evaConn = new Eva ();
+      if (varConnections != null && varConnections.length () > 0)
+      {
+         evaConn = cmd.getListix().getVarEva (varConnections);
+         if (evaConn == null)
+         {
+            cmd.getLog().err ("DEEPDB", "var Connections [" + varConnections + "] not found!");
+            return;
+         }
+      }
+
       while (null != (connection = cmd.takeOptionParameters(new String [] { "CONNECTION", "CONN" }, true)))
       {
          evaConn.addLine (new EvaLine (connection));
@@ -458,21 +590,37 @@ public class cmdDeepDB implements commandable
       //
       String [] fields = null;
       Eva evaDeepColumns = new Eva ();
+      if (varColumns != null && varColumns.length () > 0)
+      {
+         evaDeepColumns = cmd.getListix().getVarEva (varColumns);
+         if (evaDeepColumns == null)
+         {
+            cmd.getLog().err ("DEEPDB", "var Columns [" + varColumns + "] not found!");
+            return;
+         }
+      }
 
       // FIELDS: several deep columns comma separated, it is not possible to assign alias etc
-      while (null != (fields = cmd.takeOptionParameters(new String [] { "FIELDS", "COLUMNS" }, true)))
+      // example:
+      //          DEEP DB, DEEP SQL
+      //                 , FIELDS, people name, product name
+      //
+      while (null != (fields = cmd.takeOptionParameters(new String [] { "FIELDS", "FIELD LIST", "COLUMNS", "DEEP COLUMNS", "DEEP COLUMN LIST" }, true)))
       {
          for (int ii = 0; ii < fields.length; ii ++)
             evaDeepColumns.addLine (new EvaLine (fields[ii]));
       }
 
       // FIELD: deep column, alias, group Opertation, group Having
-      while (null != (fields = cmd.takeOptionParameters(new String [] { "FIELD", "COLUMN", "" }, true)))
+      // example:
+      //          DEEP DB, DEEP SQL
+      //                 , FIELD, people name, personName
+      //                 , FIELD, product name
+      //
+      while (null != (fields = cmd.takeOptionParameters(new String [] { "FIELD", "COLUMN", "DEEP COLUMN", "" }, true)))
       {
          evaDeepColumns.addLine (new EvaLine (fields));
       }
-      //System.out.println ("recollectadas\n" + evaDeepColumns);
-
 
       Eva evaConnTab = null; //  cmd.getListix().getVarEva (tabConnTab);
 
@@ -487,21 +635,22 @@ public class cmdDeepDB implements commandable
 
          evaConn = new Eva ("anonima");
          loadConnections (cmd, dbName, evaConn, false);
+         titleInLink = false; // we give the connections without headers!
       }
 
-      // call fieldConnector1
+      // call deepTableConnector
       //
-      fieldConnector1 boy = new fieldConnector1 (evaConn, false);
-      boy.resolveConnections (evaDeepColumns, false, baseTableName, aliasBaseTable);
+      deepTableConnector ohboy = new deepTableConnector (evaConn, titleInLink, noquotes, simplest);
+      ohboy.resolveConnections (evaDeepColumns, titleInDeep, baseTableName, aliasBaseTable);
 
       // format the result
-      String result = printSQL(boy, newLine ? "\n": " ", newLine ? "   ": "");
+      String result = printSQL(ohboy, newLine ? "\n": " ", newLine ? "   ": "");
 
       // print it out on the current listix target
       cmd.getListix().printTextLsx (result);
    }
 
-   protected String printSQL(fieldConnector1 conn, String RET, String TAB)
+   protected String printSQL (deepTableConnector conn, String RET, String TAB)
    {
       String result = "SELECT " + RET;
       for (int ii = 0; ii < conn.resultListSELECT.size (); ii ++)

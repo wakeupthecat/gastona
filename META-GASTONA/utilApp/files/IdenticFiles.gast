@@ -1,0 +1,45 @@
+#javaj#
+
+   <frames> Fmain, SCAN sample, 600, 400
+
+   <layout of Fmain>
+      EVA, 10, 10, 7, 7
+
+         , X    , 
+         , eeDir, bSearch dir, gLus
+       X , sFileViewer, -, -
+       X , oSansos, -, -
+
+#data#
+
+   <bSearch dir DIALOG> DIR
+   <bSearch dir image> javaj/img/explorer.png
+
+#listix#
+
+   <HASHO> CRC32
+   
+   <! MD5
+   
+   <! peich SHA256
+   
+   <! peich SHA1
+
+   <main>
+      DB CONFIG, DEFAULT, marotto.db
+
+   <-- bSearch dir>
+      -->, eeDir data!,, @<bSearch dir chosen>
+      @<do scanDir>
+
+   <-- eeDir>
+      @<do scanDir>
+
+   <do scanDir>
+      SCAN, ADD FILES,, @<eeDir>
+          , ADD HASH, @<HASHO>
+<!          , ADD HASH, SHA256
+<!          , ADD HASH, MD5
+<!          , ADD HASH, CRC32
+
+       -->, sFileViewer data!, sqlSelect, //SELECT * FROM scan_all ORDER BY SHA236

@@ -136,10 +136,22 @@ public class zoomTouchDetector // extends multiFingerTouchDetector
       refScaleY = scaleY;
    }
 
-   public float nowOffsetX = 0.f;
-   public float nowOffsetY = 0.f;
-   public float nowScaleX = 1.f;
-   public float nowScaleY = 1.f;
+   public double nowOffsetX = 0.f;
+   public double nowOffsetY = 0.f;
+   public double nowScaleX = 1.f;
+   public double nowScaleY = 1.f;
+
+   // return the original point as if scale and offset weren't exist
+   //
+   public vect3f unScaledPoint (vect3f p)
+   {
+      vect3f uvec = new vect3f (p);
+      uvec.x /= nowScaleX;
+      uvec.y /= nowScaleY;
+      uvec.x += nowOffsetX;
+      uvec.y += nowOffsetY;
+      return uvec;
+   }
 
    public void calcZoomNow (boolean square)
    {
@@ -148,8 +160,8 @@ public class zoomTouchDetector // extends multiFingerTouchDetector
       log.dbg (2, "calcZoomNow", "refScale  X, Y = " + refScaleX + ", " + refScaleY);
 
       // add 1 pixel to avoid raise conditions (factor 0 or infinite)
-      float facZoomX = (Math.abs (rectP2.width ()) + 1.f) / (Math.abs (rectP1.width ()) + 1.f);
-      float facZoomY = (Math.abs (rectP2.height ()) + 1.f) / (Math.abs (rectP1.height ()) + 1.f);
+      double facZoomX = (Math.abs (rectP2.width ()) + 1.f) / (Math.abs (rectP1.width ()) + 1.f);
+      double facZoomY = (Math.abs (rectP2.height ()) + 1.f) / (Math.abs (rectP1.height ()) + 1.f);
 
       //System.out.println ("facZoom X (" + facZoomX + " Y " + facZoomY );
 
@@ -182,7 +194,6 @@ public class zoomTouchDetector // extends multiFingerTouchDetector
       log.dbg (2, "calcZoomNow", "calcZoomNow   nowOffsetX, Y " + nowOffsetX + ", " + nowOffsetY);
       log.dbg (2, "calcZoomNow", "calcZoomNow   nowScaleX , Y " + nowScaleX + ", " + nowScaleY);
    }
-
 
    public boolean onTouchEvent(uniMotion event)
    {

@@ -46,11 +46,15 @@
       // code in java. For example this WelcomeGastona including the generation of the documentation
       // has been made using only Gastona scripts.
       //
-      // The syntax is quite unconventional, actually much closer to a configuration than a language in many cases.
-      // For that a simple separated comma structure is used everywhere. But actually learning it as first language 
-      // should not be that hard.
+      // The syntax employed for gastona uses extensively a simple separated comma structure 
+      // that make it different from any other language or script. Its unfamiliar look can make 
+      // the impression that it learn it should be hard but actually for a person with no programming 
+      // knowledge at all might be probably the easiest thing to learn.
       //
-      // Hopefully it helps to demystify GUI development and SQL language making them
+      // For this reason, and not uninterestingly, gastona might attract initially the attention of people either 
+      // with no or less knowledge in programming languages or with a lot of it but not of the big majority.
+      //
+      // Hopefully gastona would help to demystify GUI development and SQL language making them
       // closer to many people that, knowing what they want from an application, are not able
       // to achieve its development using other more complex languages.
       //

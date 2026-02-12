@@ -134,7 +134,7 @@ public class EvaLayout extends ViewGroup
 
    public void addView(View child, String name)
    {
-      //!!! Lástima! no funciona, nos vemos obligados a usar LayoutParams(String) ....
+      //!!! La'stima! no funciona, nos vemos obligados a usar LayoutParams(String) ....
       //LayoutParams lp = new LayoutParams((LayoutParams) child.getLayoutParams(), name);
 
       //funciona

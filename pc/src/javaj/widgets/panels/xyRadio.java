@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -128,7 +128,7 @@ import de.elxala.mensaka.*;
    at the moment there are 2 communication methods implemented (communication xyRadio with its radio buttons)
 
    comm-radio method 1
-      Throgh mensaka, xyPanel subscribes himself to actions of all buttons
+      Through mensaka, xyPanel subscribes himself to actions of all buttons
       + lesser intrusive : does not affect at all code of zRadioButton
       + message actions of single buttons might be ignored with no error because now they have listener
       - it is sensible on changes in order of notifications (xyPanel must be notified first!)
@@ -163,21 +163,19 @@ public class xyRadio extends JPanel implements setParameters_able,
 
       setBorder(new EmptyBorder(2, 2, 2, 2));
       //System.out.println ("CONSTRUCTED " + getName());
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    private ButtonGroup radioGroup = new ButtonGroup ();
 
-   public void setParameters (String [] params)
+   public void setParameters (CParameterArray params)
    {
-      String p1 = (params.length > 1) ? params[1]: "";
-      String p2 = (params.length > 2) ? params[2]: null;
+      String p1 = params.getValueAt (1, "X").toUpperCase();
+      String p2 = params.getValueAt (2, null);
 
-      boolean horizontal = (p1 != null) && (p1.equalsIgnoreCase("X") || p1.equalsIgnoreCase("H"));
-      setLayout (new BoxLayout(this, (horizontal) ? BoxLayout.X_AXIS: BoxLayout.Y_AXIS));
+      setLayout (new BoxLayout(this, (p1.equals("X") || p1.equals("H")) ? BoxLayout.X_AXIS: BoxLayout.Y_AXIS));
       if (p2 != null)
          setBorder (BorderFactory.createTitledBorder (p2));
-
-      //System.out.println ("PARAMETRIZATION " + getName());
    }
 
    public Component add (Component co)

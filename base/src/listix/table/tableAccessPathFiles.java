@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -127,7 +127,7 @@ public class tableAccessPathFiles extends tableAccessBase
 
       // data that could be required by tableAccessBase tables
 
-      String typeTable   = cmdData.getArg(0);
+      // String typeTable   = cmdData.getArg(0); // always FILES
       String dirPath     = cmdData.getArg(1);
 
       fileMultiFilter filtrum = new fileMultiFilter ();
@@ -157,9 +157,19 @@ public class tableAccessPathFiles extends tableAccessBase
       String [] optArr = cmdData.takeOptionParameters(new String [] { "FILTERS", "PATHFILTER", "PATHFILTERS" });
       if (optArr != null)
       {
-         for (int ff = 0; ff+1 < optArr.length; ff += 2)
+         if (optArr.length == 1)
          {
-            filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
+            // we have a comma separated list of filters like "-D, \.git, -D, lint"
+            // so we split it in the same array!
+            //
+            filtrum.addCriteriaInAString (optArr[0]);
+         }
+         else
+         {
+            for (int ff = 0; ff+1 < optArr.length; ff += 2)
+            {
+               filtrum.addCriteria (optArr[ff], optArr[ff + 1]);
+            }
          }
       }
 
@@ -167,6 +177,21 @@ public class tableAccessPathFiles extends tableAccessBase
       startScanFiles (dirPath, filtrum, recursive);
       currRow = zeroRow ();
 
+      return true;
+   }
+
+   // Alternative setting
+   //
+   public boolean setCommand (listixCmdStruct cmdData, String rootFolder, String extensions, boolean recursive)
+   {
+      lastCmdData = cmdData;
+      fileMultiFilter filtrum = new fileMultiFilter ();
+
+      addExtensions (filtrum, extensions);
+
+      lastCmdData.getLog().dbg (2, "setCommand rootFolder [" + rootFolder + "] filtrum [" + filtrum + "] recursive " + recursive);
+      startScanFiles (rootFolder, filtrum, recursive);
+      currRow = zeroRow ();
       return true;
    }
 

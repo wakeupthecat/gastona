@@ -572,6 +572,11 @@ public class someFile
       return writeString (line + RETURN_STR);
    }
 
+   public boolean writeLine ()
+   {
+      return writeLine ("");
+   }
+
    /**
    *  escribe una nueva linea (sin retorno de carro!)
    */

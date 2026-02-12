@@ -16,75 +16,78 @@
 
    <help>
       //
-      // Javaj is the responsible of the graphical user interface (GUI) of a Gastona application. GUI means in 
-      // few words all that is visible and might allow user interaction. This includes Frames
-      // or windows, widgets like buttons, lists etc and a very important element : the layout.
-      // Layouts handle the position and size of the widgets. Its definition acts as both : a declaration of
-      // widgets and rules for its positioning and size.
+      //Javaj is the responsible of the graphical user interface (GUI) of a Gastona application.
       //
-      // A simple example containing all these elements can be
+      //In few words GUI is all that is visible and might allow user interaction. This includes:
+      //
+      //      - frames or windows
+      //      - widgets like buttons, lists etc 
+      //      - and layouts
+      //
+      //Frames contain widgets in some arrangement and that is precisely what are the layouts for.
+      //A layout declared widgets and determine its position and size with some rules.
+      //Defining a layout can be done a variable starting with "lay layoutName" or "layout of layoutName" in the original style.
+      //
+      //A simple example containing all these elements can be
       //
       //    #javaj#
       //
       //       <frames>
       //          myFirstFrame, "Title of my first frame"
       //
-      //       <layout of myFirstFrame>
+      //       <lay myFirstFrame>
       //          PANEL, Y
       //
-      //          lMy first label, bMy first button
-      // ----------
-      // The job of Javaj is simply building frames placing on it the desired widgets. To do that it
-      // starts with the variable <frames> (no frames no fun!) where the main frame and optionally other
-      // secondary frames are declared using a name. The main elements that javaj handle are:
+      //          lMy Label, bMy Button
       //
-      //    - frames, which are windows (main window or secondary dialogs)
-      //    - layouts or containers, they contain usually widgets but might contain also other layouts
-      //     (layout composition)
-      //    - final widgets, these can be from a button to a more complex dialog
+      //In this example we have:
+      // 
+      //       - a main frame (main application window) called "myFirstFrame"
+      //       - a layout called also "myFirstFrame" that has two widgets "lMy Label" and "bMy Button" 
+      //         placed in a panel vertically ("Y" or "V")
+      // 
       //
-      // All these elements need a unique name in order to be able to identify each one for communication
-      // and other proposes. Note that, unlike most programming languages, the name might contain spaces 
-      // and other characters.
+      //All these elements, frames, layouts and widgets need a unique name in order to be identified and allow
+      //communication with them. Note that, unlike most programming languages, the name might contain spaces 
+      //and other characters.
       //
-      // To define all this elements, just follow this rules
+      //To define all these elements, just follow this rules
       //
       //    -- Want a frame ? => add a row in the variable <frames>
-      //    -- Want a container or layout ? => declare the variable <layout of MYLAYOUTNAME>
+      //    -- Want a container or layout ? => declare the variable <lay MYLAYOUTNAME>
       //    -- Want a widget ? => write its name within a layout
       //
-      // This creates a frame called "myFirstFrame" and layouting it using the layout type PANEL
-      // that contains two widgets : a label called "lMy first label" and a button called "bMy first button"
-      // ----------
       //
-      // All javaj widgets have associated a prefix (usually one character) to facilitate its declaration
+      //All javaj widgets have associated a prefix (usually one character) to facilitate its declaration
       //
-      // Is it mandatory to use this prefix ? No, you can always specify the widget through its
-      // java class name by setting a variable <javaClass of WIDGETNAME>, for example to convert the
-      // widget named "bMy first button" into a table, you can add the variable
+      //Is it mandatory to use this prefix ? No, it is not, but it is actually the easiest way to do it.
+      //Alternatively the type of widget can be specified through its native java class name 
+      //by setting a variable with name <javaClass of WIDGETNAME>, for example to convert the
+      //widget named "bMy Button" into a table, you can add the variable
       //
-      //    <javaClass of bMy first button> javaj.widgets.zTable
+      //    <javaClass of bMy Button> javaj.widgets.zTable
       //
-      // Here are the rules that actually javaj follows to determine what kind of element is a given
-      // component with name COMPNAME
+      //Here are the rules that actually javaj follows to determine what kind of element is a given
+      //component with name COMPNAME
       //
-      //    1) if the variable <layout of COMPNAME> exists, then it is a layout (container)
-      //    2) if not, and the variable <javaClass of COMPNAME> exists then it is a widget
-      //       whose java class is defined in this variable
-      //    3) if not a container nor a declared widget, Javaj use the first character(s) of COMPNAME
-      //       to find out the widget class (e.g. name bMyButton will be a javaj.widgets.zButton)
+      //   1) if the variable <lay COMPNAME> exists, then it is a layout (container)
       //
-      // The third rule makes possible to declare widgets very easily and it is widely used in all
-      // the Gastona samples.
+      //   2) if not, and the variable <javaClass of COMPNAME> exists then it is a widget
+      //      whose java class is defined in this variable
       //
-      // All variables <layout of ...> start with a layout type name (e.g. PANEL), this define the
-      // way the components has to be declared and how are they arranged. See the documentation for
-      // each layout.
+      //   3) if not a container nor a declared widget, Javaj use the first character(s) of COMPNAME
+      //      to find out the widget class (e.g. name bMyButton will be a javaj.widgets.zButton)
       //
-      // Javaj might set as well some other general properties like default fonts, default images etc
-      // see javaj variables.
+      //The third rule makes possible to declare widgets very easily and it is used in almost all
+      //the Gastona samples.
       //
+      //All variables <lay ...> or <layout of ...> start with a layout type name (e.g. PANEL), this define the
+      //way the components has to be declared and how are they arranged. Current layout types 
+      //supported now in Gastona are EVALAYOUT, EVAMOSAIC, PANEL, SPLIT, MENU, RADIO, TABBED and TOOLBAR.
+      //See the documentation for each layout.
       //
+      //Javaj might set as well some other general properties like default fonts, default images etc
+      //see javaj variables.
 
    <examples>
       gastSample
@@ -104,7 +107,7 @@
       //
       //    <frames> mainWindow, "Frame containing two buttons and a text"
       //
-      //    <layout of mainWindow>
+      //    <lay mainWindow>
       //       PANEL, X
       //       bMyButton, bButton2, eMyText
       //
@@ -114,14 +117,14 @@
       //
       //    <frames> myFrame, "Frame containing more things"
       //
-      //    <layout of myFrame>
+      //    <lay myFrame>
       //       EVALAYOUT, 10, 10, 5, 5
       //
       //       grid,   X       ,   X
       //        X  , tTable    , oConsole
       //           , southLay  , -
       //
-      //    <layout of southLay>
+      //    <lay southLay>
       //       PANEL, X
       //       bMyButton, eMyText
       //

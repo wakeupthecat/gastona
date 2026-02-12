@@ -99,7 +99,7 @@ public class tableRunner
 
       // loop with the table !
       //
-      cmdLsx.getListix ().loopStarts ();
+      cmdLsx.getListix ().clearLoopBreakFlag ();
       if (cur.isCurrentTableEOT ())
       {
          cmdLsx.getListix ().log().dbg (4, "runLoopTable", "executing 'if 0 row' subcommand");
@@ -125,6 +125,7 @@ public class tableRunner
             if (cmdLsx.getListix ().loopBroken ())
             {
                cmdLsx.getListix ().log().dbg (2, "tableRunner", "quiting loop due to a break");
+               cmdLsx.getListix ().clearLoopBreakFlag ();
                break;
             }
          }

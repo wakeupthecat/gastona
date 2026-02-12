@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -102,7 +102,7 @@ public class parsonsAgent
        get the first line and last line of the last matched record as a string
        p.e. "144, 147"
    */
-   public String getFirstAndLineLine ()
+   public String getFirstAndLastLines ()
    {
       return lastRecFirstLine + ", " + lastRecLastLine;
    }
@@ -119,20 +119,21 @@ public class parsonsAgent
 
    public int getColumnCount ()
    {
-      return  parsons.getCurrentRecord().length;
+      return  parsons.getCurrentRecord().length +
+              parsons.getCurrentOptionalColumnsRecord().length;
    }
 
-
-   public String getColumnName (int indx)
+   public parsonsColumn getColumn (int indx)
    {
-      String ret = (indx >= 0 && indx < parsons.getCurrentRecord().length) ?  parsons.getCurrentRecord()[indx].name : "?";
-      return ret != null ? ret: "??";
-   }
+      int ran1 = parsons.getCurrentRecord ().length;
+      int ran2 = parsons.getCurrentOptionalColumnsRecord ().length;
 
-   public String getColumnValue (int indx)
-   {
-      String ret = (indx >= 0 && indx < parsons.getCurrentRecord().length) ?  parsons.getCurrentRecord()[indx].value : "?";
-      return ret != null ? ret: "null";
+      if (indx < 0 || indx >= ran1 + ran2)
+         return new parsonsColumn ("");
+
+      return indx < ran1 ?
+              parsons.getCurrentRecord()[indx] :
+              parsons.getCurrentOptionalColumnsRecord()[indx-ran1] ;
    }
 
 
@@ -140,18 +141,35 @@ public class parsonsAgent
    public String getColumnNamesCS ()
    {
       String ret = cteNamesCS;
-      for (int ii = 0; ii < parsons.getCurrentRecord().length; ii ++)
-         ret += (ret.length () > 0 ? ", ": "") + parsons.getCurrentRecord()[ii].name;
+
+      for (int ii = 0; ii < getColumnCount (); ii ++)
+      {
+         parsonsColumn col = getColumn (ii);
+         if (col.isSpecial ()) continue;
+
+         ret += (ret.length () > 0 ? ", ": "") + col.getName ();
+      }
 
       return ret;
    }
 
    public String getValuesCS (listix that)
    {
+      return getValuesCS (that, false);
+   }
+
+   public String getValuesCS (listix that, boolean trim)
+   {
       String ret = that.solveStrAsStringFast (cteValuesCS);
-      for (int ii = 0; ii < parsons.getCurrentRecord().length; ii ++)
+
+      for (int ii = 0; ii < getColumnCount (); ii ++)
       {
-         ret += (ret.length () > 0 ? ", '": "'") + sqlSolver.escapeString(parsons.getCurrentRecord()[ii].value) + "'";
+         parsonsColumn col = getColumn (ii);
+         if (col.isSpecial ()) continue;
+
+         String v0 = col.getValue ();
+         if (v0 == null) v0 = "";
+         ret += (ret.length () > 0 ? ", '": "'") + sqlSolver.escapeString(trim ? v0.trim (): v0) + "'";
       }
 
       return ret;
@@ -159,11 +177,24 @@ public class parsonsAgent
 
    public boolean checkAllValues ()
    {
-      for (int ii = 0; ii < parsons.getCurrentRecord().length; ii ++)
+      parsonsColumn [] mainColumns = parsons.getCurrentRecord ();
+      for (int ii = 0; ii < mainColumns.length; ii ++)
       {
-         if (parsons.getCurrentRecord()[ii].value == null) return false;
+         if (mainColumns [ii].isRegular () && mainColumns [ii].getValue () == null)
+            return false;
       }
       return true;
+   }
+
+   public String firstUnfilledColumn ()
+   {
+      parsonsColumn [] mainColumns = parsons.getCurrentRecord ();
+      for (int ii = 0; ii < mainColumns.length; ii ++)
+      {
+         if (mainColumns [ii].isRegular () && mainColumns [ii].getValue () == null)
+            return "(" + ii + ") " + mainColumns [ii].getName ();;
+      }
+      return null;
    }
 
    public boolean hasPatterns ()
@@ -233,7 +264,7 @@ public class parsonsAgent
 
       to write the record, following methods the result can be used
 
-         String getFirstAndLineLine ()    e.g. "177, 179"
+         String getFirstAndLastLines ()    e.g. "177, 179"
          String getColumnNamesCS ()       e.g. "id,name,tel"
          String getValuesCS ()            e.g. "'3321', 'Ramon', '771-99910001'
 
@@ -261,7 +292,7 @@ public class parsonsAgent
             lastRecLastLine  = lineNr;
 
             // reset first line
-            firstLineNr = -1; 
+            firstLineNr = -1;
             break;
          }
       }

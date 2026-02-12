@@ -1,6 +1,6 @@
  /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,8 +37,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Checks some condition (e.g. existence of a file) and optionally runs some sub-commands 
-      // in positive or negative case of the check result. 
+      // Checks some condition (e.g. existence of a file) and optionally runs some sub-commands
+      // in positive or negative case of the check result.
       //
       // The command shows a special behaviour depending on the presence of the option BODY (or ""
       // since BODY is the default option). Basically if the BODY is not present then it returns
@@ -70,14 +70,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          2   ,    3      , //Checks the existence of a System Property
          3   ,    3      , //Checks the existence of a file in the given path
          4   ,    3      , //Checks the existence of a file for read access, first in the given path, if not found there in the java classpath
-         5   ,    3      , //Checks the existence of a directory
-         6   ,    3      , //Checks a single string comparison between to values
-         7   ,    3      , //Checks if the current operative system "seems" to be LINUX (indeed only checks if the file separator is '/')
-         8   ,    3      , //Checks if the given 'EvaUnitName' can be loaded from the file 'fileName'
-         9   ,    3      , //Checks a numeric expression or formula
-        10   ,    3      , //Checks if the current operative system "seems" to be ANDROID
-        11   ,    3      , //Checks if first parameter is contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
-        12   ,    3      , //Checks if first parameter is NOT contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
+         5   ,    3      , //Checks that a file exists and has a maximum size
+         6   ,    3      , //Checks the existence of a directory
+         7   ,    3      , //Checks a single string comparison between to values
+         8   ,    3      , //Checks if the current operative system "seems" to be LINUX (indeed only checks if the file separator is '/')
+         9   ,    3      , //Checks if the given 'EvaUnitName' can be loaded from the file 'fileName'
+        10   ,    3      , //Checks a numeric expression or formula
+        11   ,    3      , //Checks if the current operative system "seems" to be ANDROID
+        12   ,    3      , //Checks if first parameter is contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
+        13   ,    3      , //Checks if first parameter is NOT contained in the set given by the rest of parameters. If finished with -CASE the comparison will be case-sensitive
 
    <syntaxParams>
       synIndx, name    , defVal         , desc
@@ -93,34 +94,40 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          4   , RFILE   ,                , //
          4   , path    ,                , //Path of the file be checked
          4   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
-         5   , DIR     ,                , //
-         5   , path    ,                , //Path of the directory be checked
+
+         5   , FILE-MAXSIZE,            , //
+         5   , path    ,                , //Path of the file to be checked
+         5   , maxSize ,                , //Maximum size for the file to pass the check. It given as a number or a formula
          5   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
-         6   , =  <  >  <>  <=  >=,     , //String comparison for the following values (valueA operation valueB)
-         6   , valueA  ,                , //First value for the comparison
-         6   , valueB  ,                , //Second value for the comparison
+
+         6   , DIR     ,                , //
+         6   , path    ,                , //Path of the directory be checked
          6   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
-         7   , LINUX   ,                ,
-         7   , elseSubCommand,          ,//If the operative system seems to be Windows, the given subcommand will be executed
-         8   , LOAD UNIT,               ,
-         8   , fileName ,               ,//File where the unit 'EvaUnitName' is to be found
-         8   , EvaUnitName,             ,//Eva unit name to be checked
+         7   , =  <  >  <>  <=  >=,     , //String comparison for the following values (valueA operation valueB)
+         7   , valueA  ,                , //First value for the comparison
+         7   , valueB  ,                , //Second value for the comparison
+         7   , elseSubCommand,          , //If the check does not success, the given subcommand will be executed
+         8   , LINUX   ,                ,
+         8   , elseSubCommand,          ,//If the operative system seems to be Windows, the given subcommand will be executed
+         9   , LOAD UNIT,               ,
+         9   , fileName ,               ,//File where the unit 'EvaUnitName' is to be found
+         9   , EvaUnitName,             ,//Eva unit name to be checked
 
-         9   , NUMEXPR ,               ,
-         9   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparison opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
+        10   , NUMEXPR ,               ,
+        10   , numericExpression,      , //Numeric expression or formula, if the result is different from 0 the check succeds. Note that comparison opetators =, <, <= etc can be used in the numeric expression as well, but be careful using operator = in floating formulas, since for example 1.0 != 0.9999999999..
 
-        10   , ANDROID ,                ,
-        10   , elseSubCommand,          ,//If the target system seems to be not android (e.g. gastona.jar), the given subcommand will be executed
+        11   , ANDROID ,                ,
+        11   , elseSubCommand,          ,//If the target system seems to be not android (e.g. gastona.jar), the given subcommand will be executed
 
-        11   , WITHIN(-CASE),           ,
-        11   , valueA       ,           , //Value to compare
-        11   , value1       ,           , //First value of the set
-        11   , ...          ,           , //next values of the set
-
-        12   , NOT WITHIN(-CASE),           ,
+        12   , WITHIN(-CASE),           ,
         12   , valueA       ,           , //Value to compare
         12   , value1       ,           , //First value of the set
         12   , ...          ,           , //next values of the set
+
+        13   , NOT WITHIN(-CASE),           ,
+        13   , valueA       ,           , //Value to compare
+        13   , value1       ,           , //First value of the set
+        13   , ...          ,           , //next values of the set
 
    <options>
       synIndx, optionName  , parameters , defVal, desc
@@ -135,7 +142,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       check-within
 
    <test check>
-
       //#javaj#
       //
       //   <frames> F, "example check"
@@ -298,6 +304,18 @@ public class cmdCheck implements commandable
          File target = fileUtil.getNewFile (fileName);
          checked = target.exists () && target.isFile ();
       }
+      else if (chkType.equals("FILE-MAXSIZE"))
+      {
+         //e.g.   CHECK, FILE-SIZE, path, maxsize-formul, [adondesino]
+         //
+         String fileName = cmd.getArg(nargRead ++);
+         String formulaMax = cmd.getArg(nargRead ++);
+
+         File target = fileUtil.getNewFile (fileName);
+         checked = target.exists () && target.isFile () && target.length () <= calcFormulas.calcFormula (that, formulaMax);
+         //@TOCHECK if file has size 0 and MAXSIZE is 0 then check should PASS !! but it does not, why ?!
+         //
+      }
       else if (chkType.equals("RFILE"))
       {
          //e.g.   CHECK, RFILE, path, [adondesino]
@@ -418,7 +436,6 @@ public class cmdCheck implements commandable
          if (subcommand.cols (0) > 1)
               that.executeSingleCommand (subcommand);
          else that.printTextLsx (subcommand.getValue (0, 0));
-
       }
 
       // 4) Now collect and execute ELSE body if exists

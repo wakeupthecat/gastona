@@ -135,7 +135,7 @@ public class DateFormat
       //
       return theDate.getTime () + java.util.TimeZone.getDefault ().getOffset (0);
    }
-   
+
    public static long getAsLong (String strDate)
    {
       return getDate (strDate, "yyyy-MM-dd HH:mm:ss S", "1970-01-01 00:00:00 0").getTime () + java.util.TimeZone.getDefault ().getOffset (0);

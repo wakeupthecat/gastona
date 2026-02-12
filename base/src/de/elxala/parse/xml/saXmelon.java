@@ -177,7 +177,7 @@ public class saXmelon
       }
 
       if (!batchMode)
-      xemi.closeDB ();
+         xemi.closeDB ();
       if (!keepCache)
          xemi.clearCache ();
    }

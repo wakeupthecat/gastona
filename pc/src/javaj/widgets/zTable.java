@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -328,6 +328,7 @@ public class zTable extends JTable
    {
       super (2, 3);  // por poner algo ...
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
 //(o) TOREVIEW_changesLaptop No se d donde viene o porque este cambio, encontrado en copias de portatil
@@ -371,6 +372,7 @@ public class zTable extends JTable
    {
       super (2, 3);  // por poner algo ...
       build (map_name);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)
@@ -467,13 +469,13 @@ public class zTable extends JTable
             //
 
             //(o) javaj_zWidgets_zTable NO drag & drop on table. Behaviour of dropping into JTable not ok.
-             //    If we enable this only will be possible to drop into a table row (uninteresting)
-             //    and unlike JList IS NOT POSSIBLE TO drop onto an empty table (unacceptable)
+            //    If we enable this only will be possible to drop into a table row (uninteresting)
+            //    and unlike JList IS NOT POSSIBLE TO drop onto an empty table (unacceptable)
             //
-//            if (dndHandler == null)
-//            {
-//               if (helper.ebsTable ().isDroppable ())
-//               {
+            //  if (dndHandler == null)
+            //  {
+            //     if (helper.ebsTable ().isDroppable ())
+            //     {
             //        ...
             break;
 

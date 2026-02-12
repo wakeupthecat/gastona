@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -77,9 +77,54 @@ public class uniRect extends Rectangle2D.Float
 
    // already exist method contains ?
    // but it has a strange insideness definition, do it ourselves
-   public boolean pointInside (float px, float py)
+   public boolean isPointInside (float px, float py)
    {
       return !(px < left () || px > right () || py < top () || py > bottom ());
+   }
+
+   // alias for comp.
+   public boolean pointInside (float px, float py)
+   {
+      return isPointInside (px, py);
+   }
+
+   // returns true if this rectangle is entirely inside rec2
+   public boolean isInsideRect (uniRect rec2)
+   {
+      return isPointInside (rec2.left (), rec2.top ()) && pointInside (rec2.left (), rec2.top ());
+   }
+
+   // returns true if rectangle rec2 is entirely inside this one
+   public boolean containsRect (uniRect rec2)
+   {
+      // NOTE:  these two are the same
+      //
+      //        myrec.containsRect (rec2)
+      //        rec2.isInsideRect (myrec)
+      //
+      return rec2.isInsideRect (this);
+   }
+
+   // returns true if this rectangle and rec2 intersect in some way
+   //
+   public boolean intersectRect (uniRect rec2)
+   {
+      return !isOutsideRect (rec2);
+   }
+
+   // returns true this and rec2 does not intersect at all
+   public boolean isOutsideRect (uniRect rec2)
+   {
+      // NOTE:  these two are the same
+      //
+      //        myrec.isOutsideRect (rec2)
+      //        rec2.isOutsideRect (myrec)
+      //
+      return rec2.left () >      right () ||
+                  left () > rec2.right () ||
+              rec2.top () >      bottom () ||
+                   top () > rec2.bottom ()
+             ;
    }
 
    public float left ()    { return x;   }
@@ -93,7 +138,7 @@ public class uniRect extends Rectangle2D.Float
    public float y () { return top (); }
    public float dx () { return width (); }
    public float dy () { return height (); }
-   
+
    public float centerX ()  { return x + width / 2.f;  }
    public float centerY ()  { return y + height / 2.f;  }
 

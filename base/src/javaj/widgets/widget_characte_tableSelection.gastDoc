@@ -104,64 +104,65 @@
 
       selecting rows sample
       selecting rows sample2
+      buttonsTable
       widgetsTableModel
 
    <selecting rows sample>
       //#javaj#
       //
-      //    <frames> F, Selecting rows sample
+      //   <frames> F, Selecting rows sample
       //
-      //    <layout of F>
-      //          EVA, 10, 10, 7, 7
-      //         , X
-      //         , lChoose destination
-      //      X  , tDestination
-      //         , oSal
+      //   <layout of F>
+      //         EVA, 10, 10, 7, 7
+      //        , X
+      //        , lChoose destination
+      //     X  , tDestination
+      //        , oSal
       //
       //#data#
       //
-      //    <tDestination>
-      //       id , name  , city
-      //       01 , BCN   , Barcelona
-      //       02 , HAM   , Hamburg
-      //       03 , STR   , Stuttgart
-      //       04 , SXF   , Berlin
-      //       05 , SZG   , Salzburg
+      //   <tDestination>
+      //      id , name  , city
+      //      01 , BCN   , Barcelona
+      //      02 , HAM   , Hamburg
+      //      03 , STR   , Stuttgart
+      //      04 , SXF   , Berlin
+      //      05 , SZG   , Salzburg
       //
       //#listix#
       //
-      //    <-- tDestination>
-      //       //
-      //       // First selected destination is @<tDestination selected.city>
-      //       // All selected destinations:
-      //       //
-      //       LOOP, EVA, tDestination subTableSelection
-      //           ,, //   @<city> (@<name>)
+      //   <-- tDestination>
+      //      //
+      //      // First selected destination is @<tDestination selected.city>
+      //      // All selected destinations:
+      //      //
+      //      LOOP, EVA, tDestination subTableSelection
+      //          ,, //   @<city> (@<name>)
       //
 
 
    <selecting rows sample2>
       //#javaj#
       //
-      //    <frames> F, Selecting rows sample2
+      //   <frames> F, Selecting rows sample2
       //
-      //    <layout of F>
-      //          EVA, 10, 10, 7, 7
-      //         , X
-      //         , lChoose destination
-      //      X  , tDestination
-      //         , lChosen destinations
-      //         , iChosenList
+      //   <layout of F>
+      //         EVA, 10, 10, 7, 7
+      //        , X
+      //        , lChoose destination
+      //     X  , tDestination
+      //        , lChosen destinations
+      //        , iChosenList
       //
       //#data#
       //
-      //    <tDestination>
-      //       id , name  , city
-      //       01 , BCN   , Barcelona
-      //       02 , HAM   , Hamburg
-      //       03 , STR   , Stuttgart
-      //       04 , SXF   , Berlin
-      //       05 , SZG   , Salzburg
+      //   <tDestination>
+      //      id , name  , city
+      //      01 , BCN   , Barcelona
+      //      02 , HAM   , Hamburg
+      //      03 , STR   , Stuttgart
+      //      04 , SXF   , Berlin
+      //      05 , SZG   , Salzburg
       //
       //   <iChosenList var> tDestination subTableSelection
       //   <iChosenList visibleColumns> city
@@ -171,78 +172,120 @@
       //   <-- tDestination>
       //      MSG, iChosenList data!
 
+    <buttonsTable>
+      //#javaj#
+      //
+      //    <frames>  main, test zComboBox
+      //
+      //    <lay main>
+      //        EVA, 4, 4, 3, 3
+      //           , X
+      //           , cCombo
+      //           , rgRadio
+      //           , kgCheck
+      //           , lSortida
+      //         X , oSonsos
+      //
+      //#data#
+      //
+      //    <cCombo var> commonTable
+      //    <rgRadio var>  commonTable
+      //    <kgCheck var>  commonTable
+      //
+      //    <rgRadio orientation>  X
+      //    <kgCheck orientation>  X
+      //
+      //    <commonTable>
+      //        label, desc
+      //        Short Wave, //Hi freq
+      //        FM        , //No static at all
+      //        Radio Gaga, //All we hear is ...
+      //        Balatonica, //http://www.balatonica.hu:8000/stream_low
+      //
+      //#listix#
+      //
+      //    <-- cCombo>
+      //        LSX, OUT, cCombo
+      //
+      //    <-- rgRadio>
+      //        LSX, OUT, rgRadio
+      //
+      //    <-- kgCheck>
+      //        LSX, OUT, kgCheck
+      //
+      //    <OUT>
+      //        VAR=, valuevar, @<p1> selected.desc
+      //        CHECK, VAR, @<valuevar>
+      //        -->, lSortida data!,, //from @<p1> ... @<VAL>
+      //
+      //    <VAL>
+      //        VALUE OF, @<valuevar>
 
    <widgetsTableModel>
       //#javaj#
       //
-      //   <frames> main, Widgets wit table data model
+      //   <frames> main, Widgets usant-hi el model de taula, , 600
       //
       //   <layout of main>
       //      EVA, 10, 10, 4 , 4
       //
-      //         ,  A, X
-      //         , lA table, lA list
-      //         , tTabla, iLlista
-      //         , layBotons, -
-      //       X , oConso, -
-      //         , layDumpsel, -
+      //         ,  A                , X
+      //         , ttTaula           , iiLlista
+      //         , layBotons         , -
+      //         , rrgVariablesToDump, -
+      //       X , ooWidgetVariables , -
       //
       //   <layout of layBotons>
       //      EVA, 4, 4, 6, 6
-      //         ,             ,      , X,             ,         , X,
-      //         , lA combo box, cCaixa,  ,lA radio group, rgRadio,  , lA checkbox group, kgCheck
-      //
-      //   <layout of layDumpsel>
-      //      EVA, 4, 4, 6, 6
-      //         ,
-      //         , lDump variables, rgDumpsel
+      //         ,   X   ,    X    , X
+      //         , ccCaixa, rrgRadios, kkgChecks
       //
       //#data#
       //
-      //   <rgRadio var> thetable
-      //   <rgRadio orientation> X
+      //   <rrgRadios var> dades
+      //   <kkgChecks var> dades
+      //   <ttTaula var> dades
+      //   <ccCaixa var> dades
+      //   <iiLlista var> dades
       //
-      //   <kgCheck var> thetable
-      //   <kgCheck orientation> X
+      //   <rrgRadios orientation> X
+      //   <kkgChecks orientation> X
+      //   <ccCaixa visibleColumns> name
+      //   <iiLlista visibleColumns> desc
       //
-      //   <tTabla var> theTable
-      //
-      //   <cCaixa var> theTable
-      //   <cCaixa visibleColumns> name
-      //
-      //   <iLlista var> theTable
-      //   <iLlista visibleColumns> desc
-      //
-      //   <thetable>
+      //   <dades>
       //      label, id, name, desc
       //
       //      BCN, 1002, Barcelona, //Y que le voy a hacer si yo nací en Barcelona
       //      HAM, 6671, Hamburg  , //Speicherstadt
       //      SEL, 1717, Seoul    , //Gangam
       //
-      //    <rgDumpsel orientation> X
-      //    <rgDumpsel>
-      //      label        , id     , selected
-      //      all          ,        , 1
-      //      table        , tTabla
-      //      list         , iLlista
-      //      combobox     , cCaixa
-      //      radio buttons, rgRadio
-      //      checkboxes   , kgCheck
+      //   <rrgVariablesToDump orientation> X
+      //   <rrgVariablesToDump>
+      //      label   , id      , selected
+      //      all     ,         ,
+      //      Taula   , ttTaula , 1
+      //      Llista  , iiLlista
+      //      Caixa   , ccCaixa
+      //      Radios  , rrgRadios
+      //      Checks  , kkgChecks
       //
       //#listix#
       //
-      //   <-- rgRadio>    LSX, show
-      //   <-- kgCheck>    LSX, show
-      //   <-- tTabla>     LSX, show
-      //   <-- cCaixa>     LSX, show
-      //   <-- iLlista>    LSX, show
+      //   <main>
+      //	     LSX, show
       //
-      //   <-- rgDumpsel>  LSX, show
+      //   <-- rrgRadios>   LSX, show
+      //   <-- kkgChecks>   LSX, show
+      //   <-- ttTaula>     LSX, show
+      //   <-- ccCaixa>     LSX, show
+      //   <-- iiLlista>    LSX, show
+      //
+      //   <-- rrgVariablesToDump>  LSX, show
       //
       //   <show>
-      //      MSG, oConso clear
-      //      DUMP, data, , @<rgDumpsel selected.id>
+      //      -->, ooWidgetVariables clear
+      //      DUMP, data,, @<rrgVariablesToDump selected.id>
 
 #**FIN_EVA#
 

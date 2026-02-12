@@ -107,11 +107,13 @@ public class zLabel extends JLabel implements MensakaTarget
    public zLabel ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zLabel (String map_name, String slabel)
    {
       build  (map_name, slabel);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

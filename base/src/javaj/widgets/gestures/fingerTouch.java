@@ -24,30 +24,30 @@ import de.elxala.zServices.*;
 
 /**
    All information related with a finger touch
-   
+
    two fingers semantic
-   
+
    displacement / translation
-   
+
         v1 - v2 ~ 0
 
-        o--->.......o---> 
+        o--->.......o--->
         <---o.......<---o
 
         o.........o
         |         |
         v         v
-        
+
    zoom
 
         v1 + v2 ~ 0
         v1 x v2 ~ 0
         v1 . p ~ - v2 . p =  |1|
-        
-            o.......o---> 
-        <---o.......o---> 
+
+            o.......o--->
+        <---o.......o--->
         o--->.......<---o
-  
+
    rotation
 
         v1 + v2 ~ 0
@@ -72,6 +72,8 @@ public class fingerTouch
    public vect3f pIni = null;
    public vect3f pNow = null;
    public vect3f pFin = null;
+   protected vect3f pConverted = new vect3f ();
+
    private vect3f prevTouchPos = null;
 
    private long timeDown = 0;
@@ -146,6 +148,26 @@ public class fingerTouch
       return pFin != null ? pFin:
              pNow != null ? pNow:
              pIni;
+   }
+
+   public vect3f getLastPosition (float scaleX, float scaleY, float offsetX, float offsetY)
+   {
+      // pConverted to avoid "new vect3f"
+      pConverted.x = getLastPosition ().x;
+      pConverted.y = getLastPosition ().y;
+
+      pConverted.x /= scaleX;
+      pConverted.y /= scaleY;
+      pConverted.x += offsetX;
+      pConverted.y += offsetY;
+      
+      // System.out.println ("");
+      // System.out.println ("scale   (" + scaleX + ", " + scaleY + ")");
+      // System.out.println ("onset   (" + offsetX + ", " + offsetY + ")");
+      // System.out.println ("pos raw (" + getLastPosition ().x + ", " + getLastPosition ().y + ")");
+      // System.out.println ("pos con (" + pConverted.x + ", " + pConverted.y + ")");
+      
+      return pConverted;
    }
 
    public boolean isIdle ()

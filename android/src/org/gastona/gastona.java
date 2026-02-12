@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -137,11 +137,26 @@ public class gastona
       // given <sessionLog> ?
       if (unitGastona != null)
       {
+         //(o) gastona/debug/udp enabling UDP debug with level messaging
+         if (unitGastona.getEva ("DEBUG_UDP_PORT") != null)
+         {
+            int port = stdlib.atoi (unitGastona.getEva ("DEBUG_UDP_PORT").getValue ());
+            logServer.setUDPDebugPort (port);
+         }
+         if (unitGastona.getEva ("DEBUG_LEVEL") != null)
+         {
+            int port = stdlib.atoi (unitGastona.getEva ("DEBUG_LEVEL").getValue ());
+            logServer.configureGlobalLogLevel (port);
+         }
+
+         // alias to be deprecated
+         //
          if (unitGastona.getEva ("UDP_DEBUG_PORT") != null)
          {
             int port = stdlib.atoi (unitGastona.getEva ("UDP_DEBUG_PORT").getValue ());
             logServer.setUDPDebugPort (port);
          }
+
 
          if (unitGastona.getEva ("sessionLog") != null)
          {
@@ -349,10 +364,6 @@ public class gastona
       }
 
       loadMetadata ();
-
-      // ensure the service lsx2Html
-      log.dbg (3, "init", "loading agent for messages listix to html");
-      new servMsgLsx2Html ();
 
       log.dbg (3, "init", "loading agent mensaka for listix");
 

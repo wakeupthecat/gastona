@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -60,64 +60,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <examples>
       gastSample
-
-      browse local
-      browse calcRoute
-
-   <browse local>
-      //#javaj#
-      //
-      //   <frames> oSal
-      //
-      //#listix#
-      //
-      //   <helloContent>
-      //       //<html>Hello!</html>
-      //
-      //   <main>
-      //      VAR=, tmphtml, @<:lsx tmp html>
-      //      GEN, @<tmphtml>, helloContent
-      //      //generated temporary html file @<tmphtml>
-      //      //
-      //      BROWSER, @<tmphtml>
-      //      //browser launched.
-      //
-      //
-
-   <browse calcRoute>
-      //#javaj#
-      //
-      //   <frames>
-      //      main, To google maps, 300
-      //
-      //   <layout of main>
-      //      EVA, 4, 4, 2, 2
-      //
-      //         ,             , X
-      //         , lOrigin     , eOrigin       , bOriginToMap
-      //         , lDestination, eDestination  , bDestToMap
-      //         , bRoute
-      //
-      //#data#
-      //
-      //   <eOrigin>         //48.777641,9.164349
-      //   <eDestination>    //48.742323,9.309448
-      //
-      //   <bOriginToMap> to Map
-      //   <bDestToMap> to Map
-      //
-      //#listix#
-      //
-      //   <-- bOriginToMap> LSX, MAPS1, @<eOrigin>
-      //   <-- bDestToMap>  LSX, MAPS1, @<eDestination>
-      //   <-- bRoute>
-      //      LSX, MAPS2, @<eOrigin>, @<eDestination>
-      //
-      //   <MAPS1>
-      //      BROWSER, http://maps.google.de/maps?q=@<p1>&t=m&z=19
-      //
-      //   <MAPS2>
-      //      BROWSER, http://maps.google.de/maps?saddr=@<p1>&daddr=@<p2>&t=m
 
 #**FIN_EVA#
 */

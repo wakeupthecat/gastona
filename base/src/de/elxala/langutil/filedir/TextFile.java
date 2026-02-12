@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005-2020  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ package de.elxala.langutil.filedir;
 import de.elxala.zServices.logger;
 
 public class TextFile extends someFile
-      {
+{
    public TextFile () { super (); }
    public TextFile (logger specialLogger) { super (specialLogger); }
 }

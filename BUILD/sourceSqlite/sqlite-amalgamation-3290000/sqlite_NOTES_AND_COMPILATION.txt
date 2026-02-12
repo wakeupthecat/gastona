@@ -20,14 +20,14 @@ gcc -O2 shell_modified.c sqlite3.c -o sqlite3.29 -lpthread -ldl
 
 ===== COPY BINARIES BEFORE BUILDING gastona.jar
 
-   the binaries (e.g. sqlite329.exe) has to be placed in 
+   the binaries (e.g. sqlite329.exe) has to be placed in
    the directory META-GASTONA\muTools + right platform subfolder
-      
+
    for example for the windows binary
-   
+
       META-GASTONA\muTools\winOS\sqlite
 
    Note: right now only windows is updated to the version 3.29
          while other platforms (arm, linux) are using 3.17
          for no special reason but its compilation has not been done yet ...
-      
+

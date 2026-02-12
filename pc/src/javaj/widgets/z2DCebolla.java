@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2011-2015 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -64,6 +64,10 @@ import de.elxala.zServices.*;
      enabled          , in    , 0 / 1                     , //Value 0 to disable the widget
      var              , in    , Eva name                  , //Reference to variable containing the data for this widget. If this atribute is given it will mask the data contained in the attribute "" (usually the data)
 
+     backcolor        , in    , gray                      , back color
+     image            , in    ,                           , file name of picture to load as background
+     alpha            , in    ,                           , alpha or opacity for the background image (real value between 1 and 0)
+
      MIN_DISTANCE_TWO_PTS   , in , number                 , //Parmeter for stroking
      EDIT_POINT_RECT        , in , number                 , //Parameter for visualizing editing points
 
@@ -77,12 +81,13 @@ import de.elxala.zServices.*;
    <examples>
      gastSample
 
-     cebollasample
-     trazaCaballo
-     trazaToBrowserDemo1
-     trazaToBrowserDemo2
+     cebaSample
+     trassCavall
+     trassToBrowserDemo1
+     trassToBrowserDemo2
+     trassToBrowserArrow
 
-   <cebollasample>
+   <cebaSample>
       //#javaj#
       //
       //    <frames> f1,
@@ -96,8 +101,8 @@ import de.elxala.zServices.*;
       //
       //    <layout of mandos>
       //       EVA, 4, 4, 3, 3
-      //          ,          ,         ,        ,           , X,
-      //          , bNewTrazo, bEdit -, bEdit +, bDel Points,  ,  bDump
+      //          ,          ,         ,        ,        ,           ,         ,         , X,
+      //          , bNewTrass, bModePan, bEdit -, bEdit +, bDel Points, bZoomIn, bZoomOut,  ,  bDump
       //          , lTolerancia, eTole, bReduce, rgTintas, -, bSave
       //
       //#listix#
@@ -108,10 +113,12 @@ import de.elxala.zServices.*;
       //   <-- rgTintas>
       //       MSG, 2DeCoso setStyle, @<rgTintas selected.value>
       //
-      //
-      //    <-- bNewTrazo>     MSG, 2DeCoso newTrazo
-      //    <-- bEdit ->       MSG, 2DeCoso incCurrentTrazo, -1
-      //    <-- bEdit +>       MSG, 2DeCoso incCurrentTrazo, 1
+      //    <-- bModePan>      MSG, 2DeCoso modePanAndZoom
+      //    <-- bZoomIn>       MSG, 2DeCoso zoomIn
+      //    <-- bZoomOut>      MSG, 2DeCoso zoomOut
+      //    <-- bNewTrass>     MSG, 2DeCoso newTrass
+      //    <-- bEdit ->       MSG, 2DeCoso incCurrentTrass, -1
+      //    <-- bEdit +>       MSG, 2DeCoso incCurrentTrass, 1
       //    <-- bDel Points>   MSG, 2DeCoso modeDelPoints
       //    <-- bReduce>
       //       -->, 2DeCoso control!, REDUCTION_TOLERANCE, @<eTole>
@@ -135,15 +142,15 @@ import de.elxala.zServices.*;
       //    <2DeCoso REDUCTION_TOLERANCE> 3
       //    <2DeCoso MIN_DISTANCE_TWO_PTS> 5
       //    <2DeCoso EDIT_POINT_RECT> 6
-      //    <2DeCoso trazos>
-      //      defstyle, editCurrentTrazo, "fc:none;sc:yellow;sw:2"
+      //    <2DeCoso trassos>
+      //      defstyle, editCurrentTrass, "fc:none;sc:yellow;sw:2"
       //      defstyle, tinta1, "fc:+188188188;sw:1"
       //      defstyle, tinta2, "fc:+123123123;sw:1"
       //      defstyle, tinta3, "fc:+067067067;sw:1"
       //      defstyle, notinta, "fc:none;sw:1"
 
 
-   <trazaCaballo>
+   <trassCavall>
       //#javaj#
       //
       //    <frames> f1, Traza caballo, 800, 700
@@ -158,24 +165,24 @@ import de.elxala.zServices.*;
       //    <layout of mandos>
       //       EVA, 4, 4, 3, 3
       //          ,          ,         ,        ,           , X,
-      //          , bNewTrazo, bEdit -, bEdit +, bDel Points, , bSave, bLoad, bDump
+      //          , bNewTrass, bEdit -, bEdit +, bDel Points, , bSave, bLoad, bDump
       //          , lTolerancia, eTole, bReduce,
       //
       //#listix#
       //
-      //    <-- bNewTrazo>     MSG, 2DeCoso newTrazo
-      //    <-- bEdit ->       MSG, 2DeCoso incCurrentTrazo, -1
-      //    <-- bEdit +>       MSG, 2DeCoso incCurrentTrazo, 1
+      //    <-- bNewTrass>     MSG, 2DeCoso newTrass
+      //    <-- bEdit ->       MSG, 2DeCoso incCurrentTrass, -1
+      //    <-- bEdit +>       MSG, 2DeCoso incCurrentTrass, 1
       //    <-- bDel Points>   MSG, 2DeCoso modeDelPoints
       //    <-- bReduce>       MSG, 2DeCoso reducePoints, @<eTole>
       //    <-- bDump>
       //          MSG, oConso clear
       //          MSG, 2DeCoso dump
       //    <-- bSave>
-      //       MSG, 2DeCoso flushTrazos
-      //       DUMP, data, :mem garda, 2DeCoso trazos
+      //       MSG, 2DeCoso flushTrassos
+      //       DUMP, data, :mem garda, 2DeCoso trassos
       //    <-- bLoad>
-      //       VAR=, 2DeCoso trazos, ""
+      //       VAR=, 2DeCoso trassos, ""
       //       LOAD, data, :mem garda
       //       MSG, 2DeCoso data!
       //
@@ -184,7 +191,7 @@ import de.elxala.zServices.*;
       //    <eTole> 12
       //    <2DeCoso MIN_DISTANCE_TWO_PTS> 12
       //    <2DeCoso EDIT_POINT_RECT> 6
-      //    <2DeCoso trazos>
+      //    <2DeCoso trassos>
 		//       defstyle, pel, "fc:+255127039"
  		//       defstyle, pelo, "fc:+234234234"
       //
@@ -197,14 +204,15 @@ import de.elxala.zServices.*;
       //       z ,128, 83, "pel", //jau,-22,-23,3,31
       //       z ,123, 83, "pelo", //jau,44,-3,65,19,28,27,30,25,-20,19,6,13,-15,-3,-7,-26,-13,7,-17,-24,-28,-28,-21,4,-23,-20,-31,-9
 
-   <trazaToBrowserDemo1>
+   <trassToBrowserDemo1>
       //#data#
       //
       //   <laData>
       //      // var vdata = {
-      //      //      "Caballo graffiti": [
+      //      //      "Cavall graffiti": [
       //      //    [ "defstyle", "piel", "fc:#ff7f27" ],
       //      //    [ "defstyle", "pelo", "fc:#eaeaea"],
+      //      //    [ "defstyle", "arra", "fc:none;sw:6;sc:black;so:.3"],
       //      //    [ "z" ,238, 121, "piel",  "jau",84,39,109,-20,47,23,-6,54,-22,20,-35,25,-68,29,-75,1,-54,-29,-31,-81 ],
       //      //    [ "z" ,196, 223, "piel",  "jau",-43,-81,-10,-36,9,-19,39,8,64,37 ],
       //      //    [ "z" ,155, 84,  "piel",  "jau",-47,7,-34,48,-16,29,20,19,36,-29,40,-15 ],
@@ -213,6 +221,7 @@ import de.elxala.zServices.*;
       //      //    [ "z" ,473, 152, "pelo",  "jau",51,14,23,59,8,86,-10,0,-3,27,-12,-28,5,38,-11,-2,-6,-37,5,-80,-11,-45,-19,-14 ],
       //      //    [ "z" ,128, 83,  "piel",  "jau",-22,-23,3,31 ],
       //      //    [ "z" ,123, 83,  "pelo",  "jau",44,-3,65,19,28,27,30,25,-20,19,6,13,-15,-3,-7,-26,-13,7,-17,-24,-28,-28,-21,4,-23,-20,-31,-9 ],
+      //      //    [ "arrow" ,200, 200,  "arra", 12, -55, 23, 80, -54, 1, -78, -44],
       //      //    ],
       //      // };
       //      //
@@ -225,8 +234,8 @@ import de.elxala.zServices.*;
       //   <GET />
       //      //<html>
       //      //<body>
-      //      //      <canvas width="400" height="400" id="Caballo"></canvas>
-      //      //      <svg width="400" height="400" id="Caballo"></svg>
+      //      //      <canvas width="400" height="400" id="Cavall"></canvas>
+      //      //      <svg width="400" height="400" id="Cavall"></svg>
       //      //<script>
       //      //
       //      //@<:infile META-GASTONA/js/trassos2D-min.js>
@@ -244,7 +253,7 @@ import de.elxala.zServices.*;
       //      //</html>
 
 
-   <trazaToBrowserDemo2>
+   <trassToBrowserDemo2>
       //#listix#
       //
       //   <main>
@@ -253,14 +262,14 @@ import de.elxala.zServices.*;
       //   <GET />
       //      //<html>
       //      //<body>
-      //      //      <canvas width="400" height="400" id="Caballo"></canvas>
-      //      //      <svg width="400" height="400" id="Caballo"></svg>
+      //      //      <canvas width="400" height="400" id="Cavall"></canvas>
+      //      //      <svg width="400" height="400" id="Cavall"></svg>
       //      //
       //      //<script id="graf" type="jast">
       //      //
       //      // #data#
-      //      // 
-      //      //     <Caballo graffiti>
+      //      //
+      //      //     <Cavall graffiti>
       //      //       defstyle, pel, "fc:rgba(255,127,039)"
       //      //       defstyle, pelo, "fc:rgba(234,234,234)"
       //      //
@@ -292,6 +301,45 @@ import de.elxala.zServices.*;
       //      //</body>
       //      //</html>
 
+
+   <trassToBrowserArrow>
+      //#data#
+      //
+      //   <laData>
+      //      // var vdata = {
+      //      //      "Cavall graffiti": [
+      //      //    [ "defstyle", "arra", "fc:none;sw:6;sc:black;so:.3"],
+      //      //    [ "arrow" ,200, 200,  "arra", 12, -55, 23, 80, -54, 1, -78, -44],
+      //      //    ],
+      //      // };
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="400" height="400" id="Cavall"></canvas>
+      //      //      <svg width="400" height="400" id="Cavall"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trassos2D-min.js>
+      //      //
+      //      // @<laData>
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+
 #**FIN EVA#
 
 */
@@ -303,20 +351,22 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
 {
    private static final Color black = new Color(0, 0, 0);
    private final int DUMP = 16;
-   private final int EDIT_TRAZO = 17;
-   private final int INC_TRAZO = 18;
-   private final int ADD_POINTS_TRAZO = 19;
-   private final int NEW_TRAZO = 20;
+   private final int EDIT_TRASS = 17;
+   private final int INC_TRASS = 18;
+   private final int ADD_POINTS_TRASS = 19;
+   private final int NEW_TRASS = 20;
    private final int DEL_POINTS = 21;
    private final int REDUCE_POINTS = 22;
    private final int SET_STYLE = 23;
    private final int CLEAR = 24;
    private final int FLUSH = 25;
-   private final int FLUSH_TRAZO = 26;
+   private final int FLUSH_TRASS = 26;
    private final int FLUSH_JS = 27;
+   private final int PAN_AND_ZOOM = 28;
+   private final int ZOOM_IN = 29;
+   private final int ZOOM_OUT = 30;
 
    private basicAparato helper = null;
-   private Icon backgroundImage = null;
 
    private cebollaInMotion miCebolla = new cebollaInMotion ();
 
@@ -344,14 +394,17 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
       helper = new basicAparato ((MensakaTarget) this, new widgetEBS (map_name, null, null));
 
       Mensaka.subscribe (this, FLUSH, map_name + " flush");
-      Mensaka.subscribe (this, FLUSH_JS, map_name + " flushTrazosJs");
-      Mensaka.subscribe (this, FLUSH_TRAZO, map_name + " flushTrazos");
+      Mensaka.subscribe (this, FLUSH_JS, map_name + " flushTrassosJs");
+      Mensaka.subscribe (this, FLUSH_TRASS, map_name + " flushTrassos");
       Mensaka.subscribe (this, DUMP, map_name + " dump");
-      Mensaka.subscribe (this, INC_TRAZO, map_name + " incCurrentTrazo");
-      Mensaka.subscribe (this, EDIT_TRAZO, map_name + " editTrazo");
-      Mensaka.subscribe (this, ADD_POINTS_TRAZO, map_name + " addPointsTrazo");
-      Mensaka.subscribe (this, NEW_TRAZO, map_name + " newTrazo");
+      Mensaka.subscribe (this, INC_TRASS, map_name + " incCurrentTrass");
+      Mensaka.subscribe (this, EDIT_TRASS, map_name + " editTrass");
+      Mensaka.subscribe (this, ADD_POINTS_TRASS, map_name + " addPointsTrass");
+      Mensaka.subscribe (this, NEW_TRASS, map_name + " newTrass");
       Mensaka.subscribe (this, DEL_POINTS, map_name + " modeDelPoints");
+      Mensaka.subscribe (this, PAN_AND_ZOOM, map_name + " modePanAndZoom");
+      Mensaka.subscribe (this, ZOOM_IN, map_name + " zoomIn");
+      Mensaka.subscribe (this, ZOOM_OUT, map_name + " zoomOut");
       Mensaka.subscribe (this, REDUCE_POINTS, map_name + " reducePoints");
       Mensaka.subscribe (this, SET_STYLE, map_name + " setStyle");
       Mensaka.subscribe (this, CLEAR, map_name + " clear");
@@ -417,29 +470,44 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
             render ();
             break;
 
-         case EDIT_TRAZO:
-            miCebolla.setCurrentTrazoAndMode (getPar1Int (pars, 0), cebollaInMotion.MODO_MODELA);
+         case EDIT_TRASS:
+            miCebolla.setCurrentTrassAndMode (getPar1Int (pars, 0), cebollaInMotion.MODO_MODELA);
             render ();
             break;
 
-         case INC_TRAZO:
-            miCebolla.incrementCurrentTrazo (getPar1Int (pars, 1));
+         case INC_TRASS:
+            miCebolla.incrementCurrentTrass (getPar1Int (pars, 1));
             miCebolla.setMode (cebollaInMotion.MODO_MODELA);
             render ();
             break;
 
-         case ADD_POINTS_TRAZO:
-            miCebolla.setCurrentTrazoAndMode (getPar1Int (pars, 0), cebollaInMotion.MODO_TRAZA);
+         case ADD_POINTS_TRASS:
+            miCebolla.setCurrentTrassAndMode (getPar1Int (pars, 0), cebollaInMotion.MODO_TRASS);
             render ();
             break;
 
-         case NEW_TRAZO:
-            miCebolla.setCurrentTrazoAndMode (-1, cebollaInMotion.MODO_TRAZA);
+         case NEW_TRASS:
+            miCebolla.setCurrentTrassAndMode (-1, cebollaInMotion.MODO_TRASS);
             render ();
             break;
 
          case DEL_POINTS:
             miCebolla.setMode (cebollaInMotion.MODO_ELIMINA_PTOS);
+            render ();
+            break;
+
+         case PAN_AND_ZOOM:
+            miCebolla.setMode (cebollaInMotion.MODO_PAN_AND_ZOOM);
+            render ();
+            break;
+
+         case ZOOM_IN:
+            miCebolla.zoomAllTrassos (1.25f);
+            render ();
+            break;
+
+         case ZOOM_OUT:
+            miCebolla.zoomAllTrassos (0.8f);
             render ();
             break;
 
@@ -458,8 +526,8 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
             render ();
             break;
 
-         case FLUSH_TRAZO:
-            flushTrazo (false);
+         case FLUSH_TRASS:
+            flushTrass (pars.length > 0 ? pars[0]: null);
             break;
 
          case FLUSH_JS:
@@ -467,44 +535,52 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
             break;
 
          case FLUSH:
-            flushTrazo (false);
+            flushTrass (null);
             flushJavaScriptCode (false);
             break;
 
          case DUMP:
-            flushTrazo (true);
+            flushTrass (pars.length > 0 ? pars[0]: null);
             flushJavaScriptCode (true);
             break;
 
          default:
             return false;
       }
-
       return true;
    }
 
-
-   public void flushTrazo (boolean printout)
+   public void flushTrass (String outFile)
    {
-      Eva edata = helper.ebs ().getAttribute (helper.ebs ().DATA, true, "trazos");
+      Eva edata = helper.ebs ().getAttribute (helper.ebs ().DATA, true, "trassos");
       edata.clear ();
       miCebolla.thePath.getEdiPaths ().dumpIntoEva  (edata);
-      if (printout)
+
+      if (outFile != null && outFile.length () > 0)
+         ;// print into file
+      else
          System.out.println (edata);
    }
 
    public void flushJavaScriptCode (boolean printout)
    {
-      //save the data into the atribute "trazos", NOTE: all in the first row! but if print onto a file will be ok
+      //save the data into the atribute "trassos", NOTE: all in the first row! but if print onto a file will be ok
       //
-      Eva edata = helper.ebs ().getAttribute (helper.ebs ().DATA, true, "trazosJS");
+      Eva edata = helper.ebs ().getAttribute (helper.ebs ().DATA, true, "trassosJS");
       String str = miCebolla.thePath.getEdiPaths ().toJavaScriptCode ();
       edata.setValueVar (str);
       if (printout)
          System.out.println (edata);
    }
 
-   public void loadAllData ()
+   // ------------------------------------------
+   // future uniBackColorAndImage ...
+   //
+   protected Icon backgroundImage = null;
+   protected float backgroundImageAlpha = 1.f;
+   protected Color backColor = Color.GRAY;
+
+   protected void readBackColorAndImage ()
    {
       // load background image if any
       String backgImgFile = helper.ebs ().getSimpleDataAttribute ("image");
@@ -512,39 +588,78 @@ public class z2DCebolla extends uniSceneInMotionView implements MensakaTarget
            backgroundImage = javaLoad.getSomeHowImageIcon (backgImgFile);
       else backgroundImage = null;
 
-      // load paths
-      miCebolla.thePath = new uniPath ();
-      graphicObjectLoader oba = new graphicObjectLoader ();
-      oba.loadUniPathFromEvaTrazos (miCebolla.thePath, helper.ebs ().getDataAttribute ("trazos"));
+      backgroundImageAlpha = (float) stdlib.atof (helper.ebs ().getSimpleDataAttribute ("alpha", "1"));
+      if (backgroundImageAlpha == 1.f)
+         backgroundImageAlpha = (float) stdlib.atof (helper.ebs ().getSimpleDataAttribute ("opacity", "1"));
+
+      String backC = helper.ebs ().getSimpleDataAttribute ("backcolor");
+      if (backC != null)
+      {
+         uniColor uco = new uniColor ();
+         uco.parseColor (backC);
+         backColor = uco.getNativeColor ();
+      }
    }
 
-   private boolean paintingNow = false;
-
-   public void paint(Graphics g)
+   protected void paintBackColorAndImage (Graphics g)
    {
       Dimension d = getSize();
       if (d.width <= 0 || d.height <= 0) return; // >>>> return
 
+      if (backColor != null)
+      {
+         g.setColor (backColor);
+         g.fillRect (0, 0, d.width, d.height);
+      }
+      else
+         g.clearRect (0, 0, d.width, d.height);
+
+      if (backgroundImage != null)
+      {
+         int left  = (d.width - backgroundImage.getIconWidth()) / 2;
+         int right = (d.height - backgroundImage.getIconHeight()) / 2;
+
+         if (backgroundImageAlpha < 1.f)
+         {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, backgroundImageAlpha));
+            backgroundImage.paintIcon(this, g2d, left, right);
+         }
+         else
+         {
+            backgroundImage.paintIcon(this, g, left, right);
+         }
+      }
+   }
+   // end of future uniBackColorAndImage ...
+   // ------------------------------------------
+
+   public void loadAllData ()
+   {
+      readBackColorAndImage ();
+
+      // load paths
+      miCebolla.thePath = new uniPath ();
+      graphicObjectLoader oba = new graphicObjectLoader ();
+      oba.loadUniPathFromEvaTrassos (miCebolla.thePath, helper.ebs ().getDataAttribute ("trassos"));
+   }
+
+   // paintingNow is to avoid re-entering in paint code
+   //
+   private boolean paintingNow = false;
+
+   public void paint(Graphics g)
+   {
       if (!paintingNow)
       {
          paintingNow = true;
 
+         paintBackColorAndImage (g);
          uniCanvas ges2 = new uniCanvas ((Graphics2D) g, getX(), getY(), getWidth (), getHeight ());
+         miCebolla.renderUniCanvas (ges2, null);
 
-         // background image or background color
-         uniColor backCol = null;
-         if (backgroundImage != null)
-         {
-            int left  = (d.width - backgroundImage.getIconWidth()) / 2;
-            int right = (d.height - backgroundImage.getIconHeight()) / 2;
-
-            backgroundImage.paintIcon(this, g, left, right);
-         }
-         else backCol = new uniColor(uniColor.LGRAY);
-
-         miCebolla.renderUniCanvas (ges2, backCol);
          paintingNow = false;
-     }
+      }
    }
 
 }

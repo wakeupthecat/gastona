@@ -1,0 +1,19 @@
+
+@<:infile META-GASTONA/utilApp/std/stringColumns.js>
+
+var testo = [[ " De los sos maravillosaos ojos tan fuertemiente plorando tornava la cabesa o mio sid campechador. Ese que se sabe el monarca de las praderas lejanas y herr de las tierras abruptas", "... i en sortin de valensia y vislumbrant Alcoi digues : acina quan es menja?"],
+              [ " De relato a la fisica cuantica de los resonadores de Plank y las orbitas de Bohr. Cuando Sommerfeld sento juntos a Pauli y a Heisenberg ignoraba lo que vendria en adelante.", " Y no era muy tarde cuando el poeta dijo : Los lados de las laderas son pastos para los pastores. y anyadio : Vaya valles! Valla valles!" ],
+             ];
+
+out ("---- call to printStringColumns with column size 50...");
+out ("")
+printStringColumns (testo, 50, "< ", " | ", " >");
+
+out ("---- call to getStringColumns with column size 30 and print out response...");
+out ("")
+var aa = getStringColumns (testo, 30, "< ", " | ", " >");
+
+for (var rr in aa)
+     out (aa[rr]);
+
+""

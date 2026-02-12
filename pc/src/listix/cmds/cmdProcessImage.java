@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2019-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 /*
-   //(o) WelcomeGastona_source_listix_command JAVA STATIC
+   //(o) WelcomeGastona_source_listix_command PROCESS IMAGE
 
    ========================================================================================
    ================ documentation for javajCatalog.gast ===================================
@@ -48,7 +48,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <syntaxHeader>
       synIndx, importance, desc
-         1   ,    2      , //Process an image
+         1   ,    2      , //Process an image, values for options can be given as formulas, for example "DIM / 2" where DIM is a variable
 
    <syntaxParams>
       synIndx, name          , defVal, desc
@@ -65,12 +65,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <options>
       synIndx, optionName  , parameters     , defVal    , desc
-        1    , KEEP BACKUP , 0/1            , 0         , //Set to 1 if want to keep a backup of the origial image
+        1   , KEEP BACKUP , 0/1            , 0         , //Set to 1 if want to keep a backup of the origial image
+        1   , CROP          , "x,y,dx,dy", //Crops the image
+        1   , RESIZE        , "dx,dy", //Resizes the image
+        1   , SCALE         , "sx,sy", //Scales the image
+        1   , ADJUST        , "d1,d2,type", // two final dimensions to reach, type can be 0 = chose orientation, or 1 = x,y
 
    <examples>
       gastSample
 
       cropAndRenameFiles
+      screenDemo
 
    <cropAndRenameFiles>
       // NOTE: This example does not actually call the command PROCESS IMAGE,
@@ -101,6 +106,51 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //      STRCONV, SUBSTR, @<IMGNUM>, 2, 4
       //      NUM=, IMGNUM, IMGNUM + 1
 
+   <screenDemo>
+      //#javaj#
+      //
+      //   <frames> main, ScreenDemo v0.1, 650
+      //
+      //   <lay main>
+      //      EVA, 5, 5, 3, 3
+      //
+      //         , X   , X
+      //         , lCrop, lResize
+      //       X , mCrop, mResize
+      //         , lScale, -
+      //       X , mScale, -
+      //
+      //#data#
+      //
+      //   <lCrop>   //Crop 200, 160, 300, 200
+      //   <lResize> //Resize 200, 300
+      //   <lScale>  //Scale 0.3, (0.3)
+      //
+      //#listix#
+      //
+      //   <main0>
+      //
+      //      VAR=, tmpSCREEN, @<:lsx tmp png>
+      //      VAR=, tmpCROP,   @<:lsx tmp png>
+      //      VAR=, tmpRESIZE, @<:lsx tmp png>
+      //      VAR=, tmpSCALA,  @<:lsx tmp png>
+      //
+      //      SCREEN, @<tmpSCREEN>, png
+      //
+      //      PROCESS IMAGE, 2PNG, @<tmpSCREEN>, @<tmpCROP>.png
+      //		             , CROP, 200, 160, 300, 200
+      //
+      //      PROCESS IMAGE, 2PNG, @<tmpSCREEN>, @<tmpRESIZE>.png
+      //                   , RESIZE, 200, 300
+      //
+      //      PROCESS IMAGE, 2PNG, @<tmpSCREEN>, @<tmpSCALA>.png
+      //                   , SCALE, 0.3
+      //
+      //      -->, mCrop data!,, @<tmpCROP>.png
+      //      -->, mResize data!,, @<tmpRESIZE>.png
+      //      -->, mScale data!,, @<tmpSCALA>.png
+      //
+
 
 #**FIN_EVA#
 
@@ -116,6 +166,7 @@ import de.elxala.langutil.filedir.*;
 import de.elxala.zServices.*;
 
 import java.io.File;
+import java.awt.*;
 import java.awt.image.*;
 import javax.imageio.ImageIO;
 
@@ -137,6 +188,8 @@ public class cmdProcessImage implements commandable
        };
    }
 
+   listixCmdStruct cmd = null;
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -147,7 +200,8 @@ public class cmdProcessImage implements commandable
    */
    public int execute (listix that, Eva commandEva, int indxComm)
    {
-      listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
+      // listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
+      cmd = new listixCmdStruct (that, commandEva, indxComm);
 
       // pass parameters (solved)
       //
@@ -158,51 +212,176 @@ public class cmdProcessImage implements commandable
 
       // boolean optKeepBackup = "1".equals (cmd.takeOptionString(new String [] { "KEEPOLD", "KEEPBACKUP", "BACKUP" }, "0" ));
 
-      boolean opt2png = cmd.meantConstantString (opt, new String [] { "2PNG", "BMP2PNG" });
+      boolean opt2png = cmd.meantConstantString (opt, new String [] { "PNG", "2PNG", "BMP2PNG" });
       boolean optCrop = cmd.meantConstantString (opt, new String [] { "CROP", "CUT" });
 
-      if (opt2png)
+      // Read the src image
+      //
+      BufferedImage destimg = openImage (srcFileName);
+      if (destimg == null)
       {
-         cmd.getLog().err ("PROCESSIMAGE", "Syntax [" + opt + "] not implemented yet!");
-         // de.elxala.langutil.graph.replaceBmp.convertBMPtoPNG (new String [] { file }, optKeepOld);
+         cmd.getLog().err ("PROCESSIMAGE", "Cannot load image [" + srcFileName + "]!");
       }
-
-      if (optCrop)
+      else
       {
-         //                      0        1           2           3        4           5         6
-         //      PROCESSIMAGE,  CROP,  srcFileName, tgtFileName, offsetX, offsetY, finalWidth, finalHeight
+         String [] opts = cmd.getRemainingOptionNames ();
 
-         int offsetX = stdlib.atoi (cmd.getArg(3));
-         int offsetY = stdlib.atoi (cmd.getArg(4));
-         int finalWidth = stdlib.atoi (cmd.getArg(5));
-         int finalHeight = stdlib.atoi (cmd.getArg(6));
-
-
-         BufferedImage image = openImage (srcFileName);
-         if (image == null)
+         // do the crop of own CROP syntax .... to be deprecated ?
+         if (optCrop)
          {
-            cmd.getLog().err ("PROCESSIMAGE", "Cannot load image [" + srcFileName + "]!");
+            //                      0        1           2           3        4           5         6
+            //      PROCESSIMAGE,  CROP,  srcFileName, tgtFileName, offsetX, offsetY, finalWidth, finalHeight
+            destimg = crop (destimg,
+                             calcFormulas.calcFormula (that, cmd.getArg(3)),
+                             calcFormulas.calcFormula (that, cmd.getArg(4)),
+                             calcFormulas.calcFormula (that, cmd.getArg(5)),
+                             calcFormulas.calcFormula (that, cmd.getArg(6))
+                            );
          }
-         else
-         {
-            BufferedImage destimg = image.getSubimage(offsetX, offsetY,
-                                    finalWidth > 0 ? finalWidth: image.getWidth (),
-                                    finalHeight > 0 ? finalHeight: image.getHeight ());
 
-            if (tgtFileName.length () == 0)
-               tgtFileName = srcFileName + ".png";
-            fileUtil.ensureDirsForFile (tgtFileName);
-            File tgtfile = fileUtil.getNewFile(tgtFileName);
-            try {
-               ImageIO.write(destimg, "png", tgtfile);
-            } catch (Exception error) {
-               cmd.getLog().err ("PROCESSIMAGE", "Cannot write target image [" + tgtfile.getName () + "]!");
+         String [] optPars = null;
+         for (int oo = 0; oo < opts.length; oo ++)
+         {
+            optPars = cmd.takeOptionParameters (new String [] { "CROP"});
+            if (optPars != null && optPars.length > 0)
+            {
+                destimg = crop (destimg,
+                                calcFormulas.calcFormula (that, optPars[0]),
+                                calcFormulas.calcFormula (that, optPars.length > 1 ? optPars[1]: "0"),
+                                calcFormulas.calcFormula (that, optPars.length > 2 ? optPars[2]: "0"),
+                                calcFormulas.calcFormula (that, optPars.length > 3 ? optPars[3]: "0")
+                              );
+            }
+
+            optPars = cmd.takeOptionParameters (new String [] { "RESIZE"});
+            if (optPars != null && optPars.length > 0)
+            {
+               destimg = resize (destimg,
+                                 calcFormulas.calcFormula (that, optPars[0]),
+                                 optPars.length > 1 ? calcFormulas.calcFormula (that, optPars[1]): destimg.getHeight ()
+                                );
+            }
+
+            optPars = cmd.takeOptionParameters (new String [] { "ADJUST", "NORMALIZE", "NORM" });
+            if (optPars != null && optPars.length > 0)
+            {
+               destimg = adjust (destimg,
+                                 calcFormulas.calcFormula (that, optPars[0]),
+                                 calcFormulas.calcFormula (that, optPars.length > 1 ? optPars[1]: optPars[0]),
+                                 calcFormulas.calcFormula (that, optPars.length > 2 ? optPars[2]: "0")
+                                );
+            }
+
+            optPars = cmd.takeOptionParameters (new String [] { "SCALE"});
+            if (optPars != null && optPars.length > 0)
+            {
+               double scaleX = calcFormulas.calcFormula (that, optPars[0]);
+               double scaleY = optPars.length > 1 ? calcFormulas.calcFormula (that, optPars[1]): scaleX;
+
+               destimg = resize (destimg, (int) (scaleX * destimg.getWidth ()),
+                                          (int) (scaleY * destimg.getHeight ())
+                                         );
             }
          }
       }
 
+      // finally save the image to file
+      if (tgtFileName.length () == 0)
+         tgtFileName = srcFileName + ".png";
+      fileUtil.ensureDirsForFile (tgtFileName);
+      File tgtfile = fileUtil.getNewFile(tgtFileName);
+      try {
+         ImageIO.write(destimg, "png", tgtfile);
+      } catch (Exception error) {
+         cmd.getLog().err ("PROCESSIMAGE", "Cannot write target image [" + tgtfile.getName () + "]!");
+      }
       cmd.checkRemainingOptions ();
       return 1;
+   }
+
+   public BufferedImage adjust (BufferedImage img, int d1, int d2, int orientXY)
+   {
+      int orx = img.getWidth ();
+      int ory = img.getHeight ();
+      boolean land = orx > ory;  // origin is landscape
+      boolean dand = d1 > d2;    // target is landscape
+
+      cmd.getLog().dbg (0, "adjust", "orx ory land " + orx + ", " + ory + ", " + land);
+      cmd.getLog().dbg (0, "adjust", "orx ory dand " + d1 + ", " + d2 + ", " + dand);
+
+      // choose the target dx, dy from the origin form
+      int tgx = (land ^ dand) ? d2: d1;
+      int tgy = (land ^ dand) ? d1: d2;
+
+      boolean originWider = (double) orx / (double) ory > (double) tgx / (double) tgy;
+
+      int passx = originWider ? (int) (tgy * (double) orx / (double) ory): tgx;
+      int passy = originWider ? tgy: (int) (tgx * (double) ory / (double) orx);
+
+
+// logMSG(listix_command): adjust : orx ory land 480, 610, false
+//
+// logMSG(listix_command): adjust : orx ory dand 512, 768, false
+//
+// logMSG(listix_command): adjust : originWider false resize to passx passy 512, 650
+
+
+      cmd.getLog().dbg (0, "adjust", "originWider " + originWider + " resize to passx passy " + passx + ", " + passy);
+
+      BufferedImage pass = resize (img, passx, passy);
+
+      if (passx > tgx)
+      {
+         cmd.getLog().dbg (0, "adjust", "wanna crap " + ((passx - tgx) / 2) + ", 0, " + tgx + ", " + tgy);
+         return crop (pass, (passx - tgx) / 2, 0, tgx, tgy);
+      }
+      else
+      {
+         cmd.getLog().dbg (0, "adjust", "wanna crap 0, " + ((passy - tgy) / 2) + ", " + tgx + ", " + tgy);
+         return crop (pass, 0, (passy - tgy) / 2, tgx, tgy);
+      }
+   }
+
+    public BufferedImage adjust (BufferedImage img, double d1, double d2, double orientXY)
+    {
+        return adjust (img, (int) d1, (int) d2, (int) orientXY);
+    }
+
+    public BufferedImage crop (BufferedImage img, int x0, int y0, int dx, int dy)
+    {
+        if (x0 < 0 || y0 < 0)
+        {
+            cmd.getLog().err ("crop", "error cannot crop x0, y0 " + x0 + ", " + y0);
+            return img;
+        }
+
+        return img.getSubimage (x0 > 0 ? x0: 0,
+                              y0 > 0 ? y0: 0,
+                              dx > 0 ? dx: img.getWidth (),
+                              dy > 0 ? dy: img.getHeight ()
+                             );
+    }
+
+    public BufferedImage crop (BufferedImage img, double x0, double y0, double dx, double dy)
+    {
+        return crop (img,  (int) x0, (int) y0, (int) dx, (int) dy);
+    }
+
+   public BufferedImage resize (BufferedImage img, int newW, int newH)
+   {
+      Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+      BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+      Graphics2D g2d = dimg.createGraphics();
+      g2d.drawImage(tmp, 0, 0, null);
+      g2d.dispose();
+
+      return dimg;
+   }
+
+   public BufferedImage resize (BufferedImage img, double newW, double newH)
+   {
+       return resize (img, (int) newW, (int) newH);
    }
 
    private BufferedImage openImage (String srcFileName)

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -34,24 +34,24 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // To generate a text file from a listix format. Actually text generation is a constant
-      // activity of listix even when used for other proposes like setting variables etc. Indeed
-      // listix was born as a command line "universal text generator", which means a text generator
-      // not specialized (e.g. in html etc) and enough general to permit the generation of any
-      // required text file. The mechanism of generation is partially explained in "Introduction to
-      // Listix" in this documentation and there is also a PDF which documents the very first version
-      // of Listix (lsx) that might help to understand the current one. It is also translated to
-      // spanish
+      //To generate a text file from a listix format. Actually text generation is a constant
+      //activity of listix even when used for other proposes like setting variables etc. Indeed
+      //listix was born as a command line "universal text generator", which means a text generator
+      //not specialized (e.g. in html etc) and enough general to permit the generation of any
+      //required text file. The mechanism of generation is partially explained in "Introduction to
+      //Listix" in this documentation and there is also a PDF which documents the very first version
+      //of Listix (lsx) that might help to understand the current one. It is also translated to
+      //spanish
       //
       //   http://prdownloads.sourceforge.net/evaformat/lsx_Eva_Generator.pdf?download
       //   http://prdownloads.sourceforge.net/evaformat/lsx%2BEva_Generator_Spanish.pdf?download
       //
-      // The most common call to GENERATE can be performed using few arguments, for example
+      //The most common call to GENERATE can be performed using few arguments, for example
       //
       //       GENERATE, myTextFile.txt, body to Generate
       //
-      // where "body to Generate" is supposed to be a format whith the contents to generate. The
-      // option PARAMETERS could be interesting if we want the format to be a kind of template.
+      //where "body to Generate" is supposed to be a format whith the contents to generate. The
+      //option PARAMETERS could be interesting if we want the format to be a kind of template.
       //
       //       GENERATE, emailText.txt, emailSalutation
       //               , PARAMS, Joseph, joseph@example.examplecom

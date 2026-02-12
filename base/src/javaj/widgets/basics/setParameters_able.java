@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -22,5 +22,5 @@ package javaj.widgets.basics;
 */
 public interface setParameters_able
 {
-   public void setParameters (String [] param);
+   public void setParameters (CParameterArray param);
 }

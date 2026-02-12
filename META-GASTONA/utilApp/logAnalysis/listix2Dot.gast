@@ -1,24 +1,34 @@
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// generates a dot (graphwiz) graph for the listix part of 
-// the gast script (generated_linked.gast)
+// ---- listix2Dot.gast v0.2024-11-08 14:33:28
+//
+// generates a dot (graphwiz) graph for the listix part of
+// the gast script
+//        generated_linked.gast  (comming from gastona.jar scripts)
+// and or
+//        GENERATE_GAST.gastpy   (comming from gastonaPy scripts)
 //
 
 #listix#
 
-   <main>
-      CHECK, FILE, generated_linked.gast
-      GEN, generated_linked.dot, JSRUN
-      OPEN, generated_linked.dot
-      
-   <JSRUN> JS, @<script>
+    <treat>
+        filename
+        generated_linked.gast
+        GENERATE_GAST.gastpy
 
-   <script>
-     //@<:infile META-GASTONA/js/Eva.js>
-     //@<:infile META-GASTONA/utilApp/gastAnalyzer/gastGlass2dot.js>
-     //
-     //gastGlass2dot (evaFileUTF82obj ("@<:solve-encode-utf8 THEGAST>"));
+    <main>
+        LOOP, VAR, treat
+            ,, CHECK, FILE, @<filename>
+            ,, GEN, @<filename>_adot.dot, JSRUN
+            ,, OPEN, @<filename>_adot.dot
 
-   <THEGAST>
-      @<:infile generated_linked.gast>
- 
+    <JSRUN> JS, @<jsDOTconverter>
+
+    <jsDOTconverter>
+        //@<:infile META-GASTONA/js/Eva.js>
+        //@<:infile META-GASTONA/utilApp/logAnalysis/gastGlass2dot.js>
+        //
+        //gastGlass2dot (evaFileUTF82obj ("@<:solve-encode-utf8 THEGAST>"));
+
+    <THEGAST>
+        @<:infile @filename>
+
 #**#

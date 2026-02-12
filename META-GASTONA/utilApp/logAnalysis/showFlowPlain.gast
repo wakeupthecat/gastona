@@ -63,7 +63,7 @@
      //  #data#
      //
      //     <distanceAgents> 50
-     //     <distanceTimeUnit> 5
+     //     <distanceTimeUnit> 10
      //     <autoElapsed> true
      //     <maxGapTime> 6
      //

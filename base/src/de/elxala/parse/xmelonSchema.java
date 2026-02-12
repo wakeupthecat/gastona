@@ -33,7 +33,7 @@ import de.elxala.db.dbMore.*;
 /**
    xmelonSchema keeps its original name - it was designed to store xml content - but
    is a general schema that can also store JSON for example.
-   
+
 */
 public class xmelonSchema
 {
@@ -184,11 +184,18 @@ public class xmelonSchema
 
       // get the list id path ID's
       //
+
+      //*** NOT APPLIED!
+      // ".dbconfig dqs_dml on "
+      // see Note ***DML CONFIG!
+      // in base/src/de/elxala/db/sqlite/sqlGetSchemaBatch.java
       cached.patIDList = cliDB.getSQL (dbName, ".headers off\nSELECT pathStr FROM " + cached.tabPrefix + "_pathDef ORDER BY patID;");
       log.dbg (2, "initialScript", "obtained pathDef list of " + cached.patIDList.size () + " elements");
 
       // get the list id tag ID's
       //
+      //*** NOT APPLIED!
+      // ".dbconfig dqs_dml on "
       cached.tagIDList = cliDB.getSQL (dbName, ".headers off\nSELECT tagStr FROM " + cached.tabPrefix + "_tagDef ORDER BY tagID;");
       log.dbg (2, "initialScript", "obtained tagDef list of " + cached.tagIDList.size () + " elements");
    }
@@ -201,8 +208,8 @@ public class xmelonSchema
 
       if (cliDB == null)
       {
-      cliDB = new sqlSolver ();
-      initialScript (dbName, tablePrefix);
+         cliDB = new sqlSolver ();
+         initialScript (dbName, tablePrefix);
          cliDB.openScript ();
          log.dbg (2, "processOneFile", "create db [" + dbName + "] start parsing [" + fileName + "] fileId " + cached.fileID);
       }
@@ -214,9 +221,9 @@ public class xmelonSchema
          log.dbg (2, "processOneFile", "add to db [" + dbName + "] start parsing [" + fileName + "] fileId " + cached.fileID);
       }
 
-      out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" + 
-                    cached.fileID + ", '" + 
-                    cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" + 
+      out ("INSERT INTO " + cached.tabPrefix + "_files VALUES (" +
+                    cached.fileID + ", '" +
+                    cliDB.escapeString (DateFormat.getTodayStr ()) + "', '" +
                     cliDB.escapeString (fileName) + "');");
       return true;
    }

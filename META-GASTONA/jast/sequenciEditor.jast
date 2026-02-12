@@ -12,8 +12,8 @@
    <eDistAgents type> range
    <eDistAgents> 40
 
-   <eDistAgents oninput>   //mensaka ("reflexa");
-   <xScript onkeyup>       //mensaka ("reflexa");
+   <eDistAgents oninput>   //mensaka ("actualitza");
+   <xScript onkeyup>       //mensaka ("actualitza");
 
    <xScript>
       //  A=User
@@ -28,17 +28,15 @@
 #listix#
 
    <main>
-      //mensaka ("reflexa");
+      //mensaka ("actualitza");
 
-   <-- reflexa>
+   <-- actualitza>
       //var arr = getDataAsTextArray("xScript");
       //for (var ii = 0; ii < arr.length; ii ++) arr[ii] = arr[ii].replace(/^\s*/, "").replace(/ +/g, ',');
       //var evaStr = "#data#\n<distanceAgents> " + getDataCell("eDistAgents") + "\n<sequenceTable> agent1, dir, agent2, message\n" + arr.join ("\n");
       //setData("xOnFlyOutput", conSequenciPlain (evaFileStr2obj (evaStr)["data"]));
 
 #server#
-
-   <serverONCE> 1
 
    <extraJS>
       //

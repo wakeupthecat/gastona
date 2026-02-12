@@ -189,17 +189,17 @@ public class microToolInstaller
    //   Motivation1: the target directory name does not have to be OS dependent, e.g. for windows always "win" etc no danger of conflict!
    //   Motivation2: antiviruses now wants to check first execution of a binary extracted from a jar (i.e. in a temporary file)
    //                this breaks seamly the philosophy of microtool so the only solution is to
-   //                create a removable directory in a temporary directory (i.e. tmpdir/gastonaTMP/muTools656) but don't remove it 
+   //                create a removable directory in a temporary directory (i.e. tmpdir/gastonaTMP/muTools656) but don't remove it
    //                actively on exit so the next execution the binaries will be find and the antivirus already know them.
-   //                NOTE: this approach is only for microTools and the number of these directories would only increase with 
+   //                NOTE: this approach is only for microTools and the number of these directories would only increase with
    //                      new micro-tooling versions (rare)
-   //   
+   //
    private static String finalFullPath (String moduleName, String binaryName)
    {
       String full = baseDir + "/" + moduleName + "/" + binaryName;
       return full.replace ('/', File.separatorChar);
    }
-   
+
    //2016.11.20 Old finalFullPath
    //
    //private static String finalFullPath (String osString, String moduleName, String binaryName)
@@ -241,7 +241,7 @@ public class microToolInstaller
       {
          return "/usr/bin/sqlite3";
       }
-      
+
       // already installed ? then return the full path
       //
       int indxCache = installedTools.rowOf (toolLogicName);
@@ -327,7 +327,7 @@ public class microToolInstaller
          }
          else
          {
-            // this directory will be created in the temporal directory (e.g. c:/tmp/gastonaTMP) but it will not 
+            // this directory will be created in the temporal directory (e.g. c:/tmp/gastonaTMP) but it will not
             // be automatically deleted! It is supposed that MUTOOLS_DIR changes if some tool change
             //
             String dirname = "muToolsTMPsolo";
@@ -434,7 +434,7 @@ public class microToolInstaller
          log.dbg (4, "installFileFromJar", "file \"" + toFullPath + "\" alredy exists, it will not be overwritten!");
          return true;
       }
-      
+
       return fileUtil.copyFile (fromFullPath, toFullPath, deleteOnExit);
    }
 

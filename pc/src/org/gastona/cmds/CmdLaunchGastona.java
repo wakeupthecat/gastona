@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005-2012 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -77,45 +77,65 @@ import de.elxala.langutil.filedir.TextFile;
 
    <examples>
       gastSample
-      launching xmelon
+      launching gast standard scripts
+      launching a gast script in a var
 
-   <launching xmelon>
-
+   <launching gast standard scripts>
       //#javaj#
       //
-      //   <frames> F, "launching xmelon"
+      //   <frames> F, "Utility standard scripts", 500, 400
       //
       //   <layout of F>
       //
       //      EVA, 6, 6, 4, 4
       //
-      //         ,
-      //         , lGastona scripts
-      //       X , iScripts
-      //         , lDesc
-      //         , bLaunch
+      //         ,          , X
+      //       X , iiScripts, xxScriptCode
+      //         , lDesc    , lFileName
+      //         , bLaunch  ,
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
       //
       //#data#
       //
-      //    <iScripts visibleColumns> name
+      //    <iiScripts visibleColumns> name
       //
-      //    <iScripts>
-      //       name , desc, path
-      //       arces,  "sqlite3 db (+ deepdb) viewer", META-GASTONA/utilApp/arces/arces.gast
-      //       xmelon, "xml to db util", META-GASTONA/utilApp/xmelon/xmelon.gast
-      //       dirMe, "search files", META-GASTONA/utilApp/dirMe/dirMe.gast
-      //       editor, "simple text editor", META-GASTONA/utilApp/editor/EmergencyEditor.gast
-      //       dirComp, "compare directories", META-GASTONA/utilApp/files/compareDirs.gast
+      //    <iiScripts>
+      //       name      , desc                         , path
+      //       arces     , sqlite3 db (+ deepdb) viewer , META-GASTONA/utilApp/arces/arces.gast
+      //       xmelon    , xml to db util               , META-GASTONA/utilApp/xmelon/xmelon.gast
+      //       dirMe     , search files                 , META-GASTONA/utilApp/dirMe/dirMe.gast
+      //       editor    , simple text editor           , META-GASTONA/utilApp/editor/EmergencyEditor.gast
+      //       dirComp   , compare directories          , META-GASTONA/utilApp/files/simpleCompareDirs.gast
+      //       hashAndDup, Hash & duplicated files      , META-GASTONA/utilApp/files/hashAndDuplicatedFiles.gast
       //
       //#listix#
       //
-      //   <-- iScripts>     -->, lDesc data!,, @<iScripts selected.desc>
-      //   <-- iScripts 2>  LSX, LANZA
+      //   <-- iiScripts>
+      //      -->, lDesc data!,, @<iiScripts selected.desc>
+      //      -->, lFileName data!,, @<iiScripts selected.path>
+      //      CHECK, RFILE, @<iiScripts selected.path>, -->, xxScriptCode data!,, //script not "@<iiScripts selected.path>" not found!
+      //      -->, xxScriptCode load, @<iiScripts selected.path>
+      //
+      //   <-- iiScripts 2>  LSX, LANZA
       //   <-- bLaunch>     LSX, LANZA
       //   <LANZA>
-      //       CHECK, VAR, iScripts selected.path
-      //       GAST, @<iScripts selected.path>
+      //       CHECK, VAR, iiScripts selected.path
+      //       GAST, @<iiScripts selected.path>
+
+   <launching a gast script in a var>
+      //#listix#
       //
+      //	<main>
+      //     GAST, //:utf-8:@<:encode-utf-8 SCRIPT_ON_VAR>
+      //
+      //   <SCRIPT_ON_VAR>
+      //     // #javaj#
+      //     //   <frames> ooSansi's dog
+      //     // #listix#
+      //     //   <main> King
 
 #**FIN_EVA#
 */

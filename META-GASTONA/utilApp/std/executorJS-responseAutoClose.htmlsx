@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<script>
+   var outArr = [] ;
+   // impostor console
+   //
+   var console = { log: function (s) { out (s); } };
+   // impostor alert
+   //
+   function alert (s) { out ("ALERT! \"" + s + "\"") }
+
+   // AJAX stuff
+   var xmlhttp;
+   if (window.XMLHttpRequest)
+      xmlhttp = new XMLHttpRequest();
+   else if (window.ActiveXObject)
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+   else
+      alert("Your browser does not support XMLHTTP!");
+
+   xmlhttp.onreadystatechange = function ()
+   {
+      if (xmlhttp.readyState == 4)
+         close ();
+   }
+
+   function out (str)
+   {
+      // 2024-02-09 fix if str were a function the execution would be delayed! 
+      //            str + "" forces its execution now
+      outArr.push (str + "");
+   }
+
+// some basic js stuff and  o2str function
+//
+@<:infile META-GASTONA/js/jsutil.js>
+
+   window.onload = function () {
+
+@<USER CODE>
+
+          xmlhttp.open ("POST","jsExecuted",true);
+          xmlhttp.send (outArr.join ("\n"));
+      }
+</script>
+
+<body>
+</body>
+</html>

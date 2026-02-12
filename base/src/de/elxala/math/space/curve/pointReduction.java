@@ -71,78 +71,58 @@ public class pointReduction
       p.z = POINT_STATE_UNKNOWN;
       arrPoints.add (p);
    }
-
+   
    public int getSize ()
    {
       return arrPoints.size ();
    }
-
-   public int totalDiscN = 0;
-   public double totalDiscEx = 0.f;
-   public double totalDiscEx2 = 0.f;
-
+      
    public List reducePoints ()
-   {
+      {
       List sal = new Vector ();
       if (arrPoints.size () == 0) return sal;
       
       // select first and last
       vecAt (0).z = POINT_STATE_SELECTED;
       vecAt (arrPoints.size ()-1).z = POINT_STATE_SELECTED;
-
-      totalDiscEx = 0.f;
-      totalDiscEx2 = 0.f;
-
+      
       while (findStraight ())
       {
          float maxDist = 0.f;
          int nnMaxDist = -1;
-
-         // for the statistic of distances to straight of discarded points
-         int n = 0;
-         double Ex = 0.f;
-         double Ex2 = 0.f;
-
+      
          if (log.isDebugging (6))
             log.dbg (6, "reducePoints", "findStraight " +  indxX0 + " <--> " + indxX1);
-         
+      
          for (int nn = indxX0+1; nn < indxX1; nn ++)
          {
             vect3f evalp = vecAt (nn);
-               vect3f closestp = closestPointToSegment (vecAt (indxX0), vecAt (indxX1), evalp);
-
+            vect3f closestp = closestPointToSegment (vecAt (indxX0), vecAt (indxX1), evalp);
+      
             float d2 = (closestp.x - evalp.x) * (closestp.x - evalp.x) + (closestp.y - evalp.y) * (closestp.y - evalp.y);
-            n ++;
-            Ex += Math.sqrt(d2);
-            Ex2 += d2;
-            //System.out.println ("\n at indx " + nn + " evalpto " + evalp + " closestpt" + closestp + " distance = " + Math.sqrt(d2));
 
             if (d2 > tolerance2 && d2 > maxDist)
-            {
+      {
                maxDist = d2;
                nnMaxDist = nn;
             }
-         }
+      }
          if (nnMaxDist >= 0)
          {
             // found distance > tolerance, select the maximum
             //
             vecAt (nnMaxDist).z = POINT_STATE_SELECTED;
-         }
+   }
          else
          {
             // not found distance > tolerance, all to do not transmit
             //
-            if (n > 0) // must!
+            if (log.isDebugging (6))
             {
-               if (log.isDebugging (6))
-                  log.dbg (6, "reducePoints", "discard in interval [" +  indxX0 + " - " + indxX1 + "] " + n + " values, distMean = " + 
-                               utilMath.round ((float) (Ex/n), 4) + 
-                               " sigma " + utilMath.round ((float) Math.sqrt(((Ex2)-(Ex*Ex/n))/n), 4));
-               totalDiscEx += Ex;
-               totalDiscEx2 += Ex2;
-               totalDiscN += n;
+               if (indxX0+1 < indxX1)
+                  log.dbg (6, "reducePoints", "discard in interval [" +  (indxX0+1) + " - " + (indxX1-1) + "]");
             }
+
             for (int nn = indxX0+1; nn < indxX1; nn ++)
                vecAt (nn).z = POINT_STATE_DISCARDED;
          }
@@ -158,13 +138,6 @@ public class pointReduction
          }
       }
 
-      if (totalDiscN > 0)
-      {
-         if (log.isDebugging (6))
-            log.dbg (6, "reducePoints", "discard TOTAL [0 - " + arrPoints.size() + "]: " + totalDiscN  + 
-                        " values, distMean = " + utilMath.round ((float) totalDiscEx/totalDiscN, 4) + 
-                        ", sigma " + utilMath.round ((float) Math.sqrt(((totalDiscEx2)-(totalDiscEx*totalDiscEx/totalDiscN))/totalDiscN), 4));
-      }
       if (log.isDebugging (2))
       {
          int removed = sal.size () - arrPoints.size ();

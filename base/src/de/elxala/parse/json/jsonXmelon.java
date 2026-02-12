@@ -176,20 +176,20 @@ public class jsonXmelon
             String dimension = propName;
             JSONObject theObj = jsoo.optJSONObject(propName);
             JSONArray theArr = jsoo.optJSONArray(propName);
-            
+
 
             // resolve alias
             //
             String alias = (String) optTagAliases.get (propName);
             if (alias != null)
-               dimension = alias;            
+               dimension = alias;
 
             if (optRootTagIgnoreList.contains (dimension))
             {
                log.dbg (2, "buildXmelonFromJSONobj", "ignoring field " + dimension);
                continue;
             }
-            
+
             boolean transparent = optTransparentTagList.contains (dimension);
 
             if (theObj != null)

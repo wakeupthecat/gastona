@@ -39,7 +39,7 @@ import de.elxala.math.space.*;
 
 
 public class z2DMathFunc extends mathFunctionView
-                             implements izWidget, MensakaTarget
+                         implements izWidget, MensakaTarget
 {
    private final int SCALE_X = 11;
    private final int SCALE_Y = 12;

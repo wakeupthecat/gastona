@@ -66,7 +66,7 @@ public class lsxWriter
    protected static void SyntaxN ()
    {
       System.out.println ("listix.lsxWriter version " + org.gastona.gastonaVersion.getVersion ());
-      System.out.println ("copyright (c) 2005,2006,2007,2008,2009,2010,2011 Alejandro Xalabarder Aulet");
+      System.out.println ("copyright (c) 2005-2026 Alejandro Xalabarder Aulet");
       System.out.println ("");
       System.out.println ("Syntax I  : lsxWriter lsxFile");
       System.out.println ("Syntax II : lsxWriter dataFile dataUnit formatFile formatUnit formatName outputFile");

@@ -138,13 +138,13 @@ import de.elxala.mensaka.*;
       //       //
       //       //current data
       //       DUMP, data,, kgChecks
-      // 
+      //
       //    <show selected>
       //       CHECK, VAR, kgChecks subTableSelection
       //       LOOP, VAR, kgChecks subTableSelection
       //           ,, //item @<label> is @<selected>, now value @<value1> (@<value0>), desc @<desc1> (@<desc0>)
       //       //
-      // 
+      //
       //    <valueOnOff>   VALUE OF, value@<selected>
       //    <descOnOff>    VALUE OF, desc@<selected>
 
@@ -156,11 +156,11 @@ import de.elxala.mensaka.*;
 
 
 /**
-   
+
    //(o) TODO/javaj/zCheckBoxTable implement individual selections as in sample
-   
+
     campo    , significado
-    
+
     id       , id para reconocer el check box, si no se dá se toma label, si tampoco automaticamente k1, k2 etc
     label    , lo que se ve (no se puede cambiar facilmente ...), si no existe se toma id, si tampoco k1, k2 etc
     selected , valor inicial + actualizarse con cada seleccion/des-seleccion
@@ -171,7 +171,7 @@ import de.elxala.mensaka.*;
                      <kgChecks Opt3.desc> //ist an
 
    label, desc0   , desc1, selected
-   
+
    juan , meSiento, noMeSientoLasPiernas, 0
    pedro, estoyOn , estoyOff            , 1
 */
@@ -209,6 +209,7 @@ public class zCheckBoxTable extends JPanel implements MensakaTarget
       super ();
       // setBorder (BorderFactory.createBevelBorder (BevelBorder.RAISED));
       setBorder(new EmptyBorder(2, 2, 2, 2));
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zCheckBoxTable (String map_name)
@@ -216,6 +217,7 @@ public class zCheckBoxTable extends JPanel implements MensakaTarget
       super ();
       build (map_name);
       setBorder(new EmptyBorder(2, 2, 2, 2));
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    private void build (String map_name)
@@ -318,7 +320,7 @@ public class zCheckBoxTable extends JPanel implements MensakaTarget
             arrChecks[ii] = new kgButton(ii, existLab ? strLabel: existId ? strId: "k" + (ii + 1));
 
             boolean selbytable = (existSel && "1".equals (strSelected));
-            
+
              // 1st) mechanism <widget selectedIndices>  2nd) selected by table
             if (helper.isIndexSelected (ii) || selbytable)
             {

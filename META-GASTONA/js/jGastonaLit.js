@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015..2019 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2026 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -25,25 +25,32 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 function jGastona (evaConfig, existingPlaceId)
 {
-   //"use strict";
-   var laData = dataStruct ();
-   var listixUnit = {};
-   var corpiny;
-   var isStammLayout = false; // only if it will occupy the whole window area
-   var layMan;
-   var losWidgets;
+    //"use strict";
+    var laData = dataStruct ();
+    var listixUnit = {};
+    var corpiny;
+    var isStammLayout = false; // only if it will occupy the whole window area
+    var layMan;
+    var lesWidgets;
+    var extMskListeners = {};
 
-   // ...right now no better solution for this...
-   // needed aliases so listix logic can use them
-   var getData            = function (name)           { return laData.getData (name); };
-   var getDataAsTextArray = function (name)           { return laData.getDataAsTextArray (name); };
-   var getDataCell        = function (name, row, col) { return laData.getDataCell (name, row, col); };
-   var setData            = function (name, value)    { return laData.setData (name, value); };
-   var setDataCell        = function (name, value, row, col) { return laData.setDataCell (name, value, row, col); };
-   var setVarTable_DimVal = function (arrVarNames)    { return laData.setVarTable_DimVal (arrVarNames); };
-   var getCellEvaUnit     = function (unit, eva, row, col) { return laData.getCellEvaUnit (unit, eva, row, col); };
+    // ...right now no better solution for this...
+    // needed aliases so listix logic can use them
+    var getData            = function (name)                  { return laData.getData (name); };
+    var getDataAsTextArray = function (name)                  { return laData.getDataAsTextArray (name); };
+    var getDataCell        = function (name, row, col)        { return laData.getDataCell (name, row, col); };
+    var setData            = function (name, value, noMsk)    { return laData.setData (name, value, noMsk); };
+    var setDataCell        = function (name, value, row, col) { return laData.setDataCell (name, value, row, col); };
+    var setVarTable_DimVal = function (arrVarNames)           { return laData.setVarTable_DimVal (arrVarNames); };
+    var getCellEvaUnit     = function (unit, eva, row, col)   { return laData.getCellEvaUnit (unit, eva, row, col); };
+    var getDataObject      = function ()    { return laData.getDataObject() };
+    var setDataObject      = function (obj) { laData.setDataObject(obj) };
 
-   var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)
+    //aliases
+    var $v                 = getData;
+    var $                  = getDataCell;
+
+    var AJAX_RESPONSE_MESSAGE = "ajaxResponse";       // mensaka's message for a post (e.g. to be handle with < -- ajaxResponse myPost>)
 
    // 2018.03.17
    //  a jGastona object has to be started explicitly, for instance
@@ -72,9 +79,28 @@ function jGastona (evaConfig, existingPlaceId)
    {
       var dataUnit = unit || {};
 
+      function getDataObject ()
+      {
+         return dataUnit;
+      }
+
+      function setDataObject (obj)
+      {
+         if (typeof obj === "object")
+            dataUnit = obj;
+         else dataUnit = {};
+         mensaka ("*data!");
+      }
+
       return {
-            dataUnit: dataUnit,
+            getDataObject: getDataObject,
+            setDataObject: setDataObject,
+
+            getDataUnit: getDataObject,
+            setDataUnit: setDataObject,
+
             getCellEvaUnit: getCellEvaUnit,
+            existsDataVar: existsDataVar,
             getData: getData,
             getDataAsTextArray: getDataAsTextArray,
             getDataCell: getDataCell,
@@ -109,9 +135,18 @@ function jGastona (evaConfig, existingPlaceId)
          return unit[eva] ? unit[eva][row||"0"][col||"0"]||"": "";
       }
 
+      function existsDataVar (name)
+      {
+         return dataUnit[name] === undefined ? false: true;
+      }
+
       function getData (name)
       {
-         return !dataUnit[name] ? undefined: dataUnit[name];
+         // if no parameter return the whole data unit
+         if (name === undefined)
+            return dataUnit;
+
+         return dataUnit[name];
       }
 
       function getDataAsTextArray (name)
@@ -148,7 +183,7 @@ function jGastona (evaConfig, existingPlaceId)
       // being value either a string or an eva variable
       // after that send the message data! to the widget "name" if exists
       //
-      function setData (name, value)
+      function setData (name, value, noMska)
       {
          // create on demand
          if (typeof value === "string" || typeof value === "number")
@@ -165,11 +200,17 @@ function jGastona (evaConfig, existingPlaceId)
             alert ("Error: setData \"" + name  + "\", the value is not a string nor looks like an eva variable");
          }
 
-         //2017.11.05 more general approach, even if no widget associated we send the message "name data!"
-         //           if there is a widget associated then two things will happen, widget update plus message
-         //..
-         //.. deliverMsgToWidget (getzWidgetByName (name));
-         mensaka (name + " data!");
+         // needed to avoid retro feedback in some cases
+         if (noMska)
+            return;
+         else
+         {
+            //2017.11.05 more general approach, even if no widget associated we send the message "name data!"
+            //           if there is a widget associated then two things will happen, widget update plus message
+            //..
+            //.. deliverMsgToWidget (getzWidgetByName (name));
+            mensaka (name + " data!");
+         }
       }
 
       function setVarTable_DimVal (arrVarNames)
@@ -189,20 +230,32 @@ function jGastona (evaConfig, existingPlaceId)
 
       start              : start,
       run                : start,      // alias of start
+      getJastConfig      : function () { return evaConfig; },
       getLayoutMan       : function () { return layMan; },
+
+      // access to mensaka comm mechanism
+      notifyToMsk        : notifyToMsk,
       mensaka            : mensaka,
+
+      getDataObject      : getDataObject,
+      setDataObject      : setDataObject,
+
       getData            : getData,
       getDataAsTextArray : getDataAsTextArray,
       getDataCell        : getDataCell,
       setData            : setData,
       setDataCell        : setDataCell,
+
+      $v: getData, // alias
+      $: getDataCell, // alias
+
       setVarTable_DimVal : setVarTable_DimVal,
       getCellEvaUnit     : getCellEvaUnit,
       adapta             : adaptaLayout,
       mask               : mask,
       unmask             : unmask,
       canUploadFile      : canUploadFile,
-      
+
       laData : laData,
 
       // part ajax ...
@@ -215,8 +268,6 @@ function jGastona (evaConfig, existingPlaceId)
       AJAXgetDataForId : AJAXgetDataForId,    // ask the server for content for the id, on resposte the content will be updated automatically
       AJAXGetDataForId : AJAXgetDataForId,    // alias for "compatibility"
       AJAXLoadData     : AJAXLoadData,
-
-      // getDataUnit    : function () { return dataUnit; }
    };
 
    function str2lineArray (str) { return str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); }
@@ -315,11 +366,11 @@ function jGastona (evaConfig, existingPlaceId)
          corpiny.removeChild(corpiny.firstChild);
       }
 
-      losWidgets = zWidgets (corpiny, laData, mensaka);
+      lesWidgets = zWidgets (corpiny, laData, mensaka);
 
       // load all components and return the manager
       //
-      layMan = layoutManager (evaConfig, losWidgets);
+      layMan = layoutManager (evaConfig, lesWidgets);
       adaptaLayout ();
 
       //do the first task : "main" if exists
@@ -328,37 +379,82 @@ function jGastona (evaConfig, existingPlaceId)
          executeListixFormat (fmain);
    }
 
-   function mensaka (msg)
-   {
-      // handling messages for widgets i.e. "zwidget data!" (update data of zwidget)
-      // (javaj task)
-      var ii = msg.indexOf (" ");
-      if (ii > 0)
-      {
-         var wnam = msg.substr (0,ii); // widget name i.e. "bBoton"
-         var wmet = msg.substr (ii+1); // method      i.e. "data!"
+    function notifyToMsk (msg, fcallback)
+    {
+        if (! (msg in extMskListeners))
+            extMskListeners[msg] = []
+        
+        var chain = extMskListeners[msg]
+        
+        // if already notified return
+        for (var cc in chain)
+            if (chain[cc] == fcallback)
+                return;
 
-         if (losWidgets)
-         losWidgets.deliverMsgToWidget (wnam, wmet);
-         //2017.11.05 more general approach, not return but continue since maybe the user (listix) is notified to the widget message as well
-         // return;
-      }
+        // add callback to the message
+        chain.push (fcallback)
+    }
 
-      // look for the variable <-- message>, first in data else in listix
-      // (listix task)
-      // Note : here it is done in an "interpreter fashion",
-      //        another approach is to generate proper functions and listeners previosly
-      //
-      var fbody = laData.dataUnit["-- " + msg] || listixUnit["-- " + msg] || null;
-      if (! fbody)
-      {
-         // message not subscribed! ignore it
-         // console.log ("ignoring mensaka \"" + msg  + "\"");
-         return;
-      }
+    function sendMsk2ExternListener (msg, params)
+    {
+        if (msg in extMskListeners)
+        {
+            var chain = extMskListeners[msg]
+            for (var cc in chain)
+                // call the callback function
+                chain[cc] (params)
+        }
+    }
+    
+    function mensaka (msg, params)
+    {
+        if (msg === "*data!")
+        {
+            if (lesWidgets)
+                lesWidgets.deliverMsgToAllWidgets("data!", params);
+            return;
+        }
+        // handling messages for widgets i.e. "zwidget data!" (update data of zwidget)
+        // (javaj task)
+        var ii = msg.indexOf (" ");
+        if (ii > 0)
+        {
+            var wnam = msg.substr (0,ii); // widget name i.e. "bBoton"
+            var wmet = msg.substr (ii+1); // method      i.e. "data!"
 
-      executeListixFormat (fbody);
-   }
+            if (lesWidgets)
+                lesWidgets.deliverMsgToWidget (wnam, wmet, params);
+            //2017.11.05 more general approach, not return but continue since maybe the user (listix) is notified to the widget message as well
+            // return;
+        }
+
+        // look for the variable <-- message>, first in data else in listix
+        // (listix task)
+        // Note : here it is done in an "interpreter fashion",
+        //        another approach is to generate proper functions and listeners previosly
+        //
+        var fbody = laData.getDataUnit()["-- " + msg] || listixUnit["-- " + msg] || null;
+        if (fbody)
+        {
+            // parameters in variable "p-.."
+            //      <p-n>   count of parameters
+            //      <p-0>   parameters as array   $v('p-0')[0] === array params
+            //      <p-1>   content of params[0]  $('p-1') === params[0]
+            //      <p-2>   content of params[0]  $('p-2') === params[1]
+            //      ...
+            params = params || []
+            setDataCell ("p-n", params.length);
+            setData ("p-0", [ params ]);
+            for (var ii in params)
+                setDataCell ("p-" + (ii+1), params[ii]);
+
+            executeListixFormat (fbody);
+        }
+        
+        // give a chance to extern listeners
+        //
+        sendMsk2ExternListener (msg, params);
+    }
 
    function executeListixFormat (fbody)
    {
@@ -642,7 +738,7 @@ function jGastona (evaConfig, existingPlaceId)
    //
    function AJAXSend (postString, paramCfg, respFuncOrObj)
    {
-      var poso = httPack (paramCfg, laData.dataUnit);
+      var poso = httPack (paramCfg, laData.getDataUnit());
       AJAXPostRaw (postString + "?" + poso.onelineparams,
                 poso.body,
                 poso.headers,
@@ -704,7 +800,7 @@ function jGastona (evaConfig, existingPlaceId)
 
    function AJAXLoadData (loadIdentifier, paramCfg)
    {
-      var poso = httPack (paramCfg, laData.dataUnit);
+      var poso = httPack (paramCfg, laData.getDataUnit());
       AJAXPostRaw ("loadData?loadIdentifier=" + (loadIdentifier||"") + "&" + poso.onelineparams,
                 poso.body,
                 poso.headers,
@@ -750,7 +846,7 @@ function jGastona (evaConfig, existingPlaceId)
    //
    function AJAXgetDataForId (idname, paramCfg, multiple, onlyhtml)
    {
-      var poso = httPack (paramCfg, laData.dataUnit);
+      var poso = httPack (paramCfg, laData.getDataUnit());
       AJAXPostRaw ("getDataForId?" + "id=" + idname + "&" + poso.onelineparams,
                     poso.body,
                     poso.headers,
@@ -765,18 +861,18 @@ function jGastona (evaConfig, existingPlaceId)
                 );
    }
 
-   function setValueToElement (element, valueStr)
-   {
-      if (element)
-      {
-         if (typeof element.value === "string")
-              element.value = valueStr;
-         else element.innerHTML = valueStr;
-      }
-   }
-
    function setContentsFromBody (idname, bodystr, multiple, onlyhtml)
    {
+      function setHtmlValue (element, valueStr)
+      {
+         if (element && typeof valueStr !== undefined)
+         {
+            if (typeof element.value === "string")
+                 element.value = valueStr;
+            else element.innerHTML = valueStr;
+         }
+      }
+
       var mainbody = multiple ? "": bodystr;
       if (multiple)
       {
@@ -806,7 +902,7 @@ function jGastona (evaConfig, existingPlaceId)
       {
          var ele = document.getElementById (idname);
          if (ele)
-            setValueToElement (ele, mainbody);
+            setHtmlValue (ele, mainbody);
       }
       else laData.setData (idname, mainbody);
    }

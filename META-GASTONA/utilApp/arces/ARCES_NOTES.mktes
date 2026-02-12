@@ -1,5 +1,9 @@
 #h ARCESS notes
 
+-- 2022-02-20 18:14:51 Add tauleta to Arces
+
+New tauletaHtml.jsgo (estadillo in html) and tauletaSample.gast that is launchable from arces now.
+
 -- 2020-06-13 new better generated SQL for marks
 
    - sort tree
@@ -12,7 +16,7 @@
 See exemplox.gast, similar to this one
 
       LSX, SQL_GEN, UNION, IN
-      
+
       <SQL_GEN>
          // SELECT rowid,
          //        CASE  WHEN @<COND1> THEN "c1 AAA"

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015-2018 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2026 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -247,13 +247,31 @@ function layoutManager (evaObj, zWidgets)
             return;
          }
 
+         //layeva implementation 1
+         // layeva => implicit EVALAYOUT
+         //
+         var lycfg = javajUnit["layeva-config"]
+         var layevaConf = lycfg ? lycfg: [["EVALAYOUT", 7, 7, 4, 4]];
+
          // collect only layouts
          for (var eva in javajUnit)
          {
-            if (eva.indexOf ("layout of ") == 0)
+            if (eva.indexOf ("lay ") == 0)
+            {
+               // remove "lay from the name
+               guiLayouts[eva.substr("lay ".length)] = javajUnit[eva];
+            }
+            else if (eva.indexOf ("layout of ") == 0)
             {
                // remove "layout of " from the name
-               guiLayouts[eva.substr(10)] = javajUnit[eva];
+               guiLayouts[eva.substr("layout of ".length)] = javajUnit[eva];
+            }
+            else if (eva.indexOf ("layeva ") == 0)
+            {
+                //layeva implementation 2
+                // create the first line (layevaConf)
+                // remove "layout of " from the name
+               guiLayouts[eva.substr("layeva ".length)] = layevaConf.concat (javajUnit[eva]);
             }
             else
             {

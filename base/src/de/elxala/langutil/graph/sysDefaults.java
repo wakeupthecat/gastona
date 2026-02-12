@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005-2012 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,11 +18,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil.graph;
 
-import javax.swing.*;
-
-import de.elxala.Eva.*;
-import de.elxala.langutil.*;
-import de.elxala.zServices.*;
+import de.elxala.Eva.Eva;
+import de.elxala.zServices.logger;
 
 /**
    @file   sysDefaults.java

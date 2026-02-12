@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,7 +32,7 @@ import java.awt.Graphics2D;
 
 /**
    Implements
-      - handling of fucntions
+      - handling of functions
       - drawing of them
       - gesture handling
 */
@@ -42,8 +42,6 @@ public class mathFunctionView extends JPanel implements MouseListener, MouseMoti
 //                 , strokeDetector.interested
 {
    private mathFunctionFrame miMatha = new mathFunctionFrame ();
-//   private zoomTouchDetector zoomDetector = null;
-//   private strokeDetector trazaDetector = null;
 
    private uniColor COLOR_GRID_LINES = new uniColor (255, 126, 0);
    private boolean ONCE_ANTIALIASING = true;
@@ -53,8 +51,7 @@ public class mathFunctionView extends JPanel implements MouseListener, MouseMoti
       addMouseListener (this);
       addMouseMotionListener(this);
       // movement guys (handlers)
-//      zoomDetector  = new zoomTouchDetector (co, this);
-//      trazaDetector = new strokeDetector (co, this);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    private float scaleX = 1.f;
@@ -141,91 +138,7 @@ public class mathFunctionView extends JPanel implements MouseListener, MouseMoti
          fromx = tox;
          fromy = toy;
       }
-
-//      if (zoomDetector.gestureInProgress ())
-//      {
-//         paint.setColor  (Color.RED);
-//         paint.setStyle  (Paint.Style.STROKE);
-//         paint.setStrokeWidth (stkWidth);
-//         canvas.drawRect (zoomDetector.rectP1, paint);
-//         canvas.drawRect (zoomDetector.rectP2, paint);
-//      }
-
-//         paint.setColor(Color.WHITE);
-//         canvas.drawLines (new float [] { 0.f, 0.f, 100.f, 100.f }, paint);
    }
-
-////   public boolean onTouchEvent(MotionEvent event)
-////   {
-////      boolean t1 = zoomDetector.onTouchEvent(event);
-////      if (!zoomDetector.gestureInProgress ())
-////         t1 = trazaDetector.onTouchEvent(event);
-////      return t1;
-////   }
-
-   /// implementing zoomTouchDetector.interested
-//   public boolean onGestureStart (zoomTouchDetector detector)
-//   {
-//      miMatha.setReference4Gesture ();
-//      detector.setRefOffsetScale (getLeft (), getTop (), (float) miMatha.minX, (float) miMatha.maxY, (float) miMatha.scaleX, (float) miMatha.scaleY);
-//      detector.setRefOffsetScaleExtra ((float) miMatha.maxX, (float) miMatha.minY);
-//      return true;
-//   }
-//
-//   /// implementing zoomTouchDetector.interested
-//   public boolean onGestureContinue (zoomTouchDetector detector)
-//   {
-//      android.util.Log.d ("soom", "GESTO CONT  p1_now " + printPar (detector.p1_now) + "  p2_now " + printPar (detector.p2_now));
-//      detector.calcRectangles ();
-//
-//      if (zoomDetector.gestureInProgress ())
-//      {
-//         //miMatha.zoomRectangular (zoomDetector.rectP1, zoomDetector.rectP2, false);
-//
-//         zoomDetector.calcZoomNow (false);
-//         miMatha.zoom (zoomDetector.nowOffsetX, zoomDetector.nowEndX,
-//                       zoomDetector.nowOffsetY, zoomDetector.nowEndY);
-//      }
-//      //invalidate ();
-//      postInvalidate ();
-//      return true;
-//   }
-
-//////   /// implementing zoomTouchDetector.interested
-//////   public void onGestureEnd (zoomTouchDetector detector, boolean cancel)
-//////   {
-//////      android.util.Log.d ("soom", "GESTO END  p1_fin " + printPar (detector.p1_fin) + "  p2_fin " + printPar (detector.p2_fin));
-//////      ONCE_ANTIALIASING = true;
-//////      postInvalidate ();
-//////   }
-//////
-//////   /// implementing strokeDetector.interested
-//////   public boolean onGestureStart (strokeDetector detector)
-//////   {
-//////      miMatha.setReference4Gesture ();
-//////      return true;
-//////   }
-//////
-//////   /// implementing strokeDetector.interested
-//////   public boolean onGestureContinue (strokeDetector detector)
-//////   {
-//////      android.util.Log.d ("soom", "(Lin)GESTO CONT pos_now " + printPar (detector.pos_now));
-//////      if (trazaDetector.gestureInProgress ())
-//////      {
-//////         miMatha.relativeTranslation (trazaDetector.pos_ini, trazaDetector.pos_now);
-//////      }
-//////      //invalidate ();
-//////      postInvalidate ();
-//////      return true;
-//////   }
-//////
-//////   /// implementing strokeDetector.interested
-//////   public void onGestureEnd (strokeDetector detector, boolean cancel)
-//////   {
-//////      android.util.Log.d ("soom", "(Lin)GESTO END  pos_fin " + printPar (detector.pos_fin));
-//////      ONCE_ANTIALIASING = true;
-//////      postInvalidate ();
-//////   }
 
    public String printPar (vect3f vect)
    {
@@ -267,34 +180,6 @@ public class mathFunctionView extends JPanel implements MouseListener, MouseMoti
 //   public boolean onGestureContinue (zoomTouchDetector detector)
    {
       //System.out.println ("DRAGON " + e.getX () + " default " + isGestureMode (MODE_GESTURE_DEFAULT));
-//      log.dbg (4, "onGestureContinue(zoomTouchDetector)", "GESTO CONT p1_now " + detector.p1_now.x + ", " + detector.p1_now.y + "  p2_now " + detector.p2_now.x + ", " + detector.p2_now.y);
-//      detector.calcRectangles ();
-//
-//      if (!isGestureMode (sceneInMotion.MODE_GESTURE_DEFAULT)) return;
-
-//      int inc = (int) (e.getX () - pressedX);
-//      int incY = (int) (e.getY () - pressedY);
-//      if (inc == 0) return;
-//
-//      if (leftButton)
-//      {
-//         // move
-//         offsetX = offsetRefX + inc * scaleX;
-//         offsetY = offsetRefY + incY * scaleY;
-//      }
-//      else
-//      {
-//         // zoom
-//         int tela_dx = getWidth ();
-//         scaleX = scaleRef * (1f + ((float) inc / ((float) tela_dx/3f)));
-//         scaleY = scaleRef * (1f + ((float) inc / ((float) tela_dx/3f)));
-//
-//         //System.out.println ("CORCIAL! escalar " + scaleX);
-//
-////         offsetX = (int) detector.nowOffsetX;
-////         offsetY = (int) detector.nowOffsetY;
-//      }
-//
       //render ();
       invalidate ();
       paintImmediately (0, 0, 3000, 3000);

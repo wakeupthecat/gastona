@@ -9,7 +9,7 @@
 #javaj#
 
    <frames>
-      Fmain, ARCess mako3 v0.8.20200618, 920, 650
+      Fmain, ARCess repclean v0.9.20260212, 920, 650
       FmarkSelector, Mark selector v0.1
 
    <sysDefaultFonts>
@@ -25,16 +25,16 @@
          X , esplata, -
 
    <layout of esplata>
-      SPLIT, X, framilia
+      SPLIT, X,
 
       ristra, tabas
 
    <layout of cabeza>
       EVA, 0, 0, 5, 5
 
-       ZZZ,               ,   X      ,             ,
-          ,  lDatabaseName, eDBName  ,  bChooseFile, gLuces
-          ,  lSQLQuery    , eSQLQuery,  bRun       , kMarks
+       ZZZ,               ,   X      ,
+          ,  lDatabaseName, eDBName  ,  bDB, gLuces, -
+          ,  lSQLQuery    , eSQLQuery,  bRun, bTauleta, kMarks
 
    <layout of tabas>
       TABBED,
@@ -44,7 +44,7 @@
       Schema    , xSchema
       Console   , layConsoles
 
-      
+
    <layout of layConsoles>
        EVA, 10, 10, 5, 5
        --,    A   , X
@@ -53,7 +53,7 @@
          , lErrors
        X , o2Consola, -
          , bClear Consoles
-      
+
    <layout of ristra>
       EVA
 
@@ -94,11 +94,10 @@
 
    <eDBName>
 
-   <bChooseFile>     Selec...
-
-   <bChooseFile Dialog> FILE
-   <bChooseFile widget> eDBName
-
+   <bDB>     Select DB
+   <bDB Dialog> FILE
+   <bDB Dialog filter> db
+   <bDB widget> eDBName
 
 #listix#
 
@@ -110,6 +109,7 @@
       IN CASE, @<:sys gastona.argumentCount>
              , 0    , -->, eDBName data!,, ""
              , ELSE , -->, eDBName data!,, @<p1>
+
       LSX, update mainDatabase
       CALL CAPTURE, @<:mutool sqlite>, .version
 
@@ -120,9 +120,11 @@
    <-- kSort>          LSX, update deepTree
    <-- eFilterTabVie>  LSX, update deepTree
 
+   <-- bTauleta>  GAST, META-GASTONA/utilApp/arces/tauletaSample.gast
+
    <-- kMarks>
       CHECK, =, @<kMarks selected>, 1, -->, FmarkSelector hide
-      
+
       LSX, markSelectorRefresh
       -->, Fmain tellPosAndSize
       NUM=, FmarkSelector posX, @<Fmain posX> + @<Fmain sizeX>
@@ -131,7 +133,7 @@
       NUM=, FmarkSelector sizeX, 200
       -->, FmarkSelector control!
       -->, FmarkSelector show
-   
+
 
    <update deepTree>
       MSG, aDeepColumns data!, sqlSelect, //SELECT deepColumn FROM dbtemp.theDBDeepSchema WHERE deepColumn LIKE '%@<:encode eFilterTabVie>%' @<ORDER_OR_NOT>
@@ -148,9 +150,9 @@
       -->, sLasTablas data!, sqlSelect, //@<sql tablas>
 
       <! print schema formated
-		DB,, SCHEMA, theDBSchema
-      DBMORE, LOAD CONNECTIONS,, theDBConnections, 1
-		DBMORE, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
+      DB,, SCHEMA, theDBSchema
+      DEEP DB, LOAD CONNECTIONS,, theDBConnections, 1
+      DEEP DB, DEEP SCHEMA, theDBDeepSchema, theDBSchema, theDBConnections
       DB, @<tmpDB>, CREATE TABLE, theDBDeepSchema
       DB CONFIG, ALIAS, dbtemp, @<tmpDB>
       LSX, update deepTree
@@ -164,7 +166,7 @@
    <-- bClear Consoles>
        MSG, o1Consola clear
        MSG, o2Consola clear
-   
+
    <-- eDBName>
       LSX, update mainDatabase
 
@@ -181,7 +183,8 @@
    <-- aDeepColumns>
       CHECK, VAR, aDeepColumns selectedPath
       CHECK, !=, "", @<aDeepColumns selectedPath>
-      -->, UPDATE_SQLGRID, @<sql deep>
+      -->, UPDATE_SQLGRID, @<SQL_DEEP>
+      DUMP, data,, aDeepColumns selectedMultiPath
 
     <-- aDeepColumns parent>
       <! --- try "SELECT * FROM xxx"
@@ -193,8 +196,11 @@
       -->, sTabala data!, sqlSelect, @<p1>
       LSX, ExportBasic set (gridName dbName), sTabala, ""
 
-   <sql deep>
-      DBMORE, TOSQL, aDeepColumns selectedMultiPath
-            , VARCONNECTIONS, theDBConnections
-            , DEEP COL HEADER, 1
+   <SQL_DEEP>
+      DEEP DB, TOSQL
+            , VAR COLUMNS, aDeepColumns selectedMultiPath
+            , VAR CONNECTIONS, theDBConnections
+            , COLUMNS HEADER, 1
             , LINE BREAK, 0
+            , SIMPLEST, 1
+            , NO QUOTATION, 1

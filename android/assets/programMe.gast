@@ -256,10 +256,10 @@
       //      //trassos2D ().renderClassGraffiti (data);
       //
       //   <-- bSave>
-      //      //AJAXPost ("savegast", getIdValue ("xFileContent"), { "ajaxREQ-gastName": getIdValue("eFileName") });
+      //      //AJAXPostRaw ("savegast", getDataAsTextArray ("xFileContent").join ("\n"), { "ajaxREQ-gastName": getIdValue("eFileName") });
       //
       //   <-- bTest>
-      //      //AJAXPost ("testgast", getIdValue ("xFileContent"));
+      //      //AJAXPostRaw ("testgast", getDataAsTextArray ("xFileContent").join ("\n"));
       //
       //   <-- bEmpty>
       //      //loadAndOverwriteFileContent ('@<SPECIAL_HELLO>');

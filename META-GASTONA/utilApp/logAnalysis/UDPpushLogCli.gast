@@ -1,0 +1,78 @@
+#javaj#
+
+   <frames> F, UDP push log client V0.1, 500
+
+   <layout of F>
+      Eva, 10, 10, 4, 4
+
+         ,   X
+         , eeLogFile, bClearLog, bNewAuto
+         ,          , bViewLog, -
+         ,          , kFile, kConsole
+       X , oCansa, -, -
+
+#data#
+
+   <kFile selected> 1
+   <kConsole selected> 0
+
+   <UDP_PUSH_PORT> 11883
+
+#listix#
+
+   <main>
+      LSX, NEW_LOGNAME
+      UDP, SET SERVER, pincho, @<UDP_PUSH_PORT>
+
+   <-- bNewAuto> LSX, NEW_LOGNAME
+
+   <DO_CLEAR_LOG>
+      GEN, @<eeLogFile>, HEAD
+      -->, oCansa cls
+
+   <NEW_LOGNAME>
+      -->, eeLogFile data!,, //UDPLog_@<:lsx date yyyyMMdd_HHmmss>.txt
+      LSX, DO_CLEAR_LOG
+
+   <-- bClearLog>
+      LSX, DO_CLEAR_LOG
+
+   <-- eeLogFile>
+      LSX, DO_CLEAR_LOG
+
+   <HEAD>
+      //tstamp,cliid,clistr,level,ctx,msg
+      //
+
+   <-- pincho udp>
+       IN CASE, 1
+              , @<kConsole selected>, LSX, THE_LINE
+              , @<kFile selected>,    LSX, OUT_FILE
+
+   <OUT_FILE>
+      GEN, @<eeLogFile>, THE_LINE
+         , APPEND, 1
+
+   <THE_LINE>
+       @<:raw p1>
+       //
+
+   <-- bViewLog>
+      LSX, DO_GEN_DB
+
+   <DO_GEN_DB>
+      CSV, FILE2DB, @<eeLogFile>, @<eeLogFile>.db, allUDPlog
+         , COLUMN NAMES,  //tstamp, cliid, clistr, level, ctx, msg
+      DB, @<eeLogFile>.db, EXECUTE, @<SQL_CREATE_VIEW_LOGELAPSED>
+      GAST, META-GASTONA/utilApp/arces/arces.gast, @<eeLogFile>.db
+
+
+   <SQL_CREATE_VIEW_LOGELAPSED>
+      //DROP VIEW IF EXISTS logElapsed;
+      //CREATE VIEW logElapsed AS
+      //     SELECT tstamp-tstamp_prev AS deltas, *
+      //     FROM (@<:sqlTablePrev allUDPlog_records tstamp msg>)
+      //   ORDER BY deltas DESC
+      // ;
+
+#**#

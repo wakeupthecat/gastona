@@ -1,0 +1,135 @@
+#listix#
+
+   <SQL TAB BASICA>   //SELECT @<eXVAR> as x, @<eYVAR> as y, @<rgSumOrCount selected.expr> AS suma FROM (@<xSelectBase>) GROUP BY x, y
+   <SQL TAB VgroupX>  //SELECT x, SUM(suma) AS sumaXs FROM (@<SQL TAB BASICA>) GROUP BY x ORDER BY @<rgOrderX selected.expr>
+   <SQL TAB VgroupY>  //SELECT y, SUM(suma) AS sumaYs FROM (@<SQL TAB BASICA>) GROUP BY y ORDER BY @<rgOrderY selected.expr>
+
+   <SQL TAB VCalcRestX>  //SELECT * FROM (@<SQL TAB VgroupX>) LIMIT (1+@<eMaxCeldasX>), -1
+   <SQL TAB VRestX>      //SELECT COUNT(*) AS RestNXs, SUM(sumaXs) AS RestSXs FROM (@<SQL TAB VCalcRestX>)
+
+   <SQL TAB VCalcRestY>  //SELECT * FROM (@<SQL TAB VgroupY>) LIMIT (1+@<eMaxCeldasY>), -1
+   <SQL TAB VRestY>      //SELECT COUNT(*) AS RestNYs, SUM(sumaYs) AS RestSYs FROM (@<SQL TAB VCalcRestY>)
+
+   <SQL TAB VVgroupX>  //SELECT * FROM (@<SQL TAB VgroupX>) LIMIT @<eMaxCeldasX>
+   <SQL TAB VVgroupY>  //SELECT * FROM (@<SQL TAB VgroupY>) LIMIT @<eMaxCeldasY>
+
+   <TC> //<td align=center>
+   <TR> //align=right width=100
+
+   <TauletaHTML_inListix>
+      CHECK, FILE, @<eDBName>, //No database found [@<eDBName>]
+      DB CONFIG, DEFAULT, @<eDBName>
+
+      //<html>
+      //  TAULETA: <b>@<eTitle></b><br><br>
+      //
+      //       sql base : "@<:escape-strjs xSelectBase>"<br>
+      //       campo x  : @<eXVAR>   (admitamos hasta @<eMaxCeldasX>)<br>
+      //       campo y  : @<eYVAR>   (admitamos hasta @<eMaxCeldasY>)<br>
+      //       valor    : <b>@<rgSumOrCount selected.desc></b>
+      //<br>
+      //<table border=1 cellspacing="0">
+      //
+      //@<CALC_TOTAL>
+      //@<cabeza1>
+      //@<lineas>
+      //@<resumen>
+      //
+      //</table>
+      //@<despedida>
+      //</html>
+
+   <cabeza1>
+      //    <tr><td> @<eYVAR>/@<eXVAR>  @<TC>
+      LOOP, SQL, , //@<SQL TAB VVgroupX>
+          , LINK, " <td @<TR>>"
+          ,, //  @<x>
+          ,, NUM=, @<SumaColumnXi_VARI>, 0.
+      //<td> --REST-- <td> ---TOTAL---
+
+   <SumaColumnXi_VAL> VALUE OF, SumaColumn@<x>
+   <SumaColumnXi_VARI> //SumaColumn@<x>
+
+   <col0> //#FFFFFF
+   <col1> //#EEEEEE
+   <col2> //#DDDDDD
+   <col3> //#CCCCCC
+   <col4> //#BBBBBB
+   <col5> //#AAAAAA
+   <col6> //#999999
+   <col7> //#888888
+   <col8> //#FFFF99
+   <col9> //#FFCC99
+   <col10> //#FF6666
+
+   <lineas>
+      SETNUM, SumaTotalVert, 0.
+
+      LOOP, SQL, , // SELECT * FROM (SELECT * FROM (@<SQL TAB VVgroupY>) INNER JOIN (@<SQL TAB VVgroupX>)) LEFT JOIN (@<SQL TAB BASICA>) USING (y, x) ORDER BY y
+          ,,   "  <tr><td> @<y> "
+          ,,   NUM=, SumaYi, 0.
+          ,,   RUN LOOP,,
+          ,,      , WHILE, y
+          ,,      , LINK, ""
+          ,,      ,, //<td @<TR> bgcolor="@<sumaCellColor>"> @<suma></td>
+          ,,      ,, NUM=, SumaYi, SumaYi + suma
+          ,,      ,, NUM=, @<SumaColumnXi_VARI>, SumaColumnXi_VAL + suma
+          ,,   //<td @<TR> bgcolor="@<restoDeXColor>"> @<restoDeXs>
+          ,,   //<td @<TR>> <b>@<sumaYs_LASTVALUE></b>
+          ,,   NUM=, SumaTotalVert, SumaTotalVert + sumaYs_LASTVALUE
+
+   <restoDeXs>  =, int(sumaYs_LASTVALUE - SumaYi)
+
+   <sumaYs_LASTVALUE>  VALUE OF, :lsx prev sumaYs
+
+   <PERCENT_SUMA_MAXSUM> =, int(7*suma/CALC_MAX_SUM)
+   <PERCENT_RESTOX_MAXSUM> =, int(7*restoDeXs/CALC_MAX_SUM)
+   <PERCENT_RESTUS_MAXSUM> =, int(7*restusss/CALC_MAX_SUM)
+
+   <sumaCellColor> VALUE OF, col@<PERCENT_SUMA_MAXSUM>
+   <restoDeXColor> VALUE OF, col@<PERCENT_RESTOX_MAXSUM>
+   <restoRestusColor> VALUE OF, col@<PERCENT_RESTUS_MAXSUM>
+
+   <CALC_TOTAL>
+      <! // ---
+      <! // --- calculo del total de totales
+      <! // ---
+      LOOP, SQL,, // SELECT SUM(suma) AS total, MAX(suma) AS maxsum FROM (@<SQL TAB BASICA>)
+          ,, NUM=, CALC_TOT_TOT, total
+          ,, NUM=, CALC_MAX_SUM, maxsum
+
+   <resumen>
+      <! // ---
+      <! // --- fila resto
+      <! // ---
+      NUM=, SumaRestos, 0
+      "  <tr><td>---RESTO--- "
+      LOOP, SQL, , //@<SQL TAB VVgroupX>
+          ,LINK,""
+          ,, LOOP, SQL,, //SELECT SUM(suma) AS totalX FROM (@<SQL TAB BASICA>) WHERE x = '@<x>'
+          ,,     ,, NUM=, restusss, totalX - SumaColumnXi_VAL
+          ,,     ,, NUM=, SumaRestos, SumaRestos + totalX - SumaColumnXi_VAL
+          ,,     ,, //<td @<TR> bgcolor="@<restoRestusColor>"> @<restusss>
+
+      //<td @<TR>>
+      =, CALC_TOT_TOT - SumaTotalVert - SumaRestos
+      //<td @<TR>>
+      =, CALC_TOT_TOT - SumaTotalVert
+
+      //  <tr><td><b>---TOTAL---</b> <td @<TR>>
+      NUM=, SumaTotalHoriz, 0
+      LOOP, SQL,, //@<SQL TAB VVgroupX>
+        , LINK,"<td @<TR>>"
+        ,, // <b>@<sumaXs></b>
+        ,, NUM=, SumaTotalHoriz, SumaTotalHoriz + sumaXs
+
+      //<td @<TR>>
+      =, CALC_TOT_TOT - SumaTotalHoriz
+      //<td @<TR>> <b>@<CALC_TOT_TOT></b>
+      //
+
+   <despedida>
+      // ------------------  fin ---------------------------
+
+#**#
+

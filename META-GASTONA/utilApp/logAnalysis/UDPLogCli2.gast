@@ -1,0 +1,94 @@
+#javaj#
+
+   <frames> F, UDP log cli2 V0.1, 500, 300
+
+   <layout of F>
+      Eva, 10, 10, 4, 4
+
+         ,                , X
+         , kFile, kConsole, , bNewLog, bViewLog
+       X , oCansa, -, -, -, -
+
+#data#
+
+   <kFile selected> 1
+   <kConsole selected> 0
+
+   <UDP_PUSH_PORT> 11883
+
+#listix#
+
+   <main>
+      CHECK, FILE, gastonaLogUDP.eva, LSX, START_SERVER
+      //**** **** **** **** **** **** **** ****
+      //****
+      //****  Found "gastonaLogUDP.eva"!
+      //****  UDP Log Cli2 NOT RUNNING
+      //****
+      //**** **** **** **** **** **** **** ****
+      //
+      // In presence of gastonaLogUDP.eva UDP log cli2 would
+      // log itself causing endless logging.
+      // To fix it, run "UDP log cli2" in a separate directory where
+      // no gastonaLogUDP.eva file is present.
+      //
+      
+      
+   <START_SERVER>
+      LSX, NEW_LOGNAME
+      UDP, SET SERVER, pincho, @<UDP_PUSH_PORT>
+      //====================================================
+      //
+      //=====  UPD Log started listen to port @<UDP_PUSH_PORT>
+      //
+      //====================================================
+      //
+      //Start a gastona script with UDP push logging at that port enabled.
+      //For example by creating a file with the name gastonaLogUDP.eva 
+      //in the script's current directory before launching it.
+      //
+      
+
+   <-- bNewLog> LSX, NEW_LOGNAME
+
+   <NEW_LOGNAME>
+      VAR=, currLOG, @<:lsx tmp UDPLog>
+      GEN, @<currLOG>, HEAD
+      -->, oCansa cls
+
+   <HEAD>
+      //tstamp,cliid,clistr,level,ctx,msg
+      //
+
+   <-- pincho udp>
+       IN CASE, 1
+              , @<kConsole selected>, LSX, THE_LINE
+              , @<kFile selected>,    LSX, OUT_FILE
+
+   <OUT_FILE>
+      GEN, @<currLOG>, THE_LINE
+         , APPEND, 1
+
+   <THE_LINE>
+       @<:raw p1>
+       //
+
+   <-- bViewLog>
+      LSX, DO_GEN_DB
+
+   <DO_GEN_DB>
+      CSV, FILE2DB, @<currLOG>, @<currLOG>.db, allUDPlog
+         , COLUMN NAMES,  //tstamp, cliid, clistr, level, ctx, msg
+      DB, @<currLOG>.db, EXECUTE, @<SQL_CREATE_VIEW_LOGELAPSED>
+      GAST, META-GASTONA/utilApp/arces/arces.gast, @<currLOG>.db
+
+
+   <SQL_CREATE_VIEW_LOGELAPSED>
+      //DROP VIEW IF EXISTS logElapsed;
+      //CREATE VIEW logElapsed AS
+      //     SELECT tstamp-tstamp_prev AS deltas, *
+      //     FROM (@<:sqlTablePrev allUDPlog_records tstamp cliid clistr level ctx msg>)
+      //   ORDER BY deltas DESC
+      // ;
+
+#**#

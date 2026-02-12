@@ -47,7 +47,7 @@
       //    -----------------------------
       //
       //    Removing errors may result a quite hard task in some cases. For example, when the error
-      //    message does not point directly to a reconocible mistake, or when lot of actions take
+      //    message does not point directly to a recognizable mistake, or when lot of actions take
       //    place and it is not obvious which action produces the error, etc. It can be also hard to
       //    find general malfunctions specially if no error messages at all are involved.
       //
@@ -58,13 +58,37 @@
       //    listix formats flow, detailed information about commands execution and much more low
       //    level information can be logged.
       //
-      //    The way to produce this logs is as follows:
+      //    There are two ways of getting the logging activity:
+      //
+      //       - Log via UDP
+      //       - Log files
+      //
+      //    --- Log via UDP
+      //
+      //    You can make your script logging through UDP in following ways:
+      //
+      //       a) Creating in the same directory a subfolder named "gastonaLogUDP"
+      //          this will set the standard UDP port for gastona log which is 11811
+      //          for sending all debug (level 0!)
+      //
+      //       b) Setting desired values in unit #gastona#, for example
+      //
+      //             #gastona#
+      //
+      //                <DEBUG_UDP_PORT>  119911
+      //                <DEBUG_LEVEL>     4
+      //
+      //    Then (or before) start a UDP client to listen for the configured port
+      //    A useful example of such an UDP client is the contained in gastona.jar (welcomeGastona)
+      //    sample script called "simple Gastona UDP debug client"
+      //
+      //    --- Log files
       //
       //    All log activity will be saved in a directory, the session log directory
       //    NOTE! Enabling log information makes the application run slower, the more logs enabled
       //          the slower the application will be.
       //
-      //    1) Either create a sub-directory called "sessionLog" from the current directory or
+      //    1) Either create a sub-directory called "sessionLog" (or "gastonaLog") from the current directory or
       //       call gastona setting the property "gastona.sessionLog.dir" to the desired directory
       //       for that. (e.g. java -jar gastona.jar -Dgastona.sessionLog.dir=MyLogDir script.gast)
       //

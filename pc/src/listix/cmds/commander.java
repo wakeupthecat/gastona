@@ -37,6 +37,10 @@ public class commander extends commanderBase
       loadCommandable (new cmdLua ()); 
       loadCommandable (new cmdPerl ());
       loadCommandable (new cmdPython ());
+      
+      loadCommandable (new cmdAudio2Buffer ());
+      loadCommandable (new cmdScreenshot ());
+      loadCommandable (new cmdMidi ());      
 
       loadCommandable (new cmdReplaceBmp ());  // only for Windows
       loadCommandable (new cmdProcessImage ());  // only for Windows

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -178,7 +178,7 @@ public class cmdLoadUnit implements commandable
 
       if (uTarget != null)
       {
-      uTarget.merge (uSource, iMergeType);
+         uTarget.merge (uSource, iMergeType);
       }
       else
       {

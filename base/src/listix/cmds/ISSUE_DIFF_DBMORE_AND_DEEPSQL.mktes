@@ -1,0 +1,33 @@
+#h ISSUE Differences between command DBMORE and DEEPSQL
+
+-- Introduction
+
+Both commands are very similar while cmdDeepDB is more documented and has more samples.
+
+Support almost the same syntaxes but using different names but same logic except for
+the first syntax (DEEP SQL)
+
+--- Syntax names in DBMORE
+
+      boolean optTranslate  = cmd.meantConstantString (oper, new String [] { "DEEPTOSQL", "DEEPSQL", "DEEP", "TRANSLATE", "TOSQL", "SQL" });
+      boolean optLoadConn   = cmd.meantConstantString (oper, new String [] { "LOADCONNECTIONS", "LOADCONN" });
+      boolean optSaveConn   = cmd.meantConstantString (oper, new String [] { "SAVECONNECTIONS", "SAVECONN" });
+      boolean optDeepSchema = cmd.meantConstantString (oper, new String [] { "DEEPSCHEMA", "DEEPCOLUMNS", "PLUSSCHEMA", "EXTENDEDSCHEMA" });
+
+--- Syntax names in DEEPDB / DEEP SQL
+
+      boolean optTranslate  = cmd.meantConstantString (oper, new String [] { "SELECT", "GETSELECT", "DEEPSELECT", "DEEPSQL" });
+      boolean optLoadConn   = cmd.meantConstantString (oper, new String [] { "GETCONNECTIONS", "LOADCONNECTIONS" });
+      boolean optSaveConn   = cmd.meantConstantString (oper, new String [] { "SETCONNECTIONS", "SAVECONNECTIONS" });
+      boolean optDeepSchema = cmd.meantConstantString (oper, new String [] { "DEEPSCHEMA", "DEEPCOLUMNS", "PLUSSCHEMA", "EXTENDEDSCHEMA" });
+
+
+--- Differences in syntax DEEP SQL (function optionDeepSQL)
+
+      DBMORE  , DEEP SQL  , EvaDeepColList, baseTable, [aliasTableBase]
+              , VARCONNECTIONS, EvaConnectionList
+
+      DEEP DB, DEEP SELECT  , tableName, aliasBaseTable
+             , CONNECTION, ...
+             , FIELD     , ...
+

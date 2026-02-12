@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -186,7 +186,7 @@ public class cmdParserEVA implements commandable
    {
       String oper        = cmd.getArg(0);
       String fileSource  = cmd.getArg(1);
-      String dbName      = cmd.getArg(2);
+      String dbName      = cmd.getListix ().resolveDBName (cmd.getArg(2));
       String tablePrefix = cmd.getArg(3);
       String fileNameInDB  = cmd.getArg(4);
 
@@ -196,7 +196,6 @@ public class cmdParserEVA implements commandable
       {
          if (tablePrefix.length () == 0)  tablePrefix = "eva";
          if (fileNameInDB.length () == 0) fileNameInDB = fileSource;
-         if (dbName.length () == 0)       dbName = cmd.getListix ().getDefaultDBName ();
       }
 
       if (fileSource.length () == 0)
@@ -322,7 +321,7 @@ public class cmdParserEVA implements commandable
    {
       String oper        = cmd.getArg(0);
       String fileNameInDB  = cmd.getArg(1);
-      String dbName      = cmd.getArg(2);
+      String dbName      = cmd.getListix ().resolveDBName (cmd.getArg(2));
       String tablePrefix = cmd.getArg(3);
       String fileTarget  = cmd.getArg(4);
       if (tablePrefix.length () == 0)
@@ -333,9 +332,6 @@ public class cmdParserEVA implements commandable
          cmd.getLog().err ("PARSER EVA", "fileNameInDB not specified!");
          return;
       }
-
-      if (dbName.length () == 0)
-         dbName = cmd.getListix ().getDefaultDBName ();
 
       if (cmd.getLog().isDebugging (2))
          cmd.getLog().dbg (2, "PARSER EVA", "execute with : oper [" + oper + "] fileNameInDB [" +  fileNameInDB + "] dbName [" +  dbName + "]  prefix [" + tablePrefix + "] fileTarget [" + fileTarget + "]");

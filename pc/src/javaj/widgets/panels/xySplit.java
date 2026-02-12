@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -109,7 +109,8 @@ public class xySplit extends JSplitPane implements setParameters_able
 
       setBorder(new EmptyBorder(2, 2, 2, 2));
       setOneTouchExpandable (true);
-      setMinimumSize (new Dimension(1,1));
+      setMinimumSize (new Dimension(0,0));
+      setContinuousLayout (true);
    }
 
    public void removeAll ()
@@ -120,23 +121,25 @@ public class xySplit extends JSplitPane implements setParameters_able
 //      firstComp = true;
    }
 
-   public void setParameters (String [] params)
+   public void setParameters (CParameterArray params)
    {
-      String p1 = (params.length > 1) ? params[1].toUpperCase(): "";
+      String p1 = params.getValueAt (1, "X");
+      String p2 = params.getValueAt (2, null);
 
       if (p1.equalsIgnoreCase("X") || p1.equalsIgnoreCase("H"))
          setOrientation (HORIZONTAL_SPLIT);
       else if (p1.equalsIgnoreCase("Y") || p1.equalsIgnoreCase("V"))
          setOrientation (VERTICAL_SPLIT);
 
-      // if (params.length > 2 && params[2] != null)
-      //    setBorder (BorderFactory.createTitledBorder (params[2]));
+      if (p2 != null)
+         setBorder (BorderFactory.createTitledBorder (p2));
    }
 
    private boolean firstComp = true;
 
    public Component add (Component co)
    {
+      // co.setContinuousLayout (true);
       switch (getOrientation ())
       {
          case HORIZONTAL_SPLIT:

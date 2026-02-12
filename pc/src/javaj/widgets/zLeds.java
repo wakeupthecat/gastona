@@ -161,17 +161,19 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
    private int [] status = new int[NLUCES];
 
 
-   private Color [] colores = new Color [MAX_COLORS];
+   private Color [] colorsLlums = new Color [MAX_COLORS];
    private Color colorFondo = new Color (154, 188, 160);   // verde caqui
 
    public zLeds ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zLeds (String map_name)
    {
       build (map_name, NLUCES);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)
@@ -185,10 +187,10 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
       super.setName (map_name);
       helper = new basicAparato ((MensakaTarget) this, new widgetEBS (map_name, null, null));
 
-      colores [0] = getBackground (); //new Color (126, 82, 68); // Amarillo (marron) oscuro
-      colores [1] = new Color (128, 128, 128); // gris oscuro
-      colores [2] = new Color (254, 249, 210); // cf_AmarilloClaro
-      colores [3] = new Color (242,  71,  24); // Rojo
+      colorsLlums [0] = getBackground (); //new Color (126, 82, 68); // Amarillo (marron) oscuro
+      colorsLlums [1] = new Color (128, 128, 128); // gris oscuro
+      colorsLlums [2] = new Color (254, 249, 210); // cf_AmarilloClaro
+      colorsLlums [3] = new Color (242,  71,  24); // Rojo
 
       // bimg = getGraphicsConfiguration().createCompatibleImage(d.width, d.height);
 
@@ -203,26 +205,17 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
    //
    //   javaj.widgets.zLed, 4, --, -, 000000000, 254249210, -
    //
-   public void setParameters (String [] param)
+   public void setParameters (CParameterArray param)
    {
       // parameters: thisclass NumberOfLights ShapeAndOrientation color1RRRGGGBBB color2RRRGGGBBB ...
       // shape can be -- -| o- o|
 
-      int nParamsReal = param.length;
-      while (nParamsReal > 0 && param[nParamsReal-1] == null) nParamsReal --;
+      if (! param.haveValueAt (1)) return;
 
-      int ipar = 1;
-      if (nParamsReal < 2) return;
-
-      NLUCES = Math.min (MAX_LUCES, stdlib.atoi (param[ipar]));
+      NLUCES = Math.min (MAX_LUCES, stdlib.atoi (param.getStrAt (1)));
       status = new int[NLUCES];
 
-      if (++ipar >= nParamsReal) return;
-      // ignore shape & orientation
-
       // colors given as RRRGGGBBB for instance 128, 34, 7 would be represented as 128034007
-
-      NCOLORS = Math.min (MAX_COLORS, nParamsReal - 3);
 
       // set the colors
       //
@@ -230,9 +223,12 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
       // or     background then background color
       // or     any other  then not set this color (take the default)
       //
-      while (++ipar < nParamsReal && (ipar-3) < NCOLORS)
+      do
       {
-         String cRRRGGGBBB = param[ipar];
+         String cRRRGGGBBB = param.getValueAt (NCOLORS + 2, null);
+         if (cRRRGGGBBB == null) break;
+         NCOLORS ++;
+
          Color col = null;
 
          if (cRRRGGGBBB.equalsIgnoreCase("background"))
@@ -245,11 +241,10 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
 
             col = new Color (rrr, ggg, bbb);
          }
-         else
-            col = colores [ipar-3];
 
-         colores [ipar-3] = (col != null) ? col: getBackground ();
+         colorsLlums [NCOLORS-1] = (col != null) ? col: getBackground ();
       }
+      while (true);
       subscribeLights (3, NLUCES - 1);
    }
 
@@ -345,9 +340,9 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
 
       for (int ii = 0; ii < NLUCES; ii ++)
       {
-         Color col = colores [status[ii]];
+         Color col = colorsLlums [status[ii]];
          if (col != null)
-            g2.setColor (colores [status[ii]]);
+            g2.setColor (colorsLlums [status[ii]]);
          g2.fillRect (X0, Y, W, H);
 
 //         g2.setColor (Color.GRAY);
@@ -398,10 +393,10 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
 
 
 
-//      colores [0] = new Color (128, 128, 128); // gris oscuro
-//      colores [1] = new Color (157, 139, 63);  // Amarillo (marron) oscuro
-//      colores [2] = new Color (254, 249, 210); // cf_AmarilloClaro
-//      colores [3] = new Color (220, 0, 0);     // cf_Rojo
+//      colorsLlums [0] = new Color (128, 128, 128); // gris oscuro
+//      colorsLlums [1] = new Color (157, 139, 63);  // Amarillo (marron) oscuro
+//      colorsLlums [2] = new Color (254, 249, 210); // cf_AmarilloClaro
+//      colorsLlums [3] = new Color (220, 0, 0);     // cf_Rojo
 
       // colorFondo = new Color (154, 188, 160);   // verde caqui
 //   public static final Color cf_AzulOscuro = new Color (0, 128, 128);
@@ -421,8 +416,3 @@ public class zLeds extends JPanel implements MensakaTarget, setParameters_able
 //   public static final Color  cf_Azul = new Color (0, 0, 220);
 
 */
-
-
-
-
-

@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -131,7 +131,7 @@ public class Cadena
       return -1;
    }
 
-   public int indexOf (String chars) 
+   public int indexOf (String chars)
    {
       return indexOf (chars, 0);
    }
@@ -368,15 +368,13 @@ public class Cadena
    /**
       the same as simpleToList but returning a String []
    */
-   public static String [] simpleToArray (String simpleStringList, String separator)
+   public static String [] strListToArray (List strList)
    {
-      List colec = simpleToList (simpleStringList, separator);
-
       // make the string array
       //
-      String [] reto = new String[colec.size ()];
-      for (int ii = 0; ii < colec.size (); ii ++)
-         reto[ii] = (String) colec.get(ii);
+      String [] reto = new String[strList.size ()];
+      for (int ii = 0; ii < strList.size (); ii ++)
+         reto[ii] = (String) strList.get(ii);
 
       /* Como utilizar el metodo toArray ?? ... es igual me ahorraria solo una linea
          reto = new String[colec.size ()];
@@ -384,6 +382,15 @@ public class Cadena
       */
 
       return reto;
+   }
+
+   /**
+      the same as simpleToList but returning a String []
+   */
+   public static String [] simpleToArray (String simpleStringList, String separator)
+   {
+      List colec = simpleToList (simpleStringList, separator);
+      return strListToArray (colec);
    }
 
    public static String [] simpleToArray (String simpleStringList)

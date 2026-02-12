@@ -1,0 +1,92 @@
+////----- TEST
+//// @ <:infile stringColumns.js>
+//
+var testo = [[ " De los sos maravillosaos ojos tan fuertemiente plorando tornava la cabesa o mio sid campechador. Ese que se sabe el monarca de las praderas lejanas y herr de las tierras abruptas en sortin de valensia y vislumbrant Alcoi digues : acina quan es menja?", ""],
+              [ " De relato a la fisica cuantica de los resonadores de Plank y las orbitas de Bohr. Cuando Sommerfeld sento juntos a Pauli y a Heisenberg ignoraba lo que vendria en adelante.", " Y no era muy tarde cuando el poeta dijo : Los lados de las laderas son pastos para los pastores. y anyadio : Vaya valles! Valla valles!" ],
+             ];
+
+ var aa = stringColumns (testo, 40, "< ", " | ", " >");
+
+ for (var rr in aa)
+        out (aa[rr]);
+ //aa/ssaa
+
+
+function stringColumns (txttable, maxcol, s_start, s_gap, s_end)
+{
+   // repeat character,
+   // note that string.repeat () is not supported by all browsers!
+   function repchar (cha, times)
+   {
+      var str = "";
+      for (var ii = 0; ii < times; ii ++)
+         str += cha;
+      return str;
+   }
+
+   // define how short may be a word in order to not to be separated
+   // it depends on the column width
+   function shortLen (forWidth)
+   {
+      return forWidth < 10 ? 0: Math.min (forWidth * .15, 12);
+   }
+
+
+   var wcols = [];
+
+   // compute col widths
+   for (var rr in txttable)
+      for (var cc in txttable[rr])
+      {
+         var was = (wcols[cc]||{width:0}).width;
+         wcols[cc] = { ptread: 0,
+                       width: Math.min(maxcol, Math.max(txttable[rr][cc].length, was))
+                     };
+      }
+
+   var salida = [];
+
+   // print all rows
+   for (var rr in txttable)
+   {
+      var queda = true;
+      for (var cc in txttable[rr])
+         wcols[cc].ptread = 0;
+
+      while (queda)
+      {
+         var linea = [];
+         queda = false;
+         for (var cc in txttable[rr])
+         {
+            var line = txttable[rr][cc];
+            var lentotake = wcols[cc].width;
+            var powi = wcols[cc].ptread + wcols[cc].width - 1;
+
+            // check if last word is cut and try to set it in the next line
+            //
+            if (line.length > wcols[cc].width && line.substr(powi).match(/[0-9,a-z,A-Z]/))
+            {
+               var bla1 = line.lastIndexOf (' ', powi); // position of first blank before last word
+               var bla2 = line.indexOf (' ', powi + 1); // position of first blank after last word
+               if (bla2 > 0 && (bla2 - bla1 - 1) <= shortLen (wcols[cc].width))
+               {
+                  // set it to next line
+                  lentotake -= (powi - bla1 + 1);
+               }
+            }
+
+            var tros = txttable[rr][cc].substr(wcols[cc].ptread, lentotake);
+            wcols[cc].ptread += lentotake;
+
+            queda |= line.length > wcols[cc].ptread;
+
+            tros = tros + repchar(" ", wcols[cc].width - tros.length);
+            linea.push (tros);
+         }
+         salida.push ((s_start||"") + linea.join (s_gap||"") + (s_end||""));
+      }
+   }
+
+   return salida;
+}

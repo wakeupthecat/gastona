@@ -3,19 +3,22 @@
    <layout of layExportBasic>
         EVA, 5, 5, 5, 5
 
-           ,  X
-           , eExportBasicFields, rgExportBasicType, bExportBasic
+           ,  X,, X
+           , eExportBasicFields, rgExportBasicType, ePostfix, bExportBasic, kTemp
 
 #data#
 
+   <kTemp selected> 0
+
    <rgExportBasicType orientation> X
    <rgExportBasicType>
-      label  , ext , separ, preRow, postRow, head, tail
+      label  , ext , headerDB, headerSQL, separ, preRow, postRow, head, tail
 
-      Html   , html, "<td>", "<tr><td>", "</tr>", @<ExportBasic headHtml>, @<ExportBasic tailHtml>
-      CSV    , csv , """, """, """", """"
-      Excel  , xls , @<TAB>
-      Text   , txt , ", "
+      Text+Info, txt , 1, 1, ", "
+      Text     , txt , 0, 0, ", "
+      Excel    , xls , 0, 0, @<TAB>
+      CSV      , csv , 0, 0, """, """, """", """"
+      Html     , html, 0, 0, "<td>", "<tr><td>", "</tr>", @<ExportBasic headHtml>, @<ExportBasic tailHtml>
 
    <TAB> @<:hex 09>
 
@@ -33,16 +36,21 @@
    <ExportBasic set (gridName dbName)>
       VAR=, ExportBasic gridName, @<p1>
       VAR=, ExportBasic gridDBName, @<p2>
+      <! DUMP, data,, ExportBasic
       -->, rgExportBasicType select!, #, 0
+      -->, ePostfix data!,, //reports/@<:lsx date yyyyMMdd_HHmmss>
       LSX, ExportBasic showFields
 
    <ExportBasic sql base>
+      CHECK, VAR, @<ExportBasic gridName> sqlSelect, SELECT "" AS nocolumn
       LSX, @<ExportBasic gridName> sqlSelect
 
    <ExportBasic sql complete>
-      //SELECT * FROM (@<ExportBasic sql base>)
+      //SELECT * FROM
+      //       (@<ExportBasic sql base>)
       CHECK, VAR, @<ExportBasic gridName> sqlExtraFilter
-      " "
+      //
+      "      "
       LSX, @<ExportBasic gridName> sqlExtraFilter
 
    <ExportBasic showFields>
@@ -54,14 +62,30 @@
           ,,     , LINK, @<rgExportBasicType selected.separ>
           ,,     ,, @<@><@<columnName>>
 
-   <ExportBasic create temp>
-      LSX, :lsx tmp @<rgExportBasicType selected.ext>
+   <ExportBasic chooseFileName>
+      IN CASE, @<kTemp selected>
+             ,    1, LSX, :lsx tmp @<rgExportBasicType selected.ext>
+             , ELSE, //@<ExportBasic DBNAME>_@<ePostfix>.@<rgExportBasicType selected.ext>
+
+   <ExportBasic DBNAME>
+      CHECK, =, "", @<ExportBasic gridDBName>, @<ExportBasic gridDBName>
+      @<:sys gastona.defaultDB>
 
    <ExportBasic doExport>
-      VAR=, ExportBasic fileName, @<ExportBasic create temp>
+      <! DUMP, data,, ExportBasic
+      VAR=, ExportBasic fileName, @<ExportBasic chooseFileName>
       GENERATE, @<ExportBasic fileName>, ExportBasic formatGen
 
    <ExportBasic formatGen>
+      IN CASE, @<rgExportBasicType selected.headerDB>
+             ,1 , //  DB : @<ExportBasic DBNAME>
+             ,1 , //
+             ,1 , //
+      IN CASE, @<rgExportBasicType selected.headerSQL>
+             ,1 , //  SQL: @<ExportBasic sql complete>
+             ,1 , //
+             ,1 , //
+
       @<rgExportBasicType selected.head>
       LOOP, SQL, @<ExportBasic gridDBName>, @<ExportBasic sql complete>
           , HEAD, LSX, ExportBasic columNames

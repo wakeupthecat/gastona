@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -470,9 +470,9 @@ public class svgLikePathParser2uniPath
 
       clear ();
 
-      //Trazo compatibility: CALL THIS after reseting the current path!
+      //Trass compatibility: CALL THIS after reseting the current path!
       //
-      pt = trazoStarted (pathData);
+      pt = trassStarted (pathData);
 
       int plen = pathData.length ();
       while (pt < plen)
@@ -529,11 +529,11 @@ public class svgLikePathParser2uniPath
       tryOperation ();
    }
 
-   // trick to admit trazo paths as well
+   // trick to admit trass paths as well
    //  e.g.
    //       "jauz 10 2 -1 20 5 5"
    //
-   protected int trazoStarted (String strpath)
+   protected int trassStarted (String strpath)
    {
       boolean isClosed = false;
       if (strpath.startsWith ("rec"))

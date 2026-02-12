@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +21,11 @@ package javaj;
 import java.util.List;
 import java.util.Vector;
 import de.elxala.Eva.*;
+import de.elxala.Eva.layout.*;
 import de.elxala.langutil.*;
 import javaj.widgets.*;
+import javaj.widgets.basics.*;
+import de.elxala.zServices.*;
 
 /*
    define la estructura (Eva based) de una aplicacio'n javaj
@@ -69,7 +72,9 @@ import javaj.widgets.*;
 */
 public class javajEBSbase
 {
-   // this message is sent by javaj after instanciating all it components
+   private static logger log = new logger (null, "javaj.javajEBSbase", null);
+
+   // the message "javaj onceContextData&Control" is sent by javaj after instanciating all it components
    // sending the EvaUnit data (#data#). All widgets listen to this message
    // and if they don't already have a base context then use the data sent
    // as base context taking data and control from it.
@@ -178,31 +183,31 @@ public class javajEBSbase
 //      return mImageApp;
 //   }
 
-   public List getLayoutNames ()
-   {
-      if (mainEUData == null) return new Vector ();
+    public List getLayoutNames ()
+    {
+        if (mainEUData == null) return new Vector ();
 
-      List names = new Vector ();
+        List names = new Vector ();
 
-      for (int ii = 0; ii < mainEUData.size(); ii ++)
-      {
-         String eName = mainEUData.getEva(ii).getName ();
-         if (eName.startsWith ("layout of "))
-            names.add (eName.substring ("layout of ".length ()));
-      }
-      return names;
-   }
+        for (int ii = 0; ii < mainEUData.size(); ii ++)
+        {
+            String laynam = getLayoutName (mainEUData.getEva(ii));
+            if (laynam != null)
+                names.add  (laynam);
+        }
+        return names;
+    }
 
-   public void setMaskedLayout (String layoutName, String layoutMask)
-   {
-      setMaskedLayout (layoutName, layoutMask, null);
-   }
+    public void setMaskedLayout (String layoutName, String layoutMask)
+    {
+        setMaskedLayout (layoutName, layoutMask, null);
+    }
 
    public void setMaskedLayout (String layoutName, String layoutMask, String layoutAlternative)
    {
       doSetMaskedLayout (
            layoutName,
-           // ISSUE! after masking this condition seems to be not enough 
+           // ISSUE! after masking this condition seems to be not enough
            (layoutAlternative != null && getMaskedLayout (layoutName) == layoutMask) ?
               layoutAlternative: layoutMask
            );
@@ -381,59 +386,119 @@ public class javajEBSbase
       return getValueOfFrame(indx, 4);
    }
 
-   public Eva getLayout (String frameName)
-   {
-      return mainEUData.getEva ("layout of " + frameName);
-   }
+    public Eva getLayout (String frameName)
+    {
+        return getLayoutEva (frameName);
+    }
+
+    public String getLayoutName (Eva layoutVar)
+    {
+        String eName = layoutVar.getName ();
+        if (eName.startsWith ("lay "))
+            return eName.substring ("lay ".length ());
+        if (eName.startsWith ("layeva "))
+            return eName.substring ("layeva ".length ());
+        if (eName.startsWith ("layout of "))
+            return eName.substring ("layout of ".length ());
+        return null;
+    }
+
+    //  Eva getLayoutEva (name)
+    //      returns the Eva variable with the layout information if name turns to be a layout at all
+    //      do not interchange with EvaLayout type of layout!
+    //
+    public Eva getLayoutEva (String frameName)
+    {
+        Eva eva = mainEUData.getEva ("lay " + frameName);
+        if (eva == null)
+            eva = mainEUData.getEva ("layout of " + frameName);
+        if (eva == null)
+        {
+            eva = mainEUData.getEva ("layeva " + frameName);
+            if (eva != null)
+            {
+                // silently convert <layeva xxx> into standard <lay xxx> EVALAYOUT ... etc
+                // and add it into mainEUData, so the next time it will be found under <lay nam> (first if in the function)
+                //
+                Eva evaExpl = EvaLayoutExt.normalizeEvalayoutVar (eva, mainEUData.getEva ("layeva-config"));
+                if (evaExpl != eva) // they have to be different but just in case
+                {
+                    log.dbg (6, "getLayoutEva", "layeva from layeva-config " + evaExpl.toString ());
+                    mainEUData.add (evaExpl);
+                    // next time it will be found under <lay nam> EVALAYOUT ... etc
+                    eva = evaExpl;
+                }
+            }
+        }
+        
+        return eva;
+    }
+
+    //  Eva getLayout_layeva (name)
+    //      returns the Eva variable with the layout information if the name turns out to be an implicit EVALAYOUT 
+    //      which are the evas with name <layeva xxx>
+    //
+    public Eva getLayout_layeva (String frameName)
+    {
+        return mainEUData.getEva ("layeva " + frameName);
+    }
+
+    //  Eva isLayout_layeva (name)
+    //      returns true if the name turns out to be an implicit EVALAYOUT 
+    //      which are the evas with name <layeva xxx>
+    //
+    public boolean isLayout_layeva (String frameName)
+    {
+        return getLayout_layeva (frameName) != null;
+    }
+
 
    public Eva getSysFontsEva ()
    {
       return mainEUData.getEva ("sysDefaultFonts");
    }
 
-   public Eva getSysImagesEva ()
-   {
-      return mainEUData.getEva ("sysDefaultImages");
-   }
+    public Eva getSysImagesEva ()
+    {
+        return mainEUData.getEva ("sysDefaultImages");
+    }
 
-   /*
-      return
-   */
-   public int getLayoutKind (Eva evaLay)
-   {
-      if (evaLay == null)
-         return LAY_UNKNOWN;
+    public int getLayoutKind (Eva evaLay)
+    {
+        if (evaLay == null)
+            return LAY_UNKNOWN;
 
-      // el tipo de layout se encuentra SIEMPRE en la posicio'n 0, 0
-      //
-      return getLayoutKind (evaLay.getValue (0,0));
-   }
+        if (evaLay.Nom.startsWith ("evalay "))
+            return LAY_EVA_LAYOUT;
 
-   public static int getLayoutKind (String evaLayStr)
-   {
-      if (evaLayStr == null || evaLayStr.length() == 0)
-      {
-         return LAY_UNKNOWN;
-      }
-      evaLayStr = evaLayStr.toUpperCase ();
+        // el tipo de layout se encuentra SIEMPRE en la posicio'n 0, 0
+        //
+        return getLayoutKind (evaLay.getValue (0,0));
+    }
 
-      if (evaLayStr.equals ("EVALAYOUT"))    return LAY_EVA_LAYOUT;
-      if (evaLayStr.equals ("EVA"))          return LAY_EVA_LAYOUT;
-      if (evaLayStr.equals ("EVAMOSAIC"))    return LAY_EVA_MOSAIC;
-      if (evaLayStr.equals ("EVAMOSAICX"))   return LAY_EVA_MOSAICX;
-      if (evaLayStr.equals ("SWITCHLAYOUT")) return LAY_SWITCH_LAYOUT;
-      if (evaLayStr.equals ("MENU"))         return LAY_MENU;
-      if (evaLayStr.equals ("TOOLBAR"))      return LAY_TOOLBAR;
-      if (evaLayStr.equals ("ADD"))          return LAY_CONTAINER_ADD;
-      if (evaLayStr.equals ("PANEL"))        return LAY_PANEL;
-      if (evaLayStr.equals ("SPLIT"))        return LAY_SPLIT;
-      if (evaLayStr.equals ("RADIO"))        return LAY_RADIO;
-      if (evaLayStr.equals ("TAB") ||
-          evaLayStr.equals ("TABBED"))       return LAY_TABBED_PANE;
-      if (evaLayStr.equals ("PAK"))          return LAY_PAK;
+    public static int getLayoutKind (String evaLayStr)
+    {
+        if (evaLayStr == null || evaLayStr.length() == 0)
+            return LAY_UNKNOWN;
+        evaLayStr = evaLayStr.toUpperCase ();
 
-      return LAY_UNKNOWN;
-   }
+        if (evaLayStr.equals ("EVALAYOUT"))    return LAY_EVA_LAYOUT;
+        if (evaLayStr.equals ("EVA"))          return LAY_EVA_LAYOUT;
+        if (evaLayStr.equals ("EVAMOSAIC"))    return LAY_EVA_MOSAIC;
+        if (evaLayStr.equals ("EVAMOSAICX"))   return LAY_EVA_MOSAICX;
+        if (evaLayStr.equals ("SWITCHLAYOUT")) return LAY_SWITCH_LAYOUT;
+        if (evaLayStr.equals ("MENU"))         return LAY_MENU;
+        if (evaLayStr.equals ("TOOLBAR"))      return LAY_TOOLBAR;
+        if (evaLayStr.equals ("ADD"))          return LAY_CONTAINER_ADD;
+        if (evaLayStr.equals ("PANEL"))        return LAY_PANEL;
+        if (evaLayStr.equals ("SPLIT"))        return LAY_SPLIT;
+        if (evaLayStr.equals ("RADIO"))        return LAY_RADIO;
+        if (evaLayStr.equals ("TAB") ||
+            evaLayStr.equals ("TABBED"))       return LAY_TABBED_PANE;
+        if (evaLayStr.equals ("PAK"))          return LAY_PAK;
+
+        return LAY_UNKNOWN;
+    }
 
    /**
       returns the kind of widget of the widget named 'widName' and its possible parameters. The different
@@ -445,7 +510,7 @@ public class javajEBSbase
 
       WID_PANEL
          The widget is a panel or another widget container (composition of containers/layouts)
-         If the eva <layout of 'widName'> is found then the widget is a container
+         If the eva <lay 'widName'> (or <layout of 'widName'>) is found then the widget is a container
 
       WID_PRIMITIVE
          If the widget is neither explicit or a panel then it is supposed to be a primitive
@@ -470,12 +535,14 @@ public class javajEBSbase
 
 
    */
-   public int kindOfWidget (String widName, String [] parameters)
+   public int kindOfWidget (String widName, CParameterArray parameters)
    {
       Eva eva = null;
       int ret = WID_PRIMITIVE;  // se supone por defecto ...
 
-      // class specified
+      //@TODOC 2023-05-06 12:35:50 javaj implementation of <javaClass of XXXX> for widgets
+      //
+      // check if widget class is specified
       //
       eva = mainEUData.getEva ("javaClass of " + widName);
       if (eva != null)
@@ -488,7 +555,7 @@ public class javajEBSbase
       {
          // a panel to be layouted
          //
-         eva = mainEUData.getEva ("layout of " + widName);
+         eva = getLayoutEva (widName);
          if (eva != null)
          {
             // es un panel  (p.e. <panel of widgeto> ADD, JTabbdPane, xTesto, botones
@@ -499,8 +566,8 @@ public class javajEBSbase
 
       // collect parameters
       //
-      for (int ii = 0; ii < parameters.length; ii ++)
-         parameters[ii] = (eva != null && ii < eva.cols(0)) ? eva.getValue(0, ii): null;
+      if (eva != null)
+         parameters.strArr = eva.getStrArray (0);
 
       return ret;
    }

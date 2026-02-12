@@ -210,7 +210,7 @@ public class javaLoad extends Component
          Method method;
          if (args != null)
               method = ella.getDeclaredMethod (staticMethod, new Class[] { args.getClass () });
-         else method = ella.getDeclaredMethod (staticMethod, null);
+         else method = ella.getDeclaredMethod (staticMethod, new Class[] {} );
          method.setAccessible (true);
 
          // from java documentation method invoke
@@ -224,7 +224,7 @@ public class javaLoad extends Component
 
          if (args != null)
               returnValue = method.invoke (ella, new Object [] { args });
-         else returnValue = method.invoke (ella, null);
+         else returnValue = method.invoke (ella, new Object [] {});
       }
       catch (Exception t)
       {
@@ -257,7 +257,7 @@ public class javaLoad extends Component
       {
          return null;
       }
-      
+
       String resourceNorm = resourceName.replace('\\', '/');
       return clo.getResource (resourceNorm);
    }
@@ -299,14 +299,14 @@ public class javaLoad extends Component
          //URL u = new URL(resourceName);
          //URLConnection con = u.openConnection();
          //con.setUseCaches(false);
-         //Image img = Toolkit.getDefaultToolkit().createImage(new URLImageSource(u, con));         
+         //Image img = Toolkit.getDefaultToolkit().createImage(new URLImageSource(u, con));
          //    return img;
          //}
          //catch (Exception)
          //{
          //    return null;
          //}
-         
+
          return new ImageIcon (resourceName);
       }
 //      else System.out.println ("image file " + resourceName + " NOT found!");

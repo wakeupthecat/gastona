@@ -384,6 +384,13 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
                Mensaka.sendPacket (getName () + " dumping", null, new String [] { sal });
                System.out.println (sal);
             }
+            else if (pe instanceof textElement)
+            {
+                textElement te = (textElement) pe;
+                String sal = "text, " + te.x + ", " + te.y + ", " + te.mStyleStr + ", //" +  te.mText;
+                System.out.println (sal);
+                Mensaka.sendPacket (getName () + " dumping", null, new String [] { sal });
+            }
          }
       }
    }
@@ -406,7 +413,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
          miEscena.laEscena.addObject (obLo);
       }
 
-      //(o) TODO/javaj/GraphicScene support also FONDOgraphic from trazos format
+      //(o) TODO/javaj/GraphicScene support also FONDOgraphic from trassos format
       // paint attribute graphic
       graphicObjectLoader obLo = new graphicObjectLoader ();
       obLo.loadObjectFromEva ("FONDOgraphic",
@@ -460,15 +467,15 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
             miEscena.laEscena.addObject (obLo);
          }
 
-         // support for trazos and trazosPress (editable paths)
+         // support for trassos and trassosPress (editable paths)
          //
-         if (helper.ebs ().getDataAttribute ("trazos " + graphname) != null)
+         if (helper.ebs ().getDataAttribute ("trassos " + graphname) != null)
          {
-            widgetLogger.log ().dbg (2, "paintSceneData", "found trazos attribute for [" + graphname + "]");
+            widgetLogger.log ().dbg (2, "paintSceneData", "found trassos attribute for [" + graphname + "]");
             graphicObjectLoader obLo = new graphicObjectLoader ();
-            
-            obLo.loadObjectFromEvaTrazos (graphname, 
-                                          helper.ebs ().getDataAttribute ("trazos " + graphname),
+
+            obLo.loadObjectFromEvaTrassos (graphname,
+                                          helper.ebs ().getDataAttribute ("trassos " + graphname),
                                           helper.ebs ().getDataAttribute ("graphicPress " + graphname),
                                           basicMov,
                                           new offsetAndScale (posx, posy, scalex, scaley));
@@ -492,7 +499,7 @@ public class z2DGraphicScenes extends uniSceneInMotionView implements MensakaTar
 
    protected void savePNGs ()
    {
-      // de http://developer.android.com/guide/practices/screens_support.html
+      // de https://developer.android.com/guide/practices/screens_support
       // To create alternative bitmap drawables for different densities,
       // you should follow the 3:4:6:8 scaling ratio between the four
       // generalized densities. For example, if you have a bitmap drawable that's

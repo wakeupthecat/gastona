@@ -115,7 +115,7 @@ public class parameters4LsxGenerate
       if (fileName.length () == 0)
       {
          // we have - by the moment - no default listix file
-         cmd.getLog().err (cmd.cmdName, "parameter fileData or fileFormats has to be specified!");
+         cmd.getLog().err (cmd.commandName, "parameter fileData or fileFormats has to be specified!");
          if (StrictOptionsErrors) return true; // ERROR
       }
 
@@ -123,13 +123,13 @@ public class parameters4LsxGenerate
 
       if (euLoad == null)
       {
-         cmd.getLog().err (cmd.cmdName, "failed loading unit #" + unitName + "# from \"" + fileName + "\"");
+         cmd.getLog().err (cmd.commandName, "failed loading unit #" + unitName + "# from \"" + fileName + "\"");
          if (StrictOptionsErrors) return true; // ERROR
       }
       else
       {
          eu.setAsReferenceOf (euLoad);
-         cmd.getLog().dbg (2, cmd.cmdName, "loaded unit #" + unitName + "# from \"" + fileName + "\"");
+         cmd.getLog().dbg (2, cmd.commandName, "loaded unit #" + unitName + "# from \"" + fileName + "\"");
       }
       return false;  // NO ERROR!
    }
@@ -151,12 +151,12 @@ public class parameters4LsxGenerate
          else if (optNL.equals ("LF"))      genNewLineString = TextFile.NEWLINE_LF10;
          else
          {
-            cmd.getLog ().err (cmd.cmdName, "option NEWLINE [" + optNL + "] not valid!");
+            cmd.getLog ().err (cmd.commandName, "option NEWLINE [" + optNL + "] not valid!");
             if (StrictOptionsErrors) return false;
          }
 
          if (genNewLineString != null)
-            cmd.getLog ().dbg (2, cmd.cmdName, "option NEWLINE [" + optNL + "] set");
+            cmd.getLog ().dbg (2, cmd.commandName, "option NEWLINE [" + optNL + "] set");
       }
 
       // Option LOAD FORMATS
@@ -166,7 +166,7 @@ public class parameters4LsxGenerate
       {
          if (loadFormats.length < 1)
          {
-            cmd.getLog().err (cmd.cmdName, "option LOAD FORMATS requires at least one parameter!");
+            cmd.getLog().err (cmd.commandName, "option LOAD FORMATS requires at least one parameter!");
             if (StrictOptionsErrors) return false;
          }
          else
@@ -174,7 +174,7 @@ public class parameters4LsxGenerate
             genFormatsFileName = loadFormats[0];
             genFormatsUnitName = loadFormats.length > 1 ? loadFormats[1]: "";
          }
-         cmd.getLog().dbg (2, cmd.cmdName, "option LOAD FORMATS file:\"" + genFormatsFileName + "\"  unit:\"" + genFormatsUnitName + "\"");
+         cmd.getLog().dbg (2, cmd.commandName, "option LOAD FORMATS file:\"" + genFormatsFileName + "\"  unit:\"" + genFormatsUnitName + "\"");
       }
 
       // load evaUnit for LOAD DATA
@@ -201,7 +201,7 @@ public class parameters4LsxGenerate
          {
             if (loadData.length < 1)
             {
-               cmd.getLog().err (cmd.cmdName, "option LOAD DATA requires at least one parameter!");
+               cmd.getLog().err (cmd.commandName, "option LOAD DATA requires at least one parameter!");
                if (StrictOptionsErrors) return false;
             }
             else
@@ -209,7 +209,7 @@ public class parameters4LsxGenerate
                genDataFileName = loadData[0];
                genDataUnitName = loadData.length > 1 ? loadData[1]: "";
             }
-            cmd.getLog().dbg (2, cmd.cmdName, "option LOAD DATA file:\"" + genDataFileName + "\"  unit:\"" + genDataUnitName + "\"");
+            cmd.getLog().dbg (2, cmd.commandName, "option LOAD DATA file:\"" + genDataFileName + "\"  unit:\"" + genDataUnitName + "\"");
          }
       }
 
@@ -221,7 +221,7 @@ public class parameters4LsxGenerate
          {
             if (pushData.length < 1)
             {
-               cmd.getLog().err (cmd.cmdName, "option PUSH VARIABLES requires at least one parameter!");
+               cmd.getLog().err (cmd.commandName, "option PUSH VARIABLES requires at least one parameter!");
                if (StrictOptionsErrors) return false;
             }
             else
@@ -229,7 +229,7 @@ public class parameters4LsxGenerate
                genPushDataFileName = pushData[0];
                genPushDataUnitName = pushData.length > 1 ? pushData[1]: "";
             }
-            cmd.getLog().dbg (2, cmd.cmdName, "option PUSH VARIABLES file:\"" + genPushDataFileName + "\"  unit:\"" + genPushDataUnitName + "\"");
+            cmd.getLog().dbg (2, cmd.commandName, "option PUSH VARIABLES file:\"" + genPushDataFileName + "\"  unit:\"" + genPushDataUnitName + "\"");
          }
       }
 
@@ -241,13 +241,13 @@ public class parameters4LsxGenerate
       {
          if (pars.length < 1)
          {
-            cmd.getLog().err (cmd.cmdName, "option PARAMS requires at least one parameter!");
+            cmd.getLog().err (cmd.commandName, "option PARAMS requires at least one parameter!");
             if (StrictOptionsErrors) return false;
          }
          for (int ii = 0; ii < pars.length; ii ++)
             lisParams.add (pars[ii]);
 
-         cmd.getLog().dbg (2, cmd.cmdName, "option PARAMS, " + pars.length + " parameters given");
+         cmd.getLog().dbg (2, cmd.commandName, "option PARAMS, " + pars.length + " parameters given");
       }
       if (lisParams.size () > 0)
       {
@@ -294,7 +294,7 @@ public class parameters4LsxGenerate
       {
          if (setVarOpt.length != 2)
          {
-            cmd.getLog().err (cmd.cmdName, "option SET VAR DATA requires 2 parameters!");
+            cmd.getLog().err (cmd.commandName, "option SET VAR DATA requires 2 parameters!");
             if (StrictOptionsErrors) return false;
          }
          else
@@ -303,7 +303,7 @@ public class parameters4LsxGenerate
             String value   = cmd.getListix().solveStrAsString (setVarOpt[1]);
             Eva targ = genDataEvaUnit.getSomeHowEva(evaname);
             targ.setValueVar (value);
-            cmd.getLog().dbg (2, cmd.cmdName, "set var data <" + evaname + "> with value \"" + value + "\"");
+            cmd.getLog().dbg (2, cmd.commandName, "set var data <" + evaname + "> with value \"" + value + "\"");
          }
       }
 
@@ -315,14 +315,14 @@ public class parameters4LsxGenerate
          // this option only make sense if LOAD DATA has been set
          if (genDataEvaUnit == cmd.getListix().getGlobalData ())
          {
-            cmd.getLog().err (cmd.cmdName, "option PASS VAR DATA set but no external data used! (option LOAD DATA not set)");
+            cmd.getLog().err (cmd.commandName, "option PASS VAR DATA set but no external data used! (option LOAD DATA not set)");
             if (StrictOptionsErrors) return false;
             break;
          }
 
          if (setVarOpt.length != 1)
          {
-            cmd.getLog().err (cmd.cmdName, "option PASS VAR DATA requires 1 parameter!");
+            cmd.getLog().err (cmd.commandName, "option PASS VAR DATA requires 1 parameter!");
             if (StrictOptionsErrors) return false;
          }
          else
@@ -334,7 +334,7 @@ public class parameters4LsxGenerate
             Eva evaFromCurrent = cmd.getListix().getGlobalData ().getEva (evaname);
             if (evaFromCurrent == null)
             {
-               cmd.getLog().err (cmd.cmdName, "cannot PASS VAR DATA, variable <" + evaname + "> not found!");
+               cmd.getLog().err (cmd.commandName, "cannot PASS VAR DATA, variable <" + evaname + "> not found!");
                if (StrictOptionsErrors) return false;
             }
             else
@@ -344,7 +344,7 @@ public class parameters4LsxGenerate
 
                //reference directly the contents!
                targ.lis_EvaLin = evaFromCurrent.lis_EvaLin;
-               cmd.getLog().dbg (2, cmd.cmdName, "share data variable <" + evaname + ">");
+               cmd.getLog().dbg (2, cmd.commandName, "share data variable <" + evaname + ">");
             }
          }
       }
@@ -354,7 +354,7 @@ public class parameters4LsxGenerate
       if (targetFileName != null && targetFileName.length () > 0)
       {
          genFileToGenerate = targetFileName;
-         cmd.getLog().dbg (2, cmd.cmdName, "option TARGET FILE [" + targetFileName + "]");
+         cmd.getLog().dbg (2, cmd.commandName, "option TARGET FILE [" + targetFileName + "]");
       }
 
       // targetEva
@@ -362,7 +362,7 @@ public class parameters4LsxGenerate
       if (targetEvaName != null && targetEvaName.length () > 0)
       {
          genTargetVarEva = genDataEvaUnit.getSomeHowEva(targetEvaName);
-         cmd.getLog().dbg (2, cmd.cmdName, "option TARGET VAR [" + targetEvaName + "]");
+         cmd.getLog().dbg (2, cmd.commandName, "option TARGET VAR [" + targetEvaName + "]");
       }
 
       int remainOpt = cmd.checkRemainingOptions ();

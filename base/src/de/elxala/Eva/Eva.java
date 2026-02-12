@@ -68,6 +68,7 @@ public class Eva implements java.io.Serializable
    public static final char MERGE_ADD       = 'A';   // the rows of the plusEva are added at the end
    public static final char MERGE_ADD_TABLE = 'T';   // the rows of the plusEva are added at the end except the first one which is the header with column names
    public static final char MERGE_NEW_VARS  = 'N';   // only the new variables are added, the existent one remains unchanged
+   public static final char MERGE_EXPLICIT  = 'X';   // Explicit, only variables starting with <*XXX <+XXX <-XXX or <=XXX can have the same name as existing ones and then : * replace, + add at end, - add at begining, = only add if not present
 
    public String Nom;
    public List   lis_EvaLin; // List < EvaLine >

@@ -301,6 +301,8 @@ public class zConsole extends JTextArea implements MensakaTarget
 
    public void init(int typeOutput)
    {
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
+
       setDoubleBuffered(false);
       helper = new basicAparato ((MensakaTarget) this, new widgetEBS (getName (), null, null));
       javaj.globalJavaj.ensureDefRes_javajUI_text ();

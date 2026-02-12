@@ -1,3 +1,11 @@
+/*
+Copyright (C) 2018-2026 Alejandro Xalabarder Aulet
+License : GNU General Public License (GPL) version 3
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*/
 // codiFinestreta
 //
 //    The component compose a svg from a text, typically source code to be highlighted, to be rendered
@@ -144,6 +152,10 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
       cafeto:  "373b41dadcdbf0c674bfe9a0eb8f63717935f2f73cb5d7d2888f97",
       dark  :  "002b36FFFFFFe0b370b7b3b6d0e1c9937979FFFFAA9ddfddd0e1c9",
       dark2 :  "002b36e9e9e9ecee9568d7cec1c1c1268fe6FFFFAAed9cc70dcac0",
+      vscode:  "1e1e1ec586b6dcdcaace91786a9955575757ffffff4ec9b0719293",
+      tronja:  "0d0d0cfb6413f5d11996360d868a85575757ffffff3a8cd9719293",
+      canyer:  "000000FFFFFFd3884366b042aeaeae575757FFFFAA3387cc719293",
+      ampolla: "121c1ae1dfad4ec9b0c06039367f24575757ffffffd897b4719293",
    };
 
    var codeTextArray = codeTextArr;
@@ -256,8 +268,7 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
 
    function attachTo (htmlElem)
    {
-      if (assocCont)
-         dettachFrom (assocCont);
+      dettachFrom (assocCont);
 
       // reference to us (finestreta), usually the events
       // goes to the html element, having this reference can be use to
@@ -274,6 +285,18 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
       window.addEventListener ("resize", rerenderCode);
    }
 
+   function dettachFrom (htmlElem)
+   {
+      if (!htmlElem) return;
+      htmlElem.finestreta = null;
+      htmlElem.removeEventListener ("scroll", rerenderCode);
+      htmlElem.removeEventListener ("click", userClick);
+      window.removeEventListener ("resize", rerenderCode);
+      while (htmlElem.hasChildNodes())
+         htmlElem.removeChild(htmlElem.firstChild);
+      htmlElem = null;
+   }
+
    function associateSvgToContainer ()
    {
       if (assocCont)
@@ -288,16 +311,6 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
             assocCont.removeChild(assocCont.firstChild);
          assocCont.appendChild (getSvgPane ());
       }
-   }
-
-   function dettachFrom (htmlElem)
-   {
-      assocCont.removeEventListener ("scroll", rerenderCode);
-      assocCont.removeEventListener ("click", userClick);
-      window.removeEventListener ("resize", rerenderCode);
-      while (assocCont.hasChildNodes())
-         assocCont.removeChild(assocCont.firstChild);
-      assocCont = null;
    }
 
    function gotoLine (lineNr)
@@ -337,15 +350,15 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
    {
       lastClickEvent = ev;
 
-      var cono = getPosLastClick ();
-      console.log ("das wurde row " + cono.row + " col " + cono.col);
+      // var cono = getPosLastClick ();
+      // console.log ("das wurde row " + cono.row + " col " + cono.col);
    }
 
    function changeTheme (colors)
    {
       // admit      "ccccccCCCCCCcccccc..."
       // as well as "cccccc CCCCCC cccccc ..."
-      var cols = colors.length >= 48 ? colors: (themens[colors] || themens["fusta"]);
+      var cols = colors.length >= 48 ? colors: (themens[colors] || themens["ampolla"]);
       cols = cols.replace(/\s+/g, '');
 
       theTheme["back"]    = "#" + cols.substr( 0, 6);
@@ -416,13 +429,13 @@ function codiFinestreta (codeTextArr, offsetLineNr, regexpMark, startInComment)
          for (var szeno in agents)
             if (agents.hasOwnProperty (szeno))
             {
-            agents[szeno].match = agents[szeno].reg.exec (currLinstr);
-            if (agents[szeno].match && agents[szeno].match.index < mini)
-            {
-               mini = agents[szeno].match.index;
-               agent = szeno;
+               agents[szeno].match = agents[szeno].reg.exec (currLinstr);
+               if (agents[szeno].match && agents[szeno].match.index < mini)
+               {
+                  mini = agents[szeno].match.index;
+                  agent = szeno;
+               }
             }
-         }
          if (! agent) return null;
 
          var match = agents[agent].match;

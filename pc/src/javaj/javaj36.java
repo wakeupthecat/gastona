@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -57,7 +57,22 @@ public class javaj36 implements GuiBusyListener
    private String nameBase = "";
    private EvaUnit euJavaj = null;
    private EvaUnit euData = null;
-   private Image appImage1 = null, appImage2 = null;
+
+   private final int APPICON_NORMAL  = 0;
+   private final int APPICON_BUSY    = 1;
+   private final int APPICON_LOG     = 2;
+   private final int APPICON_LOGBUSY = 3;
+   private final int APPICONS = 4;
+   private Image [] appImageArr = new Image [APPICONS];
+
+   public static zFrame lastMainFrame = null;
+   private zFrame theParentFrame = null;
+
+   protected void assignMainFrame (zFrame mframe)
+   {
+      theParentFrame = mframe;
+      lastMainFrame = theParentFrame;
+   }
 
    public javaj36 (EvaUnit unitJavaj, EvaUnit unitData)
    {
@@ -73,40 +88,18 @@ public class javaj36 implements GuiBusyListener
    public void setGuiThreadIsBusy (boolean busy)
    {
       if (mainFrame == null) return;
-      if (busy && appImage2 != null)
-      {
-         mainFrame.setIconImage (appImage2);
-      }
-      if (!busy && appImage1 != null)
-      {
-         mainFrame.setIconImage (appImage1);
-      }
+
+      boolean logDir = log.getLogDirectory () != null || logServer.hasPushLogger ();
+
+      // APPICON_NORMAL  = 0;
+      // APPICON_BUSY    = 1;
+      // APPICON_LOG     = 2;
+      // APPICON_LOGBUSY = 3;
+      // APPICONS = 4;
+      Image img = appImageArr [ (busy ? APPICON_BUSY:APPICON_NORMAL) + (logDir ? APPICON_LOG:0) ];
+      if (img != null)
+         mainFrame.setIconImage (img);
    }
-
-
-
-//   03.11.2007 16:40
-//       NOTE : poviding the widgets with a default database
-//          It make no sense to do this here because javaj has even NO communication at all with
-//          its widgets. It has to be solved by Gastona or any other controller responding to the
-//          message "gastona getDefaultDatabase" (for example)
-//
-//   private String defaultDBName = null;
-//
-//   public String getDefaultBName ()
-//   {
-//      if (defaultDBName == null)
-//      {
-//         defaultDBName  = de.elxala.langutil.filedir.fileUtil.createTemporal ("javajDefaultDB", ".sqliteDB");
-//      }
-//      return defaultDBName;
-//   }
-//
-//   public void setDefaultDBName (String name)
-//   {
-//      defaultDBName = name;
-//   }
-//
 
    //
    // exit policy:
@@ -155,14 +148,13 @@ public class javaj36 implements GuiBusyListener
 
       //---------------------------------------
       // create and layout the main frame
-      theParentFrame = showFrame (javajST.getMainFrame (), false);
+      assignMainFrame (showFrame (javajST.getMainFrame (), false));
       loadRestOfFrames ();
       //---------------------------------------
       log.dbg (2, "startPhase1", "end");
    }
    //
 
-   zFrame theParentFrame = null;
    //
    //
    public void startPhase2 ()
@@ -208,13 +200,9 @@ public class javaj36 implements GuiBusyListener
 
       // message to permit controllers arrange the widgets
       Mensaka.sendPacket (TX_FRAMES_ARE_MOUNTED, euData);
-      
+
       // message to make frames visible
       Mensaka.sendPacket (TX_SHOW_FRAMES, euData);
-
-//      if (theParentFrame != null)
-//         theParentFrame.setVisible (true);
-//      theParentFrame.pack ();
 
       // message to let it known that frames are visible
       Mensaka.sendPacket (TX_FRAMES_ARE_VISIBLE, euData);
@@ -265,7 +253,7 @@ public class javaj36 implements GuiBusyListener
          Object obj = javaLoad.javaInstanciator (extCtrl.getValue (ff, 0));
          if (obj instanceof setParameters_able)
          {
-            ((setParameters_able) obj).setParameters (extCtrl.get(ff).getColumnArray ());
+            ((setParameters_able) obj).setParameters (new CParameterArray (extCtrl.get(ff).getColumnArray ()));
          }
          listOfAllControllers.add (obj);
       }
@@ -321,29 +309,12 @@ public class javaj36 implements GuiBusyListener
       }
    }
 
-//(o) TOREVIEW_changesLaptop No se d donde viene o porque este cambio, encontrado en copias de portatil
-/*
-   private void tryGUIpack (JFrame fram)
-   {
-      try
-      {
-         fram.pack ();
-      }
-      catch (Exception e)
-      {
-         log.dbg (2, "tryGUIpack", "try metal look and feel due to the excepion " + e);
-         sysLookAndFeel.setLookAndFeel (sysLookAndFeel.LOOK_METAL);
-         fram.pack ();
-      }
-   }
-*/   
-   
    private void loadAllWidgets ()
    {
       //09.03.2009 20:44
-      // instaciate all the widgets and only the widgets (not containers)
-      // traversing all variables <layout of ...> all the widgets must to be found in
-      // a layout.
+      // instantiate all the widgets and only the widgets (not containers)
+      // traversing all variables <layout of ...>
+      // all the widgets must to be found in some layout.
       // This is needed to ensure that all the widgets get the data and messages at the same time
       //
       java.util.List listLayoutNames = javajST.getLayoutNames ();
@@ -396,8 +367,11 @@ public class javaj36 implements GuiBusyListener
          //(o) javaj/frameIcons the main javaj main frame way
          //
          mainFrame = fr;
-         appImage1 = ima;
-         appImage2 = javajST.loadIconImage ("iconAppBusy");
+
+         appImageArr[APPICON_NORMAL]  = ima;
+         appImageArr[APPICON_BUSY]    = javajST.loadIconImage ("iconAppBusy");
+         appImageArr[APPICON_LOG]     = javajST.loadIconImage ("iconAppLog");
+         appImageArr[APPICON_LOGBUSY] = javajST.loadIconImage ("iconAppLogBusy");
 
          // listener to closing main frame
          //
@@ -414,12 +388,8 @@ public class javaj36 implements GuiBusyListener
       }
 
       log.dbg (2, "showFrame", "frame pack");
-      //tryGUIpack (fr);
+
       fr.pack ();
-
-
-      //(o) todo_javaj review default title of main frame (set it in zFrame constructor ? include version javaj ?)
-      // Default title (place it elsewhere ?)
       fr.setTitle (javajST.getDefaultTitleOfFrame (0));
 
       //about size of frame
@@ -434,7 +404,7 @@ public class javaj36 implements GuiBusyListener
       }
       else
       {
-         // not recomended size means that we had already a sizeX sizeY in data
+         // not recommended size means that we had already a sizeX sizeY in data
          // therefore we will update it now in the java JFrame because pack has change it
          // automatic one
          log.dbg (2, "showFrame", "fr.updatePosition ()");
@@ -495,12 +465,8 @@ public class javaj36 implements GuiBusyListener
 
          log.dbg (2, "relayout", "frame " + fname + " re-layouted");
 
-         //(o) TODO_REVIEW visibility issue
-         // NOTE: See note in zButton.java (isShowing ... setVisible)
-         //   (2012.07.22) parece redundante pero es necesario
          if (fr.isShowing ())
             fr.setVisible (true);
-         //--------------
 
          fr.repaint ();
       }

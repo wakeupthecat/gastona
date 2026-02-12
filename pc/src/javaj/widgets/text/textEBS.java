@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2007 Alejandro Xalabarder Aulet
+Copyright (C) 2007-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -40,7 +40,7 @@ public class textEBS extends generatedEBS4Text
    public textEBS (String nameWidget, EvaUnit pData, EvaUnit pControl)
    {
       super (nameWidget, pData, pControl);
-      
+
       // ensure default "javajUI.text.*" resources
       javaj.globalJavaj.ensureDefRes_javajUI_text ();
    }
@@ -65,7 +65,7 @@ public class textEBS extends generatedEBS4Text
 
       return (Color) UIManager.get ("javajUI.text.normal" + stype + "Color");
    }
-   }
+}
 
 /*
 

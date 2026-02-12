@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -16,8 +16,6 @@ this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-
-
 package listix;
 
 import java.util.*;
@@ -29,6 +27,7 @@ import de.elxala.Eva.*;
 import de.elxala.db.sqlite.*;
 import de.elxala.zServices.*;
 import de.elxala.db.utilEscapeStr;
+import de.elxala.db.dbMore.*;
 
 import listix.table.*;
 import listix.cmds.*;
@@ -48,6 +47,15 @@ public class listix
    public static final int FLOWLEVEL_1 = 2;
    public static final int FLOWLEVEL_2 = 3;
    public static final int FLOWLEVEL_3 = 4;
+
+
+   public static final int SQLTYP_NONE       = 0;
+   public static final int SQLTYP_PREV       = 1;
+   public static final int SQLTYP_DELTA      = 2;
+   public static final int SQLTYP_INNERTABLE = 3;
+   public static final int SQLTYP_HISTOGRAM  = 4;
+   public static final int SQLTYP_ESTADILLO  = 5;
+   public static final int SQLTYP_VAR2SQL    = 6;
 
    //
    public  logger log_flow = new logger (this, "listix_flow", new String [] { "value", "formatStackDepth" });
@@ -119,7 +127,7 @@ public class listix
    // or the parameters of the main application which are passed to listix main procedures (formats)
    //
    // It stores the stack depth at the moment of creating this instance
-   // or such level that cannot be underpassed to search parameters
+   // or such level that cannot be gone under while searching parameters
    // (see setStackDepthZero4Parameters)
    private int stackDepthZero = 0;
    private int stackAtBeginning = 0;
@@ -222,11 +230,6 @@ public class listix
    }
 
 
-   public synchronized void loopStarts ()
-   {
-      loopIsBroken = false;
-   }
-
    public synchronized boolean loopBroken ()
    {
       return loopIsBroken;
@@ -235,6 +238,11 @@ public class listix
    public synchronized void loopDoBreak ()
    {
       loopIsBroken = true;
+   }
+
+   public synchronized void clearLoopBreakFlag ()
+   {
+      loopIsBroken = false;
    }
 
    private synchronized String badVariableValue (String varName)
@@ -283,6 +291,11 @@ public class listix
 //   {
 //      return comino;
 //   }
+
+   public synchronized String resolveDBName (String dbName)
+   {
+      return (dbName != null && dbName.length () > 0) ? dbName: getDefaultDBName ();
+   }
 
    public synchronized String getDefaultDBName ()
    {
@@ -448,12 +461,131 @@ public class listix
       return eva;
    }
 
+   // example:
+   //
+   // for a primitive like
+   //
+   //          @<:blabla texte @var1 @'var2 'this is a literal'>
+   //
+   // we will return a string array of size 4 with
+   //    0: "texte"
+   //    1: "xxxx" (content of var1)
+   //    2: "@<var2>"
+   //    3: "this is a literal"
+   //
+   private synchronized String [] primitiveParamArray (String primiName, String primiStr, boolean solvingVars)
+   {
+      String tail = "";
+      if (primiName.length () > 2)
+         tail = primiStr.substring (primiName.length () + 2); // remove ":xxx " length plus : and blank
+      else tail = primiStr;
+
+      List pars = new Vector ();
+      while (tail.length () > 0)
+      {
+         char chSep = ' ';
+         boolean isVar = false;
+         boolean isVarName = false;
+
+         //trim left
+         while (tail.charAt (0) == ' ')
+            tail = tail.substring (1);
+
+         // case 'literal'
+         if (tail.length () > 1 && tail.charAt (0) == '\'')
+         {
+            tail = tail.substring (1);
+            chSep = '\'';
+         }
+         else if (tail.length () > 1 && tail.charAt (0) == '@')
+         {
+            isVar = true;
+            tail = tail.substring (1);
+            if (tail.charAt (0) == '\'')
+            {
+               isVarName = true;
+               tail = tail.substring (1);
+            }
+         }
+
+         //find otherwise end of element
+         //
+         int indxSep = 0;
+         while (tail.length () > indxSep && tail.charAt (indxSep) != chSep)
+            indxSep ++;
+
+         String elem = tail.substring (0, indxSep);
+         if (tail.length () > indxSep + 1)
+              tail = tail.substring (indxSep + 1);
+         else tail = "";
+
+         // decide if getting the variable content, add @<> or let it as it is
+         //
+         if (isVarName)
+         {
+            elem = "@<" + elem + ">";
+         }
+         else if (isVar)
+         {
+            StringBuffer sb = evaVarToText (elem, solvingVars);
+            if (sb == null)
+            {
+               log.err ("valPrimitive", "variable " + elem + " not found in primitive (" + primiStr + ") !");
+               elem = "";
+            }
+            else elem = sb.toString ();
+         }
+         pars.add (elem);
+      }
+
+      return Cadena.strListToArray (pars);
+   }
+
+   //   examples with variables
+   //       <finame> text.txt
+   //       <varmem> myText
+   //
+   //   innerSolvePrimitive ("inifile", ":infile @finame", x, true) ==> "text.txt"
+   //   innerSolvePrimitive ("inifile", ":infile :mem @varmem", x, true) ==> ":mem myText"
+   //
+   private synchronized String innerSolvePrimitive (String primiName, String primiStr, boolean solvingVars, int maxNPar)
+   {
+      String [] pp = primitiveParamArray (primiName, primiStr, solvingVars);
+
+      if (maxNPar >= 0 && pp.length > maxNPar)
+      {
+         log.err ("innerSolvePrimitive", maxNPar + " parameters expected in primitive @<" + primiName + " " + primiStr + "> but found " + pp.length);
+         return "";
+      }
+      String res = "";
+      for (int tt = 0; tt < pp.length; tt ++)
+      {
+          if (tt != 0)
+              res += " ";
+          res += pp[tt];
+      }
+
+      return res;
+   }
+
+   private synchronized String innerSolvePrimitive (String primiName, String primiStr, boolean solvingVars)
+   {
+       return innerSolvePrimitive (primiName, primiStr, solvingVars, -1);
+   }
+
+   private synchronized String primitiveParam (String primiName, String primiStr, boolean solvingVars)
+   {
+       // don't know if this limitation of maxparams = 1 makes really sense,
+       // we just implement the old code using the new innerSolvePrimitive method
+       return innerSolvePrimitive (primiName, primiStr, solvingVars, 1);
+   }
+
    //(o) listix_core_primitiveVariables listix::valPrimitive where the variable @<:xxx> are solved
    //
    private synchronized String valPrimitive (String name)
    {
-// changed on 2016.03.12 (remove comments if no side effect)
-//      if (name.length () == 0 || (name.charAt (0) != ':' && ! name.equals("@")) )
+      // changed on 2016.03.12 (remove comments if no side effect)
+      //      if (name.length () == 0 || (name.charAt (0) != ':' && ! name.equals("@")) )
       if (name.length () == 0 || name.charAt (0) != ':')
          return null;
 
@@ -462,6 +594,41 @@ public class listix
 
       String lowName = name.toLowerCase ();
       int salto = 0;
+
+      if (lowName.startsWith (":lsxcall "))
+      {
+         // EXPERIMENTAL !!!!
+         // will this work on all listix targets ?
+         //
+
+         String [] formatAndPars = primitiveParamArray ("lsxcall", name, true);
+         if (formatAndPars.length == 0)
+            return ""; // warning error ?
+
+         Eva commandEva = new Eva ("lsxcall-internal");
+         commandEva.setValue ("lsx", 0, 0);
+         commandEva.setValue (formatAndPars[0], 0, 1);
+
+         listixCmdStruct cmd = new listixCmdStruct (this, commandEva, 0);
+         parameters4LsxGenerate PAOP = new parameters4LsxGenerate ();
+         PAOP.genMainFormat = formatAndPars[0];
+
+         // prepar params for the lsx format
+         PAOP.genParameters = new String [formatAndPars.length - 1];
+         for (int pp = 0; pp < formatAndPars.length -1; pp ++)
+         {
+            PAOP.genParameters[pp] = formatAndPars [1+pp];
+         }
+
+         if (!PAOP.evalOptions (cmd))
+         {
+            cmd.getLog ().severe ("LISTIX", "Cannot eval options!");
+            return "";
+         }
+
+         PAOP.executeListix (cmd);
+         return "";
+      }
 
       if (lowName.startsWith (":listix"))    salto = ":listix".length ();
       else if (lowName.startsWith (":lsx"))  salto = ":lsx".length ();
@@ -643,17 +810,29 @@ public class listix
 
       if (lowName.startsWith (":mutool "))
       {
-         return microToolInstaller.getExeToolPath(name.substring (":mutool ".length ()));
+         return microToolInstaller.getExeToolPath(primitiveParam ("mutool", name, true));
       }
       if (lowName.startsWith (":microtool "))
       {
-         return microToolInstaller.getExeToolPath(name.substring (":microtool ".length ()));
+         return microToolInstaller.getExeToolPath(primitiveParam ("microtool", name, true));
       }
 
       if (lowName.startsWith (":sys ") || lowName.startsWith (":prop "))
       {
-         String propName = name.substring (5);
-         return System.getProperty (propName, "");
+         String propNam = lowName.startsWith (":sys ") ?
+                          primitiveParam ("sys", name, true):
+                          primitiveParam ("prop", name, true);
+
+         if (utilSys.isOSWindows () && propNam.equalsIgnoreCase ("user.home"))
+         {
+            // probably for no reason in windows 11 user.home points to the useless path "C:\Users\%USER%\OneDrive"
+            // so we have to fix it
+            if (fileUtil.existSystemDir ("C:\\Users"))
+            {
+               return "C:\\Users\\" + System.getProperty ("user.name", "");
+            }
+         }
+         return System.getProperty (propNam, "");
       }
 
       // ASUME ":PRIMITIVE VARIABLE" GROUP
@@ -687,18 +866,25 @@ public class listix
 
       // not solve = raw = text is default (more robust) unlike in listix commands
       //
-      boolean solveVar = primitiveExtract (primiVar, new String [] {"solve", "sol", "lsx", "listix" }); // in spite of ambiguation "@<:lsx date> !
+      boolean solveVar = primitiveExtract (primiVar, new String [] {"solve", "sol", "lsx", "listix" }); // in spite of the ambiguity "@<:lsx date> !
 
       // simply remove these ones since they are the default mode
-      primitiveExtract (primiVar, new String [] {"raw", "astext", "text", "txt" });
+      primitiveExtract (primiVar, new String [] {"raw", "astext", "text", "txt", "any", "inany", "or" });
 
-      // now check if it is
-      //     :infile filename
-      // or
-      //     :else variable
+      // now check if it is a :infile filename
+      //
       if (primitiveExtract (primiVar, new String [] {"infile"}))
       {
-         printFileLsx (varname, solveVar, beSilent);
+         // Note that forms like
+         //           :infile @filenamevar
+         //           :infile :mem myvar
+         //           :infile :mem @myvarvar
+         // are also supported
+         //
+         //--- finally inject in listix target the file content
+         //
+         String fileName = innerSolvePrimitive ("", varname, true);
+         printFileLsx (fileName, solveVar, beSilent);
          return "";
       }
 
@@ -707,6 +893,91 @@ public class listix
       if (primitiveExtract (primiVar, new String [] {"hex"}))
       {
          return new String (stdlib.hexStr2charArr (varname));
+      }
+
+      // now check if it is
+      //     :ascii NUL|ACK|BEL|LF|CR|SUB|TAB|EOT|ESC|SPC or decimal value
+      if (primitiveExtract (primiVar, new String [] {"ascii"}))
+      {
+         return new String (new char [] { stdlib.asciiStr2char (varname) });
+      }
+
+      if (primitiveExtract (primiVar, new String [] {"sqlSearch", "sqlStrSearch", "sqlStrFilter", "sqlFilter", "sqlWhereFilter"}))
+      {
+         // examples :
+         //
+         //     @<:sqlStrSearch @searchvarname colum1 column2 .. columnN>
+         //
+         //     @<:sqlStrSearch 'to be or not' colum1 column2 .. columnN>
+         //
+         // possible options are
+         //     -any or -inany or -or     : (default) enough if one column matches
+         //     -all or -inall or -and    : all columns has to match
+         //     -solve                    : the search string may contain listix variables @<xx>
+         //     -silent                   : if the variable is not found returns an empty string and gives no error
+         //
+
+         // not needed to care about "any" "inany" or "or" since they are default
+         String sqlLink = primitiveExtract (primiVar, new String [] {"all", "and", "inall"}) ? "AND": "OR";
+         String RET = primitiveExtract (primiVar, new String [] {"indent"}) ? "\n": "";
+
+         String [] varAndColumns = primitiveParamArray ("", varname, true);
+         return sqlSearchFilter.getComposedWhereCondition (varAndColumns, sqlLink + RET);
+      }
+
+      // log.err ("valPrimitive", "BOCAZAS 1 es " + primiVar[0]);
+
+      //     @<:sqlTableDiff tableName colum1 column2 .. columnN>
+      //     @<:sqlDynDimTable srcTable srcJoiner srcColName srcColValue colName1 colName2 ...>
+      //
+      int sqltype = primitiveExtract (primiVar, new String [] {"sqlTablePrev"}) ? SQLTYP_PREV:
+                    primitiveExtract (primiVar, new String [] {"sqlTableDelta", "sqlTableDiff" }) ? SQLTYP_DELTA:
+                    primitiveExtract (primiVar, new String [] {"sqlDynDimTable", "sqlInnerTable" }) ? SQLTYP_INNERTABLE:
+                    primitiveExtract (primiVar, new String [] {"sqlHistogram" }) ? SQLTYP_HISTOGRAM:
+                    primitiveExtract (primiVar, new String [] {"sqlEstadillo", "sqlCrossSummary", "sqlPivot" }) ? SQLTYP_ESTADILLO:
+                    primitiveExtract (primiVar, new String [] {"varTable2sql", "evaTable2sql", "eva2sql", "var2sql", "sqlEva2table", "sqlVar2table" }) ? SQLTYP_VAR2SQL:
+                    SQLTYP_NONE;
+
+      // log.err ("valPrimitive", "BOCAZAS 2 es " + sqltype);
+
+      if (sqltype != SQLTYP_NONE)
+      {
+         //
+         //
+         boolean spaceIndent = primitiveExtract (primiVar, new String [] {"indent"});
+
+         // array containing all primitive parameters
+         //
+         String [] params = primitiveParamArray ("", varname, true);
+
+         if (sqltype != SQLTYP_VAR2SQL && params.length < 2)
+              if (params.length < 2) return ""; // no a single column ?
+
+         switch (sqltype)
+         {
+            case SQLTYP_PREV:       return sqlTableDeltaUtil.getTablePrevSQL (params, spaceIndent);
+            case SQLTYP_DELTA:      return sqlTableDeltaUtil.getTableDeltaSQL  (params, spaceIndent);
+            case SQLTYP_INNERTABLE: return sqlDynDimTableUtil.getDynDimTableSQL (params, spaceIndent);
+            case SQLTYP_HISTOGRAM:  return sqlHistogramUtil.getHistogramSQL (params, spaceIndent);
+            case SQLTYP_ESTADILLO:  return sqlEstadilloUtil.getEstadilloSQL (params, spaceIndent);
+            case SQLTYP_VAR2SQL:
+               {
+                  if (params.length < 1) return "";   // we need at least the variable name!
+
+                  // we have to pass (evaData, columnNames, indentYesNo)
+                  //
+                  Eva evadata = getVarEva (params[0]);
+                  String [] colNames = params.length > 1 ? new String [params.length - 1]: null;
+                  if (colNames != null)
+                  {
+                     // actually colNames by construction has params.length - 1 elements
+                     for (int cc = 0; cc < colNames.length && cc + 1 < params.length; cc ++)
+                        colNames[cc] = params[cc + 1];
+                  }
+                  return varTable2sql.varTable2sql (evadata, colNames, spaceIndent);
+               }
+            default: break;
+         }
       }
 
       //NOTE: the fact that path is solve by default creates a little bit mess in code :(
@@ -768,7 +1039,7 @@ public class listix
                 primitiveExtract (primiVar, new String [] {"strlit"}))
                return strUtil.stringToLiteraltStr (strBufvar.toString ());
             if (primitiveExtract (primiVar, new String [] {"regex"}))
-               return strUtil.stringToRegexStr (strBufvar.toString ()); 
+               return strUtil.stringToRegexStr (strBufvar.toString ());
 
             return utilEscapeStr.escapeStr (strBufvar.toString (), primiVar[0]);
          }
@@ -783,7 +1054,7 @@ public class listix
                return strUtil.literalStrToString (strBufvar.toString ());
             if (primitiveExtract (primiVar, new String [] {"regex"}))
                return strUtil.regexStrToString (strBufvar.toString ());
-            
+
             return utilEscapeStr.desEscapeStr (strBufvar.toString (), primiVar[0]);
          }
       }
@@ -809,6 +1080,11 @@ public class listix
       return null;
    }
 
+
+   // reduces one string given in the index 0 of the first parameter "prim"
+   // it is passed as String array in order to be modifiable but only the first index is expected and used.
+   // extracting all occurrences of given options (second parameter)
+   //
    // example
    //    String [] primiVar = new String [] { ":raw-osio-encadenax-utf-8" };
    //    System.out.println (primitiveExtract (primiVar, new String [] {"osea", "osio"}));
@@ -821,13 +1097,20 @@ public class listix
       int plen = prim[0].length ();
       for (int oo = 0; oo < options.length; oo ++)
       {
-         int indx = prim[0].indexOf (options[oo]);
-         if (indx > -1)
+         int indx = prim[0].indexOf (options[oo].toLowerCase ());
+         int indxAfter = indx + options[oo].length ();
+         // if found ensure it is the whole option (starts and ends)
+         if (indx != -1 &&
+             (indx == 0 || prim[0].charAt (indx-1) == ':' || prim[0].charAt (indx-1) == '-') &&
+             (indxAfter <= plen || prim[0].charAt (indxAfter) == '-')
+            )
          {
-            int ole = options[oo].length ();
-            if (indx+ole+1 < plen && prim[0].charAt (indx+ole+1) == '-') ole ++; // remove - as well
-            // System.out.println ("indx = " + indx + " ole = " + ole);
-            prim[0] = prim[0].substring (0, indx) + (indx+ole+1 < plen ? prim[0].substring (indx+ole+1): "");
+            // remove also minus symbol in any position -xxx-
+            //
+            if (indx > 0 && prim[0].charAt (indx-1) == '-') indx --;
+            if (indxAfter < plen && prim[0].charAt (indxAfter) == '-') indxAfter ++;
+
+            prim[0] = prim[0].substring (0, indx) + prim[0].substring (indxAfter);
             return true;
          }
       }
@@ -1053,14 +1336,14 @@ public class listix
    /**
       Solves the given string 'str' and return the result as an Eva variable
 
-      @returns a new unamed Eva variable with the solved string
+      @returns a new unnamed Eva variable with the solved string
 
       Example:
-         Eva eva = solveStrAsEva ("today is @<:listix date> and current name is \"@<name>\");
+         Eva eva = solveStrAsEva ("today is @<:lsx date> and current name is \"@<name>\");
          System.out.println  (eva);
 
          <>
-            'today is 31.08.2008 11:30 and current name is "braulio"
+            'today is 11.05.2022 07:30 and current name is "Shireen Abu Akleh"
 
    */
    public synchronized Eva solveStrAsEva (String str)

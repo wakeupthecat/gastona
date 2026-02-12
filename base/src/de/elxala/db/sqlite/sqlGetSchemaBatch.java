@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -65,6 +65,7 @@ public class sqlGetSchemaBatch
       //
       //.separator ,
       //.headers off
+      //.dbconfig dqs_dml on
       //SELECT "#data#";
       //SELECT "   <tableInfo first_table>";
       //PRAGMA table_info(first_table);
@@ -75,15 +76,30 @@ public class sqlGetSchemaBatch
       cliDB.openScript (false);
       cliDB.writeScript (".separator ,");
       cliDB.writeScript (".headers off");
-      cliDB.writeScript ("SELECT \"#data#\" ;");
+
+
+      // disabled because is very tricky and gastona.jar welcome still does not work with sqlite 3.44 !
+      // with ".dbconfig dqs_dml on" improves something but it is still broken
+      //
+      // ***DML CONFIG! 2023-12-02 02:11:19
+      // enabling double quotes on literals!
+      // https://sqlite.org/quirks.html#double_quoted_string_literals_are_accepted
+      // "As of SQLite 3.41.0 (2023-02-21) SQLITE_DBCONFIG_DQS_DDL and SQLTIE_DBCONFIG_DQS_DML are disabled by default in the CLI. Use the ".dbconfig" dot-command to reenable the legacy behavior if desired."
+      // "As of SQLite 3.29.0 (2019-07-10) the use of double-quoted string literals can be disabled at run-time using ..."
+      // For windows using ".dbconfig" is ok BUT
+      // ... what happens with the binaries in sqlite muTools/linuxArm, muTools/linuxOS, muTools/linuxOS64 ?
+      //
+      // cliDB.writeScript (".dbconfig dqs_dml on");     // from sqlite 3.i
+
+      cliDB.writeScript ("SELECT '#data#' ;");
       for (int ii = 0; ii < vecTables.length; ii ++)
       {
-         cliDB.writeScript ("SELECT \"   <tableInfo " + vecTables[ii] + ">\" ;");
+         cliDB.writeScript ("SELECT '   <tableInfo " + vecTables[ii] + ">' ;");
          cliDB.writeScript ("PRAGMA table_info(" + vecTables[ii] + ") ;");
       }
       for (int ii = 0; ii < vecViews.length; ii ++)
       {
-         cliDB.writeScript ("SELECT \"   <tableInfo " + vecViews[ii] + ">\" ;");
+         cliDB.writeScript ("SELECT '   <tableInfo " + vecViews[ii] + ">' ;");
          cliDB.writeScript ("PRAGMA table_info(" + vecViews[ii] + ") ;");
       }
       cliDB.closeScript ();

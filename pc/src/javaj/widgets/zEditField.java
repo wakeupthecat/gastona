@@ -134,9 +134,15 @@ public class zEditField extends JTextField implements ActionListener, DocumentLi
    private int largoChar = 10;
    private boolean isFixSize = false;
 
+   // default constructor to allow instantiation using <javaClass of...>
    public zEditField ()
    {
-      // default constructor to allow instantiation using <javaClass of...>
+      //  KeyListener[] klis = getKeyListeners();
+      //  for (int ii = 0; ii < klis.length; ii ++)
+      //     removeKeyListener (klis[ii]);
+      
+      // removeKeyListener (javaj.widgets.gestures.keyboard.getListener ());
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
 //   public zEditField (String map_name)
@@ -148,6 +154,7 @@ public class zEditField extends JTextField implements ActionListener, DocumentLi
    {
       super (sizeCharacters + 3);
       build (map_name, sizeCharacters, fixSize);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

@@ -3,23 +3,27 @@
    <layout of main>
       EVA, 20, 20, 15, 15
 
-         , 300      ,   X
-         , ljast Files, dEdi
-       X , iFiles   , +
-         , +        , bRun JAST
+         , 300        ,  X
+         , ljast Files, bRun JAST
+       X , iFiles     , dEdi
+         , +          , +
 
 #data#
 
    <iFiles>
      name
 
+     marketesON_Fly.jast
      sequenciEditor.jast
      pigmentales.jast
-
+     codeVisor.jast
+     simpleSvgAndCanvas.JAST
+     chessPlottoSample.JAST
 
 #listix#
 
    <main>
+      //jastKeepServerAlive ();
       //onJastStarted ();
 
    <-- iFiles>
@@ -29,7 +33,6 @@
 
    <-- bRun JAST>
       //AJAXSend ("runThisJast", "filename=" + getDataCell("iFiles selected.name"));
-
 
 #server#
 

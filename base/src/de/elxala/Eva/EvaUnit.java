@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005-2109  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -241,20 +241,20 @@ public class EvaUnit implements java.io.Serializable
             nMerged ++;
          }
          if (!exists && insertIfNotExists)
-            {
+         {
             // it does not exists ... then insert it
-               //
-               Eva e2add = eSource;
-               if (copy)
+            //
+            Eva e2add = eSource;
+            if (copy)
             {
                e2add = new Eva (eSource.Nom);
-                  e2add.merge (eSource, mergePolicy, true);
+               e2add.merge (eSource, mergePolicy, true);
             }
 
-               add (e2add);
-               nMerged ++;
-            }
+            add (e2add);
+            nMerged ++;
          }
+      }
 
       return nMerged;
    }

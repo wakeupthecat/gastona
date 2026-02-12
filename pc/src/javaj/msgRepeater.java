@@ -1,6 +1,6 @@
 /*
 packages javaj
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -59,14 +59,14 @@ public class msgRepeater implements MensakaTarget, setParameters_able
    /**
       parameters: translation Eva, EvaUnit name, EvaFile name
    */
-   public void setParameters (String [] param)
+   public void setParameters (CParameterArray params)
    {
-      if (param.length < 3) return;
-      EvaUnit eu = EvaFile.loadEvaUnit (param[2], param[1]);
+      if (! params.haveValueAt (2)) return;
+      EvaUnit eu = EvaFile.loadEvaUnit (params.getStrAt (2), params.getStrAt (1));
 
       if (eu == null) return;
 
-      loadMessageToRepeat (eu.getEva (param[0]));
+      loadMessageToRepeat (eu.getEva (params.getStrAt (0)));
    }
 
    public void loadMessageToRepeat (Eva mapaStr)

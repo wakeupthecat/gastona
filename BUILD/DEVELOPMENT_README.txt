@@ -10,7 +10,7 @@
    So just compiling this class will produce all needed classes to be compiled as well.
 
    Nevertheless it is not enough to pack all these classes in a file (e.g. gastona.jar)
-   A basic gastona.jar has to include also some important binaries (sqlite), own documentation 
+   A basic gastona.jar has to include also some important binaries (sqlite), own documentation
    and many other useful scripts and resources.
 
    Currently two gastona scripts are used to generate gastona.jar (gastona generates itself!).
@@ -70,8 +70,8 @@
    Different java compilers has to be used to generate jar (pc) or apk (android) products. Also
    these two platforms offer different libraries, specially for GUI development.
 
-   However since both share the same base java language many classes are identical(*). Sharing source code 
-   for both compilers is done by using the javac compiler option "sourcepath" where two root paths are 
+   However since both share the same base java language many classes are identical(*). Sharing source code
+   for both compilers is done by using the javac compiler option "sourcepath" where two root paths are
    given, then if the compiler does not find the source to compile in the first path
    (the specific one, e.g. for pc) it takes it from the second one (common or base path).
 

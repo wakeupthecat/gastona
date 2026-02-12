@@ -86,7 +86,7 @@ public class GPSListener implements LocationListener
       sendPosition (loca.getLongitude(), loca.getLatitude());
       nTimesLeft --;
 
-      System.out.println("ME PEGAN TOQUE (quedan " + nTimesLeft + ") LA POSICIÓN! " + loca.getLongitude() +  ", " + loca.getLatitude());
+      System.out.println("ME PEGAN TOQUE (quedan " + nTimesLeft + ") LA POSICIO'N! " + loca.getLongitude() +  ", " + loca.getLatitude());
       if (nTimesLeft <= 0)
       {
          System.out.println("ME REMUEVEN LAS TRIPAS!");

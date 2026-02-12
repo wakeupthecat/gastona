@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -22,14 +22,13 @@ package javaj.widgets.graphics.objects;
 import de.elxala.zServices.*;
 import de.elxala.parse.svg.*;
 import de.elxala.langutil.*;
-//import de.elxala.Eva.*;
 import javaj.widgets.graphics.*;
 
 /**
-   A style object is built with a string containing the style in human readable 
-   that is parsed giving two uniPaint objects as product. Two acces these two uniPaint objects
+   A style object is built with a string containing the style in human readable
+   that is parsed giving two uniPaint objects as product. Two access these two uniPaint objects
    just use the methods from the base class:
-      
+
       boolean  hasFill ()
       uniPaint getFillPaint ()
       boolean  hasStroke ()
@@ -42,15 +41,15 @@ public class styleObject extends svgLikeStyleParser2uniPaint
 
    protected uniPaint strokePen = null;
    protected uniPaint fillPen = null;
-   protected String syleString = "";
+   protected String styleString = "";
 
    public styleObject (String pStyleString)
    {
-      syleString = pStyleString;
+      styleString = pStyleString;
       if (pStyleString != null)
          doParse ();
    }
-   
+
    public boolean hasStroke ()
    {
       return strokePen != null;
@@ -75,14 +74,19 @@ public class styleObject extends svgLikeStyleParser2uniPaint
    {
       strokePen = null;
       fillPen = null;
-      syleString = pStyleString;
+      styleString = pStyleString;
       if (pStyleString != null)
          doParse ();
    }
-   
+
    public String getStyleString ()
    {
-      return syleString;
+      return styleString;
+   }
+
+   public String toString ()
+   {
+      return getStyleString ();
    }
 
    // private void ensureParse ()
@@ -90,9 +94,9 @@ public class styleObject extends svgLikeStyleParser2uniPaint
       // if (strParsed) return;
       // //
       // // it is not parsed because it was constructed without styleString
-      // // therefore 
+      // // therefore
    // }
-   
+
    private void doParse ()
    {
       //strParsed = true;
@@ -107,7 +111,7 @@ public class styleObject extends svgLikeStyleParser2uniPaint
       fillPen.setAntiAlias(true);
 
       // from svgLikeStyleParser2uniPaint
-      super.parseStyle (syleString, fillPen, strokePen);
+      super.parseStyle (styleString, fillPen, strokePen);
       if (!hasFillInfo ()) fillPen = null;
       if (!hasStrokeInfo ()) strokePen = null;
    }

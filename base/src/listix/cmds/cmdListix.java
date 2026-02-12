@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,25 +37,26 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // Invoques a listix format optionally with arguments or parameters. Parameters passed to the format
-      // are accessible using the variables @<p1>, @<p2> etc. These special variables are valid only
-      // during the execution of the called format, they can be checked with the command "CHECK, VAR".
-      // The command LISTIX is just another syntax of the command GENERATE. The idea is make posible
-      // calling a format as it were a procedure.
+      //Invokes a listix format optionally with arguments or parameters. Parameters passed to the format
+      //are accessible using the variables @<p1>, @<p2> etc. These special variables are valid only
+      //during the execution of the called format, they can be checked with the command "CHECK, VAR".
+      //The command LISTIX is just another syntax of the command GENERATE. The idea is to make possible
+      //calling a format as it were a procedure.
       //
-      //    Example:
+      //Example:
       //          ...
       //          LISTIX, doSomething, input.dat, output.txt
       //
       //       <doSomething>
       //          //Analyzing @<p1> and write the results onto @<p2> ...
       //
-      //    Sometimes results convenient choosing an adecuate name for such procedures, it just
-      //    made the code more clear
+      //Sometimes results convenient choosing an adequate name for such procedures. 
+      //For example to make clear the expected parameters we could choose the name "Analyze(in, out)"
+      //and called it like
       //
       //          LISTIX, "Analyze(in, out)", input.dat, output.txt
       //
-      //    or better avoiding commas in the name
+      //or better avoiding commas within the name
       //
       //          LISTIX, Analyze(in out), input.dat, output.txt
       //

@@ -1,0 +1,89 @@
+#h Listix Command UFSTO UNIQ FILE STORAGE
+
+-- 2022-05-01 18:00
+
+
+La idea es estandarizar el file storage en una tabla como inodeCargo de paperassa
+
+Para ello crear el comando listix UNIQ FILE STORAGE o UFSTO
+
+      command UNIQ FILE STORAGE
+
+        db schema
+
+            uniqFile(Algo) (hashId, sizeUncompress, sizeCompress, firstName, firstDate, contentBlob)
+
+            uniqFileContentCargo_md5 (hashId, size, sizeCompressed, firstName, firstDate, contentBlob)
+
+         UNIQ FILE, SAVE FILE , db, physicalFile
+                  , DOCOMPRESS, [-1 auto]|0:no|1:yes
+                  , COMP ALGO, [md5]|sha1...
+                  , NOAUTOCOMP EXTENSIONS, zip, jar, ...
+                  , AUTOCOMP MINSIZE, [1000]
+
+         UNIQ FILE, SAVE DIR , db, folder, addCSextensions, ignoreCSextensions
+                  , ADD EXTENSIONS, CSextensions
+                  , IGNORE EXTENSIONS, CSextensions
+                  , DOCOMPRESS, [-1 auto]|0:no|1:yes
+                  , COMP ALGO, [md5]|sha1...
+                  , NOAUTOCOMP EXTENSIONS, zip, jar, ...
+                  , AUTOCOMP MINSIZE, [1000]
+
+         UNIQ FILE, EXISTS HASH , db, hashvalue
+                  , COMP ALGO, [md5]|sha1...
+
+         UNIQ FILE, EXISTS FILE, db, physicalFileName
+                  , COMP ALGO, [md5]|sha1...
+
+         UNIQ FILE, EXTRACT  , db, hashId, targetFileName, overwrite(1)
+                  , COMP ALGO, [md5]|sha1...
+
+         UNIQ FILE, COMPARE  , db, (PHYSICALFILE|HASH), value
+                  , COMP ALGO, [md5]|sha1...
+
+            - para hash se usa siempre md5 (más rápido y hash más corto + es muy improbable una colision)
+               la regla de identicidad es
+                  ==hasUncompress
+                  ==sizeUncompress
+               si el md5 ya incluyera de algun modo la "size", la comparacion se podria reducir al hash
+
+            - compress -1 auto
+                decide segun la extension => no comprimir: zip, jar, gz, jpg, png etc ... el resto se comprime
+
+            - si un fichero se comprime, se calcula su hash md5
+
+            - salvar varios ficheros de un golpe (e.g. directorio)
+              el save normalmente implica comprimir lo cual no se puede empacar en una llamada
+              aun así se pueden realizar todos los zip necesarios y luego
+              formar un super-sql con
+
+                  INSERT INTO uniqFilesCargo_md5
+                     VALUES (hash001, size001, sizeComp001, name001, date001, readfile ("file001")),
+                     VALUES (hash002, size002, sizeComp002, name002, date002, readfile ("file002")),
+                     ...
+                     )
+                  ;
+
+              tendrá límite este llamada única en sqlite ?
+              sino hacer inserts individuales
+
+               [] comparar performance con un INSERT o varios en un batch
+
+            - extraer varios con
+
+               SELECT writefile ("targetfile001", contentBlob),
+                      writefile ("targetfile002", contentBlob),
+                      ...
+               FROM inodeCargo
+               WHERE
+                  hashId IN ('hash001', ...)
+
+               [] comparar performance con un select o varios en un batch
+
+-- Ricorda Samples
+
+         Insert blob from file
+         INSERT INTO inodeCargo VALUES (myid, myetc, readfile ("myfile.txt")) ;
+
+         extact blob from database to file
+         SELECT writefile ("myfile.txt", contentBlob) FROM inodeCargo WHERE xxx

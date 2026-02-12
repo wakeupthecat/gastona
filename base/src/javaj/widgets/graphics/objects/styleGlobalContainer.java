@@ -45,10 +45,8 @@ public class styleGlobalContainer
 
       log.dbg (2, "addOrChangeStyle", "add new style \"" + logicName + "\", string [" + styleStr + "]");
 
-      // avoid "memory effects" setting always the new style
       styleObject obj = new styleObject (styleStr);
-      utilSys.objectSacPut (mapName (logicName), new styleObject (styleStr));
-
+      utilSys.objectSacPut (mapName (logicName), obj);
       return obj;
    }
 

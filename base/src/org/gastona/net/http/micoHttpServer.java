@@ -1,6 +1,6 @@
 /*
 package org.gastona.net.http
-(c) Copyright 2014-2018 Alejandro Xalabarder Aulet
+(c) Copyright 2014-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -69,7 +69,7 @@ public class micoHttpServer extends Thread
    public static final int DEFAULT_MAXSIZE_BYTES_UPLOADING = 10*1024*1024; // 10MB
    public int uploadSocketTimeout = DEFAULT_SOCKET_TIMEOUT_WHEN_UPLOADING;
 
-   //(o) TODO: implement uploadMaximumSizeBytes
+   //(o) TODO/listix/micoHttp/uploadFile implement uploadMaximumSizeBytes
    //          the result if succeed or not has to be stored in some variable,
    //          for example _fileUploaded = "0", _fileUploadReason = "oK|maxSize|socketTO|socketErr"
    public int uploadMaximumSizeBytes = DEFAULT_MAXSIZE_BYTES_UPLOADING;
@@ -234,12 +234,12 @@ public class micoHttpServer extends Thread
       return "<html><body>Mono http server " + myName + " " + text + "<br>" + (killable ? LINK_ACABA: "") + "</body></html>";
    }
 
-   public static void out (String msg)
+   public static void out (String name, String msg)
    {
-      out(DEFAULT_DEBUG_LEVEL, msg);
+      out(name, DEFAULT_DEBUG_LEVEL, msg);
    }
 
-   public static void out (int level, String msg)
+   public static void out (String name, int level, String msg)
    {
       if (level <= verboseLevel)
       {
@@ -248,22 +248,45 @@ public class micoHttpServer extends Thread
             verboseFile.writeLine (System.currentTimeMillis () + ": " + msg);
             verboseFile.fclose ();
          }
-         else System.out.println ("micoHttp: " + System.currentTimeMillis () + ": " + msg);
+         else System.out.println ("micoHttp (" + name + "): " + System.currentTimeMillis () + ": " + msg);
       }
       log.dbg (level, msg);
    }
 
+   protected void out (String msg)
+   {
+      out (myName, DEFAULT_DEBUG_LEVEL, msg);
+   }
 
-   protected String getLsxFormat4Response (httpRequestData req)
+   protected void out (int level, String msg)
+   {
+      out (myName, level, msg);
+   }
+
+
+   protected String getLsxFormatBase4Response (httpRequestData req)
    {
       return req.theMethod + " " + req.theUri;
    }
 
+   //(o) listix/micoHttp/servingPage Content types of the file (MIME type) to be served based on its extension
+   //
    protected String getContentTypeFromFileName (String fileName)
    {
       String ext = fileUtil.getExtension (fileName);
-      if (ext.equalsIgnoreCase ("css")) return "text/css; charset=utf-8";
+
+      // according to
+      //    https://v8.dev/features/modules#mjs
+      //    https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#aside_%E2%80%94_.mjs_versus_.js
+      //
+      // the MIME type should be "text/javascript"
+      // but "application/javascript" seems to work as well
+      // TODO: change it if needed when we know what is the difference
+      //
       if (ext.equalsIgnoreCase ("js")) return "application/javascript; charset=utf-8";
+      if (ext.equalsIgnoreCase ("mjs")) return "text/javascript; charset=utf-8";
+
+      if (ext.equalsIgnoreCase ("css")) return "text/css; charset=utf-8";
       if (ext.equalsIgnoreCase ("json")) return "application/json; charset=utf-8";
       if (ext.equalsIgnoreCase ("html")) return "text/html; charset=utf-8";
       if (ext.equalsIgnoreCase ("htm")) return "text/html; charset=utf-8";
@@ -271,10 +294,11 @@ public class micoHttpServer extends Thread
       if (ext.equalsIgnoreCase ("mp3")) return "audio/mpeg";
       if (ext.equalsIgnoreCase ("mpeg")) return "video/mpeg";
       if (ext.equalsIgnoreCase ("mp4")) return "video/mp4";
+      if (ext.equalsIgnoreCase ("svg")) return "image/svg+xml";
       if (ext.equalsIgnoreCase ("ogg")) return "video/ogg";
       if (ext.equalsIgnoreCase ("mov")) return "video/mov";
       if (ext.equalsIgnoreCase ("webm")) return "video/webm";
-      //(o) TOREVIEW_micoHttp Content-Type serving a file, review : any other extension to consider ?
+      //(o) TOREVIEW/listix/micoHttp/servingPage Content-Type serving a file, review : any other extension to consider ?
 
       // by sending application/octet-stream the browser will procede to download the file
       // which is the most desired action with a file except with css and js
@@ -282,7 +306,7 @@ public class micoHttpServer extends Thread
       return "application/octet-stream; charset=utf-8";
    }
 
-   //(o) TOREVIEW_micoHttp review use/need of synchronized
+   //(o) TOREVIEW/listix/micoHttp/synchronized review use/need of synchronized
    // NOTE: synchronized is aparently needed if two instances of micoHttpServer
    //       are sharing the same Listix object, or maybe because lsxWriter.makeFile is not synchronized
    //       or maybe due to TextFile (:mem)
@@ -295,9 +319,23 @@ public class micoHttpServer extends Thread
       }
       out ("response start");
 
-      // do exists format for the response ? (e.g. <GET /myreq>)
+      // look for the listix format response
+      // this could be either preceded by "--servername " or not
       //
-      String lsxFormat = getLsxFormat4Response (req);
+      // for example for a request "POST /mypost"
+      // the listix format for the response for a server with name "myName" would be
+      //
+      //    <--myName POST/mypost>
+      //
+      //  or
+      //
+      //    <POST/mypost>
+      //
+      // if the previous variable does not exist
+      //
+
+      String lsxFormat = getLsxFormatBase4Response (req);
+      String lsxPrefName = "--" + myName + " " + lsxFormat;
 
       // translate speculative requests i.e. from Chrome and/or IE
       //
@@ -307,7 +345,11 @@ public class micoHttpServer extends Thread
          lsxFormat = "GET /";
       }
 
-      if (theListixLogic.getVarEva (lsxFormat) == null)
+      // try first with prefix "-serverName "
+      //
+      if (theListixLogic.getVarEva (lsxPrefName) != null)
+         lsxFormat = lsxPrefName;
+      else if (theListixLogic.getVarEva (lsxFormat) == null)
       {
          return req.isMethodGET () ? defaultHTML ("with no response for [" + lsxFormat + "]!"): "";
       }
@@ -396,53 +438,54 @@ public class micoHttpServer extends Thread
       return respBuff.toString ();
    }
 
-   // decide if serve a file or something else
-   //
-   public File wantServeFile (String uri)
-   {
-      if (uri == null || uri.length () < 2) return null;
+    // decide if serve a file or something else
+    //
+    public File2 wantServeFile (String uri)
+    {
+        if (uri == null || uri.length () < 2) return null;
 
-      // First check if it contains the special fileServerString
-      // with it micoHttp is allowed to serve any file in the reachable
-      // file system (including different drive units in windows)
-      //
-      String tryFileName = fileServerString != null ?
-                                  uri.startsWith ("/" + fileServerString) ?
-                                         uri.substring (1 + fileServerString.length ()): null
-                                  : null;
+        // First check if it contains the special fileServerString
+        // with it micoHttp is allowed to serve any file in the reachable
+        // file system (including different drive units in windows)
+        //
+        String tryFileName = fileServerString != null ?
+                                 uri.startsWith ("/" + fileServerString) ?
+                                       uri.substring (1 + fileServerString.length ())
+                                       : null
+                                 : null;
 
                                   // Not the case, then check is the directory is forbidden
-      if (tryFileName == null)
-      {
-         //(o) MICO/special/directories/nopublic all directories that are not exposed to file serving, at least by default
-         //
-         // standard serve file accepting ONLY index.html and subdirs html, img, js, css, data, files and gast
-         //
-         if (uri.startsWith ("/hide_") ||
-             uri.startsWith ("/hide/") ||
-             uri.startsWith ("/hidden_") ||
-             uri.startsWith ("/hidden/") ||
-             uri.startsWith ("/nopublic"))
-         {
-             // do not even try these names as filenames to serve
-             // note the difference made between the special strings 'hide' and 'nopublic'
-             // where "/hidepark" is acceptable while "/nopublicPark" is not
-             out (0, "Attempt to open a not public item! [" + uri + "]");
-         }
-         else
-         {
-            tryFileName = uri.substring (1);
-         }
-      }
-      if (tryFileName == null) return null;
+        if (tryFileName == null)
+        {
+            //(o) listix/micoHttp/directories/nopublic all directories that are not exposed to file serving, at least by default
+            //
+            // standard serve file accepting ONLY index.html and subdirs html, img, js, css, data, files and gast
+            //
+            if (uri.startsWith ("/hide_") ||
+                uri.startsWith ("/hide/") ||
+                uri.startsWith ("/hidden_") ||
+                uri.startsWith ("/hidden/") ||
+                uri.startsWith ("/nopublic"))
+            {
+                // do not even try these names as filenames to serve
+                // note the difference made between the special strings 'hide' and 'nopublic'
+                // where "/hidepark" is acceptable while "/nopublicPark" is not
+                out (0, "Attempt to open a not public item! [" + uri + "]");
+            }
+            else
+            {
+                tryFileName = uri.substring (1);
+            }
+        }
+        if (tryFileName == null) return null;
 
-      File tryF = fileUtil.getNewFile (tryFileName);
+        File2 tryF = fileUtil.getNewFile2 (tryFileName);
 
-      out (6, "check file [" + tryF.getAbsolutePath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
-      //out (6, "check file [" + tryF.getPath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
+        out (6, "check uri [" + uri + "] file [" + tryF.getAbsPath2 () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
+        //out (6, "check file [" + tryF.getPath () + "] exist " + tryF.exists () + " isDir " + tryF.isDirectory ());
 
-      return (tryF != null && tryF.exists () && !tryF.isDirectory ()) ? tryF: null;
-   }
+        return (tryF != null && tryF.exists () && !tryF.isDirectory ()) ? tryF: null;
+    }
 
    private Timer closeTimer = null;
 
@@ -495,7 +538,7 @@ public class micoHttpServer extends Thread
       {
          try   // If any error ocurrs ... keep inside the loop !!
          {
-            httpRequestData reke = new httpRequestData (getMemFileName4ReqBody ());
+            httpRequestData reke = new httpRequestData (myName, getMemFileName4ReqBody ());
             if (reke == null) continue;
             InputStream inputStream = null;
             OutputStream outputStream = null;
@@ -506,7 +549,7 @@ public class micoHttpServer extends Thread
             // if any previous close timer was set, cancel it since now we start serving again
             if (closeTimer != null) closeTimer.cancel();
 
-            //(o) TODO_Remove this workaround !!!! needed or IE and Chrome !! Safari and Firefox seems not to need it!
+            //(o) TOREVIEW/listix/micoHttp/timeoutWorkaround remove this workaround !!!! needed or IE and Chrome !! Safari and Firefox seems not to need it!
             // possible explanation pointed in
             // http://stackoverflow.com/questions/4761913/server-socket-receives-2-http-requests-when-i-send-from-chrome-and-receives-one
             // .. Apparently, Chrome opens a speculative socket, to be able to make the
@@ -543,7 +586,7 @@ public class micoHttpServer extends Thread
                   // send reject response and not process the request further
                   out (2, "theOnlyLBINY [" + theOnlyLivingBoyInNY + "]");
                   out (2, "currentIP    [" + getCurrentClientIP () + "]");
-                  httpResponseData respa = new httpResponseData (outputStream, reke.isMethodGET () ? PAGE_MONOCLIENT: "", null, null);
+                  httpResponseData respa = new httpResponseData (myName, outputStream, reke.isMethodGET () ? PAGE_MONOCLIENT: "", null, null);
                   respa.send ();
                   try { client.close (); } catch (Exception e) {};
                   currentClient = null;
@@ -553,7 +596,7 @@ public class micoHttpServer extends Thread
 
             out (2, "request accepted from " + getCurrentClientIP ());
 
-            httpStreamReader reqReader = new httpStreamReader (inputStream);
+            httpStreamReader reqReader = new httpStreamReader (myName, inputStream);
             reke.processRequest (reqReader, getResposeStrID (), client, uploadSocketTimeout);
             reke.dump ("on request");
 
@@ -562,7 +605,7 @@ public class micoHttpServer extends Thread
             if (killable && reke.theUriParameters.get (ACABA_KEY) != null)
             {
                //:SEQ HTTP_Request | micoHTTP -> 3:caseKillConnecion_response -> clientHTTP | Key request to kill the HTTP session (the server actually)
-               httpResponseData respa = new httpResponseData (outputStream, PAGE_ACABADO, null, null);
+               httpResponseData respa = new httpResponseData (myName, outputStream, PAGE_ACABADO, null, null);
                respa.send ();
                try { client.close (); } catch (Exception e) {};
                currentClient = null;
@@ -595,7 +638,7 @@ public class micoHttpServer extends Thread
                //
                String fileNameDecode = utilEscapeStr.desEscapeStr (reke.theUri, "utf8");
 
-               File file2serve = wantServeFile (fileNameDecode);
+               File2 file2serve = wantServeFile (fileNameDecode);
                if (file2serve != null)
                {
                   // if browser request a css file we have to send content-type text/css (use the function getContentTypeFromFileName)
@@ -604,7 +647,7 @@ public class micoHttpServer extends Thread
                   //
                   boolean servingAsFile = fileServerString != null && fileNameDecode.startsWith ("/" + fileServerString);
 
-                  //(o) MICO/special/directories/nocache resources from this directory shouldn't be cached
+                  //(o) listix/micoHttp/directories/nocache resources from this directory shouldn't be cached
                   //
                   if (fileNameDecode.startsWith ("/nocache/"))
                   {
@@ -613,11 +656,12 @@ public class micoHttpServer extends Thread
                      responseHeaders.put ("Expires", "Expires : 0");
                   }
 
-                  out ("want to serve the file [" + file2serve + "]");
+                  out ("want to serve the file [" + file2serve.getAbsPath2 () + "]");
 
                   //:SEQ HTTP_Request | micoHTTP -> 4:caseServeAFile_response -> clientHTTP | Found that it is a GET request and the url corresponds with a given file so serve the file
                   // serving a file
-                  respa = new httpResponseData (outputStream,
+                  respa = new httpResponseData (myName,
+                                                outputStream,
                                                 file2serve,
                                                 servingAsFile ? "application/octet-stream": getContentTypeFromFileName (file2serve.getName ()),
                                                 responseHeaders);
@@ -639,8 +683,8 @@ public class micoHttpServer extends Thread
                   {
                      //:SEQ HTTP_Request | micoHTTP -> 5:caseFileFromAZip_response -> clientHTTP | Found that it is a GET request and the url corresponds to a zipped file from the configured zip archives
                      out ("want to serve from zip [" + fileNameDecode + "]");
-                     // respa = new httpResponseData (outputStream, myZipped2Serve.getInputStream (zie), zie.getSize (), getContentType (reke), responseHeaders);
-                     respa = new httpResponseData (outputStream,
+                     respa = new httpResponseData (myName,
+                                                   outputStream,
                                                    myZipped2Serve.getInputStream (zie),
                                                    zie.getSize (),
                                                    getContentTypeFromFileName (nameInZip),
@@ -661,10 +705,10 @@ public class micoHttpServer extends Thread
                //
 
                //:SEQ HTTP_Request | micoHTTP -> 6:ListixBuiltResponse -> buildResponseMethod | The http response will be built dynamically through a listix format
-               out ("want to serve from listix [" + getLsxFormat4Response (reke) + "]");
+               out ("want to serve from listix [-" + myName + " " + getLsxFormatBase4Response (reke) + "]");
                // build response using listix
                //
-               respa = new httpResponseData (outputStream, buildResponse (reke), null, responseHeaders);
+               respa = new httpResponseData (myName, outputStream, buildResponse (reke), null, responseHeaders);
             }
 
             //:SEQ HTTP_Request | micoHTTP -> 9:sendResponseToClient -> clientHTTP | Send the http response
@@ -685,7 +729,14 @@ public class micoHttpServer extends Thread
          }
          catch (Exception e)
          {
-            log.severe ("run", "exception in http server " + e);
+            // e.printStackTrace ();
+
+            StackTraceElement [] stackEls = e.getStackTrace ();
+            String stackStr = "\n===StackTrace:\n";
+            for (int ss = 0; ss < stackEls.length; ss ++)
+               stackStr += stackEls[ss] + "\n";
+
+            log.severe ("run", "Exception in http server " + e + stackStr);
             //!!! no zombie but continue with next client!
             // state = STATE_ZOMBIE;
          }
@@ -702,7 +753,7 @@ public class micoHttpServer extends Thread
          try { theServer.close (); } catch (Exception e) {}
       }
 
-      //(o) NOTE 2015.11.22 consider
+      //NOTE 2015.11.22 consider here (?)
       //   this.interrupt ();
    }
 

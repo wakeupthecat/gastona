@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2015,2016,2017 Alejandro Xalabarder Aulet
+Copyright (C) 2015-2021 Alejandro Xalabarder Aulet
 License : GNU General Public License (GPL) version 3
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -43,16 +43,6 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
    var comol = evaFileObj (wes);
    console.log (comol);
    console.log ("Gauss lived in " + comol.obj["unit primera"]["milist"][1][1]);
-
-
-  jEva v0.80
-
-      2017.04.17  parser compatible with other implementations
-                  implement correctly rest of line in all columns
-                  implement double quotes in all columns
-                  implement comment <!
-                  implement logic end of file #**...#
-
 */
 
 // "use strict";
@@ -63,6 +53,10 @@ function evaFileObj (obj)
    //
    if (typeof obj === "string")
       obj = evaFileStr2obj (obj);
+
+   //if (obj instanceof Array)
+   //{
+   //}
 
    return {
       obj             : obj,
@@ -131,21 +125,24 @@ function evaFileUTF82obj (fileStrUtf8)
    return evaFileStr2obj (decodeURIComponent (fileStrUtf8.replace (/\+/g, "%20")));
 }
 
-// converts a file formated as EVA into a javascript object
-// where the the first layer of properties are units, the second evas and each eva
-// is an array of string arrays
+// converts a file formatted as EVA into a javascript object
+// composed by named units where each unit is a set of named evas and each eva an array of arrays of objects
 //
-// the input parameter is either a file given as string array or as string containing the whole text
-// including line ends.
+// input parameters
 //
-function evaFileStr2obj (evaFileAsArrOrStr)
+//    evaFileAsArrOrStr: file given either as a string (with line ends) or as a string array where each array element is a line
+//    offsetLine:        line 0 based to start with, default value is 0
+//    lastLine:          line 0 based to end with, default value is last line of file (minus one)
+//
+//
+function evaFileStr2obj (evaFileAsArrOrStr, offsetLine, lastLine)
 {
    // trim also for IE8
    function trimStr (str) { return str.replace(/^\s+|\s+$/g, ''); }
 
    function str2lineArray (str) { return str.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); }
 
-   return parseFileStr (evaFileAsArrOrStr);
+   return parseFileStr ();
 
    /*
       Example of use:
@@ -257,7 +254,7 @@ function evaFileStr2obj (evaFileAsArrOrStr)
        return eline;
    }
 
-   function parseFileStr (filetext)
+   function parseFileStr ()
    {
       var nameUnit, nameEva;
       var currFile = {}, currUnit = {}, currEva = [];
@@ -280,13 +277,16 @@ function evaFileStr2obj (evaFileAsArrOrStr)
 
       // get array of lines
       //
-      var textArr = filetext;
-      if (typeof filetext === "string")
+      var textArr = evaFileAsArrOrStr;
+      if (typeof evaFileAsArrOrStr === "string")
       {
-         textArr = str2lineArray (filetext);
+         textArr = str2lineArray (evaFileAsArrOrStr);
       }
 
-      for (var lindx = 0; lindx < textArr.length; lindx ++)
+      var offLin = +(offsetLine||0);
+      var lastLin = +(lastLine||(textArr.length-1));
+
+      for (var lindx = offLin; lindx <= lastLin; lindx ++)
       {
          var linStr = trimStr (textArr[lindx]);
 

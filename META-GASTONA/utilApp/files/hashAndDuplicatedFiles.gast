@@ -1,0 +1,94 @@
+#javaj#
+
+   <frames> Fmain, Hashing files & duplicates, 600, 400
+
+   <layout of Fmain>
+      EVA, 10, 10, 7, 7
+
+         , X    ,
+         , eeDir to scan, ccHash, bSearch dir, gLus
+       X , sFileViewer, -, -, -
+       X , oSansos, -, -, -
+
+#data#
+
+   <bSearch dir DIALOG> DIR
+   <bSearch dir image> javaj/img/explorer.png
+
+   <ccHash>
+      hashName
+      sha1
+      sha256
+      crc32
+      md5
+
+#listix#
+
+   <main>
+      VAR=, tmpDB, @<:lsx tmp db>
+      DB CONFIG, DEFAULT, @<tmpDB>
+
+   <void>
+
+   <HASHO> SHA256
+
+   <TABLE_ALL> @<HASHO>_all
+
+   <-- bSearch dir>
+      -->, eeDir to scan data!,, @<bSearch dir chosen>
+      @<do scanDir>
+
+   <-- eeDir to scan>
+      @<do scanDir>
+
+   <do scanDir>
+      GEN, @<tmpDB>, void
+
+      -->, oSansos clear
+      LSX, scanea
+
+      // scan tooks @<:lsx elapsed sapiens> with hash "@<HASHO>"
+      //
+      //
+      LOOP, SQL,, @<SQL numberOfDuplicates>
+          ,, --------- @<nDuplicates> files duplicates (@<saveMB> MB)
+      //
+      //
+      LOOP, SQL,, //SELECT @<HASHO>, fullPath, size FROM @<TABLE_ALL> WHERE @<HASHO> IN (@<SQL DuploHash>) ORDER BY size DESC, @<HASHO>
+          ,, //
+          ,, // @<HASHO>: @<hashValue>
+          ,, // file size: @<size>
+          ,, //
+          ,, BODY WHILE, @<HASHO>
+          ,,           ,, //   @<fullPath>
+
+      -->, sFileViewer data!, sqlSelect, //SELECT @<HASHO>, size, fullPath FROM @<TABLE_ALL> ORDER BY size DESC, @<HASHO>
+
+   <hashValue>
+      VALUE OF, @<HASHO>
+
+   <scanea>
+      VAR=, HASHO, @<ccHash selected.hashName>
+      SCAN, ADD FILES,, @<eeDir to scan>
+          , PREFIX, @<HASHO>
+          , ADD HASH, @<HASHO>
+
+   <SQL DuploHash>
+      //SELECT @<HASHO>
+      //  FROM
+      // (@<SQL duplos>)
+      //
+
+   <SQL numberOfDuplicates>
+      //SELECT total-nuniques AS nDuplicates, ROUND (saveBytes/(1024*1024), 1) AS saveMB
+      //  FROM
+      //   (SELECT COUNT(*) AS nuniques, SUM((conta-1) * size) AS saveBytes, SUM(conta) AS total
+      //     FROM
+      //     (@<SQL duplos>)
+      //   )
+
+   <SQL duplos>
+      //SELECT @<HASHO>, size, COUNT(*) AS conta FROM @<TABLE_ALL> GROUP BY @<HASHO>,size HAVING conta > 1
+
+
+#**#

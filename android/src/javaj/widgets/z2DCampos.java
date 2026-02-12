@@ -184,7 +184,7 @@ public class z2DCampos extends View
 
             android.util.Log.d ("ss", "carga x y (" + posCargas[ii].x + ", " + posCargas[ii].y + ")");
 
-            // tirar líneas de fuerza
+            // tirar li'neas de fuerza
             for (int tet = 0; tet < N_SECTORES; tet ++)
             {
                posLinea.set ((float) (pCenter.x + radio * Math.cos (tet * 2 * Math.PI / N_SECTORES)),

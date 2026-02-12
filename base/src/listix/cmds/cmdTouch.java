@@ -85,6 +85,22 @@ public class cmdTouch implements commandable
        };
    }
 
+   public static void touchFile (String fileName, String dateStr)
+   {
+      File fil = new File2 (fileName);
+
+      if (dateStr == null || dateStr.length () == 0 || dateStr.equalsIgnoreCase ("now"))
+      {
+         DateFormat hoy = new DateFormat (new Date ());
+         fil.setLastModified (hoy.getAsLong ());
+      }
+      else
+      {
+         // expected yyyy-MM-dd HH:mm:ss
+         fil.setLastModified (DateFormat.getAsLong (dateStr));
+      }
+   }
+
    /**
       Execute the commnad and returns how many rows of commandEva
       the command had.
@@ -100,18 +116,7 @@ public class cmdTouch implements commandable
       String fileName = cmd.getArg (0);
       String dateStr = cmd.getArg (1);
 
-      File fil = new File2 (fileName);
-
-      if (dateStr == null || dateStr.length () == 0 || dateStr.equalsIgnoreCase ("now"))
-      {
-         DateFormat hoy = new DateFormat (new Date ());
-         fil.setLastModified (hoy.getAsLong ());
-      }
-      else
-      {
-         // expected yyyy-MM-dd HH:mm:ss
-         fil.setLastModified (DateFormat.getAsLong (dateStr));         
-      }
+      touchFile (fileName, dateStr);
 
       cmd.checkRemainingOptions ();
       return 1;

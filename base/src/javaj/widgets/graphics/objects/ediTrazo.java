@@ -362,52 +362,56 @@ public class ediTrazo
       int indx = 0;
       int setpoint = 0;
       isTrazoClosed = false;
+      int MAX_TRAS_TYPE_LEN = 10;
+      boolean coordRelative = strTrazo.charAt (0) > 'Z';
 
-      // NOTE: the points are saved as relative to previous point!
-      //  we want to have them in memory relative to initial point, so we have to recalculate them
+      // NOTE: in general (trazo in lower case) the points are saved as relative to previous point,
+      //       we want to have them in memory relative to initial point, so we have to recalculate them
       //
+      String TTLower = strTrazo.length() > MAX_TRAS_TYPE_LEN ? strTrazo.substring(0, MAX_TRAS_TYPE_LEN): strTrazo;
+      TTLower = TTLower.toLowerCase ();
 
-      if (strTrazo.startsWith ("pol"))
+      if (TTLower.startsWith ("pol"))
       {
          setTrazoForm (FORM_POLYGONE);
-         isTrazoClosed = strTrazo.startsWith ("polz");
+         isTrazoClosed = TTLower.startsWith ("polz");
          setpoint = 1;
       }
       else
-      if (strTrazo.startsWith ("rec"))
+      if (TTLower.startsWith ("rec"))
       {
          setTrazoForm (FORM_RECTANGLE);
       }
       else
-      if (strTrazo.startsWith ("ova") || strTrazo.startsWith ("cir"))
+      if (TTLower.startsWith ("ova") || TTLower.startsWith ("cir"))
       {
          setTrazoForm (FORM_OVAL);
       }
       else
-      if (strTrazo.startsWith ("arc"))
+      if (TTLower.startsWith ("arc"))
       {
          setTrazoForm (FORM_ARC);
-         isTrazoClosed = strTrazo.startsWith ("arcz");
+         isTrazoClosed = TTLower.startsWith ("arcz");
       }
       else
-      if (strTrazo.startsWith ("cub"))
+      if (TTLower.startsWith ("cub"))
       {
          setTrazoForm (FORM_PATH_CUBIC);
-         isTrazoClosed = strTrazo.startsWith ("cubz");
+         isTrazoClosed = TTLower.startsWith ("cubz");
          setpoint = 3;
       }
       else
-      if (strTrazo.startsWith ("qua"))
+      if (TTLower.startsWith ("qua"))
       {
          setTrazoForm (FORM_PATH_QUAD);
-         isTrazoClosed = strTrazo.startsWith ("quaz");
+         isTrazoClosed = TTLower.startsWith ("quaz");
          setpoint = 2;
       }
       else
-      if (strTrazo.startsWith ("jau"))
+      if (TTLower.startsWith ("jau"))
       {
          setTrazoForm (FORM_PATH_AUTOCASTELJAU);
-         isTrazoClosed = strTrazo.startsWith ("jauz");
+         isTrazoClosed = TTLower.startsWith ("jauz");
          setpoint = 1;
       }
       else
@@ -418,8 +422,8 @@ public class ediTrazo
 
       points = new Vector ();
       String num = "";
-      float xref = posX;
-      float yref = posY;
+      float yref = coordRelative ? posY: 0;
+      float xref = coordRelative ? posX: 0;
       float lastReadX = 0.f;
       boolean hasReadX = false;
       int nValues = 0;
@@ -450,7 +454,8 @@ public class ediTrazo
                else
                {
                   addPairAbs (xref + lastReadX, yref + newNumber);
-                  if (getPairsCount () % setpoint == 0)
+                  if (coordRelative && (getPairsCount () % setpoint == 0))
+                  //if (getPairsCount () % setpoint == 0)
                   {
                      xref += lastReadX;
                      yref += newNumber;
@@ -561,7 +566,7 @@ public class ediTrazo
          {
             float val = ((float []) points.get (ii))[0] + (ii % 2 == 0 ? (posX - lastX): (posY - lastY));
             s.append ("," + numToString (val));
-            //if (((1 + ii / 2) % setpoint) == 0)
+
             if (((1 + (ii-2) / 2) % setpoint) == 0)
             {
                if (ii % 2 == 0)
@@ -595,7 +600,7 @@ public class ediTrazo
       s.append (toStringOnlyShape ());
       return s.toString ();
    }
-   
+
    private String numToString (float number)
    {
       return stdlib.numberFix (number, 2, true);

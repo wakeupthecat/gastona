@@ -1,0 +1,771 @@
+/*
+   //(o) gastonaDoc_source jsLibraries
+
+   ========================================================================================
+   ================ documentation for WelcomeGastona.gast =================================
+   ========================================================================================
+
+#gastonaDoc#
+
+   <docType>    jGastona_jsLibraries
+   <name>       "Libraries js included in Gastona"
+   <groupInfo>
+   <javaClass>
+   <importance> 4
+   <desc>       //Some js libraries out of the box
+
+
+   <help>
+      //Libraries js
+      //-------------------
+      //There is some funny stuff here, take a look at the samples
+      //
+
+   <examples>
+      gastSample
+
+      conSequenciGraffiti
+      javascriptExecutor
+      marketesPublisher
+      simple appHelp
+      plotAmbTrassos
+      cantoraBitlaySample
+      histogramPlainText
+      senzillPlot example
+      column text formatter example
+      plainTextPlot tests
+
+   <conSequenciGraffiti>
+      //#data#
+      //
+      //   <diagData>
+      //      //var diagData = {
+      //      //     sequenceTable : [
+      //      //                ["time", "source", "target", "message" ],
+      //      //                [ 0.122, "USER"  , "INTERFACE", "doThisAction" ],
+      //      //                [ 2.234, "INTERFACE", "SERVER", "theAction" ],
+      //      //                [ 3.543, "SERVER", "INTERFACE", "What action?" ],
+      //      //                [ 8.558, "INTERFACE", "USER", "done!" ],
+      //      //            ],
+      //      //      // distanceAgents   : 40,
+      //      //      distanceTimeUnit : 1,
+      //      //      // maxGapTime       : 2,
+      //      //      // autoElapsed      : false,
+      //      //  };
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="1100" height="300" id="Diagrama"></canvas>
+      //      //      <svg width="1100" height="300" id="Diagrama"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trassos2D-min.js>
+      //      //@<:infile META-GASTONA/js/conSequenciGraffiti.js>
+      //      //
+      //      //@<diagData>
+      //      //
+      //      // var vdata = {
+      //      //      "Diagrama graffiti": conSequenciGraffiti (diagData)
+      //      // };
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+
+   <javascriptExecutor>
+      //#javaj#
+      //
+      //   <frames> main, Javascript Executor
+      //
+      //   <layout of main>
+      //      EVA, 3, 3, 2, 2
+      //
+      //         , X
+      //         , lEnter your javascript code, -, -
+      //       X , xCodeArea, -, -
+      //         , rgModo, rgOutput, bEjecute
+      //         , lSortida, -, -
+      //       X , xBodyResponse, -, -
+      //       X , oSortida, -, -
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //   <rgModo orientation> X
+      //   <rgModo>
+      //      label          , selected, program            , desc
+      //      Browser        , 0       , progBrowser        , //Browser js and output sent back to application
+      //      Console Browser, 0       , progBrowserConsole , //Browser js and output in a console like page
+      //      goRhino        , 1       , progGoRhino        , //Uses intern java embedded Rhino javascript interpreter
+      //
+      //   <rgOutput orientation> X
+      //   <rgOutput>
+      //      label             , selected, key
+      //      Output on text    , 1       , text
+      //      Output on console ,         , console
+      //
+      //   <OUTER_GORHINO_JS_PLATE>
+      //      <! ----- jsGoRhino template implementating functions "out(str) and o2str (object)"
+      //      //var __out__ = [];
+      //      //
+      //      //// important: if "eso" is a function we need to force the evaluation now with eso + ""
+      //      ////
+      //      //function out (eso) { __out__.push (eso + ""); }
+      //      //
+      //      //// some basic js stuff and  o2str function
+      //      ////
+      //      //@<:infile META-GASTONA/js/jsutil.js>
+      //      //
+      //      //@<xCodeArea>
+      //      //
+      //      //__out__.join ("\n");
+      //      //
+      //
+      //   <xCodeArea>
+      //      //
+      //      //function encript (t1, t2)
+      //      //{
+      //      //   return t2 + t1;
+      //      //}
+      //      //
+      //      //out ("output of this function is ... " + encript ("TheCat", "WakeUp"));
+      //      //
+      //      //var obj = { artist : "Patti Smith", concert: "Horses", location: "Barcelona", year : ["1975", "1976"], price: "300 pst" };
+      //      //out ("el primer concert: " + o2str (obj));
+      //      //
+      //
+      //#listix#
+      //
+      //  <-- rgModo>
+      //      -->, lSalida data!,, @<rgModo selected.desc>
+      //
+      //  <-- bEjecute>
+      //     LSX, @<rgModo selected.program>
+      //
+      //  <progBrowser>
+      //      MSG, lSalida data!,, Opening browser ...
+      //      MICO, start, S1
+      //
+      //  <progBrowserConsole>
+      //      MSG, lSalida data!,, Opening console browser ...
+      //      MICO, start, S2
+      //
+      //  <progGoRhino>
+      //      MSG, oSortida clear
+      //      IN CASE, @<rgOutput selected.key>
+      //             , text    , -->, xBodyResponse data!,, ""
+      //             , text    , VAR=, xBodyResponse, @<callG>
+      //             , text    , -->, xBodyResponse data!
+      //             , console , @<callG>
+      //      -->, lSalida data!,, //done in @<:lsx elapsed sapiens>
+      //
+      //   <progGoRhinoCon>
+      //      MSG, oSortida clear
+      //      @<callG>
+      //      -->, lSalida data!,, //done in @<:lsx elapsed sapiens>
+      //
+      //   <callG>
+      //      MSG, lSalida data!,, //Calling goRhino ...
+      //      goRhino, @<OUTER_GORHINO_JS_PLATE>
+      //
+      //   <calcElapsed>
+      //      =, (@<:lsx CLOCK> - STARTSTAMP) / 1000
+      //
+      //   <--S1 GET />
+      //      VAR=, USER CODE, LSX, xCodeArea
+      //      @<:solve-infile META-GASTONA/utilApp/std/executorJS-responseAutoClose.htmlsx>
+      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
+      //
+      //   <--S2 GET />
+      //      VAR=, USER CODE, LSX, xCodeArea
+      //      @<:solve-infile META-GASTONA/utilApp/std/executorJS-outConsoleLike.htmlsx>
+      //      VAR=, STARTSTAMP, @<:lsx CLOCK>
+      //
+      //   <--S1 POST /jsExecuted>
+      //      MICO, stop, S1
+      //      LSX, END_EXECUTION
+      //
+      //   <--S2 POST /jsExecuted>
+      //      LSX, END_EXECUTION
+      //
+      //   <END_EXECUTION>
+      //      MSG, lSalida data!,, //done, it took @<calcElapsed> seconds
+      //      IN CASE, @<rgOutput selected.key>
+      //             , text    , -->, xBodyResponse load, @<_bodyMemFileName>
+      //             , console , -->, oSortida load, @<_bodyMemFileName>
+
+   <marketesPublisher>
+      //#javaj#
+      //
+      //   <frames> main, Marketes editor
+      //
+      //   <layout of main>
+      //      EVA, 4, 4, 3, 3
+      //
+      //          , X
+      //          , lArticle in marketes format
+      //        X , xArticle
+      //          , bPublish
+      //
+      //   <sysDefaultFonts>
+      //      Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //   <theTitle> ARTICLE'S TITLE
+      //
+      //   <xArticle>
+      //      //#h Article header
+      //      //-- First chapter
+      //      //
+      //      //Here you can start the writing text
+      //      //
+      //      //New paragraphs are also possible. Now some code
+      //      //
+      //      //      function () {
+      //      //          return null;
+      //      //      }
+      //      //
+      //      //Finally in paragraphs you can use <b><i>html tags</i></b>.
+      //
+      //
+      //#listix#
+      //
+      //   <-- bPublish>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<!DOCTYPE html>
+      //      //<html> <head>
+      //      //      <title>@<theTitle></title>
+      //      //   <style type="text/css">
+      //      //
+      //      @<:infile META-GASTONA/js/marketes.css>
+      //      //
+      //      //   </style></head>
+      //      //<body>
+      //      //
+      //      //   <div id="sitio">  </div>
+      //      //
+      //      //   <script>
+      //      //
+      //      //@<:infile META-GASTONA/js/marketes.js>
+      //      //
+      //      //   var miDoc = "@<:encode-utf8 xArticle>".replace (/\+/g, "%20");
+      //      //
+      //      //   document.getElementById('sitio').innerHTML = marketes (decodeURIComponent (miDoc));
+      //      //
+      //      //</script>
+      //      //
+      //      //</body>
+      //      //</html>
+      //
+      //
+
+   <simple appHelp>
+      //#javaj#
+      //
+      //   <frames> main, Sample of simple help
+      //
+      //   <layout of main>
+      //      EVA, 4, 4, 3, 3
+      //
+      //          , X
+      //          , lArticle in marketes format
+      //          , bHelp me!
+      //
+      //#data#
+      //
+      //   <HELP_VAR>
+      //      '#h Mitool Help
+      //      '-- How to get help
+      //      '
+      //      'Yo can get help by pressing the button "Help me!"
+      //      '
+      //      'See this nice function
+      //      '
+      //      '      function () {
+      //      '          return "Help me!";
+      //      '      }
+      //      '
+      //      'If all this together does not help you always can try to sign
+      //      '
+      //      '      Help! I need somebody,
+      //      '      Help! not just anybody
+      //      '      Help! you know I need someone
+      //      '      ...
+      //
+      //#listix#
+      //
+      //   <-- bHelp me!>
+      //      mico, once
+      //
+      //   <GET />
+      //      //@<:solve-infile META-GASTONA/utilApp/std/simpleMarketeHelpHtml.lsx>
+
+   <plotAmbTrassos>
+      //#data#
+      //
+      //   <laData>
+      //      // minX = -50;
+      //      // maxX =  50;
+      //      // incX = 0.1;
+      //      // var nummedio = false;
+      //      // var numcantos = true;
+      //      //
+      //      // var stylesGraella = {
+      //      //       grid: "sw:.1;sc:gray",
+      //      //       axe: "sw:0.2;sc:gray",
+      //      //       letra: "fof:Tahoma;fs:2.5;fc:black;sc:gray;sw:0.1;",
+      //      //       fu1: "sw:0.4;sc:green;fill:none",
+      //      //       fu2: "sw:0.4;sc:red;fill:none",
+      //      //       fu3: "sw:0.2;sc:yellow;fill:none",
+      //      //    };
+      //      //
+      //      // function addGrid (vdata, graffitiname, x0, x1, incx, y0, y1, incy)
+      //      // {
+      //      //    var arro = [];
+      //      //    for (var sty in stylesGraella)
+      //      //       arro.push (["defstyle", sty, stylesGraella[sty]]);
+      //      //    var MAR = 20;
+      //      //    arro.push (["rec", x0-MAR, y0-MAR, "fc:black", x1-x0+2*MAR, y1-y0+2*MAR]);
+      //      //
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["z", xx, y0, "grid", "pol", 0, y1-y0]);
+      //      //
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["z", x0, yy, "grid", "pol", x1-x0, 0]);
+      //      //
+      //      //    arro.push (["z", 0., y0, "axe", "pol", 0, y1-y0]);
+      //      //    arro.push (["z", x0, 0., "axe", "pol", x1-x0, 0]);
+      //      //
+      //      //    if (nummedio)
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["text", xx, 0, "letra", xx ]);
+      //      //
+      //      //    if (nummedio)
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["text", .3, yy, "letra", -yy]);
+      //      //
+      //      //    if (numcantos)
+      //      //    for (var xx = x0; xx <= x1; xx += incx)
+      //      //       arro.push (["text", xx, y1+incy/3., "letra", xx ]);
+      //      //
+      //      //    if (numcantos)
+      //      //    for (var yy = y0; yy <= y1; yy += incy)
+      //      //       arro.push (["text", x1+incx/4., yy, "letra", -yy]);
+      //      //
+      //      //    vdata[graffitiname + " graffiti"] = arro;
+      //      // }
+      //      //
+      //      // var vdata = { };
+      //      // addGrid (vdata, "grido", minX, maxX, 10, -40, 40, 10);
+      //      //
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu1", "pol", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu2", "bez", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["z", -40, 0, "fu3", "jau", 10, -40, 20, 40, 50, 0]);
+      //      // vdata["grido graffiti"].push (["tex", 0, 0, "letra", "(last entry to be remplaced with the formula)"]);
+      //      // var lastons = vdata["grido graffiti"];
+      //      //
+      //
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <p>Edit formula and press enter: </p>
+      //      //      <input id="formulos" font-family="Monospaced" type="text" value="Math.sin(x)" onchange='plotFormula()'"></input>
+      //      //      <br><br>
+      //      //      <canvas width="600" height="700" id="grido"></canvas>
+      //      //      <svg width="600" height="700" id="grido"></svg>
+      //      //<script>
+      //      //
+      //      //@<:infile-solve META-GASTONA/js/trassos2D-dbg.js>
+      //      //
+      //      // @<laData>
+      //      //
+      //      //   var elo = document.getElementById ("formulos");
+      //      //   function trassFormula()
+      //      //   {
+      //      //       var arrus = eval ("var arras = []; var ete=0, yol= 0; for (x = " + minX + "; x <= " + maxX + "; x += " + incX + ") { ete = " + elo.value  + "; arras.push (" + incX + ", yol-ete); yol = ete; } arras");
+      //      //       return ['z', (minX-incX), 0, 'fu3', 'pol'].concat (arrus);
+      //      //   }
+      //      //
+      //      //   function plotFormula ()
+      //      //   {
+      //      //      lastons[lastons.length-1] = trassFormula ();
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      plotFormula ();
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+      //
+      //#**#
+
+   <cantoraBitlaySample>
+      //#listix#
+      //
+      //   <main>
+      //      MICO, ONCE
+      //
+      //   <GET />
+      //      //<html>
+      //      //<body>
+      //      //      <canvas width="900" height="500" id="Llencz"></canvas>
+      //      //      <svg width="900" height="500" id="Llencz"></svg>
+      //      //
+      //      //<script>
+      //      //
+      //      //@<:infile META-GASTONA/js/trassos2D-min.js>
+      //      //
+      //      LSX, renderCode
+      //      //
+      //      //   window.onload = function(e)
+      //      //   {
+      //      //      var vdata = { "Llencz graffiti": renderPDU ("COUSO", true, misSignals) };
+      //      //      trassos2D ().renderSvgGraffitis (vdata);
+      //      //      trassos2D ().renderCanvasGraffitis (vdata);
+      //      //   };
+      //      //
+      //      //</script>
+      //      //</body>
+      //      //</html>
+      //
+      //   <renderCode>
+      //      //var misSignals = [
+      //      //         { name: "sig1",      startbit:  0, length:  3 },
+      //      //         { name: "quebrat",   startbit: 13, length: 17 },
+      //      //         { name: "flags",     startbit: 30, length:  1 },
+      //      //         { name: "lastomato", startbit: 33, length: 31 },
+      //      //      ];
+      //      //
+      //      //var CHARX = 26;
+      //      //var CHARY = 26;
+      //      //
+      //      //var OFFSET_X = 60;
+      //      //var OFFSET_Y = 60;
+      //      //
+      //      //var DIMX_BIT = 90;
+      //      //var DIMY_BYTE = 50;
+      //      //
+      //      //var NBITS = 8;
+      //      //var NBYTES = 8;
+      //      //
+      //      //function renderPDU (messageName, isLittleEndian, signals, signalMarked)
+      //      //{
+      //      //   var OFF0 = OFFSET_X + isLittleEndian ? NBITS * DIMX_BIT: 0;
+      //      //   var SIGN = isLittleEndian ? -1: 1;
+      //      //
+      //      //   var graff = [];
+      //      //
+      //      //   var paletta = ["+255231207", "+207231255", "+191255223", "+234254192", "+252194252",
+      //      //                  "+238238238" ];
+      //      //   var colindx = 0;
+      //      //
+      //      //   function paintPos4Bit (nbit)
+      //      //   {
+      //      //      return { posx : OFF0 + SIGN * ((nbit % NBITS) * DIMX_BIT),
+      //      //               posy : OFFSET_Y + Math.floor (nbit / NBITS) * DIMY_BYTE
+      //      //      }
+      //      //   }
+      //      //
+      //      //   function paint (startbit, length)
+      //      //   {
+      //      //      for (var bb = startbit; bb < startbit + length;  bb ++)
+      //      //      {
+      //      //         var bit = paintPos4Bit (bb);
+      //      //
+      //      //         graff.push ([ "rect",
+      //      //                       bit.posx, bit.posy,
+      //      //                       "fs:#000000; fc:" + paletta[colindx],
+      //      //                       DIMX_BIT, DIMY_BYTE
+      //      //                     ]);
+      //      //
+      //      //         graff.push ([ "text",
+      //      //                       bit.posx + DIMX_BIT - CHARX * 2.5,
+      //      //                       bit.posy + CHARY * .5,
+      //      //                       "fc:+050050050", bb+"" ]);
+      //      //      }
+      //      //   }
+      //      //
+      //      //   // all bits to empty
+      //      //   //
+      //      //   colindx = paletta.length - 1;
+      //      //   for (bb = 0; bb < NBITS * NBYTES; bb ++)
+      //      //      paint (bb, 1);
+      //      //
+      //      //   // for all signals ...
+      //      //   //
+      //      //   for (var ss = 0; ss < signals.length;  ss ++)
+      //      //   {
+      //      //      colindx = (colindx + 1) % (paletta.length - 1);
+      //      //      paint (signals[ss].startbit, signals[ss].length);
+      //      //   }
+      //      //
+      //      //   return graff;
+      //      //}
+      //      //
+
+
+   <histogramPlainText>
+      //#javaj#
+      //
+      //   <frames> main, Histogram in plain text sample, 800, 700
+      //
+      //   <layout of main>
+      //      EVA, 7,7, 3,3
+      //
+      //         , 200   , X, X, X
+      //         , lData, lHistogram, -, -
+      //       X , xDataVar, oSal, -, -
+      //         , bGenerateData, +
+      //         , lFormula, +
+      //         , eFormula, +
+      //         , lPoints, +
+      //         , iPoints, +
+      //         , lStatus, bClear
+      //
+      //#data#
+      //
+      //   <eFormula>
+      //      rnd+rnd+rnd
+      //
+      //   <iPoints>
+      //      range
+      //      1
+      //      5
+      //      10
+      //      20
+      //      50
+      //      100
+      //      200
+      //      500
+      //      1000
+      //
+      //#listix#
+      //
+      //   <main>
+      //      -->, iPoints select!, #1, 3
+      //      LSX, -- bGenerateData
+      //
+      //   <-- bGenerateData>
+      //      VAR=, xDataVar, num
+      //      LOOP, FOR, ii, 1, 1000
+      //          , LINK, ""
+      //          ,, VAR+, xDataVar, @<RND>
+      //      -->, xDataVar data!
+      //      LSX, doHistogram
+      //
+      //   <RND> =, @<eFormula>
+      //
+      //   <-- iPoints>  LSX, doHistogram
+      //   <-- bClear> -->, oSal clear
+      //
+      //   <SQL_HISTO>
+      //      //@<:sqlHistogram-indent yValues num @histInterval>
+      //
+      //
+      //   <doHistogram>
+      //      CHECK, VAR, iPoints selected.range, -->, lStatus data!,, //Select a range
+      //      STRCONV, TEXT-EVA, xDataVar, yValues
+      //      DB,, CREATE TABLE, yValues
+      //
+      //      LSX, SHOW_HISTO
+      //      -->, lStatus data!,, @<:lsx elapsed sapiens>
+      //
+      //   <SHOW_HISTO>
+      //      //
+      //      //
+      //      LOOP, SQL,, //SELECT (MAX(0+num)-MIN(0+num))/@<iPoints selected.range> AS granu, COUNT(*) AS ntotal FROM yValues
+      //          ,, NUM=, histInterval, @<normalInterval>
+      //          ,, //
+      //          ,, //----- HISTOGRAM with resolution @<histInterval>
+      //          ,, //
+      //          ,, //
+      //          ,, LOOP, SQL,, //@<SQL_HISTO>
+      //          ,,     ,, JS, @<BALK_JS>
+      //
+      //     //
+      //     //
+      //     //----- SQL to generate histogram
+      //     //
+      //     //listix primitive expression
+      //     //   @<:raw SQL_HISTO>
+      //     //
+      //     //which results into:
+      //     //
+      //	    @<SQL_HISTO>
+      //     //
+      //     //----- OUTPUT
+      //     //
+      //     // barIndx, fromValue, toValue, barCount
+      //     // ---------------------------------------
+      //     //
+      //     LOOP, SQL,, //@<SQL_HISTO>
+      //         ,, LOOP, COLUMNS
+      //         ,,     , LINK, ", "
+      //         ,,     ,, @<columnValue>
+      //
+      //   <normalInterval>
+      //      JS, //@<:infile META-GASTONA/js/coordinateIntervalNorm.js> coordinateIntervalNorm (@<granu>);
+      //
+      //   <BALK_JS>
+      //      //      var perc = 100 * @<barCount> / @<ntotal>;
+      //      //      var lina = "@<toValue>"
+      //      //                 + "   |" + Array(1+Math.round(perc/1.)).join("*")
+      //      //                 + "  " + @<barCount> + (perc > 1. ? " (" + Math.round(perc, 1) + "%)": "");
+      //      //      lina;
+      //
+      //
+      //#**#
+
+    <senzillPlot example>
+        //#listix#
+        //
+        //    <main>
+        //        MICO, ONCE
+        //
+        //    <GET />
+        //        //<body>
+        //        //<script>
+        //        //@<:infile META-GASTONA/js/senzillPlot.js>
+        //        //
+        //        //    var plotto = {
+        //        //            signals: [
+        //        //                  { xy: [1, 22, 2, 7, 4, 8, 5, 2, 8, 5, 10, 20] },
+        //        //                  { xy: [1, 24, 2, 1, 3, 7, 4, 12, 5, 23],
+        //        //                    lineType: LINE_VERTICAL,
+        //        //                  },
+        //        //                ],
+        //        //
+        //        //            plotDrawArea: { xStart: 0, yStart: 0 },
+        //        //            plotFrame: { minX: 0., maxX: 15., minY: -1., maxY: 30. },
+        //        //        };
+        //        //
+        //        //    renderPlot (plotto)
+        //        //</script>
+        //        //</body>
+
+   <column text formatter example>
+      //#listix#
+      //
+      //	<main>
+      //      JS, @<poet>
+      //
+      //   <poet>
+      //      //@<:infile META-GASTONA/utilApp/std/stringColumns.js>
+      //      //
+      //      //var texte = [
+      //      //              [ " De los sos maravillosaos ojos tan fuertemiente plorando tornava la cabesa o mio Sid Campechador. " +
+      //      //                 "Ese que se sabe el monarca de las praderas lejanas y Herr de las tierras abruptas",
+      //      //                 "... i en sortin de Valencia y vislumbrant Alcoi digues : acina quan es menja ?"
+      //      //              ],
+      //      //              [ " De relato a la fi'sica cua'ntica de los resonadores de Plank y las o'rbitas de Bohr. " +
+      //      //                "Cuando Sommerfeld sento' juntos a Pauli y a Heisenberg ignoraba lo que vendri'a en adelante.",
+      //      //                " Y no era muy tarde cuando el poeta dijo : Los lados de las laderas son pastos para los pastores. y anyadio : Vaya valles! Valla valles!" ],
+      //      //             ];
+      //      //
+      //      //printStringColumns (texte, 50, "< ", " | ", " >");
+
+    <plainTextPlot tests>
+      //#javaj#
+      //
+      //    <frames> main, tests plaTextPlot, 700, 600
+      //
+      //    <lay main>
+      //       EVA, 5, 5, 3, 3
+      //
+      //         , X
+      //         , rrgPlotSample
+      //       X , xxJSGoScript
+      //         , bRun
+      //       X , ooSortida
+      //
+      //    <sysDefaultFonts>
+      //       Consolas, 14, 0, TextArea.font
+      //
+      //#data#
+      //
+      //    <rrgPlotSample orientation> X
+      //    <rrgPlotSample>
+      //      label
+      //      function
+      //      pointArray
+      //      XYarrays
+      //
+      //   <function>
+      //        //@<@><:infile META-GASTONA/js/plaTextPlot_V11.jsgo>
+      //        //
+      //        //var signal = function (x) { return Math.sin(x);};
+      //        //
+      //        //var polo = plaTextPlot (80, 20, false);
+      //        //polo.plotFunc (signal);
+      //        //polo.toStrArray ().join("\n")
+      //
+      //    <pointArray>
+      //        //@<@><:infile META-GASTONA/js/plaTextPlot_V11.jsgo>
+      //        //
+      //        //var sampleFunc = [[0,0], [1,3], [2,6], [3,9], [4,6], [5,3], [6,0], [7,-3] ]
+      //        //
+      //        //var polo = plaTextPlot (50, 10, false);
+      //        //polo.setRanges ([-1, 8], [-3, 10], 3, 4)
+      //        //
+      //        //polo.plotXYpoints (sampleFunc);
+      //        //
+      //        //polo.toStrArray ().join("\n")
+      //
+      //    <XYarrays>
+      //        //@<@><:infile META-GASTONA/js/plaTextPlot_V11.jsgo>
+      //        //
+      //        //var sampleFuncX = [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+      //        //var sampleFuncY = [ 0, 3, 6, 9, 6, 3, 0,-3 ]
+      //        //
+      //        //var polo = plaTextPlot (50, 10, false);
+      //        //polo.setRanges ([-1, 8], [-3, 10], 3, 4)
+      //        //
+      //        //polo.plotXYarrays (sampleFuncX, sampleFuncY);
+      //        //
+      //        //polo.toStrArray ().join("\n")
+      //
+      //#listix#
+      //
+      //    <-- rrgPlotSample>
+      //        -->, xxJSGoScript data!,, @<LOVAL>
+      //
+      //    <LOVAL>
+      //        VALUE OF, @<rrgPlotSample selected.label>
+      //
+      //    <-- bRun>
+      //        -->, ooSortida clear
+      //        JS, @<xxJSGoScript>
+      //
+
+
+#**FIN_EVA#
+
+*/

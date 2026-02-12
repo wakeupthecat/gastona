@@ -116,47 +116,47 @@ public class utilEscapeStr
 
                // added on 2020-03-15
 
-               "\140", "~H",  //  96   140   60    01100000 `  &#96;    Grave accent
-               "\300", "~I",  // 192   300   C0    11000000 À  &#192;  &Agrave;  Latin capital letter A with grave
-               "\301", "~J",  // 193   301   C1    11000001 Á  &#193;  &Aacute;  Latin capital letter A with acute
-               "\304", "~K",  // 196   304   C4    11000100 Ä  &#196;  &Auml; Latin capital letter A with diaeresis
-               "\307", "~L",  // 199   307   C7    11000111 Ç  &#199;  &Ccedil;  Latin capital letter C with cedilla
-               "\310", "~M",  // 200   310   C8    11001000 È  &#200;  &Egrave;  Latin capital letter E with grave
-               "\311", "~N",  // 201   311   C9    11001001 É  &#201;  &Eacute;  Latin capital letter E with acute
-               "\313", "~O",  // 203   313   CB    11001011 Ë  &#203;  &Euml; Latin capital letter E with diaeresis
-               "\314", "~P",  // 204   314   CC    11001100 Ì  &#204;  &Igrave;  Latin capital letter I with grave
-               "\315", "~Q",  // 205   315   CD    11001101 Í  &#205;  &Iacute;  Latin capital letter I with acute
-               "\317", "~R",  // 207   317   CF    11001111 Ï  &#207;  &Iuml; Latin capital letter I with diaeresis
-               "\321", "~S",  // 209   321   D1    11010001 Ñ  &#209;  &Ntilde;  Latin capital letter N with tilde
-               "\322", "~T",  // 210   322   D2    11010010 Ò  &#210;  &Ograve;  Latin capital letter O with grave
-               "\323", "~U",  // 211   323   D3    11010011 Ó  &#211;  &Oacute;  Latin capital letter O with acute
-               "\326", "~W",  // 214   326   D6    11010110 Ö  &#214;  &Ouml; Latin capital letter O with diaeresis
-               "\330", "~X",  // 216   330   D8    11011000 Ø  &#216;  &Oslash;  Latin capital letter O with slash
-               "\331", "~Y",  // 217   331   D9    11011001 Ù  &#217;  &Ugrave;  Latin capital letter U with grave
-               "\332", "~Z",  // 218   332   DA    11011010 Ú  &#218;  &Uacute;  Latin capital letter U with acute
-               "\334", "~a",  // 220   334   DC    11011100 Ü  &#220;  &Uuml; Latin capital letter U with diaeresis
-               "\337", "~b",  // 223   337   DF    11011111 ß  &#223;  &szlig;   Latin small letter sharp s - ess-zed
-               "\340", "~c",  // 224   340   E0    11100000 à  &#224;  &agrave;  Latin small letter a with grave
-               "\341", "~d",  // 225   341   E1    11100001 á  &#225;  &aacute;  Latin small letter a with acute
-               "\344", "~e",  // 228   344   E4    11100100 ä  &#228;  &auml; Latin small letter a with diaeresis
-               "\350", "~f",  // 232   350   E8    11101000 è  &#232;  &egrave;  Latin small letter e with grave
-               "\351", "~g",  // 233   351   E9    11101001 é  &#233;  &eacute;  Latin small letter e with acute
-               "\353", "~h",  // 235   353   EB    11101011 ë  &#235;  &euml; Latin small letter e with diaeresis
-               "\354", "~i",  // 236   354   EC    11101100 ì  &#236;  &igrave;  Latin small letter i with grave
-               "\355", "~j",  // 237   355   ED    11101101 í  &#237;  &iacute;  Latin small letter i with acute
-               "\357", "~k",  // 239   357   EF    11101111 ï  &#239;  &iuml; Latin small letter i with diaeresis
-               "\361", "~l",  // 241   361   F1    11110001 ñ  &#241;  &ntilde;  Latin small letter n with tilde
-               "\362", "~m",  // 242   362   F2    11110010 ò  &#242;  &ograve;  Latin small letter o with grave
-               "\363", "~n",  // 243   363   F3    11110011 ó  &#243;  &oacute;  Latin small letter o with acute
-               "\364", "~o",  // 244   364   F4    11110100 ô  &#244;  &ocirc;   Latin small letter o with circumflex
-               "\366", "~p",  // 246   366   F6    11110110 ö  &#246;  &ouml; Latin small letter o with diaeresis
-               "\367", "~q",  // 247   367   F7    11110111 ÷  &#247;  &divide;  Division sign
-               "\370", "~r",  // 248   370   F8    11111000 ø  &#248;  &oslash;  Latin small letter o with slash
-               "\371", "~s",  // 249   371   F9    11111001 ù  &#249;  &ugrave;  Latin small letter u with grave
-               "\372", "~t",  // 250   372   FA    11111010 ú  &#250;  &uacute;  Latin small letter u with acute
-               "\373", "~u",  // 251   373   FB    11111011 û  &#251;  &ucirc;   Latin small letter u with circumflex
-               "\374", "~v",  // 252   374   FC    11111100 ü  &#252;  &uuml; Latin small letter u with diaeresis
-            });
+               "\140", "~H",  //  96   140   60    01100000 \   &#96;    Grave accent
+               "\300", "~I",  // 192   300   C0    11000000 A\  &#192;  &Agrave;  Latin capital letter A with grave
+               "\301", "~J",  // 193   301   C1    11000001 A/  &#193;  &Aacute;  Latin capital letter A with acute
+               "\304", "~K",  // 196   304   C4    11000100 A:  &#196;  &Auml; Latin capital letter A with diaeresis
+               "\307", "~L",  // 199   307   C7    11000111 Cz  &#199;  &Ccedil;  Latin capital letter C with cedilla
+               "\310", "~M",  // 200   310   C8    11001000 E\  &#200;  &Egrave;  Latin capital letter E with grave
+               "\311", "~N",  // 201   311   C9    11001001 E/  &#201;  &Eacute;  Latin capital letter E with acute
+               "\313", "~O",  // 203   313   CB    11001011 E:  &#203;  &Euml; Latin capital letter E with diaeresis
+               "\314", "~P",  // 204   314   CC    11001100 I\  &#204;  &Igrave;  Latin capital letter I with grave
+               "\315", "~Q",  // 205   315   CD    11001101 I/  &#205;  &Iacute;  Latin capital letter I with acute
+               "\317", "~R",  // 207   317   CF    11001111 I:  &#207;  &Iuml; Latin capital letter I with diaeresis
+               "\321", "~S",  // 209   321   D1    11010001 N~  &#209;  &Ntilde;  Latin capital letter N with tilde
+               "\322", "~T",  // 210   322   D2    11010010 O\  &#210;  &Ograve;  Latin capital letter O with grave
+               "\323", "~U",  // 211   323   D3    11010011 O/  &#211;  &Oacute;  Latin capital letter O with acute
+               "\326", "~W",  // 214   326   D6    11010110 O:  &#214;  &Ouml; Latin capital letter O with diaeresis
+               "\330", "~X",  // 216   330   D8    11011000 O-  &#216;  &Oslash;  Latin capital letter O with slash
+               "\331", "~Y",  // 217   331   D9    11011001 U\  &#217;  &Ugrave;  Latin capital letter U with grave
+               "\332", "~Z",  // 218   332   DA    11011010 U/  &#218;  &Uacute;  Latin capital letter U with acute
+               "\334", "~a",  // 220   334   DC    11011100 U:  &#220;  &Uuml; Latin capital letter U with diaeresis
+               "\337", "~b",  // 223   337   DF    11011111 SS  &#223;  &szlig;   Latin small letter sharp s - ess-zed
+               "\340", "~c",  // 224   340   E0    11100000 a\  &#224;  &agrave;  Latin small letter a with grave
+               "\341", "~d",  // 225   341   E1    11100001 a/  &#225;  &aacute;  Latin small letter a with acute
+               "\344", "~e",  // 228   344   E4    11100100 a:  &#228;  &auml; Latin small letter a with diaeresis
+               "\350", "~f",  // 232   350   E8    11101000 e\  &#232;  &egrave;  Latin small letter e with grave
+               "\351", "~g",  // 233   351   E9    11101001 e/  &#233;  &eacute;  Latin small letter e with acute
+               "\353", "~h",  // 235   353   EB    11101011 e:  &#235;  &euml; Latin small letter e with diaeresis
+               "\354", "~i",  // 236   354   EC    11101100 i\  &#236;  &igrave;  Latin small letter i with grave
+               "\355", "~j",  // 237   355   ED    11101101 i/  &#237;  &iacute;  Latin small letter i with acute
+               "\357", "~k",  // 239   357   EF    11101111 i:  &#239;  &iuml; Latin small letter i with diaeresis
+               "\361", "~l",  // 241   361   F1    11110001 n~  &#241;  &ntilde;  Latin small letter n with tilde
+               "\362", "~m",  // 242   362   F2    11110010 o\  &#242;  &ograve;  Latin small letter o with grave
+               "\363", "~n",  // 243   363   F3    11110011 o/  &#243;  &oacute;  Latin small letter o with acute
+               "\364", "~o",  // 244   364   F4    11110100 o^  &#244;  &ocirc;   Latin small letter o with circumflex
+               "\366", "~p",  // 246   366   F6    11110110 o:  &#246;  &ouml; Latin small letter o with diaeresis
+               "\367", "~q",  // 247   367   F7    11110111 ./. &#247;  &divide;  Division sign
+               "\370", "~r",  // 248   370   F8    11111000 o-  &#248;  &oslash;  Latin small letter o with slash
+               "\371", "~s",  // 249   371   F9    11111001 u\  &#249;  &ugrave;  Latin small letter u with grave
+               "\372", "~t",  // 250   372   FA    11111010 u/  &#250;  &uacute;  Latin small letter u with acute
+               "\373", "~u",  // 251   373   FB    11111011 u^  &#251;  &ucirc;   Latin small letter u with circumflex
+               "\374", "~v",  // 252   374   FC    11111100 u:  &#252;  &uuml; Latin small letter u with diaeresis
+           });
       }
       return encoderClassicNativ;
    }

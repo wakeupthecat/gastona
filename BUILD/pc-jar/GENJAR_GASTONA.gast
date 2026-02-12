@@ -9,12 +9,13 @@
 #javaj#
 
    <frames>
-         main, Generador de gastona.jar, 700, 600
+         main, Generador de gastona.jar v3, 700, 600
 
    <layout of main>
          EVA, 10 , 10, 5, 5
 
          ,               , X
+         , eeVersion     , -
          , lJavac path    , eJavacPath, bGenerateJar
          , lBinary archive, eBinaryArchive,  kRemove temp
       X  , o1Consola      , - , -
@@ -22,7 +23,7 @@
 
 #data#
 
-   <gastonaVersion>  //1.2.201012 \"redoc\"
+   <eeVersion>
 
    <kRemove temp selected> 1
    <manifestClass> gastona.gastona
@@ -48,6 +49,7 @@
       META-GASTONA/utilApp/editor
       META-GASTONA/utilApp/std
       META-GASTONA/utilApp/xmelon
+      META-GASTONA/utilApp/files
 
    <table task javac>
 
@@ -67,7 +69,7 @@
       //{
       //   public static String getVersion ()
       //   {
-      //      return "@<gastonaVersion>";
+      //      return "@<eeVersion>";
       //   }
       //
       //   public static String getBuildDate ()
@@ -81,6 +83,19 @@
       //   }
       //}
       //
+
+   <helloworld_1>
+        //#listix#
+        //
+        //    <main>
+        //        //Hello world!
+
+   <helloworld_2>
+        //#javaj#
+        //    
+        //    <frames> ooConsole
+        //
+        //@<helloworld_1>
 
    <4WINDOWS>
       VAR=, eJavacPath,     //\pavoTools\jdk1.7.0_04\bin\javac.exe
@@ -105,8 +120,11 @@
    <javac options>    //-nowarn
 
    <main0>
-      LOAD, data, "@<:sys user.home>/.gastonaLocal"
+      LOAD, data, //@<:sys user.home>/.gastonaLocal
       LSX, adaptOs
+
+   <main>
+      -->, eeVersion data!,, //1.3.@<:lsx date yyyyMMdd> nameit
 
    <adaptOs>
       CHECK, LINUX, LSX, 4WINDOWS
@@ -119,34 +137,39 @@
       LSX, javaErrorsClickAndGo::parseErrors
 
    <generate jar file>
-      'Using temporary directory [@<destDir>]
-      '
-      'GENERATING GASTONA VERSION [@<:lsx date>] ...
-      '
+      //Using temporary directory [@<destDir>]
+      //
+      //GENERATING GASTONA VERSION [@<:lsx date>] ...
+      //
       GEN, @<destDir>/org/gastona/gastonaVersion.java, gastVer
-      'GENERATING jar manifest file
-      '
+      //
+      //GENERATING hello worls scripts ...
+      GEN, @<destDir>/helloworld_1.gast, helloworld_1
+      GEN, @<destDir>/helloworld_2.gast, helloworld_2
+      //
+      //GENERATING jar manifest file
+      //
       GEN, @<manifestSource>, manifestFile
-      'MONTANDO ...
-      '
-      '@<copias>
+      //MONTANDO ...
+      //
+      //@<copias>
       LOOP, FILES, @<BASE DIR GASTONA>, txt
           , RECURSE, 0
           ,, FILEUTIL, COPY, @<fullPath>, @<destDir>/@<fileName>
 
-      'COMPILANDO ...
-      '
-      '@<task javac>
-      'JARANDO ...
-      '
+      //COMPILANDO ...
+      //
+      //@<task javac>
+      //JARANDO ...
+      //
       ZIP, ZIP, ../@<jarName>, @<destDir>
 
-      'COPY BINARY ARCHIVE ...
-      '
+      //COPY BINARY ARCHIVE ...
+      //
       FILEUTIL, COPY, ../@<jarName>, @<eBinaryArchive>/@<:lsx date yyyyMMdd>_@<jarName>
-      '
-      'ACABADO!
-      '
+      //
+      //ACABADO!
+      //
       LSX, informe java no compilados
       IF, @<kRemove temp selected>
         , 1, LSX, DESTROY DESTDIR

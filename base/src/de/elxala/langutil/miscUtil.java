@@ -87,4 +87,74 @@ public class miscUtil
          return false;
       return strToEval.substring(0, startStr.length ()).equalsIgnoreCase (startStr);
    }
+
+   // substrBL = Begin Length
+   public static String substr (String str, int ini)
+   {
+      return substrBL (str, ini, str.length ());
+   }
+
+   public static String substrBL (String str, int ini, int len)
+   {
+      if (str == null || len <= 0) return "";
+      ini = ini < 0 ? 0: ini > str.length () ? str.length (): ini;
+      len = ini+len > str.length () ? (str.length()-ini): len;
+
+      return len == 0 ? "":  str.substring (ini, ini+len);
+   }
+
+   // substrBL = Begin End
+   public static String substrBE (String str, int ini, int end)
+   {
+      if (str == null || end < 0) return "";
+      ini = ini < 0 ? 0: ini;
+      end = end >= str.length ()-1 ? str.length ()-1: end;
+
+      return ini > end ? "":  str.substring (ini, end + 1);
+   }
+
+   // change the java native String.substring without exceptions
+   // (java String substring native code got from https://www.javatpoint.com/java-string-substring)
+   //
+   public static String substring(String str, int beginIndex, int endIndex)
+   {
+      if (beginIndex < 0)
+      {
+         return ""; // throw new StringIndexOutOfBoundsException(beginIndex);
+      }
+      if (endIndex > str.length ())
+      {
+         return ""; // throw new StringIndexOutOfBoundsException(endIndex);
+      }
+      int subLen = endIndex - beginIndex;
+      if (subLen < 0)
+      {
+         return ""; // throw new StringIndexOutOfBoundsException(subLen);
+      }
+      // return ((beginIndex == 0) && (endIndex == str.length ())) ? str : new String(str, beginIndex, subLen);
+      return str.substring(beginIndex, endIndex);
+   }
+
+   public static void main (String [] aa)
+   {
+      String mue = "lumumba";
+
+      for (int ii = -1; ii < mue.length () + 1; ii ++)
+         for (int ss = -1; ss < mue.length () + 1; ss ++)
+         {
+            System.out.println ("substrBL (\"" + mue + "\", " + ii + ", " + ss + ") = \"" + substrBL(mue, ii, ss) + "\"");
+            System.out.println ("substrBE (\"" + mue + "\", " + ii + ", " + ss + ") = \"" + substrBE(mue, ii, ss) + "\"");
+            System.out.println ("substring(\"" + mue + "\", " + ii + ", " + ss + ") = \"" + substring(mue, ii, ss) + "\"");
+         }
+
+      for (int ii = -1; ii < mue.length () + 1; ii ++)
+         for (int ss = -1; ss < mue.length () + 1; ss ++)
+         {
+            System.out.println ("substrBE (\"" + mue + "\", " + ii + ", " + ss + " -1) = \"" + substrBE(mue, ii, ss - 1) + "\"");
+            System.out.println ("substring(\"" + mue + "\", " + ii + ", " + ss + ")    = \"" + substring(mue, ii, ss) + "\"");
+            System.out.println ("");
+         }
+
+   }
+
 }

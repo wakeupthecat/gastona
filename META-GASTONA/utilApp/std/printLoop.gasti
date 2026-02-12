@@ -1,0 +1,48 @@
+#listix#
+
+   <printLoopSQL>
+      LSX, printLoopSQL_simple, @<p1>
+
+   <printLoopSQL_quickFormat>
+      JS, @<printLoopSQL_JS_SCRIPT>; ""
+
+   <printLoopSQL_formatted>
+      JS, @<printLoopSQL_JS_SCRIPT>; ""
+
+   <printLoopSQL_JS_SCRIPT>
+      //
+      //@<:infile META-GASTONA/utilApp/std/stringColumns.js>
+      //
+      //var arr = @<printLoopSQL_SQLAsArray> ;
+      //printStringColumns (arr, 60, "| ", " | ", " |");
+
+   <printLoopSQL_SQLAsArray>
+      // [[
+      LOOP, SQL,, @<p1>
+          , LINK, "], ["
+          , HEAD, LOOP, COLUMNS,
+          , HEAD,     , LINK, ", "
+          , HEAD,     ,, //"@<:encode-strjs columnName>"
+          , HEAD, "], ["
+          , HEAD, ""
+          ,     , LOOP, COLUMNS,
+          ,     ,     , LINK, ", "
+          ,     ,     ,, //"@<:encode-strjs columnValue>"
+      //]]
+
+   <printLoopSQL_simple>
+      LOOP, SQL,, @<p1>
+          , HEAD, LSX, printColumnNames
+          , HEAD, ""
+          , HEAD, ""
+          ,     , LSX, printColumnValues
+
+   <printColumnNames>
+      LOOP, COLUMNS,
+          , LINK, ", "
+          ,, //@<columnName>
+
+   <printColumnValues>
+      LOOP, COLUMNS,
+         , LINK, ", "
+         ,, //@<columnValue>

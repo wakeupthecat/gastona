@@ -43,7 +43,6 @@ public class urlUtil
 {
    private static logger logStatic = new logger (null, "de.elxala.langutil.filedir.urlUtil", null);
 
-
    public static boolean urlExists (String urlName)
    {
       try
@@ -153,7 +152,7 @@ public class urlUtil
             logStatic.err ("copyUrlResource", "target file [" + fileToWrite + "] could not be opened for write");
             return false;
          }
-            
+
          logStatic.dbg (2, "copyUrlResource", "copying [" + urlName + "] on [" + fileToWrite + "] ...");
          int charo = -1;
          int kanto = 0;

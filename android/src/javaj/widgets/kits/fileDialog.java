@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005-2020 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,7 +32,7 @@ public class fileDialog
 {
    public static final int MODUS_FILES = 1;
    public static final int MODUS_DIR = 2;
-   
+
    public static boolean selectFile (String Extension, String iniDir, Eva fileEvaTable, boolean multiselection)
    {
       return selectFileOrDir (Extension, iniDir, fileEvaTable, MODUS_FILES, multiselection);

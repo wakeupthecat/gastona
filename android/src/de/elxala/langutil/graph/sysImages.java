@@ -18,11 +18,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package de.elxala.langutil.graph;
 
-import javax.swing.*;
-
-import de.elxala.Eva.*;
-import de.elxala.langutil.*;
-import de.elxala.zServices.*;
+import de.elxala.Eva.Eva;
+import de.elxala.langutil.javaLoad;
+import de.elxala.langutil.utilSys;
+import de.elxala.zServices.logger;
 
 public class sysImages
 {

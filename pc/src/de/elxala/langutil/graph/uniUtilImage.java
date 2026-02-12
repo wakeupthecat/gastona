@@ -171,7 +171,7 @@ public class uniUtilImage
       graphicObjectLoader oblo = new graphicObjectLoader ();
 
       if (grafFormat != null && (grafFormat.equalsIgnoreCase ("trassos") || grafFormat.equalsIgnoreCase ("trazos")))
-           oblo.loadObjectFromEvaTrazos ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
+           oblo.loadObjectFromEvaTrassos ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
       else oblo.loadObjectFromEva       ("graffititemp", evaGraffiti, null, "111", new offsetAndScale ());
 
       //(o) ISSUE/graffiti for Frame How to calculate dimx, dimy ??

@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -62,6 +62,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       gastSample
 
       menu layout example
+      MultiMenu sample
 
    <menu layout example>
       //#javaj#
@@ -91,6 +92,69 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //
       //    <-- menuOpen>  BOX, I, //Open this message, ok?
       //    <-- menuClose> MSG, javaj doExit
+      //
+
+    <MultiMenu sample>
+      //#javaj#
+      //
+      //    <frames> main, MultiMenu sample, 700, 400
+      //
+      //    <lay main>
+      //        EVA, 5, 5, 2, 2
+      //
+      //           , X    , X
+      //           , menu1, -
+      //           , xObs , menu2
+      //         X , +    , oSal
+      //           , menu3, -
+      //
+      //    <lay menu1>
+      //        MENU,
+      //        File, Open, doopen
+      //        File, Close, doclose
+      //
+      //    <lay menu2>
+      //        MENU,
+      //        Action, save, dosave
+      //        Action, clear, doclear
+      //
+      //    <lay menu3>
+      //        MENU,
+      //        Email, doEmail
+      //        Google, doGoogle
+      //        Notes , Remember pos & size, doremember
+      //              , Copy data          , docopy
+      //              , Do whatever else   , doelse
+      //
+      //#listix#
+      //
+      //	<-- doEmail>
+      //        Hey one email!
+      //        //
+      //	<-- doGoogle>
+      //        Hey google that
+      //        //
+      //
+      //    <-- doopen>     LSX, DOIT, ooopen
+      //    <-- doclose>    LSX, DOIT, clooose
+      //    <-- dosave>     LSX, DOIT, saaave
+      //    <-- doremember> LSX, CANNOT, remember
+      //    <-- docopy>     LSX, CANNOT, copy
+      //    <-- doelse>     LSX, CANNOT, else
+      //
+      //
+      //    <-- doclear>
+      //        -->, oSal clear
+      //        //cleared!
+      //        //
+      //
+      //    <DOIT>
+      //        //do @<p1>
+      //        //
+      //
+      //    <CANNOT>
+      //        //@<p1> ... if I could!
+      //        //
       //
 
 #**FIN_EVA#

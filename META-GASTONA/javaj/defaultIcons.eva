@@ -17,3 +17,21 @@
       "path", "sw:3", //M 36, 31 l  31,  0
       "path", "sw:3", //M 64, 29 l   0, 24
       "path", "sw:3", //M 67, 50 l -64,  0
+
+    <iconAppLogGraffiti>
+      "rect", "fc:+017184255;sc:none", 0, 0, 72, 72
+      "path", "sw:3", //M 45, 22 l -22,  0
+      "path", "sw:3", //M 26, 19 l   0, 24
+      "path", "sw:3", //M 23, 41 l  34,  0
+      "path", "sw:3", //M 36, 31 l  31,  0
+      "path", "sw:3", //M 64, 29 l   0, 24
+      "path", "sw:3", //M 67, 50 l -64,  0
+
+    <iconAppLogBusyGraffiti>
+      "rect", "fc:+072252012;sc:none", 0, 0, 72, 72
+      "path", "sw:3", //M 45, 22 l -22,  0
+      "path", "sw:3", //M 26, 19 l   0, 24
+      "path", "sw:3", //M 23, 41 l  34,  0
+      "path", "sw:3", //M 36, 31 l  31,  0
+      "path", "sw:3", //M 64, 29 l   0, 24
+      "path", "sw:3", //M 67, 50 l -64,  0

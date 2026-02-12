@@ -59,7 +59,7 @@ public class uniColor
    #RRGGBB #AARRGGBB 'red', 'blue', 'green', 'black', 'white', 'gray', 'cyan', 'magenta', 'yellow', 'lightgray', 'darkgray'
 
    from svg doc
-   http://www.w3.org/TR/SVG/types.html#ColorKeywords
+   https://www.w3.org/TR/SVG/types.html#ColorKeywords
 
       color    ::= "#" hexdigit hexdigit hexdigit (hexdigit hexdigit hexdigit)?
                    | "rgb(" wsp* integer comma integer comma integer wsp* ")"
@@ -90,7 +90,7 @@ public class uniColor
       int [] cols = miscUtil.parsedColorRGB (str);
       if (cols != null && cols.length == 4)
       {
-         esCol = cols[3] == -1 ? new Color (cols[0], cols[1], cols[2]):  
+         esCol = cols[3] == -1 ? new Color (cols[0], cols[1], cols[2]):
                                  new Color (cols[0], cols[1], cols[2], cols[3]);
       }
       else if (str.equalsIgnoreCase ("red")) esCol = Color.RED;

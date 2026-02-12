@@ -120,15 +120,19 @@ public class zTextArea extends undoredoTextArea implements DocumentListener, Men
 {
    private textAparato helper = null;
 
+   // default constructor to allow instantiation using <javaClass of...>
    public zTextArea ()
    {
       super ();
-      // default constructor to allow instantiation using <javaClass of...>
    }
 
    public zTextArea (String map_name)
    {
       build  (map_name);
+
+      // even if undoredoTextArea has its own KeyListener...
+      //
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

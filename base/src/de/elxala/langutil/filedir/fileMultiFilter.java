@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005-2019 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -95,6 +95,9 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
    {
       if (optFilter == null || optFilter.length () == 0) return; // estas de cachondeo ...
       if (textFilter == null || textFilter.length () == 0)  return; // no es valido
+   
+      optFilter = optFilter.trim ();
+      textFilter = textFilter.trim ();
 
       int crite = (optFilter.charAt(0) == '+') ? INCLUDE: EXCLUDE;
       int parte = FILENAME;
@@ -109,6 +112,15 @@ public class fileMultiFilter implements FileFilter /* implements accept () */
       }
 
       genericAdd (crite, parte, textFilter);
+   }
+
+   public void addCriteriaInAString (String optFilterStr)
+   {
+      String [] filtPairs = optFilterStr.split(",");
+      for (int ff = 0; ff + 1 < filtPairs.length; ff += 2)
+      {
+         addCriteria (filtPairs[ff], filtPairs[ff + 1]);
+      }
    }
 
    private boolean pasaFiltro (int crit, int parte, String name)

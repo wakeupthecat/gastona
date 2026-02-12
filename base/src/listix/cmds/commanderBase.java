@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2016 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -55,7 +55,7 @@ public class commanderBase
       if (mapCommands != null) return;
 
       //(o) DOC/listix/commands commands for both PC and android
-      
+
       // this has to be done only once!
       //
       mapCommands = new TreeMap ();
@@ -98,6 +98,11 @@ public class commanderBase
       loadCommandable (new cmdLoadUnit ());
 
       loadCommandable (new cmdParsons ());
+
+      // uncomment this only for a compilation check
+      // cmdParsonsEstructurel () is just a preparation for generalizing parson sources (folder files, single file, etc)
+      // loadCommandable (new cmdParsonsEstructurel ());
+
       loadCommandable (new cmdSleep ());
 
       //(o) DOC/listix/adding a new command/3 the class has to be added to the central command manager
@@ -108,17 +113,13 @@ public class commanderBase
       loadCommandable (new cmdZip ());
       loadCommandable (new cmdListix ());
       loadCommandable (new cmdResourceUtil ());
-      loadCommandable (new cmdDBMore ());
       loadCommandable (new cmdDeepDB ());
       loadCommandable (new cmdXmelon ());
       loadCommandable (new cmdParserEVA ());
 
-      loadCommandable (new cmdAudio2Buffer ());
       loadCommandable (new cmdHTTPRequest ());
       loadCommandable (new cmdHTTPDistill ());
       loadCommandable (new cmdJSON ());
-      loadCommandable (new cmdScreenshot ());
-      loadCommandable (new cmdMidi ());
       loadCommandable (new cmdUDP ());
 
       loadCommandable (new cmdMicoHTTPServer ());
@@ -131,6 +132,7 @@ public class commanderBase
       loadCommandable (new cmdGoRhino ());
       loadCommandable (new cmdDOC ());
       loadCommandable (new cmdCsv ());
+      loadCommandable (new cmdUniqueFileSTO ());
 
       load_specific_commands ();
 

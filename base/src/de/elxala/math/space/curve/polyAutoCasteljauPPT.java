@@ -44,6 +44,17 @@ public class polyAutoCasteljauPPT extends polyAutoCasteljau
 
    public static float arreglo = -1.f; // either automatic (-1) or an adjust value between 0 and 1
    
+   // given 3 points p1, p2, p3 it returns the two control points of the middle point p2 !
+   //
+   //          c1
+   //           ...p2      c2
+   //        ...     ......
+   //    p1..              ..........
+   //                               ....p3
+   //
+   // ctrl       ?  s1    s2    ?
+   // ptos    p1       p2          p3
+   //
    static public vect3f[] getControlPoints (vect3f p1, vect3f p2, vect3f p3)
    {
       vect3f[] ctrlPoints = new vect3f[2];
@@ -51,14 +62,12 @@ public class polyAutoCasteljauPPT extends polyAutoCasteljau
       vect3f v1 = new vect3f (p1, p2);
       vect3f v2 = new vect3f (p3, p2);
 
-      vect3f dir = vect3f.minus (v1, v2);
-      
       float n1 = v1.norm ();
       float n2 = v2.norm ();
-
-      float raso = 10.f;
       float fator = (n1 + n2) * (n1 + n2);
-      if (fator != 0.f)
+
+      vect3f dir = vect3f.minus (v1, v2);
+      if (fator > 0.f)
          dir.mult (1f / fator);
 
       // faco1 makes the curve very curly in edges

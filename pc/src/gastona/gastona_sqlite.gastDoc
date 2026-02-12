@@ -38,7 +38,7 @@
       //          LOOP, SQL,, //SELECT date('now') AS mydate
       //              ,, @<mydate>
       //
-      //       (for more functions see sqlite documentation official site http://www.sqlite.org/lang.html)
+      //       (for more functions see sqlite documentation official site https://www.sqlite.org/lang.html)
       //
       //   - It permits using a entire database as "exchange format". For example some listix commands place
       //     complex or just huge results into a database using a predefined schema. This can be done

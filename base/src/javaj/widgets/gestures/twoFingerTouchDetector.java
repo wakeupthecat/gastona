@@ -1,6 +1,6 @@
 /*
 package javaj.widgets
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -26,13 +26,15 @@ import de.elxala.zServices.*;
 /**
    Detects the typical two finger plausible action like : zoom, translation, rotation
    among several strategies we provide now values for all three actions
-   
+
 
 */
 public class twoFingerTouchDetector // extends multiFingerTouchDetector
 {
    private static logger log = new logger (null, "javaj.widgets.gestures.twoFingerTouchDetector", null);
    private multiFingerTouchDetector pulp = new multiFingerTouchDetector (null);
+
+   private boolean selfManage = false;
 
    public uniRect rectP1 = null;
    public uniRect rectP2 = null;
@@ -50,10 +52,11 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
 
     /**
      */
-   public class Simpleinterested implements interested
+   public class dummyInterested implements interested
    {
       public boolean onGestureStart (twoFingerTouchDetector detector)
       {
+         setRefOffsetScale ();
          return true;
       }
 
@@ -67,14 +70,14 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
       }
    }
 
-   //private Context mContext;
    private interested myInterested;
 
-   //public twoFingerTouchDetector(Context context, interested listener)
-   public twoFingerTouchDetector(interested listener)
+   public twoFingerTouchDetector (interested listener)
    {
-      //mContext = context;
-      myInterested = listener != null ? listener: new Simpleinterested ();
+      // if pass listener null then handle zoom and pan automatically
+      selfManage = listener == null;
+
+      myInterested = listener != null ? listener: new dummyInterested ();
    }
 
    private uniRect makeRect (vect3f p1, vect3f p2)
@@ -108,17 +111,54 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
       vect3f p1_now = dedo1.oneFingerZoomActive () ? dedo1.oneFingerZoomFirstPosition () : dedo1.getLastPosition ();
       vect3f p2_now = dedo1.oneFingerZoomActive () ? dedo1.getLastPosition () : dedo2.getLastPosition ();
       dispVfing2 = new vect3f (p1_now, p2_now);
-      
+
       rectP1 = makeRect (p1_ini, p2_ini);
       rectP2 = makeRect (p1_now, p2_now);
+   }
+
+   // return the original point as if scale and offset weren't exist
+   //
+   public vect3f unScalePoint (vect3f p)
+   {
+      vect3f uvec = new vect3f (p);
+      uvec.x /= nowScaleX;
+      uvec.y /= nowScaleY;
+      uvec.x += nowOffsetX;
+      uvec.y += nowOffsetY;
+      return uvec;
+   }
+
+   public float unScaleCoordinateX (float xval)
+   {
+      return xval / nowScaleX;
+   }
+
+   public float unScaleCoordinateY (float yval)
+   {
+      return yval / nowScaleY;
+   }
+
+   public void setUnScaleBox (float left, float top, float right, float bottom, uniRect Box)
+   {
+      left  /= nowScaleX;
+      right /= nowScaleX;
+      left  += nowOffsetX;
+      right += nowOffsetX;
+
+      top    /= nowScaleY;
+      bottom /= nowScaleY;
+      top    += nowOffsetY;
+      bottom += nowOffsetY;
+
+      Box.set (left, top, right, bottom);
    }
 
    protected vect3f plausibleDisplacement ()
    {
       // only if "dispv1 - dispv2 ~ 0" then it is a displacement and not
       // zoom or rotation and the displazament vector is dispv1 (same as dispv2)
-      // 
-      return 
+      //
+      return
          (dispVfing1.distance2 (dispVfing2) < 0.01 && dispVfing1.norm2 () >= 0.01f) ?
          dispVfing1:
          null;
@@ -139,6 +179,13 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
    private int marcX = 0, marcY = 0;
    private float refOffX = 0.f, refOffY = 0.f, refScaleX = 1.f, refScaleY = 1.f;
 
+   public float nowOffsetX = 0.f;
+   public float nowOffsetY = 0.f;
+   public float nowDisplacedX = 0.f;    // for the pan function
+   public float nowDisplacedY = 0.f;    //
+   public float nowScaleX = 1.f;
+   public float nowScaleY = 1.f;
+
 //   public void setRefOffsetScale(int marcoX, int marcoY, float offsetX, float offsetY, float scaleX, float scaleY)
 //   {
 //      setRefOffsetScale(marcoX, marcoY, offsetX, offsetY, scaleX, scaleY, false);
@@ -156,10 +203,14 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
       refScaleY = scaleY;
    }
 
-   public float nowOffsetX = 0.f;
-   public float nowOffsetY = 0.f;
-   public float nowScaleX = 1.f;
-   public float nowScaleY = 1.f;
+   // using the last calculated scale and offset
+   public void setRefOffsetScale ()
+   {
+      refOffX = nowOffsetX;
+      refOffY = nowOffsetY;
+      refScaleX = nowScaleX;
+      refScaleY = nowScaleY;
+   }
 
    public void calcZoomNow (boolean square)
    {
@@ -226,7 +277,16 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
          if (nowDedos == 2 || (nowDedos == 1 && pulp.mFingers[0].oneFingerZoomActive ()))
          {
             setRectangles ();
-            myInterested.onGestureContinue(this);
+
+            if (selfManage)
+                calcZoomNow (true);
+            else myInterested.onGestureContinue(this);
+         }
+         else if (nowDedos == 1 && selfManage)
+         {
+             // pan
+             nowDisplacedX = -pulp.mFingers[0].getDx () / nowScaleX;
+             nowDisplacedY = -pulp.mFingers[0].getDy () / nowScaleY;
          }
 
          if (nowDedos == 0)
@@ -241,8 +301,18 @@ public class twoFingerTouchDetector // extends multiFingerTouchDetector
       pulp.finalizeGesture (dueCancel);
       // here still gestureInProgress and gestureFinalized gives true
       myInterested.onGestureEnd (this, dueCancel);
+      nowOffsetX += nowDisplacedX;
+      nowOffsetY += nowDisplacedY;
+      nowDisplacedX = 0f;
+      nowDisplacedY = 0f;
    }
 
+
+   public boolean zoomGestureInProgress ()
+   {
+      int nowDedos = pulp.getActiveFingersCount ();
+      return (nowDedos == 2 || (nowDedos == 1 && pulp.mFingers[0].oneFingerZoomActive ()));
+   }
 
    public boolean gestureInProgress ()
    {

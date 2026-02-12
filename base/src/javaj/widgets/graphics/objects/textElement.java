@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -25,7 +25,7 @@ public class textElement implements paintableDimensionableElement
    public float x;
    public float y;
    public boolean isAbotonado; // has a round rectangle
-   private String mStyleStr;
+   public String mStyleStr;
 
    // 09.11.2011 00:00
    // Note that the bounds cannot be calculated without canvas and paint !!!!
@@ -43,19 +43,19 @@ public class textElement implements paintableDimensionableElement
       theBounds = new uniRect (posx, posy, 10.f * text.length (), 10.f); // aprox
    }
 
-   public uniPaint getPaint () 
-   { 
-      styleObject styleObj = styleGlobalContainer.getStyleObjectByName (mStyleStr);
+   protected uniPaint getPaintStroke (uniCanvas here)
+   {
+      styleObject styleObj = here.getStyleObject (mStyleStr);
       return styleObj.hasStroke () ? styleObj.getStrokePaint (): new uniPaint ();
    }
-   
+
    public void paintYou (uniCanvas here)
    {
       // GET SOME PAINT!
 
       float marg = 0.f;
-      float hText = here.getTextHeight (getPaint ());
-      float wText = here.getTextWidth (mText, getPaint ());
+      float hText = here.getTextHeight (getPaintStroke (here));
+      float wText = here.getTextWidth (mText, getPaintStroke (here));
 
       if (isAbotonado)
       {
@@ -68,7 +68,7 @@ public class textElement implements paintableDimensionableElement
       }
 
       theBounds.set (x, y, wText + marg + marg, hText + marg + marg);
-      here.drawText (mText, x + marg, y + marg + hText, getPaint ());
+      here.drawText (mText, x + marg, y + marg + hText, getPaintStroke (here));
    }
 
    public void getBounds (uniRect rbounds)

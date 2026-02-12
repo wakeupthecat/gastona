@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<style>
+   body {
+      background-color: black;
+      color: yellow;
+   }
+</style>
+
+<body>
+<pre>
+  <div id="consolaar"></div>
+</pre>
+
+<script>
+
+   var outPort;
+
+   // impostor console
+   //
+   var console = { log: function (s) { out (s); } };
+   // impostor alert
+   //
+   function alert (s) { out ("ALERT! \"" + s + "\"") }
+
+   function initConsola ()
+   {
+      outPort = document.getElementById("consolaar");
+   }
+
+   //----------- AJAX stuff
+   //
+   var xmlhttp;
+   if (window.XMLHttpRequest)
+      xmlhttp = new XMLHttpRequest();
+   else if (window.ActiveXObject)
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+   else
+      alert("Your browser does not support XMLHTTP!");
+
+   xmlhttp.onreadystatechange = function ()
+   {
+      // do nothing with the POST responses
+
+      //if (xmlhttp.readyState == 4)
+      //   close ();
+   }
+   //-----------
+
+   function out(str)
+   {
+       outPort.innerHTML += htmlEscape (str) + "\n";
+   }
+
+// some basic js stuff and  o2str function
+//
+@<:infile META-GASTONA/js/jsutil.js>
+
+
+   window.onload = function () {
+      initConsola ();
+
+@<USER CODE>
+
+      xmlhttp.open ("POST","jsExecuted",true);
+      xmlhttp.send ("");
+   }
+
+</script>
+
+</body>
+</html>

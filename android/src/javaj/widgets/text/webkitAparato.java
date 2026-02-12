@@ -19,13 +19,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package javaj.widgets.text;
 
-import android.widget.TextView;
-import javaj.widgets.basics.*;
-import de.elxala.mensaka.*;
-
-import javax.swing.text.*;
-import de.elxala.zServices.*;
 import android.webkit.WebView;
+
+import de.elxala.mensaka.Mensaka;
+import de.elxala.mensaka.MensakaTarget;
+import de.elxala.mensaka.MessageHandle;
+import de.elxala.zServices.logger;
+import javaj.widgets.basics.basicAparato;
 
 /*
 */

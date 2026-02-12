@@ -1,6 +1,6 @@
 /*
 gastona for Android
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -208,15 +208,18 @@ public class gastonaFlexActor extends Activity
          }
       }
 
-      //(o) TODO/android/javaj remove "optional" "layout of" it simply promotes writing not compatible scripts
-      //(o) Android_javaj_layoutof "layout of" is now optional
+      //(o) TODO/android/javaj 2023-04-23 13:42:15 Add <lay ...> 
+      //(o) TODO/android/javaj 2016? remove "optional" "layout of" it simply promotes writing not compatible scripts
+      //(o) 2016? Android_javaj_layoutof "layout of" is now optional
       //
       Eva mainlay = eu.getEva (mainFrameName);
       if (mainlay == null)
-         mainlay = eu.getEva ("layout of " + mainFrameName);
+         mainlay = eu.getEva ("lay " + mainFrameName);
+      if (mainlay == null)
+          mainlay = eu.getEva ("layout of " + mainFrameName);
       if (mainlay == null)
       {
-         log.err (DONDE, "layout of " + mainFrameName + " not found!");
+         log.err (DONDE, "<lay " + mainFrameName + "> (or <layout of..>) not found!");
          return getNoView (co);
       }
 

@@ -18,7 +18,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
 package javaj.widgets.table.util;
 
-import javax.swing.table.*;
 import de.elxala.langutil.*;
 import de.elxala.Eva.*;
 import javaj.widgets.table.*;

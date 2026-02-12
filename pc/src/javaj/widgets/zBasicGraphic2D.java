@@ -1,6 +1,6 @@
 /*
 package de.elxala.zWidgets
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -45,11 +45,12 @@ public class zBasicGraphic2D extends JPanel
    private BufferedImage bimg;
 
    private zoomTouchDetector zoomDetector = null;
-   private strokeDetector trazaDetector = null;
+   private strokeDetector trassDetector = null;
    private multiFingerTouchDetector pulpoDetector = null;
 
    public zBasicGraphic2D (String map_name)
    {
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
       init (map_name);
    }
 
@@ -58,7 +59,7 @@ public class zBasicGraphic2D extends JPanel
       addMouseListener (this);
 
       zoomDetector  = new zoomTouchDetector (this);
-      trazaDetector = new strokeDetector (this);
+      trassDetector = new strokeDetector (this);
       pulpoDetector = new multiFingerTouchDetector (this);
 
       // set default things
@@ -80,7 +81,7 @@ public class zBasicGraphic2D extends JPanel
    {
       zoomDetector.onTouchEvent(uni);
       if (!zoomDetector.gestureInProgress ())
-         trazaDetector.onTouchEvent(uni);
+         trassDetector.onTouchEvent(uni);
 
       pulpoDetector.onTouchEvent(uni);
    }

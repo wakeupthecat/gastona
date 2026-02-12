@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -70,7 +70,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       synIndx, name             , defVal    , desc
          1   , fileWithFormat   ,           , //File name containing the listix text format.
          2   , ONCE MODE        ,           , //
-         2   , mode             , off       , //Possible values are off (default), on, start, end. Start (set to on) and end (set to off) also clear the list of loaded files. 
+         2   , mode             , off       , //Possible values are off (default), on, start, end. Start (set to on) and end (set to off) also clear the list of loaded files.
 
    <options>
       synIndx, optionName  , parameters, defVal, desc
@@ -126,12 +126,12 @@ public class cmdInfile implements commandable
 
       */
       listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
-      
+
       if (cmd.getArgSize () == 1)
       {
          boolean OptSolveVar = ("1".equals (cmd.takeOptionString(new String [] {"SOLVE", "SOLVEVAR", "SOLVELSX", "SOLVELISTIX" }, "1"))) &&
                                ("0".equals (cmd.takeOptionString(new String [] {"ASTEXT" }, "0")));
-         
+
 
          // FROM TO MAX LINE, "fromLine, toLine, maxlines", "-, -", //Specify from line, to line and max number of lines, all are optional using the symbol - the default is taken for each
          // FROM TO REGEXP, "(+|-)fromRegexpr, (+|-)toRegexpr", //Specify where to start and end the inclusion of the file using the regular expressions, prefix "-" indicates without including the line that matches and "+" inclusive it.
@@ -165,9 +165,9 @@ public class cmdInfile implements commandable
             if (cmd.meantConstantString (cmd.getArg(1), new String [] { "end", "3" }))
                that.setOnceInfileMode (false, true);
          }
-         else cmd.getLog().err ("IN FILE", "Unknown syntax [" + cmd.getArg(0) + "]");         
+         else cmd.getLog().err ("IN FILE", "Unknown syntax [" + cmd.getArg(0) + "]");
       }
-      else cmd.getLog().err ("IN FILE", "Wrong number of parameters " + cmd.getArgSize ());         
+      else cmd.getLog().err ("IN FILE", "Wrong number of parameters " + cmd.getArgSize ());
       cmd.checkRemainingOptions ();
       return 1;
    }

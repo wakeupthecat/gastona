@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -475,13 +475,10 @@ public class cmdXmelon implements commandable
 
       String oper        = cmd.getArg(0);
       String fileSource  = cmd.getArg(1);
-      String dbName      = cmd.getArg(2);
+      String dbName      = cmd.getListix().resolveDBName (cmd.getArg(2));
       String tablePrefix = cmd.getArg(3);
       if (tablePrefix.length () == 0)
          tablePrefix = "xmelon";
-
-      if (dbName.length () == 0)
-         dbName = cmd.getListix ().getDefaultDBName ();
 
       boolean optBatch   = cmd.meantConstantString (oper, new String [] { "BATCH" } );
       boolean optCache   = cmd.meantConstantString (oper, new String [] { "ENABLECACHE", "CACHE" } );

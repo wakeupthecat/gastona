@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -29,55 +29,62 @@ import de.elxala.zServices.*;
 */
 public class parsonsAgentSet
 {
-   public parsonsAgent           commonAgent = new parsonsAgent ("c.o.m.m.o.n"); // name should not be used!
-   protected List                arrAgents = new Vector (); // Vector<parsonsAgent>
-   protected static parsonsAgent dummyAgent = new parsonsAgent ("dummyAgent");
+    public parsonsAgent           commonAgent = new parsonsAgent ("c.o.m.m.o.n"); // name should not be used!
+    protected List                arrAgents = new Vector (); // Vector<parsonsAgent>
+    protected static parsonsAgent dummyAgent = new parsonsAgent ("dummyAgent");
 
-   public parsonsAgentSet ()
-   {
-      commonAgent.parsons = new aLineParsons (new Eva ());
-   }
-   
-   public int size ()
-   {
-      return arrAgents.size ();
-   }
-   
-   public parsonsAgent getAgentAt (int indx)
-   {
-      return (parsonsAgent) ((arrAgents != null && 
-                              arrAgents.size () > 0 && 
-                              indx >= 0 && 
-                              indx < arrAgents.size ()) ? arrAgents.get (indx): dummyAgent);
-   }
-   
-   public void addAgent (int agentType, String [] params)
-   {
-      arrAgents.add (new parsonsAgent (params, agentType));
-   }
+    public parsonsAgentSet ()
+    {
+        commonAgent.parsons = new aLineParsons (new Eva ());
+    }
 
-   public void setPatternToLastAgent (Eva evaPattern, Eva evaAntiPattern)
-   {
-      if (arrAgents.size () == 0)
-      {
-         arrAgents.add (new parsonsAgent ("parsons_content"));
-      }
-      parsonsAgent ag = getAgentAt (arrAgents.size ()-1);
-      ag.parsons = new aLineParsons (evaPattern);
-      ag.parsons.setAntiPatternList (evaAntiPattern);
-   }
+    public int size ()
+    {
+        return arrAgents.size ();
+    }
 
-   public boolean startAgents (logger log)
-   {
-      for (int pp = 0; pp < arrAgents.size (); pp ++)
-      {
-         aLineParsons pa = getAgentAt (pp).parsons;
-         if (pa == null || ! pa.init ())
-         {
-            log.err ("the agent " + getAgentAt (pp).tableName + " cannot start");
-            return false;
-         }
-      }
-      return true;
-   }
+    public parsonsAgent getAgentAt (int indx)
+    {
+        return (parsonsAgent) ((arrAgents != null &&
+                               arrAgents.size () > 0 &&
+                               indx >= 0 &&
+                               indx < arrAgents.size ()) ? arrAgents.get (indx): dummyAgent);
+    }
+
+    public void addAgent (int agentType, String [] params)
+    {
+        arrAgents.add (new parsonsAgent (params, agentType));
+    }
+
+    public void setPatternsToLastAgent (Eva evaPattern, Eva evaOptColPattern, Eva evaAntiPattern)
+    {
+        if (arrAgents.size () == 0)
+        {
+            arrAgents.add (new parsonsAgent ("parsons_content"));
+        }
+        parsonsAgent ag = getAgentAt (arrAgents.size ()-1);
+        ag.parsons = new aLineParsons (evaPattern, evaOptColPattern, evaAntiPattern);
+    }
+
+    public boolean areAllAgentsValid (logger log)
+    {
+        for (int pp = 0; pp < arrAgents.size (); pp ++)
+            if (! getAgentAt (pp).parsons.isValid ())
+            {
+                log.err ("the agent " + getAgentAt (pp).tableName + " could not be started");
+                return false;
+            }
+        return true;
+    }
+
+    public void clearRecords ()
+    {
+        commonAgent.parsons.resetRecord ();
+        for (int pp = 0; pp < arrAgents.size (); pp ++)
+        {
+            aLineParsons par = getAgentAt (pp).parsons;
+            if (par != null)
+                par.resetRecord ();
+        }
+    }
 }

@@ -38,7 +38,7 @@ public class strUtil
       if (s2.length () == 0) return s1;
       return s1 + link + s2;
    }
-   
+
    // converts a string to a string escaped for a regular expression
    //    stringToRegexStr ("[(.)]") length = 5
    //    gives back "\[\(\.\)\]" length = 10
@@ -49,14 +49,14 @@ public class strUtil
                 .replace ("\"", "\\\"").replace ("/", "\\/").replace("|", "\\|")
                 .replace("+", "\\+").replace("?", "\\?");
    }
-   
+
    public static String regexStrToString (String regexStr)
    {
       return regexStr.replace ("\\?", "?").replace ("\\+", "+")
                      .replace ("\\\"", "\"").replace ("\\/", "/").replace("\\|", "|")
                      .replace ("\\[", "[").replace ("\\]", "]").replace ("\\.", ".")
                      .replace ("\\)", ")").replace ("\\(", "(").replace ("\\\\", "\\");
-   }   
+   }
 
 
    // converts a string to a string escaped for a C, C++, java or javascript string (literal string)

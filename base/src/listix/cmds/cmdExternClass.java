@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,22 +37,21 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // To load java libraries (either jar files or paths) or to load a custom Listix command.
+      //To load java libraries (either jar files or paths) or to load a custom Listix command.
       //
-      // Note1: calling "EXTERNAL, PATH (or JAR)" has the same effect as doing it through the Javaj's
-      //        variable <external_libraries>
-      // Note2: Before a new Listix commnad is added ("EXTERNAL, COMMAND") all the classes that the
-      //        command needs has to be found in java class path
+      //--- Examples
       //
-      // Examples:
-      //          <! loading needed libraries (java class paths)
+      //Loading needed libraries (java class paths)
+      //
       //          EXTERNAL, PATH, ".", otherClasses.jar
       //
-      //          <! loading new listix custom commnands
+      //Loading new listix custom commnands
+      //
       //          EXTERNAL, COMMAND, com.mydomain.listixCmds.myCommand1
       //          EXTERNAL, COMMAND, com.mydomain.listixCmds.myCommand2
       //
-      //          <! calling a new listix custom commnand
+      //Calling a new listix custom commnand
+      //
       //          MY CMD, par1, par2
       //                , opt1, ...
 

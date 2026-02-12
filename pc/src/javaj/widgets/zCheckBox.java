@@ -123,11 +123,13 @@ public class zCheckBox extends JCheckBox implements ActionListener, MensakaTarge
    public zCheckBox ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zCheckBox (String map_name, String slabel)
    {
       build (map_name, slabel);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

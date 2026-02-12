@@ -1,6 +1,4 @@
 /*
-   //(o) WelcomeGastona_source_javaj_layout EVALAYOUT
-
    ========================================================================================
    ================ documentation for WelcomeGastona.gast =================================
    ========================================================================================
@@ -20,7 +18,8 @@
       //   that start always with colon (:). On each invocation the variables are evaluated
       //   using an internal listix function.
       //
-      //   There are three main groups of listix primitives
+      //
+      //   There are several groups of listix primitives
       //
       //   --- System properties, start with ":sys" or ":prop"
       //
@@ -66,8 +65,8 @@
       //      @<:lsx elapsed [x]>
       //
       //          Returns the elapsed time used in the last listix command
-      //             elapsed m : (default) gives the result in milliseconds
-      //             elapsed s : gives the result in seconds
+      //             elapsed m     : (default) gives the result in milliseconds
+      //             elapsed s     : gives the result in seconds
       //             elapsed human : gives the result in "days, hours, minutes and seconds" as necessary
       //
       //      @<:lsx TMP [extension]>
@@ -80,6 +79,7 @@
       //            SET VAR, myTempHtml, @<:lsx TMP html>
       //
       //      @<:lsx defaultTmpDB>
+      //      @<:lsx tmpDB>
       //
       //         Returns the default temporary database used by Listix as full path. The only act of
       //         invoquing this variable ensures that the database exists since it will be created if
@@ -118,6 +118,10 @@
       //
       //         Returns 1 if @<:lsx ROW> is the last one (@<:lsx ROWS> - 1)
       //
+      //      @<:lsx prev column>
+      //
+      //         Returns ... ??
+      //
       //      @<:lsx paramcount>
       //
       //         Returns the current number of parameters of either the main call (command
@@ -134,10 +138,6 @@
       //      @<:lsx uuid>
       //
       //         Generates an immutable universally unique identifier (UUID). A UUID represents a 128-bit value.
-      //
-      //      @<:lsx mutool MICROTOOL>
-      //
-      //         Returns the full path of the executable related with the microtool 
       //
       //   --- Convert or process content of a variable or literal (e.g. file name)
       //
@@ -167,6 +167,7 @@
       //
       //          PRIMITIVE         OPTIONS            PARAMETERS
       //          ---------------   --------------     ------------------
+      //          ascii
       //          hex
       //          infile            check, solve/raw
       //          path                                 win, linux, os
@@ -174,6 +175,7 @@
       //          decode            check, solve/raw   strjs, regex, html, latex(*) or utf8, iso-8859-1 and any other accepted by java.net.URLDecoder
       //          xorencrypt        check, solve/raw
       //          --nothing--       check, solve/raw
+      //          sql*              indent
       //
       //          (*) strjs escape the special characters ' " and \ using the C,C++,java and js style, for example '"\ will be encoded as \'\"\\
       //              regex escape some special regex characters like \()[]"./  for example hello("you") will be encoded as hello\(\"you\"\)
@@ -197,6 +199,15 @@
       //
       //      Primitives:
       //
+      //      @<:mutool MICROTOOL>
+      //
+      //         Returns the full path of the executable related with the microtool
+      //
+      //         Example:
+      //
+      //             @<:mutool sqlite>
+      //             @<:mutool lua>
+      //
       //      @<:hex hexString>
       //
       //          convert to bytes the hexString where every byte is given by 2 characters.
@@ -204,6 +215,29 @@
       //         Example:
       //
       //             @<:hex 09>
+      //
+      //          whill print a tabulator
+      //
+      //      @<:ascii asciistring>
+      //
+      //          convert to char the asciistring where it is either one of these
+      //          (marked with * are not really ascii table official names)
+      //
+      //                0  NUL
+      //                6  ACK
+      //                7  BEL
+      //                9  HT or TAB*
+      //               10  LF
+      //               13  CR
+      //               26  SUB or EOF*
+      //               27  ESC
+      //               32  SPC*
+      //
+      //          or simply the its decimal value
+      //
+      //         Example:
+      //
+      //             @<:ascii TAB> or @<:ascii HT> or @<:ascii 9>
       //
       //          whill print a tabulator
       //
@@ -253,20 +287,237 @@
       //             STRCONV, XOR ENCRYPT, @<:sys gastona.xorEncryptKey>, -1, -1, -1
       //                    , IN VAR, myText
       //
-
-
+      //       @<:sqlFilter searchstring colum1 column2 .. columnN>
+      //
+      //          Returns a WHERE filter from the search string
+      //          applied to any (default) or all (if "-all" is specified) columns specified
+      //          or an empty string
+      //
+      //          Example:
+      //
+      //             @<:sqlFilter-all 'marvin +gaye' desc observ>
+      //
+      //             Assuming that the variable "strSearch" contains "marvin +gaye"
+      //
+      //             @<:sqlFilter-all @strSearch desc observ>
+      //
+      //             returns ... " WHERE (desc LIKE '%marvin%' OR desc LIKE '%gaye%') AND (observ LIKE '%marvin%' OR observ LIKE '%gaye%')"
+      //
+      //       @<:sqlTablePrev tableName column2 .. columnN>
+      //
+      //          Returns a SQL select with N-1 records of a table providing the columns specified and the previous record value as well
+      //          naming the column with the postfix "_prev". Note that it does not work with views because it needs the field rowid which
+      //          is implicit in all tables (?).
+      //
+      //          Example:
+      //
+      //             @<:sqlTablePrev-indent tableName col1 col2>
+      //
+      //             returns ...
+      //
+      //                SELECT
+      //                  a.col1 AS col1_prev,
+      //                  b.col1 AS col1,
+      //                  a.col2 AS col2_prev,
+      //                  b.col2 AS col2
+      //                FROM tableName AS a, tableName AS b
+      //                WHERE a.rowid+1 = b.rowid+1
+      //
+      //       @<:sqlTableDelta tableName column2 .. columnN>
+      //
+      //          Returns a SQL select with N-1 records of a table providing the columns specified, the previous record value (postfix "_prev") and
+      //          the delta vaule (postfix "_delta" = value - prev).
+      //          :sqlTableDelta generates a similar SQL query as :sqlTablePrev with the additional _delta columns.
+      //          Note that it does not work with views because it needs the field rowid which is implicit in all tables (?).
+      //
+      //          Example:
+      //
+      //             @<:sqlTableDelta-indent tableName col1 col2>
+      //
+      //             returns ...
+      //
+      //              SELECT *,
+      //                 col1 - col1_prev AS col1_delta,
+      //                 col2 - col2_prev AS col2_delta
+      //               FROM (SELECT
+      //                 a.col1 AS col1_prev,
+      //                 b.col1 AS col1,
+      //                 a.col2 AS col2_prev,
+      //                 b.col2 AS col2
+      //               FROM tableName AS a, tableName AS b
+      //               WHERE a.rowid+1 = b.rowid)
+      //
+      //       @<:sqlDynDimTable tableName column2 .. columnN>
+      //
+      //          Example:
+      //
+      //             @<:sqlDynDimTable-indent dataEvents rec dim value name year>
+      //
+      //             returns ...
+      //
+      //             SELECT
+      //                rec, COUNT(*) AS cnt,
+      //                MAX(CASE WHEN dim = 'name' THEN value END) AS name,
+      //                MAX(CASE WHEN dim = 'year' THEN value END) AS year
+      //              FROM dataEvents
+      //              GROUP BY rec
+      //
+      //          see sample "NoSQL sample"
+      //
+      //       @<:sqlHistogram tableName column2 .. columnN>
+      //
+      //          Example:
+      //
+      //             @<:sqlHistogram-indent sampleLengths sampleLen 200>
+      //
+      //             returns ...
+      //
+      //             SELECT
+      //                barIndx,
+      //                (barIndx - 0.5) * 200.0 AS fromValue,
+      //                (barIndx + 0.5) * 200.0 AS toValue,
+      //                barCount
+      //                FROM (
+      //                SELECT barIndx, COUNT (*) AS barCount
+      //                FROM (SELECT ROUND (sampleLen / 200.0 , 0) AS barIndx FROM sampleLengths)
+      //                GROUP BY barIndx
+      //                ORDER BY barIndx ASC
+      //                )
+      //
+      //          see sample "gastona samples histogram"
+      //
+      //       @<:sqlEstadillo tableName column2 .. columnN>
+      //
+      //          Example:
+      //
+      //          generates the base table for a group table crossing two columns
+      //
+      //             @<:sqlEstadillo-indent srcTable col2sum colX colY>
+      //
+      //             returns ...
+      //
+      //             (SELECT  y, ROUND(SUM(N)) AS sumaYs FROM (SELECT colX AS x, colY AS y, col2sum AS N FROM srcTable) GROUP BY y)
+      //              INNER JOIN
+      //             (SELECT  x, ROUND(SUM(N)) AS sumaXs FROM (SELECT colX AS x, colY AS y, col2sum AS N FROM srcTable) GROUP BY x)
+      //              LEFT JOIN
+      //             (SELECT x, y, ROUND(SUM(N)) AS suma FROM (SELECT colX AS x, colY AS y, col2sum AS N FROM srcTable) GROUP BY x, y)
+      //              USING (y, x)
+      //
+      //          it is used in script Simple Tauleta (button "Tauleta" from "arces" tool, e.g. sample "launch arces")
+      //          that generates a cross table basically from a base SQL select and two column names
+      //
+      //
+      //   --- LSX command invocation ":lsxcall"
+      //
+      //    We may call a listx formats passing parameters from this primitive
+      //
+      //      @<:lsxcall command param1 param2 ...>
+      //
+      //      This form allows calling a listix format with parameters without having to
+      //      use the listix command "LSX" directly, but it has some limitations like:
+      //
+      //          - options cannot be given
+      //          - parameter variables cannot contain spaces (e.g. @myvar but not @<my var>)
+      //          - parameter literals cannot contain simple quote char (e.g. 'my literal ok')
+      //
+      //      Example:
+      //
+      //            //user @<:lsxcall MYFORMAT par1 @var1 'last but not least'>
+      //
+      //   --- About some parsing conventions in listix primitives:
+      //
+      //    Since its actually a variable name (@<:xxx yyy>) it is not possible to get inside it
+      //    directly a variable value, for example to get the content of variable myvar
+      //    we can use @myvar instead of @<myvar> (e.g. @<:xxx @myvar>)
+      //    Also we can provide literals that contain blanks using single quotes
+      //    @<:xxx 'my literal'>
+      //
 
    <examples>
       gastSample
 
-      example listix primitives
-      example java system properties
+      exemple java system properties
+      printLoopSQL listix primitives
 
-   <example listix primitives>
+   <printLoopSQL listix primitives>
       //#javaj#
       //
       //   <frames>
-      //      F, "example listix primitives"
+      //      F, "exemple de primitives listix"
+      //
+      //   <layout of F>
+      //      EVA, 10, 10, 6, 6
+      //
+      //        , X
+      //      X , oConsole
+      //
+      //#listix#
+      //
+      //   <xSampleContent>
+      //     //this/could be\..\a path, or not, "what" [else]
+      //
+      //   <main0>
+      //      GEN, :mem samplefile, xSampleContent
+      //      PROP=, gastona.xorEncryptKey, hágale chili
+      //      //
+      //      // **** exemple de primitives lsx
+      //      //
+      //      //
+      //      LOOP, EVA, primitives
+      //          ,, //
+      //          ,, ========== examples primitives @<type>
+      //          ,, //
+      //          ,, WHILE, type
+      //          ,,      ,, // @<desc>
+      //          ,,      ,, // @<:raw var> : [@<var>]
+      //          ,,      ,, //
+      //
+      //   <primitives>
+      //      type, desc                                , var
+      //      lsx, number of rows in the current table , @<:lsx ROWS>
+      //      lsx, current row of the current table    , @<:lsx ROW>
+      //      lsx, previous value of a column          , @<:lsx prev desc>
+      //      lsx, default lsx current date            , @<:lsx date>
+      //      lsx, standard 0 current date             , @<:lsx date0>
+      //      lsx, standard 1 current date             , @<:lsx date1>
+      //      lsx, standard 2 current date             , @<:lsx date2>
+      //      lsx, formatted date                      , //@<:lsx date 'any' yyyy 'mes' MM 'dia' dd 'hora' h 'o''clock' a 'minuts' mm, 'zona' zzzz>
+      //      lsx, clock in milliseconds               , @<:lsx clock>
+      //      lsx, clock in milliseconds               , @<:lsx clock0>
+      //      lsx, last listix format elapsed time     , @<:lsx elapsed human>
+      //      lsx, random uuid                         , @<:lsx uuid>
+
+      //      sys, system property user                , @<:sys user.name>
+      //      sys, system property home                , @<:sys user.home>
+      //      sys, system current directory            , @<:sys user.dir>
+      //      sys, system property temp dir            , @<:sys java.io.tmpdir>
+      //      sys, system property file separator      , @<:sys file.separator>
+
+      //      sql, sql where filter              , @<:sqlFilter-indent 'marvin +gaye' desc observ>
+      //      sql, sql select with prev values   , @<:sqlTablePrev-indent tableName colum1 column2>
+      //      sql, sql select with diff values   , @<:sqlTableDiff-indent tableName colum1 column2>
+      //      sql, sql select for a inner table  , @<:sqlInnerTable-indent srcTable srcJoiner caNa caVal co1>
+      //      sql, sql select for a histogram of a value, @<:sqlHistogram-indent srcTable colvalue 6.6>
+      //      sql, sql select for a histogram of a value 2, @<:sqlHistogram-indent srcTable colvalue>
+      //      sql, sql select for a estadillo or cross summary, @<:sqlEstadillo-indent srcTable col2sum colX colY>
+      //      sql, sql select for a estadillo or cross summary 2, @<:sqlEstadillo-indent srcTable * colX colY>
+
+      //      other, convert hex to string             , @<:hex A4E1F2>
+      //      other, format a path                     , @<:path-linux xSampleContent>
+      //      other, path of a microtool               , @<:mutool lua>
+      //      other, content from a file               , @<:infile :mem samplefile>
+      //      other, encode string literal             , @<:encode-strlit xSampleContent>
+      //      other, encode html                       , @<:encode-html xSampleContent>
+      //      other, encode regexp                     , @<:encode-regexp xSampleContent>
+      //      other, encode latex                      , @<:encode-latex xSampleContent>
+      //      other, decode                            , @<:decode-strlit :encode-strlit xSampleContent>
+      //      other, xorencrypt                        , @<:xorencrypt xSampleContent>
+
+   <exemple java system properties>
+      //#javaj#
+      //
+      //   <frames>
+      //      F, "exemple propietats de sistema java"
       //
       //   <layout of F>
       //      EVA, 10, 10, 6, 6
@@ -278,54 +529,13 @@
       //
       //   <main0>
       //      //
-      //      // lsx primitives sample
-      //      //
-      //      //
-      //      LOOP, EVA, primitivas
-      //          ,, // @<desc> : [@<var>]
-      //
-      //   <primitivas>
-      //      desc                                , var
-      //      number of rows in the current table , @<:lsx ROWS>
-      //      current row of the current table    , @<:lsx ROW>
-      //      default lsx current date            , @<:lsx date>
-      //      standard 0 current date             , @<:lsx date0>
-      //      standard 1 current date             , @<:lsx date1>
-      //      standard 2 current date             , @<:lsx date2>
-      //      formated date                       , //@<:lsx date h 'o''clock' a, zzzz>
-      //      system property user                , @<:sys user.name>
-      //      system property home                , @<:sys user.home>
-      //      system current directory            , @<:sys user.dir>
-      //      system property temp dir            , @<:sys java.io.tmpdir>
-      //      system property file separator      , @<:sys file.separator>
-
-   <example java system properties>
-      //#javaj#
-      //
-      //   <frames>
-      //      F, "example java system properties"
-      //
-      //   <layout of F>
-      //      EVA, 10, 10, 6, 6
-      //
-      //        , X
-      //      X , oConsole
-      //
-      //#listix#
-      //
-      //   <main0>
-      //      //
-      //      // java system properties
+      //      // propietats de sistema java
       //      //
       //      //
       //      LOOP, EVA, propertyList
       //          ,, // @<sysvar>: @<desc>
-      //          ,, //     @<@><:sys @<sysvar>> [@<varValue>]
+      //          ,, //     @<@><:sys @<sysvar>> [@<:sys @sysvar>]
       //          ,, //
-      //
-      //	<varValue>
-      //		LSX, //:sys @<sysvar>
-      //
       //
       //   <propertyList>
       //      sysvar         , desc

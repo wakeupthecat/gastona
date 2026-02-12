@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2019 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -26,13 +26,13 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    This embedded EvaUnit describe the documentation for this listix command. Basically contains
    the syntaxes, options and examples for the listix commnad.
 
-   
+
 db config, default, ""
          , alias, primera, jaja.db
          , alias, lalasa, iilkla.db
          , alias, lila1
          , attached tmp, lila2
-   
+
 #gastonaDoc#
 
    <docType>    listix_command
@@ -44,54 +44,54 @@ db config, default, ""
 
    <help>
       //
-      // Various DB configurations for all operations with DBs. A default database name can be set as well as aliases and pragmas.
+      //Various DB configurations for all operations with DBs. A default database name can be set as well as aliases and pragmas.
       //
-      // ==== DEFAULT DATABASE
+      //---Default Database
       //
-      // Usually every command or operation related with database has a parameter called dbName 
-      // to specify the database name, actually the physical sqlite file name to operate with. 
-      // If this is omitted then a default database is used, this can be set with the command 
-      // "DB CONFIG, DEFAULT, dbname". Even if no used the command DB CONFIG, DEFAULT it do exists 
-      // a default database which is a temporal database created once per gastona session.
-      // So a script that do not specify any dbName in its sql operations and also has not defined 
-      // "DB CONFIG, DEFAULT, dbname" will work with this database. Also a call to "DB CONFIG, DEFAULT" 
-      // without parameter or specifying an empty string sets this special database as default again.
+      //Usually every command or operation related with database has a parameter called dbName
+      //to specify the database name, actually the physical sqlite file name to operate with.
+      //If this is omitted then a default database is used, this can be set with the command
+      //"DB CONFIG, DEFAULT, dbname". Even if no used the command DB CONFIG, DEFAULT it do exists
+      //a default database which is a temporal database created once per gastona session.
+      //So a script that do not specify any dbName in its sql operations and also has not defined
+      //"DB CONFIG, DEFAULT, dbname" will work with this database. Also a call to "DB CONFIG, DEFAULT"
+      //without parameter or specifying an empty string sets this special database as default again.
       //
       //      DB CONFIG, DEFAULT, myDB.db
-      //      // now all operations that not specify dbName or specify dbName as empty string will be 
+      //      // now all operations that not specify dbName or specify dbName as empty string will be
       //      // performed against myDB.db
       //      DB CONFIG, DEFAULT,
       //      // now the original default database, temporal and unique per session, is restored as default
       //
-      // the current default db name is stored in the property gastona.defaultDB
+      //the current default db name is stored in the property gastona.defaultDB
       //    @<:sys gastona.defaultDB>
       //
-      // ==== ATTACHING DATABASES AND CREATING TEMPORAL DATABASES
+      //--- Attaching Databases and creating temporal Databases 
       //
-      //  It is possible as well attaching databases for all sql operations using DB CONFIG command. This makes 
-      //  the same as the command "ATTACH DATABASE" in sqlite
+      //It is possible as well attaching databases for all sql operations using DB CONFIG command. This makes
+      //the same as the command "ATTACH DATABASE" in sqlite
       //
       //    DB CONFIG, DEFAULT, myDB.db
       //             , ALIAS, second, myDB2.db
       //             , ALIAS, third , myDB3.db
       //             , ALIAS, auxiliar, @<:lsx tmp db>
       //
-      //  this command will perform [ATTACH DATABASE 'myDB2.db' AS second] etc .. before each operation with sqlite.
-      //  Note that it is not possible to take advantage from sqlite native temporary tables (sqlite CREATE TEMP TABLE ..), 
-      //  this is because on each operation with sqlite dbs all databases are finally closed, therefore such a 
-      //  temporary table would persist only during one call.
-      //  Instead it is possible to create and attach temporary databases as is done in the example with the alias "auxiliar".
+      //this command will perform [ATTACH DATABASE 'myDB2.db' AS second] etc .. before each operation with sqlite.
+      //Note that it is not possible to take advantage from sqlite native temporary tables (sqlite CREATE TEMP TABLE ..),
+      //this is because on each operation with sqlite dbs all databases are finally closed, therefore such a
+      //temporary table would persist only during one call.
+      //Instead it is possible to create and attach temporary databases as is done in the example with the alias "auxiliar".
       //
-      // ==== SETTING THE ENCODE MODEL SCHEMA
+      //--- Setting the encoding model schema
       //
-      // To allow multi line text in fields as well as special characters a encoding schema is used. Per default an intern
-      // simple schema is used. It can be changed to standards like "UTF-8" or "ISO-8859-1" using the command DATABASE CONFIG, ENCODING.
+      //To allow multi line text in fields as well as special characters a encoding schema is used. Per default an intern
+      //simple schema is used. It can be changed to standards like "UTF-8" or "ISO-8859-1" using the command DATABASE CONFIG, ENCODING.
       //
       //
-      // ==== USING PRAGMAS
+      //--- Using PRAGMA
       //
-      //  This command will perform [PRAGMA pragmaName = value] etc .. before each operation with sqlite.
-      //  For example if we want to disable journal in sqlite for a faster insert and update
+      //This command will perform [PRAGMA pragmaName = value] etc .. before each operation with sqlite.
+      //For example if we want to disable journal in sqlite for a faster insert and update
       //
       //    DB CONFIG, PRAGMA, journal_mode, OFF
       //
@@ -103,6 +103,8 @@ db config, default, ""
       DATABASE CONFIG
       DB CONFIGURE
       DB CONFIG
+      CONFIG DB
+      SET DB
 
    <syntaxHeader>
       synIndx, importance, desc
@@ -126,7 +128,7 @@ db config, default, ""
 
          4   , ENCODE         ,           , //
          4   , encodeSchema   ,           , //For example UTF-8 or ISO-8859-1. If not given then the intern schema is used
-         
+
    <options>
       synIndx, optionName            , parameters, defVal, desc
           x  , ALIAS                 , "aliasName, dbName",    , //Defines alias and attached database to be used in all following sql operations
@@ -157,11 +159,11 @@ db config, default, ""
       //  <rgDBchoose orientation> X
       //  <rgDBchoose>
       //       label, sql
-      //       
+      //
       //       default, //SELECT * FROM content;
       //       temp 1 , //SELECT * FROM t1.content;
       //       temp 2 , //SELECT * FROM t2.content;
-      //       
+      //
       //#listix#
       //
       //   <main>
@@ -211,6 +213,10 @@ public class cmdDatabaseConfig implements commandable
          "DB CONFIGURE",
          "DB CONFIG",
          "DB CFG",
+         "CFG DB",
+         "CFG DATABASE",
+         "CONFIG DB",
+         "CONFIG DATABASE",
        };
    }
 
@@ -224,8 +230,23 @@ public class cmdDatabaseConfig implements commandable
    */
    public int execute (listix that, Eva commands, int indxComm)
    {
-      // NOTE : optionOffset = 0 all options can be in the first line (syntax + arguments)
-      listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm, 0 /* options can be syntax! */);
+      listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
+
+      if (cmd.getArgSize () == 2 && cmd.getArg (0).length () == 0)
+      {
+         // handle syntax exceptions
+         //
+         //       CFG DB,, mydefault
+         //
+         String defDB = cmd.getArg (1);
+         System.setProperty(sqlUtil.sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, defDB);
+         cmd.getLog().dbg (2, "DATABASE CONFIG", "default db name set to [" + defDB + "]");
+      }
+      else
+      {
+         // take into account also line 0 for options  (offsetOptions = 0)
+         cmd = new listixCmdStruct (that, commands, indxComm, 0 /* offsetOptions */, true /* normalize */);
+      }
 
       String defDB = cmd.takeOptionString (new String [] { "DEFAULT", "DEFAULTDB", "DEFDB", "DEF" }, null);
       if (defDB != null)
@@ -233,24 +254,24 @@ public class cmdDatabaseConfig implements commandable
          System.setProperty(sqlUtil.sGLOB_PROPERTY_DB_DEFAULT_DATABASE_NAME, defDB);
          cmd.getLog().dbg (2, "DATABASE CONFIG", "default db name set to [" + defDB + "]");
       }
-      
+
       String encoding = cmd.takeOptionString (new String [] { "ENCODE", "ENCODING" }, null);
       if (encoding != null)
       {
          utilEscapeStr.setEscapeModel (encoding);
          cmd.getLog().dbg (2, "DATABASE CONFIG", "encoding model set to [" + encoding + "]");
       }
-      
+
       Eva prag = cmd.takeOptionAsEva (new String [] { "PRAGMA", "" }, "pragmas", true);
       if (prag != null)
-      sqlUtil.setGlobalDefaultDBPragmas (prag);
-         
+         sqlUtil.setGlobalDefaultDBPragmas (prag);
+
       Eva ali = cmd.takeOptionAsEva (new String [] { "ALIAS", "ALIASDB" }, "aliases", true);
       if (ali != null)
-      sqlUtil.setGlobalDefaultDBAliases (ali);
-      
+         sqlUtil.setGlobalDefaultDBAliases (ali);
+
       cmd.getLog().dbg (2, "DATABASE CONFIG", "set " + (prag != null ? prag.rows () : 0)+ " pragmas and " + (ali != null ? ali.rows (): 0) + " aliases");
-      
+
       cmd.checkRemainingOptions ();
       return 1;
    }

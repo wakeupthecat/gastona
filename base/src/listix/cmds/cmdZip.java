@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005-2020 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -74,6 +74,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
          3   , GET ENTRIES  ,        , //
          3   , zipFileName  ,        , //Filename of the zip or jar file
          3   , contentVariable,      , //Name of the Eva table that will be generated with the list of all files in the zip file using the column 'fileName'
+         3   , clearVariable,  1     , //If the variable has to be cleared, set it to 0 (default is 1) to accumulate file entries of other GET ENTRIES calls
 
          4   , GZIP         ,        , //
          4   , fileToGZip   ,        , //Filename of the file to be g-zipped
@@ -208,7 +209,6 @@ public class cmdZip implements commandable
 
       String oper        = cmd.getArg(0);
       String zipFileName = cmd.getArg(1);
-      String secondParam = cmd.getArg(2);
 
       // get options
       String basePath  = cmd.takeOptionString ("BASEPATH");
@@ -216,14 +216,16 @@ public class cmdZip implements commandable
 
       if (cmd.meantConstantString (oper, new String [] { "ZIP", "ZIPDIR" } ))
       {
-         zipDir (zipFileName, onlyStore, secondParam, basePath);
+         String dirPath = cmd.getArg(2);
+         zipDir (zipFileName, onlyStore, dirPath, basePath);
       }
       else if (cmd.meantConstantString (oper, new String [] { "ZIPFILES" } ))
       {
-         Eva listOfFiles = that.getVarEva (secondParam);
+         String varEvaTable = cmd.getArg(2);
+         Eva listOfFiles = that.getVarEva (varEvaTable);
          if (listOfFiles == null)
          {
-            theLog.err ("ZIP", "ZIP Eva table (listOfFiles) <" + secondParam + "> not found!");
+            theLog.err ("ZIP", "ZIP Eva table (listOfFiles) <" + varEvaTable + "> not found!");
             return 1;
          }
          zip (zipFileName, onlyStore, listOfFiles, basePath);
@@ -239,28 +241,35 @@ public class cmdZip implements commandable
       }
       else if (cmd.meantConstantString (oper, new String [] { "GETENTRIES","GET", "ENTRIES" } ))
       {
-         if (secondParam.length () == 0)
+         // ZIP, GET ENTRIES, zipFileName, contentVariable, [ clearVariable (1) ]
+         String varEvaTable = cmd.getArg(2);
+         
+         if (varEvaTable.length () == 0)
          {
             theLog.err ("ZIP", "ENTRIES requires the parameter contentFiles (an Eva table)!");
             return 1;
          }
+         String clearVar = cmd.getArg(3);
 
          // get or create the eva target for the list of entries
-         Eva target = that.getSomeHowVarEva (secondParam);
-
-         zipEntries (zipFileName, target);
+         Eva target = that.getSomeHowVarEva (varEvaTable);
+         zipEntries (zipFileName, target, !clearVar.equals("0"));
       }
       else if (cmd.meantConstantString (oper, new String [] { "GZIP" } ))
       {
          boolean setDateTimeFromOrigin = "1".equals (cmd.takeOptionString ("SETFILEDATE", "1"));
 
-         // NOTE for GZIP zipFileName is the 1st parameter = file to zip!
-         gzip (zipFileName, secondParam, setDateTimeFromOrigin);
+         // ZIP, GZIP, file2gzip, gzipFile
+         //
+         String file2gzip = cmd.getArg(1);
+         String gzipFile = cmd.getArg(2);
+         gzip (theLog, file2gzip, gzipFile, setDateTimeFromOrigin);
       }
       else if (cmd.meantConstantString (oper, new String [] { "UNGZIP" } ))
       {
          String dateTimeOpt = cmd.takeOptionString ("SETDATE", "gz");
-         ungzip (zipFileName, secondParam, dateTimeOpt);
+         String targetFile = cmd.getArg(2);
+         ungzip (theLog, zipFileName, targetFile, dateTimeOpt);
       }
       else
       {
@@ -271,7 +280,7 @@ public class cmdZip implements commandable
       return 1;
    }
 
-   private byte[] getNewBuffer ()
+   public static byte[] getNewBuffer ()
    {
       return new byte[8192];  // (8Kb)
    }
@@ -508,16 +517,20 @@ public class cmdZip implements commandable
    /**
       Zip extract entries method
    */
-   private void zipEntries (String ziFile, Eva listOfFiles)
+   private void zipEntries (String ziFile, Eva listOfFiles, boolean clearVar)
    {
       boolean ok = true;
 
       theLog.dbg (2, "ZIP", "zip entries [" + ziFile + "]");
 
-      listOfFiles.clear ();
-      // we haven't set compressedSize ...
-      listOfFiles.addLine (new EvaLine ("fileName, size, time, compressedSize"));
-
+      if (clearVar || listOfFiles.rows () < 1)
+      {
+         // theLog.err ("ZIP", "CLEAR VAR MAN [" + clearVar + "] raus = " + listOfFiles.rows ());
+         listOfFiles.clear ();
+         // we haven't set compressedSize ...
+         listOfFiles.addLine (new EvaLine ("fileName, size, time, compressedSize"));
+      }
+      // else theLog.err ("ZIP", "OSSSK MAN no clear no more raus = " + listOfFiles.rows ());
       try
       {
          ZipFile zipfile = new ZipFile(ziFile);
@@ -687,7 +700,12 @@ public class cmdZip implements commandable
    /**
       gzip method
    */
-   private boolean gzip (String fileToZip, String targetZip, boolean setDateTimeFromFile)
+   public static boolean gzip (logger log, String fileToZip, String targetZip)
+   {
+      return gzip (log, fileToZip, targetZip, false);
+   }
+   
+   public static boolean gzip (logger log, String fileToZip, String targetZip, boolean setDateTimeFromFile)
    {
       if (targetZip.length () == 0)
          targetZip = fileToZip + ".gz";
@@ -695,7 +713,7 @@ public class cmdZip implements commandable
       TextFile tfinput = new TextFile ();
       if (!tfinput.fopen (fileToZip, "rb"))
       {
-         theLog.err ("ZIP", "gzip source file [" + fileToZip + "] could not be opened for read");
+         log.err ("ZIP", "gzip source file [" + fileToZip + "] could not be opened for read");
          return false;
       }
 
@@ -709,12 +727,12 @@ public class cmdZip implements commandable
       }
       catch (IOException e)
       {
-         theLog.severe ("ZIP", "gzip target file [" + targetZip + "] could not be opened" + e);
+         log.severe ("ZIP", "gzip target file [" + targetZip + "] could not be opened" + e);
          return false;
       }
 
       boolean ok = true;
-      theLog.dbg (2, "ZIP", "gzip [" + fileToZip + "] on [" + targetZip + "]");
+      log.dbg (2, "ZIP", "gzip [" + fileToZip + "] on [" + targetZip + "]");
 
       // COMPRESS THE FILE
       //
@@ -737,7 +755,7 @@ public class cmdZip implements commandable
       catch (IOException e)
       {
          ok = false;
-         theLog.severe ("ZIP", "gzip, the file [" + fileToZip + "] could not be compressed on [" + targetZip + "]" + e);
+         log.severe ("ZIP", "gzip, the file [" + fileToZip + "] could not be compressed on [" + targetZip + "]" + e);
          // do not return !! we have to close zipout!!
       }
 
@@ -748,7 +766,7 @@ public class cmdZip implements commandable
       catch (IOException e)
       {
          ok = false;
-         theLog.severe ("ZIP", "gzip target file [" + targetZip + "] could not be closed" + e);
+         log.severe ("ZIP", "gzip target file [" + targetZip + "] could not be closed" + e);
       }
 
       if (setDateTimeFromFile)
@@ -758,7 +776,7 @@ public class cmdZip implements commandable
          figzip.setLastModified (fiori.lastModified ());
       }
 
-      theLog.dbg (4, "ZIP", "gzip " + ((ok) ? "well done.": "ended with errors!"));
+      log.dbg (4, "ZIP", "gzip " + ((ok) ? "well done.": "ended with errors!"));
       return ok;
    }
 
@@ -766,7 +784,12 @@ public class cmdZip implements commandable
    /**
       ungzip method
    */
-   private boolean ungzip (String oriZip, String targetFile, String dateTimeOption)
+   public static boolean ungzip (logger log, String oriZip, String targetFile)
+   {
+      return ungzip (log, oriZip, targetFile, "now");
+   }
+   
+   public static boolean ungzip (logger log, String oriZip, String targetFile, String dateTimeOption)
    {
       // form targetFile name if needed
       //
@@ -779,20 +802,20 @@ public class cmdZip implements commandable
       //
       if (targetFile.length () == 0)
       {
-         theLog.err ("ZIP", "ungzip, target file not specified and gzip file [" + oriZip + "] does not end with .gz, no decompression performed!");
+         log.err ("ZIP", "ungzip, target file not specified and gzip file [" + oriZip + "] does not end with .gz, no decompression performed!");
          return false;
       }
 
       if (! fileUtil.ensureDirsForFile (targetFile))
       {
-         theLog.err ("ZIP", "cannot create directories for target file [" + targetFile + "]");
+         log.err ("ZIP", "cannot create directories for target file [" + targetFile + "]");
          return false;
       }
 
       TextFile tfOutput = new TextFile ();
       if (!tfOutput.fopen (targetFile, "wb"))
       {
-         theLog.err ("ZIP", "target file [" + targetFile + "] could not be opened for write");
+         log.err ("ZIP", "target file [" + targetFile + "] could not be opened for write");
          return false;
       }
 
@@ -805,12 +828,12 @@ public class cmdZip implements commandable
       }
       catch (IOException e)
       {
-         theLog.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be opened" + e);
+         log.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be opened" + e);
          return false;
       }
 
       boolean ok = true;
-      theLog.dbg (2, "ZIP", "ungzip [" + oriZip + "] on [" + targetFile + "]");
+      log.dbg (2, "ZIP", "ungzip [" + oriZip + "] on [" + targetFile + "]");
 
       // Uncompress the file
       //
@@ -831,7 +854,7 @@ public class cmdZip implements commandable
       catch (IOException e)
       {
          ok = false;
-         theLog.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be decompressed" + e);
+         log.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be decompressed" + e);
          // no return !! we have to close zipout!!
       }
 
@@ -842,7 +865,7 @@ public class cmdZip implements commandable
       catch (IOException e)
       {
          ok = false;
-         theLog.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be closed" + e);
+         log.severe ("ZIP", "ungzip, source file [" + oriZip + "] could not be closed" + e);
       }
 
       if (! dateTimeOption.equalsIgnoreCase ("now"))
@@ -860,7 +883,7 @@ public class cmdZip implements commandable
          }
       }
 
-      theLog.dbg (4, "ZIP", "ungzip " + ((ok) ? "well done.": "ended with errors!"));
+      log.dbg (4, "ZIP", "ungzip " + ((ok) ? "well done.": "ended with errors!"));
       return ok;
    }
 }

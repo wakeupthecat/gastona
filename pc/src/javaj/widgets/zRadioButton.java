@@ -121,6 +121,7 @@ public class zRadioButton extends JRadioButton implements ActionListener, Mensak
    public zRadioButton ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zRadioButton (String map_name, String slabel, ImageIcon pimage)
@@ -130,6 +131,7 @@ public class zRadioButton extends JRadioButton implements ActionListener, Mensak
       //System.out.println ("la imagen de " + map_name + (pimage == null ? " es": " no parece") + " nula!");
 
       build (map_name, slabel);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zRadioButton (String map_name, String slabel)

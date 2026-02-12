@@ -80,7 +80,7 @@
 
    <-- kMarkColumn>
       LSX, markSelectSendSelection
-      
+
    <-- kAND>
       LSX, markSelectSendSelection
 
@@ -117,7 +117,7 @@
       IN CASE, @<kAND selected>
            , 1   , INTERSECT
            , ELSE, UNION
-      
+
    <COLUMN_MARK>
       CHECK, =, 1, @<kMarkColumn selected>
       //    CASE

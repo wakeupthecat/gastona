@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -111,18 +111,19 @@ public class xyPanel extends JPanel implements setParameters_able
    {
       super ();
       setBorder(new EmptyBorder(2, 2, 2, 2));
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
-   public void setParameters (String [] params)
+   public void setParameters (CParameterArray params)
    {
-      String p1 = (params.length > 1) ? params[1].toUpperCase(): "";
-      String p2 = (params.length > 2 && params[2] != null) ? params[2]: null;
+      String p1 = params.getValueAt (1, "X").toUpperCase();
+      String p2 = params.getValueAt (2, null);
 
-      if      (p1.equals("X")) setLayout (new BoxLayout(this, BoxLayout.X_AXIS));
-      else if (p1.equals("Y")) setLayout (new BoxLayout(this, BoxLayout.Y_AXIS));
+      if      (p1.equals("X") || p1.equals("H")) setLayout (new BoxLayout(this, BoxLayout.X_AXIS));
+      else if (p1.equals("Y") || p1.equals("V")) setLayout (new BoxLayout(this, BoxLayout.Y_AXIS));
 
       if (p2 != null)
-         setBorder (BorderFactory.createTitledBorder (p2));
+         setBorder (BorderFactory.createTitledBorder (p2)); // allow title ""
    }
 
    public Component add (Component co)

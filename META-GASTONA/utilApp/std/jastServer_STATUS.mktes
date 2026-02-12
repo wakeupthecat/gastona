@@ -1,0 +1,105 @@
+#h jastServer STATUS
+
+-- [*] 2023-04-15 15:51:38 minor change add extraCSS
+
+Accept also variable <extraCSS> in server
+
+Now there are three ways of including css data
+
+         <GET />
+           //<!DOCTYPE html>
+           //<html>
+           //<style type="text/css">
+           //
+           LSX, loadVAR, extraSTYLE
+           //
+           LSX, loadVAR, extraCSS
+           //
+           LSX, loadEXTENSION, css
+           //
+           //</style>
+           //<body>
+
+for example using extraSTYLE or extraCSS (synonyms)
+
+      <extraCSS>
+         //
+         //  @<:infile META-GASTONA/js/marketes.css>
+         //  my css....
+         //
+
+or putting all css into a file of the same name of the "jast" adding ".css", for example
+
+
+       myjastFile.JAST
+       myjastFile.JAST.css
+
+
+-- [*] 2022-05-29 20:04:08 Separate documentation in this mktes
+
+Documentation in same gast was actually breaking the script because of the presence of "#listix#" string.
+
+Therefore remove it from the gast and create jastServer_STATUS.mktes (this document)
+
+-- [*] 2022-01-30 19:16 jastServerKeep.gast
+
+
+      name    : jastServerKeep.gast
+      argument: jast file
+      desc    : Call micohttp serving a page where jGastona library is loaded and the jast script executed
+
+JAST script may contain
+
+         1. client GUI and js logic in the units #javaj#, #data# and #listix#
+         2. server responses and optional extra js code in #server#.
+            ** Note server unit has to be found after the javaj, data and listix units!
+            this is because we inject the client units using command "IN FILE" with
+            the regular expression "#server#" for the end of loading
+
+--- Keeping server alive:
+
+      The MICO server (http) is launched with the option ONCE in this script.
+      If the server part of the "jast" script should serve more than the initial request (GET /)
+      for instance POST requests etc then it can be keep alive calling jastKeepServerAlive
+      in the main format, for instance
+
+       ----JAST FILE
+            ...
+            #listix#
+               <main>
+                 //jastKeepServerAlive ();
+
+
+      with this the client will send following AJAX request periodically and will ensure that the server
+      which has a timeout of 6s keeps alive
+
+         "POST /jastClientStillThere"  without additional data no response is expected
+
+--- End of client
+
+      When the jast client is closed, just the tab or the whole browser, or even the refresh button
+      is pressed, then following AJAX request will be sent to the server
+
+         "POST /jastClientClosed"   with all data content (data unit)
+
+--- Further customization of jast script
+
+      Extra js code and css styles can be given in two forms
+
+      1) Given as text in special variables
+
+            <extraSTYLE>
+
+            <extraJS>
+
+         from the unit #server#
+
+      2) In own files (js or css) having the name
+
+               XXX.css
+               XXX.js
+
+         being XXX the main file name given as argument in this script
+         for example if this is "myscript.jast" then
+            myscript.jast.css
+            myscript.jast.js

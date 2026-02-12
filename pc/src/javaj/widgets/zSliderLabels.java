@@ -203,11 +203,13 @@ public class zSliderLabels extends JPanel implements ChangeListener, MensakaTarg
    public zSliderLabels ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zSliderLabels (String map_name)
    {
       build (map_name);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

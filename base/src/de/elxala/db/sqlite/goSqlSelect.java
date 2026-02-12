@@ -52,7 +52,7 @@ public class goSqlSelect extends ScriptableObject
          String dbFile = Context.toString (aa[0]);
          String selectSql = aa.length > 1 ? Context.toString (aa[1]): null;
          String extraFilterSql = aa.length > 2 ? Context.toString (aa[2]): null;
-         
+
          result.setSelectQuery (dbFile, selectSql, extraFilterSql);
       }
       return result;
@@ -108,13 +108,13 @@ public class goSqlSelect extends ScriptableObject
    {
       return theObj.escapeString (str);
    }
-   
+
    @JSFunction
    public String unEscapeString (String str)
    {
       return theObj.unEscapeString (str);
    }
-   
+
    //@TODO
    // introduced 2019.09.23 but actually it does not work, javascript can call it but no object is returned
    // based on goFile readLines (), does this function works ?

@@ -1,6 +1,6 @@
 /*
 packages de.elxala
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,8 +37,8 @@ import de.elxala.zServices.*;
 */
 public class laya
 {
-   private static logger log = new logger (null, "javaj.laya", null);
-   private static layComposCyclicControl ciclon = new layComposCyclicControl ();
+    private static logger log = new logger (null, "javaj.laya", null);
+    private static layComposCyclicControl ciclon = new layComposCyclicControl ();
 
    public static void main (String [] aa)
    {
@@ -49,7 +49,7 @@ public class laya
       }
 
       EvaUnit eu = EvaFile.loadEvaUnit (aa[0], "guix");
-      if (eu == null) 
+      if (eu == null)
          eu = EvaFile.loadEvaUnit (aa[0], "javaj");
       if (eu == null)
       {
@@ -121,11 +121,17 @@ public class laya
       Since the layouts in javaj are, or might be, composites, that is containers that
       might contain other containers, the method buildLayout can be be recursively called,
       not directly but through the widgetSolver_able 'quincalla'.
+      
+      all layouts are expected to be found variables named in one of these ways
+            <layout of xxx>     where xxx is the layout name
+            <lay xxx>           equivalent to "layout of" form
+            <layeva xxx>        here xxx is an Evalayout which first line is ommited and always equal to "EVALAYOUT" plus <layeva-config> that has the default values 5, 5, 3, 3
+            
 
       @arg  quincalla      object with the method "Component getNativeWidget (String prefix4Widgets, String name, javajEBS layoutModel))"
       @arg  pana           container to fill
-      @arg  layoutModel    layout Model where all needed layouts (<layout of xxx>) has to be found
-      @arg  layoutName     layout name (xxxx of <layout of xxx>)
+      @arg  layoutModel    layout Model where all needed layouts (<layout of xxx> or <lay xxx> or <layeva xxx>) has to be found
+      @arg  layoutName     layout name (xxxx of <layout of xxx> or <lay xxx> or <layeva xxx>)
       @arg  prefix4Widgets prefix for all widget names in this layout (for all widgets in the composite)
    */
    protected static void recBuildLayout (
@@ -248,9 +254,14 @@ public class laya
    /**
       instanciate all widgets in the given layout
 
+      all layouts are expected to be found variables named in one of these ways
+            <layout of xxx>     where xxx is the layout name
+            <lay xxx>           equivalent to "layout of" form
+            <layeva xxx>        here xxx is an Evalayout which first line is ommited and always equal to "EVALAYOUT" plus <layeva-config> that has the default values 5, 5, 3, 3
+
       @arg  quincalla      object with the method "Component getNativeWidget (String prefix4Widgets, String name, javajEBS layoutModel))"
-      @arg  layoutModel    layout Model where all needed layouts (<layout of xxx>) has to be found
-      @arg  layoutName     layout name (xxxx of <layout of xxx>)
+      @arg  layoutModel    layout Model define the layout itself (<lay xxx> etc) and all inner layouts needed
+      @arg  layoutName     layout name (xxx of <lay xxx>)
    */
    public static void loadWidgetsOfLayout (
          widgetSolver_able quincalla,     // provider of native widgets
@@ -351,74 +362,28 @@ public class laya
       Note : if called with pana == null then we are not interested in create panels and layouts but
              simply in instanciating all widgets (not containers)
    */
-   private static void laya_EvaLayout (
-         Container    pana,
-         String       prefix4Widgets,
-         javajEBS     layoutModel,
-         widgetSolver_able quincalla,
-         Eva          evalay
-         )
-  {
-      EvaLayout ela = new EvaLayout(evalay);
-//      if (ela != null && collectEvaLayouts)
-//      {
-//         evaLayoutsArray.add (ela);
-//      }
-      if (pana != null)
-      {
-         pana.setLayout (ela);
-      }
+    private static void laya_EvaLayout (
+                Container    pana,
+                String       prefix4Widgets,
+                javajEBS     layoutModel,
+                widgetSolver_able quincalla,
+                Eva          evalay
+            )
+    {
+        EvaLayout ela = new EvaLayoutExt(evalay, layoutModel.getEva ("layeva-config"));
+        if (pana != null)
+        {
+            pana.setLayout (ela);
+        }
 
-      String [] widgets = ela.getWidgets ();
+        String [] widgets = ela.getWidgets ();
 
-      for (int ww = 0; ww < widgets.length; ww ++)
-      {
-         log.dbg (2, "laya_EvaLayout", "component [" + widgets[ww] + "] prefix [" + prefix4Widgets + "]");
-         Component compos = quincalla.getNativeWidget (layoutModel, widgets[ww], prefix4Widgets, pana != null);
-         if (compos != null && pana != null)
-         {
-            pana.add (compos, widgets[ww]);
-         }
-      }
-   }
-
-//   private static String getSelectedLayout (javajEBS layoutModel)
-//   {
-//System.err.println ("okey mano, me requieres " + switchName + " comprendo...");
-//      Eva switchLay = layoutModel.getEva (switchName);
-//      if (switchLay == null)
-//      {
-//         System.err.println ("laya FALLA switch layout " + switchLay + " not found!");
-//         return null;
-//      }
-//
-//      // now look if any <nameOfSwitchLayout current> is given
-//      int indx = -1;
-//      Eva selectLay = layoutModel.getEva (switchName +  " current");
-//      if (selectLay != null)
-//      {
-//System.err.println ("bien bien ayo " + switchName +  " current con un porcentual de " + selectLay.getValue ());
-//         indx = switchLay.rowOf (selectLay.getValue ());
-//      }
-//      if (indx == -1)
-//      {
-//         if (selectLay != null)
-//         {
-//            System.err.println ("laya FALLA switch layout " + switchLay + " to " + selectLay.getValue () + " but this is not found!");
-//         }
-//         else
-//         {
-//            // this is normal <nameOfSwitchLayout current> does not have to be present
-//         }
-//
-//         String defaultLay = switchLay.getValue (1);
-//System.err.println ("goso en pos, defectuamos " + defaultLay);
-//         return (defaultLay.length () > 0) ? defaultLay: null;
-//      }
-//
-//System.err.println ("tenemos indx " + indx);
-//System.err.println ("retornamons " + switchLay.getValue (indx, 0));
-//
-//      return switchLay.getValue (indx, 0);
-//   }
+        for (int ww = 0; ww < widgets.length; ww ++)
+        {
+            log.dbg (2, "laya_EvaLayout", "component [" + widgets[ww] + "] prefix [" + prefix4Widgets + "]");
+            Component compos = quincalla.getNativeWidget (layoutModel, widgets[ww], prefix4Widgets, pana != null);
+            if (compos != null && pana != null)
+                pana.add (compos, widgets[ww]);
+        }
+    }
 }

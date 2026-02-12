@@ -1,6 +1,6 @@
 /*
 package de.elxala.langutil
-(c) Copyright 2005 Alejandro Xalabarder Aulet
+(c) Copyright 2005-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -88,7 +88,7 @@ public class stdlib
    public static char[] hexStr2charArr (String str)
    {
       int len = str.length();
-      if (len % 2 == 1) len --; // don't compute last one!
+      if (len % 2 == 1) str = "0" + str;
       if (len < 2) return new char [0];
 
       char[] data = new char[len / 2];
@@ -97,5 +97,42 @@ public class stdlib
          data[indx] = (char) (hexchar2int (str.charAt (ii)) * 16 + hexchar2int (str.charAt (ii+1)));
       }
       return data;
+   }
+
+   public static char asciiStr2char (String str)
+   {
+      if (str == null || str.length() == 0)
+         return 0;
+
+      //
+      //                0  NUL
+      //                6  ACK
+      //                7  BEL
+      //                9  HT or TAB*
+      //               10  LF
+      //               13  CR
+      //               26  SUB or EOF*
+      //               27  ESC
+      //               32  SPC*
+      //
+
+      if (str.equalsIgnoreCase ("NUL")) return (char) 0;
+      if (str.equalsIgnoreCase ("ACK")) return (char) 6;
+      if (str.equalsIgnoreCase ("BEL")) return (char) 7;
+
+      if (str.equalsIgnoreCase ("HT")) return (char) 9;     // horizontal tab
+      if (str.equalsIgnoreCase ("TAB")) return (char) 9;    // not ascii name but quite clear what is it
+
+      if (str.equalsIgnoreCase ("LF")) return (char) 10;
+      if (str.equalsIgnoreCase ("CR")) return (char) 13;
+
+      if (str.equalsIgnoreCase ("SUB")) return (char) 26;   //
+      if (str.equalsIgnoreCase ("EOF")) return (char) 26;   // also an alias
+
+      if (str.equalsIgnoreCase ("ESC")) return (char) 27;
+      if (str.equalsIgnoreCase ("SPC")) return (char) 32;
+
+      int dec = atoi (str);
+      return (dec >= 0 && dec < 256) ? (char) dec: 0;
    }
 }

@@ -1,0 +1,84 @@
+#h About Rhino Version (1.7.7.1) in gastona
+
+-- 2023-02-20 No Rhino upgrade will be made due to jdk needs
+
+Rhino needs java 8 from its version 1.7.8 on
+
+      https://github.com/mozilla/rhino/blob/master/RELEASE-NOTES.md
+      Rhino 1.7.8 January 22, 2018
+          ...
+          - Rhino is only supported for Java 8 and up
+
+java 8 jdk is not freely downloable without Oracle subscription
+
+By the moment we are not going to use java 8 for gastona
+
+-- Gastona and java versions (currently using jdk1.7.0_04)
+
+Gastona as script engine was build long ago and using java 1.4
+
+Due to the introduction of Rhino, see submit in gastona's github repository
+
+      first and unique submit was on 2016.09.21 (Rhino version 1.7.7.1)
+      https://github.com/wakeupthecat/gastona/commit/03e65d07450f7ceff7fb54f6db8c3fdf431ffd96
+
+together with the introduction of gastona Android, gastona needed for the first time to upgrade
+the java jdk to 1.7 ("java" 1.7 not "Rhino" 1.7)
+
+so we have now
+
+      gastona use Rhino 1.7.7.1 February 2, 2016
+      newest      Rhino 1.7.14  January 6,  2022
+
+--- Why gastona does not need new java features
+
+At the very begining gastona needed from java programming
+to implement application logic while the whole GUI was handled by "javaj", its GUI engine.
+
+But since the introduction of "listix" and its script language this need was not anymore
+needed. Actually is it still possible to do so, since the mechanisms of adding new java classes
+on the fly is still there. But the reality is that it has not been needed at all.
+
+Every new feature or extension of the existing one related with logic has been implemented
+by simply add or extend a listix command in the gastona core. So there is no need for java
+to develop with gastona.
+
+
+--- Some errors on the try to upgrade Rhino
+
+Upgrading Rhino should only require copy the directories from Rhino source
+
+          rhino\src\org\mozilla\classfile
+          rhino\src\org\mozilla\javascript
+
+to gastona on
+
+          gastona\base\src\org\mozilla\classfile
+          gastona\base\src\org\mozilla\javascript
+
+compiling with jdk1.7.0_04 will ouput errors related with java 8
+but also this one
+
+         gastona\base\src\listix\cmds\cmdGoRhino.java:288: error: package org.mozilla.javascript.jdk13 does not exist
+            private static org.mozilla.javascript.jdk13.VMBridge_jdk13 o1 = null;
+                                                       ^
+         gastona\base\src\listix\cmds\cmdGoRhino.java:289: error: package org.mozilla.javascript.jdk15 does not exist
+            private static org.mozilla.javascript.jdk15.VMBridge_jdk15 o2 = null;
+                                                       ^
+this comes from following code in
+
+         gastona\base\src\listix\cmds\cmdGoRhino.java
+
+         ...
+         public class cmdGoRhino implements commandable
+         {
+            //NOTE!: It is not enough to compile
+            //         org.mozilla.javascriptContext
+            //         org.mozilla.javascript.Scriptable
+            //         and all classes used by them
+            //       which is done automatically by javac when compiling cmdGoRhino.java
+            //       but we have to force the compilation of following classes (at least!) as well
+            //       if we do not do it, Context.evaluateString returns always "undefined"
+            //
+            private static org.mozilla.javascript.jdk13.VMBridge_jdk13 o1 = null;
+            private static org.mozilla.javascript.jdk15.VMBridge_jdk15 o2 = null;

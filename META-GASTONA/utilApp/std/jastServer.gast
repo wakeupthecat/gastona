@@ -1,92 +1,73 @@
-2020.05.30
-
-   name    : jastServer.gast
-   argument: jast file
-   desc    : Call micohttp serving a page where jGastona library is loaded and the jast script executed
-
-
-   syntax  :  jastServer jastfile [ outputhtmlFileName ]
-
-   JAST script may contain
-
-         1. client GUI and js logic in the units #javaj#, #data# and #listix#
-         2. server responses and optional extra js code in #server#.
-            ** Note server unit has to be found after the javaj, data and listix units!
-            this is because we inject the client units using command "IN FILE" with
-            the regular expression "#server#" for the end of loading
-
-   if the second paramter is given, then a html file with the name is generated instead
-   of serving the page
-
-#javaj#
-
-    <frames> oConso, jastServer
-
 #listix#
 
-   <main>
-      CHECK, NUM, @<:lsx paramCount> > 0
-      CHECK, RFILE, @<p1>, BOX, //Cannot find jast file "@<p1>" !
-      VAR=, JASTFN, @<p1>
-      LOAD, formats, @<JASTFN>
-          , MERGE, ADD
-          , UNIT2LOAD, server
+    <main>
+        CHECK, NUM, @<:lsx paramCount> > 0
+        CHECK, RFILE, @<p1>, BOX, I, //Cannot find jast file "@<p1>" !
+        VAR=, JASTFN, @<p1>
+        LOAD, formats, @<JASTFN>
+            , MERGE, ADD
+            , UNIT2LOAD, server
+        
+        VAR=, PORT, @<MICO_PORT>
+        MICO, ONCE, jastServus, @<MICO_PORT>
 
-      CHECK, NUM, @<:lsx paramCount> < 2, LSX, ONLY_GENERATE, @<p2>
-      CHECK, VAR, serverONCE
-           ,     , LSX, ONLY_ONCE
-           , ELSE, MICOHTTP, start, monoMico
+    <loadVAR>
+        CHECK, VAR, @<p1>
+        VALUE OF, @<p1>
 
-   <ONLY_GENERATE>
-      GEN, @<p1>, GET /
-      -->, javaj doExit
+    <loadEXTENSION>
+        CHECK, RFILE, @<JASTFN>.@<p1>
+        IN FILE, @<JASTFN>.@<p1>
 
-   <ONLY_ONCE>
-      MICOHTTP, ONCE
-      TIMER, START, salida, 3000, 1
-      
-   <salida>
-      -->, javaj doExit
-
-   <loadVAR>
-      CHECK, VAR, @<p1>
-      VALUE OF, @<p1>
-
-   <loadEXTENSION>
-      CHECK, RFILE, @<JASTFN>.@<p1>
-      IN FILE, @<JASTFN>.@<p1>
-
-   <GET />
-     //<!DOCTYPE html>
-     //<html>
-     //<style>
-     //
-     LSX, loadVAR, extraSTYLE
-     //
-     LSX, loadEXTENSION, css
-     //
-     //</style>
-     //<body>
-     //
-     //<script id="mainJast" type="jast">
-     //
-     IN FILE, @<JASTFN>
-            , FROM TO REGEXPR, "+^\s*#.*#", "-#server#"
-     //
-     //</script>
-     //
-     //<script>
-     //
-     //@<:infile META-GASTONA/js/jGastonaEva-min.js>
-     //
-     LSX, loadVAR, extraJS
-     //
-     LSX, loadEXTENSION, js
-     //
-     //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
-     //   jast.run ();
-     //
-     //</script>
-     //</body></html>
+    <GET />
+        //<!DOCTYPE html>
+        //<html>
+        //<style type="text/css">
+        //
+        LSX, loadVAR, extraSTYLE
+        //
+        LSX, loadVAR, extraCSS
+        //
+        LSX, loadEXTENSION, css
+        //
+        //</style>
+        //<body>
+        //
+        //<script id="mainJast" type="jast">
+        //
+        IN FILE, @<JASTFN>
+               , FROM TO REGEXPR, "+^\s*#.*#", "-#server#"
+        //
+        //</script>
+        //
+        //<script>
+        //
+        //@<:infile META-GASTONA/js/jGastonaEva-min.js>
+        //
+        LSX, loadVAR, extraJS
+        //
+        LSX, loadEXTENSION, js
+        //
+        //   var jast = jGastona (evaFileStr2obj (document.getElementById ("mainJast").text));
+        //   jast.run ();
+        //
+        //   // for keeping alive the mico server (eventually launched as ONCE)
+        //   //
+        //   function jastKeepServerAlive ()
+        //   {
+        //      jast.AJAXPostRaw ("jastClientStillThere");
+        //      setTimeout("jastKeepServerAlive()", 4000);
+        //   }
+        //   // **** call it explicitly in listix main if desired
+        //   // jastKeepServerAlive ();
+        //
+        //   window.addEventListener (
+        //                    "beforeunload",
+        //                    function () {
+        //                       jast.AJAXSend ("jastClientClosed");
+        //                    });
+        //
+        //</script>
+        //</body></html>
 
 #**#

@@ -1,6 +1,6 @@
 /*
 package org.gastona.net.http
-(c) Copyright 2014,2015 Alejandro Xalabarder Aulet
+(c) Copyright 2014-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -33,6 +33,7 @@ import de.elxala.db.utilEscapeStr;
 
 public class httpRequestData
 {
+   protected String serverName = "";
    protected String memFileName4RequestBody = "";
    public String theMethod = "";
    public String theUri = "";
@@ -46,8 +47,9 @@ public class httpRequestData
    // control variables
    private boolean lastCR = false;
 
-   public httpRequestData (String memFileName4reqBody)
+   public httpRequestData (String srvName, String memFileName4reqBody)
    {
+      serverName = srvName;
       memFileName4RequestBody = memFileName4reqBody;
    }
 
@@ -72,7 +74,7 @@ public class httpRequestData
 
       // Read HTTP request header
       //
-      headerTextReader firstHead = new headerTextReader (true);
+      headerTextReader firstHead = new headerTextReader (serverName, true);
 
       firstHead.readHeader (inStream);
 
@@ -143,7 +145,7 @@ public class httpRequestData
 
    public void parseMultiPartBody (httpStreamReader inStream)
    {
-      headerTextReader partHead = new headerTextReader (false);
+      headerTextReader partHead = new headerTextReader (serverName, false);
 
       int partNo = 0;
       int BONDLEN = 0;
@@ -380,7 +382,7 @@ public class httpRequestData
 
    private void out (int level, String sa)
    {
-      micoHttpServer.out (level, sa);
+      micoHttpServer.out (serverName, level, sa);
    }
 
    public boolean isMethodGET ()

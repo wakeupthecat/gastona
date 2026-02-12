@@ -1,0 +1,124 @@
+#javaj#
+
+   <frames>
+      main, Simple Tauleta, 600,
+
+   <layout of main>
+
+      EVA, 10, 10, 5, 5
+
+      ---,            , X
+         , lDBName    , eDBName, bGenSample
+         , lTitle, eTitle, -
+         , lSelectBase, -
+       X , xSelectBase, -, -
+         , layParams, -, -
+       X , layGene, -, -
+
+   <layout of layGene>
+       EVA, 4, 4, 2, 2
+         ,,, X
+         , bGenUsingJs, bGenUsingListix
+       X , oSan , -, -
+
+   <layout of layParams>
+
+      EVA, 5, 5, 3, 3
+
+         ,        , 200    ,
+         ,        , lField, lMaxCells, lOrder
+         , lX     , eXVAR , eMaxCeldasX, rgOrderX
+         , lY     , eYVAR , eMaxCeldasY, rgOrderY
+         , lSum   , eSUMVAR,           , rgSumOrCount
+
+#data#
+
+   <eTitle>       //Cross table
+
+   <eMaxCeldasX>   20
+   <eMaxCeldasY>   40
+
+   <rgSumOrCount orientation> X
+   <rgSumOrCount>
+      op , label             , expr                     , desc
+      1  , Sum values        , "ROUND(SUM(@<eSUMVAR>))" , //Suma de @<eSUMVAR>
+      2  , Just count records, "COUNT(*)"               , //Cuenta registros
+
+   <rgOrderX orientation> X
+   <rgOrderX>
+      op, label, expr
+      1 , Sum X, sumaXs DESC
+      2 , Ascencent X, x
+      3 , Descendent X, x DESC
+
+   <rgOrderY orientation> X
+   <rgOrderY>
+      op, label, expr
+      1, Sum Y, sumaYs DESC
+      2, Ascencent Y, y
+      3, Descendent Y, y DESC
+
+   <mostraVendes>
+      comanda, data, client, area, import
+
+      41238 , 2022-03-12, SUELEN, Barcelona,  5652
+      41501 , 2022-03-28, GALOI,  Paris,     13201
+      41501 , 2022-03-31, SUELEN, Paris,       706
+      42332 , 2022-07-06, SUELEN, Barcelona, 12880
+      58211 , 2022-03-28, CAROLO, Goetingen,  6193
+      68777 , 2022-06-20, SUELEN, Barcelona,   603
+      58211 , 2022-06-23, CAROLO, Goetingen,   854
+      66093 , 2022-06-27, SUELEN, Goetingen,  1105
+
+#listix#
+
+   <main>
+      -->, rgOrderX select!, #, 0
+      -->, rgOrderY select!, #, 0
+      -->, rgSumOrCount select!, #, 0
+
+   <-- bGenSample>
+      VAR=, tmpDB, @<:lsx tmp db>
+
+      DB, @<tmpDB>, CREATE TABLE, mostraVendes
+
+      -->, eDBName data!,, @<tmpDB>
+      -->, xSelectBase data!,, //SELECT * FROM mostraVendes
+      -->, eXVAR data!,,   //area
+      -->, eYVAR data!,,   //SUBSTR(data, 1, 7)
+      -->, eSUMVAR data!,, //import
+      -->, eTitle data!,,  //Mostra vendes
+
+   <-- bGenUsingJs>
+      VAR=, USING_LANG, JS
+      MICO, ONCE
+
+   <-- bGenUsingListix>
+      VAR=, USING_LANG, LISTIX
+      MICO, ONCE
+
+   <GEN_USING_LISTIX>
+      LSX, TauletaHTML_inListix,
+         , LOAD FORMATS, META-GASTONA/utilApp/arces/tauletaHtml.lsx, listix
+
+   <JSScript>
+      //
+      //var parametres = {
+      //   title   : "@<eTitle>",
+      //   sqlbase : "@<:escape-strjs xSelectBase>",
+      //   DB      : "@<:path-linux eDBName>",
+      //   dim     : [  { name: "X", expr: "@<eXVAR>", nmax: @<eMaxCeldasX>, sortType: @<rgOrderX selected.op> },
+      //                { name: "Y", expr: "@<eYVAR>", nmax: @<eMaxCeldasY>, sortType: @<rgOrderY selected.op> },
+      //             ],
+      //
+      //   cellValue : "@<rgSumOrCount selected.expr>",
+      //};
+      //
+      //@<:infile META-GASTONA/utilApp/arces/tauletaHtml.jsgo>
+      //tauleta (parametres);
+      //""
+
+   <GET />
+      IN CASE, @<USING_LANG>
+             , JS , JS, @<JSScript>
+             , LISTIX, @<GEN_USING_LISTIX>

@@ -269,12 +269,12 @@ public class mensaka4listix implements MensakaTarget
       // get the action by index
       String action = EActions.getValue (actionIndx, 0);
       theListix.printLsxFormat (action, params);
-      
+
       // *** required for programMe demo since it closes the mico http on exit
       if (action.equals ("-- javaj exit"))
       {
          // Script finishing listening to this message gets automatically unsubscribed
-         
+
          log.dbg (2, "takePacket", "This is the end my friend!");
          Mensaka.unsubscribe (this);
       }

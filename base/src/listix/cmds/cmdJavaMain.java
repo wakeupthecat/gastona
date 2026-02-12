@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -56,7 +56,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //  without producing any error.
       //
       //  In the cases 1 to 4 the returned String(s) will be sent to the current listix
-      //  target (e.g. console, variable solving etc). Note though the difference between returning a String 
+      //  target (e.g. console, variable solving etc). Note though the difference between returning a String
       //  or String[] and just printing out values using System.out within the method, for example
       //
       //       ...
@@ -121,13 +121,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bTestCall>
-      //       //Calling listix.util.lsx2Html, main ...
-      //       JAVA STATIC, listix.util.lsx2Html, main
-      //       //
-      //       //Calling listix.lsxWriter main ...
-      //       JAVA STATIC, listix.lsxWriter
-      //       //
-      //       //Calling the method de.elxala.langutil.filedir.naming::toVariableName
+      //       //============== Calling the method de.elxala.langutil.filedir.naming::toVariableName
       //       // to convert "This is%20%NOT(a valid \\//á) file name, is it?"
       //       // into a valid variable name (e.g. for a column in a table etc)
       //       //
@@ -186,13 +180,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //#listix#
       //
       //   <-- bGo>
-      //      -->, xSQLFilter data!,, @<solve>
+      //      -->, xSQLFilter data!,, @<:sqlfilter @eAsisteStr desc>
       //
       //   <-- eAsisteStr>
-      //      -->, xSQLFilter data!,, @<solve>
-      //
-      //   <solve>
-      //      JAVA STATIC, javaj.widgets.table.util.utilAsiste, getComposedWhereCondition, @<eAsisteStr>, desc
+      //      -->, xSQLFilter data!,, @<:sqlfilter @eAsisteStr desc>
       //
 
    <Asiste expression sample2>
@@ -203,42 +194,38 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //   <layout of F>
       //
       //      EVA, 10, 10, 5, 5
-      //      ---,    , X
-      //         , lAsiste expression, eAsisteStr, allany
-      //       X , xSQLFilter, -, -
-      //
-      //   <layout of allany>
-      //      RADIO, X
-      //
-      //      rAny, rAll
+      //      ---,  X
+      //         , eeAsisteStr
+      //         , eeFields
+      //         , rgAny
+      //       X , xSQLFilter
       //
       //   <sysDefaultFonts>
       //      Consolas, 13, 0, TextArea
       //
       //#data#
       //
-      //   <rAny selected> 1
-      //   <eAsisteStr> +generation +GUI -XML
+      //   <rgAny orientation> X
+      //   <rgAny>
+      //       label, selected, option
+      //       Any column  , 1, inany
+      //       All columns , 0, inall
+      //
+      //   <eeAsisteStr> //generation GUI -XML
+      //   <eeFields> //desc help
+      //
+      //   <valSqlFilter>
+      //      VALUE OF, :sqlfilter-@<rgAny selected.option> eeAsisteStr @<eeFields>
       //
       //   <xSQLFilter wrapLines> 1
       //
       //#listix#
       //
-      //   <-- allany>
-      //      -->, xSQLFilter data!,, @<solve>
+      //   <-- rgAny>      LSX, SHOW_FILTER
+      //   <-- eAsisteStr> LSX, SHOW_FILTER
       //
-      //   <-- eAsisteStr>
-      //      -->, xSQLFilter data!,, @<solve>
-      //
-      //   <solve>
-      //      JAVA STATIC, javaj.widgets.table.util.utilAsiste, @<method>, @<eAsisteStr>, desc, help
-      //
-      //
-      //   <method>
-      //      CHECK, VAR, rAny selected, //getComposedWhereCondition
-      //      CHECK, ==, @<rAny selected>, 1, //getComposedWhereConditionAll
-      //      getComposedWhereConditionAny
-      //
+      //   <SHOW_FILTER>
+      //      -->, xSQLFilter data!,, @<valSqlFilter>
 
 #**FIN_EVA#
 */

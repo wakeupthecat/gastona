@@ -273,11 +273,13 @@ public class zTree extends JTree implements
    public zTree ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zTree (String map_name)
    {
       build (map_name);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

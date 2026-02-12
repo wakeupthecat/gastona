@@ -1,99 +1,214 @@
-   GASTONA SOURCE CODE
-   -------------------------------------------------
+    GASTONA SOURCE CODE
+    -------------------------------------------------
 
-   all source code available since end of 2015 at
-   https://github.com/wakeupthecat/gastona
+    https://github.com/wakeupthecat/gastona
 
+    GASTONA RELEASE NOTES
+    -------------------------------------------------
+    
+        2025-06-12  command PROCESS IMAGE accept values as formulas
+        2025-03-12  fixes File2, layeva in js and new jGastona features
+        2025-03-08  new layeva as implicit EVALAYOUT
+        2024-11-08  new method innerSolvePrimitive to support :infile @filename
+        2024-08-29  Fix Regression 2023-06-20 in parsons Base syntax
+        2024-08-20  new trassos mirror styles
 
-   GASTONA RELEASE NOTES (from most recent to oldest)
-   -------------------------------------------------
+        2025-03-12  fix File2 relative paths + new jGastona features and layeva
+        2024-08-02  new senzillPlot.js
+        2024-07-04  fixed trassos2D.js canvas scale and offset with graffiti directive
+        2024-06-07  new js modules oblitAlgoritme, indxdb, mouseoleo and some fixes in trassos2D
+        2024-04-16  fix issue in trassos2D.js getting svg dimensions
+        2024-03-04  plaTextPlot_V11.jsgo
+        2024-02-27  feature arrow in trassos2D.js + rework vec3.js
+        2024-02-09  second fix out when response from browser! (executorJS-responseAutoClose.htmlsx)
+        2024-02-09  fix out function in jsLibraries.gastDoc (sample java executor)
+        2023-10-17  new listix primitive varTable2sql sql tables from variables on the fly
+        2023-06-21  workaround for win11 OnDrive user.home
+        2023-06-20  new parsons option OPTCOL (issue)
+        2023-06-20  modifying parsons to add OptColPattern
+        2023-06-04  pasito en fix canvas width issue
+        2023-06-01  fix js Canvas graffiti operation partially
+        2023-05-27  Fix new jGastona changes
+        2023-05-27  js jast launcher FIXED!
+        2023-05-27  *** COPIA jGastona BROKEN!!!!
+        2023-05-27  jGastona add set/get DataObject
+        2023-05-07  trassos2D add error messages for unknown graffiti type and improve scale and offset handling
+        2023-05-02  trassos2D add parameter plusStyle to graffiti trass type, chess Graffitis samples
+        2023-04-30  fix trassos obj graffiti repeated (wronng pop)
+        2023-04-15  marketes OnFly jast script and sample
+        2023-02-20  Upgrade Rhino to version 1.7.7.2 (2017/07/27) see base\src\org\About Rhino Version (1.7.7.2) in gastona.mktes
+        2023-02-18  Refactoring autocasteljau path to support straight lines and polygons (clone points)
+        2023-02-04  Fix java NullPointerException in parsonsAgent.java:161 when column names where more than pattern groups
+        2022-12-28  Triming values during parse in PARSONS allows using much more simple regexpressions
+                    add parameter nparam_solved in function takeOptionParameters
+        2022-06-24  extend listix command DEEP DB and deprecate DBMORE
+        2022-06-18  new listix primitive :lsxcall with @ and literals
+        2022-06-18  new method primitiveParamArray for listix primitives
+        2022-06-13  add parameters startbyte and lenght to FILE UTIL COPY and BIN TO HEX
+        2022-06-12  add parameter to FILE UTIL COPY to allow source from a ZIP file
+        2022-06-12  add parameter to FILE UTIL COPY to allow source from a ZIP file
+        2022-06-11  change syntax FILE UTIL SPLIT with param number of parts
+        2022-06-10  new syntaxes SPLIT and JOIN for command FILE UTIL
+        2022-05-29  new UDPLogCli2.gast launchable from welcomeGastona
+        2022-05-23  fix exception in EvaLine
+        2022-05-22  New agent udpPushLogger.java
+        2022-05-22  new UDP log features gastonaLogUDP.eva file
+        2022-05-15  add column hashLineCnt in command CVS
+        2022-05-08  command FiSTO, implement gzip compression/ uncompression
+        2022-05-01  new command uniqueFileSTO
+        2022-04-18  improvements UDP logging + cebaEditor
 
-      2020-08-16  fix recent regression in trassos2D
-      2020-08-09  FIX toVariableName (replace minus and dot characters)      
-      2020-08-02  new style for repetition of trassos 
-      2020-07-24 	new target "dump" in command LOAD UNIT
-      2020-07-13 	fix coordinateIntervalNorm.js
-      2020-07-02 	new streamURLRipper
-      2020-07-02 	RESUTIL new syntax STREAM URL      
-      2020-06-28   fix trassos2D autofit regression 2020-05-01
-      2020-06-27   new command CSV for parsing CSV into DB
-      2020-06-25   new hashes sha-1,sha-256, faster empassaCSV.js
-      2020-06-21   Add sha-1, sha-256 to STRCONV HASH and SCAN HASH option
-      2020-06-18   File2 to fix quotes issue in java.io.File
-      2020-06-13   more improvements in arces mark selector
-      2020-06-10   improve arces mark selector
-      2020-06-10   Arces mark selector
-      2020-05-17   Discontinue/remove version for java before 1.4 pcJav14
-      2020-05-17   new :lsx elapsed, millisecondsToSapiens, STRCONV TMILLIS-HUMAN
-      2020-05-22   Fix slider UI in windows
-      2020-05-14   vec3.js new copy constructor
-      2020-05-10   Fix regression in trassos2D.js
-      2020-05-06   UDPsicoleg and inprovement in trassos2D
-      2020-05-06   REMOVE methods scrollToRow from absTableWindow! scrollToRow obtained in zWidget!
-      2020-04-27   message scrollToRow in asiste Table
-      2020-04-16 	new coordinateIntervalNorm.js
-      2020-03-30 	vec3.js extension + test
-      2020-03-15 	Fix empassacsv.jsgo csv without quotes
-      2020-02-29   trassos2D support color +rrrgggbbb (decimal) + fix rect in cavas
-      2020-02-23 	Fix reading default app icon
-      2020-03-23   GUI shows when it is busy, very old requirement (Alicia) and desired feature
-      2020-02-16 	new start/end option in IN FILE, new jast server and demos
-      2019-12-14 	add MICO option LAUNCH BROWSER
-      2019-11-08 	add empassacsv.jsgo
-      2019-11-06   new XMELON ZIPXML2DB
-   	2019-10-31 	Fix XMELON BATCH
-   	2019-10-30 	add XMELON BATCH BEGIN END
-   	2019-10-15 	add option hash to SCAN FILES
-   	2019-10-13 	New syntax STRCONV HASH for md5 and crc32
-      2019-09-27   add filter and order checkbox for schema tree in arces
-      2019-09-15 	new Evaunit fusion mode "new variables only"
-      2019-09-15 	add option PRAGMA in DB CONFIG command (e.g. journal_mode, OFF)
-      2019-09-01   new AJAXLoadData and fix zWidgets of type list, message "data!" was not working
-      2019-08-31 	trassos2D minor changes
-      2019-08-09 	jGastona example with more zWidgets
-      2019-08-08 	hot workaround for the file not exists issue
-      2019-08-07   add numeric expression in parameters of LOOP FOR
-      2019-08-07   fix zWidgetsHtml.js another regression introduced in 2019.07.08
-      2019-08-05 	update documentation of command CHECK
-      2019-08-05 	new syntaxes WITHIN and NOT WITHIN in CHECK command
-      2019-07-28 	new sqlite3 3.29 2019-07-10 + add Content-Type audio and video in Mico
-      2019-07-16 	some fixes in trassos2D and new sample
-      2019-07-08 	fix zWidgetsHtml.js regression with lists
-      2019-07-07 	fixing jGastona kg selection (checkboxes)
-      2019-07-07 	some works on r and k groups in jWidgets
-      2019-07-06   trassos2D syncCanvas & conSequenci
-      2019-07-04   jGastona setData numeric + canvasSync + <htmltag of ...>
-      2019-05-12   new command PROCESS IMAGE
-      2019-04-07   yui compression for js files, new deepTable.js and new samples/demos
-      2019-03-25   dashed lines in trazos2D.js and restore stroke style in Canvas
-      2019-03-20   do SCAN filters case insensitive (so "+E, png" includes also .PNG Png etc)
-                   add more JAST samples in welcomeGastona
-      2019-03-06 	fix regression in jGastona (bildID 12685 on 2018-05-29! did break setData function)
+        2022-04-09  cebaEditor implementing add points (almost finished)
+        2022-04-09  implementing add points (not yet working...)
+        2022-04-09  fix cebaEditor editing/deleting points when scaled (zoom)
+        2022-04-08  cebaEditor editing improvement
+        2022-04-07  fix cebaEditor PAN
+        2022-03-29  styleSet FIX + many renames of "trass"
+        2022-03-28  Fixx issue in editablePath
+        2022-03-28  fix finger issues
+        2022-03-28  keyboard event + zoom correction in cebaEditor
+        2022-03-28  add zoom to cebaEditor + add keyboard events to zFrame
+        2022-03-26  Fix edtablePaths on loading from Eva
+        2022-03-26  rename all trazo/s to trass/os
+        2022-03-21  unify backColor backImage in z2DCebolla and z2DCebaEditor
+        2022-03-20  Fix Issue exception nullPointerException in inCaseCommon
+        2022-03-20  pass messages loadRm3, saveRm3 to z2DCebaEditor
+        2022-03-20  Improvements and fixes cebaEditor
+        2022-03-19  working cebaEditor/cebaInMotion/z2DCebaEditor
+        2022-03-19  new cebaEditor and z2DCebaEditor replacing z2DEditRelos
 
-      2019-02-17 	fix broken parsons: (regression from yesterday fix)
-      2019-02-16 	fix issue : PARSONS using VAR get a line not consumed properly
+        2022-03-13  new implementation of IN CASE
+        2022-03-05  fix zWidgetsHtml.js escape html in labels and table component
+                    fix trassos2D strict undefined variable in eval
+        2022-03-04  parserSource.java extract from cmdParsons
+        2022-02-27  fixes command CSV
+        2022-02-26  new CSV command options
+        2022-02-21  new hash-str in strconv and hasline option in cmdCSV
+        2022-02-20  add tauletaHtml.lsx for generation in listix
+        2022-02-20  new tauleta and sample CSV parser
+        2022-01-30  new jastServer.gast and jastServerDbg.jast
+        2022-01-30  new samples using jastKeep extension
+        2022-01-27  cmdMsgBox set the focus to the current app
+        2022-01-25  add canvas to jGastona widgets + fixes trassos2D
+        2022-01-25  Fixes trassos2D for size and scaling for svg and canvas
+        2022-01-25  Fixes in jGastona y trassos2D for svg element
+        2022-01-09  sql primitives more doc and samples and some fixes
+        2022-01-08 	add printLoop.gasti and stringColumns.js
+        2022-01-07 	fix and rename sqlTableDelta document & example
+        2022-01-06 	5 new sql listix primitives
+        2021-12-31 	new primitive listix :sqlFilter
+        2021-12-10 	** small update in doc for android studio
+        2021-12-10 	** update android_4studio
+        2021-12-10 	** android_4studio
+        2021-11-13 	move gastonaWelcome SQL  and js min generators to BUILD\pc-jar
+        2021-11-01 	micoHTTP use server name in responses
+        2021-10-19 	cleaning android, base etc II
+        2021-10-16 	cleaning base, pc, android
+        2021-08-22 	FIX regression 2021-08-10
+        2021-08-10 	fix ediTrazo.java
+        2021-08-07  add 'p' paragraph and 'pass' to zWidgetsHtml.js
+        2021-08-06  add options to command CSV
+        2021-07-18  new App icons when application is logging (e.g. sessionLog folder)
+                    new jsutil.js and infile it in templates
+                    new option BrowserConsole in js executor example
+        2021-06-26  demo script use tmpDB instead of explicit db
+                    new script Hashing files and duplicates
+                    issue with Netbeans
+        2021-06-09  vec3.js add function getSphericCoord and fix angle
+        2021-06-07  Fix PARSONS FOLDER fix bug skiping first file
+                    new syntax PARSONS FOLDER
+        2021-04-05  new title frame for zWidgets (e.g. eeMyEdit)
+        2021-03-20  new CHECK command syntax FILE-MAXSIZE
+        2021-01-16  trassos2D fixes and js compressOFFLINE fixed
+        2020-09-27  remove some copy files
+                    new GENJAR_GASTONA
+        2020-08-22  SET VAR now solve the variable name
+        2020-08-16  fix recent regression in trassos2D
+        2020-08-09  FIX toVariableName (replace minus and dot characters)
+        2020-08-02  new style for repetition of trassos
+        2020-07-24  new target "dump" in command LOAD UNIT
+        2020-07-13  fix coordinateIntervalNorm.js
+        2020-07-02  new streamURLRipper
+                    RESUTIL new syntax STREAM URL
+        2020-06-28  fix trassos2D autofit regression 2020-05-01
+        2020-06-27  new command CSV for parsing CSV into DB
+        2020-06-25  new hashes sha-1,sha-256, faster empassaCSV.js
+        2020-06-21  Add sha-1, sha-256 to STRCONV HASH and SCAN HASH option
+        2020-06-18  File2 to fix quotes issue in java.io.File
+        2020-06-13  more improvements in arces mark selector
+        2020-06-10  improve arces mark selector
+                    Arces mark selector
+        2020-05-17  Discontinue/remove version for java before 1.4 pcJav14
+                    new :lsx elapsed, millisecondsToSapiens, STRCONV TMILLIS-HUMAN
+        2020-05-22  Fix slider UI in windows
+        2020-05-14  vec3.js new copy constructor
+        2020-05-10  Fix regression in trassos2D.js
+        2020-05-06  UDPsicoleg and inprovement in trassos2D
+                    REMOVE methods scrollToRow from absTableWindow! scrollToRow obtained in zWidget!
+        2020-04-27  message scrollToRow in asiste Table
+        2020-04-16  new coordinateIntervalNorm.js
+        2020-03-30  vec3.js extension + test
+        2020-03-15  Fix empassacsv.jsgo csv without quotes
+        2020-02-29  trassos2D support color +rrrgggbbb (decimal) + fix rect in cavas
+        2020-02-23  Fix reading default app icon
+        2020-03-23  GUI shows when it is busy, very old requirement (Alicia) and desired feature
+        2020-02-16  new start/end option in IN FILE, new jast server and demos
+        2019-12-14  add MICO option LAUNCH BROWSER
+        2019-11-08  add empassacsv.jsgo
+        2019-11-06  new XMELON ZIPXML2DB
+        2019-10-31  Fix XMELON BATCH
+        2019-10-30  add XMELON BATCH BEGIN END
+        2019-10-15  add option hash to SCAN FILES
+        2019-10-13  New syntax STRCONV HASH for md5 and crc32
+        2019-09-27  add filter and order checkbox for schema tree in arces
+        2019-09-15  new Evaunit fusion mode "new variables only"
+                    add option PRAGMA in DB CONFIG command (e.g. journal_mode, OFF)
+        2019-09-01  new AJAXLoadData and fix zWidgets of type list, message "data!" was not working
+        2019-08-31  trassos2D minor changes
+        2019-08-09  jGastona example with more zWidgets
+        2019-08-08  hot workaround for the file not exists issue
+        2019-08-07  add numeric expression in parameters of LOOP FOR
+        2019-08-07  fix zWidgetsHtml.js another regression introduced in 2019.07.08
+        2019-08-05  update documentation of command CHECK
+        2019-08-05  new syntaxes WITHIN and NOT WITHIN in CHECK command
+        2019-07-28  new sqlite3 3.29 2019-07-10 + add Content-Type audio and video in Mico
+        2019-07-16  some fixes in trassos2D and new sample
+        2019-07-08  fix zWidgetsHtml.js regression with lists
+        2019-07-07  fixing jGastona kg selection (checkboxes)
+        2019-07-07  some works on r and k groups in jWidgets
+        2019-07-06  trassos2D syncCanvas & conSequenci
+        2019-07-04  jGastona setData numeric + canvasSync + <htmltag of ...>
+        2019-05-12  new command PROCESS IMAGE
+        2019-04-07  yui compression for js files, new deepTable.js and new samples/demos
+        2019-03-25  dashed lines in trazos2D.js and restore stroke style in Canvas
+        2019-03-20  do SCAN filters case insensitive (so "+E, png" includes also .PNG Png etc)
+                    add more JAST samples in welcomeGastona
+        2019-03-06  fix regression in jGastona (bildID 12685 on 2018-05-29! did break setData function)
 
-      2018-12-13 	new property gastona.tmp.dir explicit temp dir
-      2018-12-11 	small changes in gasts utilities
-      2018-06-29 	Fix in new jGastonaLit approach
-      2018-05-29 	jGastonaLit.js zWidgetsHtml.js separación
-      2018-04-09    FIX jGastona layout issues with check and radio box groups
-      2018-03-31    FIX issue in tables and lists in some special scenario (error message "wrong use of a tableWidgetBaseEBS")
-      2018-02-01    Several fixes in jGastona, consecuencio and js stuff
-      2018-01-04    use \gastona instead of \tmp when seeking for tmp folder in windows file systems due to antivirus "obsession" checking sqlite executable
+        2019-02-17  fix broken parsons: (regression from yesterday fix)
+        2019-02-16  fix issue : PARSONS using VAR get a line not consumed properly
 
-      2017-12-11    add new sqlite version 3.21 (from 3.17) hacked for adding samefilecontent function
-      2017-12-05    goRhino add the java objects System.out (systemOut), System.err (SystemErr), listix and log to the scripting engine
-      2017-11-23    trazos2D.js improve path styles for svg and some canvas
-      2017-11-18    FIX small documentation issue, minimize last trazos2D
-      2017-11-17    trazos2D.js support images "img" for canvas and svg
-      2017-11-16    FIX excepcion MICO http using theOnlyLivingBoyInNY
-      2017-11-11    FIX regression 2017.10.03 replacing filename with _
-      2017-11-07    FIX MicoHttp close timer when ONCE syntax
-      2017-11-06    fix micohttp schedule close
-      2017-11-05    improve widget messages in jGastona
-      2017-11-04    Fix empty set condition in httSaco
-      2017-10-21    trazos.js introduce element text
+        2018-12-13  new property gastona.tmp.dir explicit temp dir
+        2018-12-11  small changes in gasts utilities
+        2018-06-29  Fix in new jGastonaLit approach
+        2018-05-29  jGastonaLit.js zWidgetsHtml.js separación
+        2018-04-09  FIX jGastona layout issues with check and radio box groups
+        2018-03-31  FIX issue in tables and lists in some special scenario (error message "wrong use of a tableWidgetBaseEBS")
+        2018-02-01  Several fixes in jGastona, consecuencio and js stuff
+        2018-01-04  use \gastona instead of \tmp when seeking for tmp folder in windows file systems due to antivirus "obsession" checking sqlite executable
+
+        2017-12-11  add new sqlite version 3.21 (from 3.17) hacked for adding samefilecontent function
+        2017-12-05  goRhino add the java objects System.out (systemOut), System.err (SystemErr), listix and log to the scripting engine
+        2017-11-23  trazos2D.js improve path styles for svg and some canvas
+        2017-11-18  FIX small documentation issue, minimize last trazos2D
+        2017-11-17  trazos2D.js support images "img" for canvas and svg
+        2017-11-16  FIX excepcion MICO http using theOnlyLivingBoyInNY
+        2017-11-11  FIX regression 2017.10.03 replacing filename with _
+        2017-11-07  FIX MicoHttp close timer when ONCE syntax
+        2017-11-06  fix micohttp schedule close
+        2017-11-05  improve widget messages in jGastona
+        2017-11-04  Fix empty set condition in httSaco
+        2017-10-21  trazos.js introduce element text
 
    date   : 02.07.2017
    version: v1.2.170702
@@ -140,7 +255,7 @@
    version: v1.1.170219
 
       - FIX exception evaluating deep sql
-      - Fix Eva.js withempty evas
+      - Fix Eva.js with empty evas
       - jGastona default placeholders
       - jGastona improve default label using _ and camel notation
       - unify option recursive for scan and loop files

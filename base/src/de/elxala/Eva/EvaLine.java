@@ -1,6 +1,6 @@
 /*
 java package de.elxala.Eva (see EvaFormat.PDF)
-Copyright (C) 2005  Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026  Alejandro Xalabarder Aulet
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -317,17 +317,17 @@ public class EvaLine implements java.io.Serializable
                       str.endsWith (" ") ||                    //  ......s
                       str.endsWith ("\t")                      //  ......t
                       ;
-      
+
       if (quote)
          // "frase"
-         return ATOM_ENVOLVER + 
-                str.replaceAll ("\\\"", "" + ATOM_ENVOLVER + ATOM_ENVOLVER) + 
+         return ATOM_ENVOLVER +
+                str.replaceAll ("\\\"", "" + ATOM_ENVOLVER + ATOM_ENVOLVER) +
                 ATOM_ENVOLVER;
-      
+
       return str;
    }
 
-   protected static String getNextToken (stringCursor spo, char separator, boolean restLineLiterals)
+   public static String getNextToken (stringCursor spo, char separator, boolean restLineLiterals)
    {
       // trim
       while (!spo.ended () && (spo.charPoint() == ' ' || spo.charPoint() == '\t')) spo.inc();
@@ -339,13 +339,13 @@ public class EvaLine implements java.io.Serializable
       {
          if (spo.charPoint() == START_LITERAL_1_CH)
          {
-            String str = spo.str ().substring (spo.indx + START_LITERAL_1.length ()); // remove literal1
+            String str = miscUtil.substr (spo.str (), spo.indx + START_LITERAL_1.length ()); // remove literal1
             spo.incEnd ();
             return str;
          }
          if (!spo.endIn (1) && spo.charPoint() == START_LITERAL_2_CH && spo.charPoint(1) == START_LITERAL_2_CH)
          {
-            String str = spo.str ().substring (spo.indx + START_LITERAL_2.length ()); // remove literal2
+            String str = miscUtil.substr (spo.str (), spo.indx + START_LITERAL_2.length ()); // remove literal2
             spo.incEnd ();
             return str;
          }
@@ -366,7 +366,7 @@ public class EvaLine implements java.io.Serializable
                {
                  // double ""
                  // add a part including one " and continue
-                 cell.append (spo.indx + 1 > ini ? spo.str ().substring (ini, spo.indx + 1): "");
+                 cell.append (spo.indx + 1 > ini ? miscUtil.substrBE (spo.str (), ini, spo.indx): "");
                  spo.inc (2);
                  ini = spo.indx;
                }
@@ -387,7 +387,9 @@ public class EvaLine implements java.io.Serializable
          while (spo.charPoint(-(bak+1)) == ' ' || spo.charPoint(-(bak+1)) == '\t') bak ++;
 
       if (ini < spo.indx - bak)
-          cell.append (spo.str ().substring (ini, spo.indx - bak));
+      {
+         cell.append (miscUtil.substrBE (spo.str (), ini, spo.indx - bak - 1));
+      }
 
       spo.inc ();
       if (envolta)

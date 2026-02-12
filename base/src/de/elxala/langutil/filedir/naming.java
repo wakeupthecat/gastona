@@ -61,7 +61,7 @@ public class naming
       uniqueNr = uniqueNr.substring (uniqueNr.length ()-7);
 
       return fullname.substring (0, 56) + uniqueNr;
-   } 
+   }
 
    /**
       for instance, when burning a CD with files
@@ -91,7 +91,7 @@ public class naming
          char ica = ss.charAt (ii);
          if ((ica >= '0' && ica <= '9') ||
              (ica >= 'A' && ica <= 'Z') ||
-             (ica >= 'a' && ica <= 'z') || 
+             (ica >= 'a' && ica <= 'z') ||
              (ica == '_') ||
              (!valid4Variable && (ica == '-' || ica == '.'))) continue;
          ss = ss.replace (ica, '_');

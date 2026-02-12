@@ -1,0 +1,97 @@
+#javaj#
+
+   <frames> oCanso
+
+#data#
+
+   <listOfFiles jGastonaEva>
+      name
+      Eva.js
+      EvaLayout.js
+      LayoutManager.js
+      httSaco.js
+      zWidgetsHtml.js
+      jGastonaLit.js
+
+   <listOfFiles trassos2D>
+      name
+      vec3.js
+      canvasSync.js
+      trassos2D.js
+
+#listix#
+
+   <! it cannot be in temp due to yuicompressor issues
+   <YUI_COMPRESSOR_JS> //tmp_compress_yu.js
+
+   <VERSION_TXT> // version 202111
+   <JS_PATH> //../../META-GASTONA/js
+
+   <main>
+      LSX, DO_JOBS
+      //
+      //done in @<:lsx elapsed sapiens>
+      //
+
+   <DO_JOBS>
+      VAR=, tmpjsJoin, @<:lsx tmp js>
+
+      LSX, DO_COMPRES_GROUP, jGastonaEva
+      LSX, DO_COMPRES_GROUP, trassos2D
+
+      LSX, DO_COMPRES_ONE, conSequenciPlain
+      LSX, DO_COMPRES_ONE, codiFinestreta
+      LSX, DO_COMPRES_ONE, Eva
+
+      LSX, OS removeFile(file), @<YUI_COMPRESSOR_JS>
+
+   <OS removeFile(file)>
+      CHECK, LINUX, CALL, //CMD /C del /Q "@<:path p1>"
+      CALL, //rm @<:path p1>
+
+   <CALL_COMPRESSOR>
+      CALL, //java -jar yuicompressor.jar "@<:path-linux tmpjsJoin>" -o @<:path YUI_COMPRESSOR_JS>
+
+   <DO_COMPRES_GROUP>
+      GEN, @<tmpjsJoin>, INCLUDE_GROUP
+         , PARAMS, @<p1>
+      LSX, CALL_COMPRESSOR
+      GEN, @<JS_PATH>/@<p1>-min.js, GEN_FINAL_MIN
+
+   <DO_COMPRES_ONE>
+      GEN, @<tmpjsJoin>, :infile @<JS_PATH>/@<p1>.js
+      LSX, CALL_COMPRESSOR
+      GEN, @<JS_PATH>/@<p1>-min.js, GEN_FINAL_MIN
+         , PARAMS, @<p1>
+
+   <INCLUDE_GROUP>
+      LOOP, VAR, listOfFiles @<p1>
+          ,, LSX, :infile @<JS_PATH>/@<name>
+
+   <COMPOSE_TXT>
+      CHECK, VAR, listOfFiles @<p1>
+      //
+      //@include :
+      LOOP, VAR, listOfFiles @<p1>
+          , LINK, " +"
+          ,, // @<name>
+
+   <GEN_FINAL_MIN>
+      ///*
+      //@project : https://github.com/wakeupthecat/gastona
+      //@file    : @<p1>-min.js
+      LSX, COMPOSE_TXT
+      //
+      //@version : 202111
+      //
+      //Copyright (C) 2015-2021 Alejandro Xalabarder Aulet
+      //
+      //@license : GNU General Public License (GPL) version 3 + commercial license through OpenSoftwareCongoLicenseV0.1
+      //
+      //This program is distributed in the hope that it will be useful, but WITHOUT ANY
+      //WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+      //PARTICULAR PURPOSE. See the GNU General Public License for more details.
+      //*/
+      //
+      LSX, :infile @<YUI_COMPRESSOR_JS>
+

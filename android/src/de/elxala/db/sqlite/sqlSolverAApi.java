@@ -1,6 +1,6 @@
 /*
 library de.elxala
-Copyright (C) 2010 Alejandro Xalabarder Aulet
+Copyright (C) 2010-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -392,8 +392,8 @@ public class sqlSolverAApi
       {
          sqlSignaler.signalError ();
          if (theErrorTextFile != null)
-              log.err ("sqLiteCall", "SQL call with ouput errors (in file " + theErrorTextFile + ")");
-         else log.err ("sqLiteCall", "SQL call with ouput errors : [" + theSQLError +"]");
+              log.err ("sqLiteCall", "SQL call with output errors (in file " + theErrorTextFile + ")");
+         else log.err ("sqLiteCall", "SQL call with output errors\nSQLERR: [" + theSQLError +"]");
       }
 
       return (theSQLError == null);

@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2005 Alejandro Xalabarder Aulet
+Copyright (C) 2005-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -37,16 +37,15 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
 
    <help>
       //
-      // To create and poblate database tables from Eva variables (Eva tables) or to execute
-      // any sql statement sequence. The underlaying database engine of Listix is sqlite
-      // (visit www.sqlite.org and try http://www.sqlite.org/lang.html for a SQL syntax online help).
-      // In this engine a database is simply an ordinary file (any extension may be used) that can
-      // hold multiple tables and views.
+      //To create and poblate database tables from Eva variables (Eva tables) or to execute
+      //any sql statement sequence. The underlaying database engine of Listix is sqlite
+      //(visit www.sqlite.org and try http://www.sqlite.org/lang.html for a SQL syntax online help).
+      //In this engine a database is simply an ordinary file (any extension may be used) that can
+      //hold multiple tables and views.
       //
-      // Creating tables from Eva variables:
-      // -----------------------------------
+      //--- Creating tables from Eva variables
       //
-      //    It is a convenient way of creating tables if we have the data in some variable. For example:
+      //It is a convenient way of creating tables if we have the data in some variable. For example:
       //
       //       <myTable>
       //             id, name       , desc
@@ -56,9 +55,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //       <main>
       //          DATABASE, myDB.db, CREATE TABLE, myTable
       //
-      //    Adding data is also simple. Text values with multiple lines can be formed
-      //    using a separate variable
-      //
+      //Adding data is also simple. Text values with multiple lines can be formed
+      //using a separate variable
       //
       //          ...
       //          DATABASE, myDB.db, ADD TO TABLE, myTable, moreValues
@@ -73,15 +71,14 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //             //Once upon a time ...
       //             //etc..
       //
-      // Using freely SQL statments:
-      // -----------------------------------
+      //--- Using freely SQL statments
       //
-      //    We might also create tables using directly SQL statments. This may be done
-      //    in a simple way as well
+      //We might also create tables using directly SQL statments. This may be done
+      //in a simple way as well
       //
       //          DATABASE, myDB.db, EXECUTE, //CREATE TABLE myTable (id, name, desc);
       //
-      //    or specifying more details if the application requires it
+      //or specifying more details if the application requires it
       //
       //       <main>
       //          DATABASE, myDB.db, EXECUTE, @<create all>
@@ -94,10 +91,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          //
       //          //CREATE INDEX ind1 ON myTable2 (name);
       //
-      //    In general any SQL sequence can be performed using "DATABASE,,EXECUTE". In addition
-      //    writing sql statements with listix, where the use of variables, formats and all listix
-      //    commands is possible, is pretty like having stored procedures. For example, we can use
-      //    variables in a query like in
+      //In general any SQL sequence can be performed using "DATABASE,,EXECUTE". In addition
+      //writing sql statements with listix, where the use of variables, formats and all listix
+      //commands is possible, is pretty like having stored procedures. For example, we can use
+      //variables in a query like in
       //
       //       <theTable> myTable
       //       <date1> 2009-01
@@ -113,7 +110,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //          //    WHERE date >= '@<date1>' AND date <= '@<date2>';
       //
       //
-      //       or make it more general using parameters (command LISTIX)
+      //or make it more general using parameters (command LISTIX)
       //
       //       <query>
       //          LISTIX, select between dates, myTable, 2009-01, 2009-06
@@ -278,7 +275,7 @@ public class cmdDatabase implements commandable
 
       listixCmdStruct cmd = new listixCmdStruct (that, commands, indxComm);
 
-      String dbName    = cmd.getArg(0);
+      String dbName    = cmd.getListix ().resolveDBName (cmd.getArg(0));
       String oper      = cmd.getArg(1);
 
       boolean optCreate  = cmd.meantConstantString (oper, new String [] { "CREATETABLE", "CREATE", "TABLE" });
@@ -393,7 +390,7 @@ public class cmdDatabase implements commandable
             cliDB.closeScript ();
          }
 
-         cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+         cliDB.runSQL (dbName);
          cmd.checkRemainingOptions ();
          return 1;
       }
@@ -414,7 +411,7 @@ public class cmdDatabase implements commandable
          cliDB.writeScript ("PRAGMA INTEGRITY_CHECK ;");
          cliDB.closeScript ();
 
-         cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+         cliDB.runSQL (dbName);
          cmd.checkRemainingOptions ();
          return 1;
       }
@@ -430,7 +427,7 @@ public class cmdDatabase implements commandable
          cliDB.writeScript ("PRAGMA INTEGRITY_CHECK ;");
          cliDB.closeScript ();
 
-         cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+         cliDB.runSQL (dbName);
          cmd.checkRemainingOptions ();
          return 1;
       }
@@ -497,8 +494,8 @@ public class cmdDatabase implements commandable
       StringBuffer columNameList = new StringBuffer ();
       for (int cc = 0; cc < eva.cols (0); cc ++)
       {
-         columNameList.append (((cc > 0) ? ", " : "") + fieldConnector1.decoColumName (eva.getValue (0, cc)));
-         columNameTextList.append (((cc > 0) ? ", " : "") + fieldConnector1.decoColumName (eva.getValue (0, cc)) + " text");
+         columNameList.append (((cc > 0) ? ", " : "") + deepTableConnector.decoColumName (eva.getValue (0, cc)));
+         columNameTextList.append (((cc > 0) ? ", " : "") + deepTableConnector.decoColumName (eva.getValue (0, cc)) + " text");
       }
 
       if (optCreate)
@@ -556,7 +553,7 @@ public class cmdDatabase implements commandable
          }
       }
       cliDB.closeScript ();
-      cliDB.runSQL ((dbName.length () > 0) ? dbName : that.getDefaultDBName ());
+      cliDB.runSQL (dbName);
 
       cmd.checkRemainingOptions ();
       return 1;
@@ -567,10 +564,7 @@ public class cmdDatabase implements commandable
       // Syntax command:
       //      DATABASE,  dbName,  SCHEMA,     miEva
       //
-      String dbName  = cmd.getArg(0);
-
-      if (dbName.length () == 0)
-         dbName = cmd.getListix().getDefaultDBName ();
+      String dbName  = cmd.getListix ().resolveDBName (cmd.getArg(0));
 
       // Eva result
       //

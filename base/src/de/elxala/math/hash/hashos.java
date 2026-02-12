@@ -1,6 +1,6 @@
 /*
 package de.elxala
-(c) Copyright 2019-2020 Alejandro Xalabarder Aulet
+(c) Copyright 2019-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -32,35 +32,37 @@ import de.elxala.langutil.*;
 //
 //
 // Anyadir un parametro de limit en bytes
-//    con eso los hashes no seran reales de todo el fichero pero alguna función hacen!
-//    y son mucho mas rápidos claro!
+//    con eso los hashes no seran reales de todo el fichero pero alguna funcio'n hacen!
+//    y son mucho mas ra'pidos claro!
 //
-// En general si hacemos un hash de 300 MB como máximo, puede tardar 2 s
+// En general si hacemos un hash de 300 MB como ma'ximo, puede tardar 2 s
 //
 // F:\PAPERS\UNIs>java -cp . hashoman crc 300000000  F:\PAPERS\PERSONAL\Personal.papV032
 // crc32 [2959061910]
-// 
+//
 // F:\PAPERS\UNIs>java -cp . hashoman md5 300000000  F:\PAPERS\PERSONAL\Personal.papV032
 // md5 [9973f5ec3ab7a3f43343e74de824dffd]
-// 
+//
 // F:\PAPERS\UNIs>java -cp . hashoman md5 300000000  F:\PAPERS\PERSONAL\Personal.papV032
 // md5 [9973f5ec3ab7a3f43343e74de824dffd]
-// 
+//
 // F:\PAPERS\UNIs>java -cp . hashoman md5 300000000  F:\PAPERS\PERSONAL\Personal.papV032
 // md5 [3bf627eb5ffb9f6c4589a8a42e6329c5]
 
- 
+
 public class hashos
 {
+   public final static String DEFAULT_HASH_ALG = "md5";
+
    public static String crc32 (String filename)
    {
       return crc32 (filename, 0);
-      }
+   }
 
    public static String crc32 (String filename, int limitMB)
    {
       CRC32 crc = new CRC32();
-      
+
       try
       {
          FileInputStream fis = new FileInputStream(filename);
@@ -81,39 +83,72 @@ public class hashos
       return "" + crc.getValue();
    }
 
-   
-   public static StringBuffer hashStrBuff (String alg, String file, int limitMB) throws NoSuchAlgorithmException, IOException
+   public static String hashFile2Str (String alg, String file, int limitMB) throws NoSuchAlgorithmException, IOException
    {
       MessageDigest hashi = MessageDigest.getInstance(alg.toUpperCase ());
       FileInputStream fis = new FileInputStream(file);
-     
+
       if (fis == null)
-         return new StringBuffer ();
-      
+         return "";
+
       byte[] data = new byte[1024*1024];
       int read = 0;
       while ((--limitMB != 0) && (read = fis.read(data)) != -1)
          hashi.update(data, 0, read);
 
       fis.close ();
-      byte[] hashBytes = hashi.digest();
-      
-      StringBuffer sb = new StringBuffer();
-      for (int ii = 0; ii < hashBytes.length; ii ++)
-         sb.append(Integer.toString((hashBytes[ii] & 0xff) + 0x100, 16).substring(1));
-
-      return sb;
+      return bytesToHexStr (hashi.digest());
    }
+
+   public static String hashStr (String value)
+   {
+      return hashStr (value, null);
+   }
+
+   public static String hashStr (String value, String alg)
+   {
+      if (alg == null || alg.length () == 0)
+         alg = DEFAULT_HASH_ALG;
+      if (alg.equalsIgnoreCase ("sha256"))
+         alg = "SHA-256";
+
+      MessageDigest mdis = null;
+      String strres = "";
+
+      try
+      {
+         mdis = MessageDigest.getInstance(alg.toUpperCase ());
+         mdis.update(value.getBytes());
+         strres = bytesToHexStr (mdis.digest());
+      }
+      catch (Exception ex)
+      {
+      }
+
+      return strres;
+   }
+
+   public static String bytesToHexStr(byte[] bytes)
+   {
+      // see https://stackoverflow.com/questions/5531455/how-to-hash-some-string-with-sha256-in-java
+      // see https://stackoverflow.com/a/32943539/1191101
+
+      StringBuffer sb = new StringBuffer();
+      for (int ii = 0; ii < bytes.length; ii ++)
+         sb.append(Integer.toString((bytes[ii] & 0xff) + 0x100, 16).substring(1));
+      return sb.toString ();
+   }
+
 
    public static String hash (String algo, String fileName)
    {
       return hash (algo, fileName, 0);
    }
-   
+
    public static String getDefaultAlgo ()
    {
       // faster than sha1 and sha256
-      return "MD5";   
+      return "MD5";
    }
 
    public static String hash (String algo, String fileName, int limitMB)
@@ -124,22 +159,22 @@ public class hashos
       if (ALGO.equals ("SHA256")) ALGO = "SHA-256";
       if (ALGO.equals ("CRC"))    ALGO = "CRC-32";
       if (ALGO.equals ("CRC32"))  ALGO = "CRC-32";
-      
+
       if (ALGO.equals ("CRC-32"))
          return crc32 (fileName, limitMB);
-         
-      StringBuffer sbuf = new StringBuffer  ();
+
+      String str = "";
       try
       {
-         sbuf = hashStrBuff (ALGO, fileName, limitMB);
+         str = hashFile2Str (ALGO, fileName, limitMB);
       }
       catch (Exception ex)
-   {
+      {
+      }
+
+      return str;
    }
-   
-      return sbuf.toString();
-   }
- 
+
    public static void main(String[] aa)
    {
       if (aa.length != 3)
@@ -150,7 +185,7 @@ public class hashos
       String algo = aa[0];
       int limit = (int) stdlib.atof (aa[1]);
       String file = aa[2];
-      
+
       System.out.println(algo + " [" + hash (algo, file, limit) + "]");
     }
 }

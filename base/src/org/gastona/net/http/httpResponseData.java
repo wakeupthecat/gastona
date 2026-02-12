@@ -1,6 +1,6 @@
 /*
 package org.gastona.net.http
-(c) Copyright 2014 Alejandro Xalabarder Aulet
+(c) Copyright 2014-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -25,6 +25,7 @@ import de.elxala.langutil.filedir.*;
 
 public class httpResponseData
 {
+   protected String serverName = "";
    private byte [] respBody = null;
    private File respFile = null;
    private OutputStream outStream = null;
@@ -45,8 +46,9 @@ public class httpResponseData
                null         = "text/html; charset=utf-8"
                other        = the one specified
    */
-   public httpResponseData (OutputStream outputStream, String respTxt, String contentTypeStr, TreeMap headerLines)
+   public httpResponseData (String srvName, OutputStream outputStream, String respTxt, String contentTypeStr, TreeMap headerLines)
    {
+      serverName = srvName;
       outStream = outputStream;
       try
       {
@@ -60,15 +62,17 @@ public class httpResponseData
       setHeadersAndContentType (headerLines, contentTypeStr, "text/html; charset=utf-8");
    }
 
-   public httpResponseData (OutputStream outputStream, File file2serve, String contentTypeStr, TreeMap headerLines)
+   public httpResponseData (String srvName, OutputStream outputStream, File file2serve, String contentTypeStr, TreeMap headerLines)
    {
+      serverName = srvName;
       outStream = outputStream;
       respFile = file2serve;
       setHeadersAndContentType (headerLines, contentTypeStr, "application/octet-stream");
    }
 
-   public httpResponseData (OutputStream outputStream, InputStream inputStream, long size, String contentTypeStr, TreeMap headerLines)
+   public httpResponseData (String srvName, OutputStream outputStream, InputStream inputStream, long size, String contentTypeStr, TreeMap headerLines)
    {
+      serverName = srvName;
       outStream = outputStream;
       inpStream = inputStream;
       inpSize   = size;
@@ -227,43 +231,11 @@ public class httpResponseData
 
    private void out (String sa)
    {
-      micoHttpServer.out (sa);
+      micoHttpServer.out (serverName, sa);
    }
 
    private void out (int level, String sa)
    {
-      micoHttpServer.out (level, sa);
+      micoHttpServer.out (serverName, level, sa);
    }
 }
-
-
-/*
-
-de http://www.opencalais.com/HTTPexamples
-
-REST via HTTP POST
-
-The following is a sample REST API call via HTTP POST request and response. The placeholders
-shown need to be replaced with actual values. Please note that the content sent using this method
-needs to be escaped. Please also note that all of the arguments sent using this method must be URL-encoded.
-
------http request
-
-      POST /enlighten/rest HTTP/1.1
-      Host: api.opencalais.com
-      Content-Type: application/x-www-form-urlencoded
-      Content-Length: length
-
-      licenseID=string&content=string&/paramsXML=string
-
-
-
------http response
-
-      HTTP/1.1 200 OK
-      Content-Type: text/xml;charset=utf-8
-      Content-Length: length
-
-      string
-
-*/

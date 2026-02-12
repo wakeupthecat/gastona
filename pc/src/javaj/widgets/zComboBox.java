@@ -156,11 +156,13 @@ public class zComboBox extends JComboBox implements MensakaTarget
    public zComboBox ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zComboBox (String map_name)
    {
       build (map_name);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)

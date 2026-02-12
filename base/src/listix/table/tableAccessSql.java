@@ -38,7 +38,7 @@ public class tableAccessSql extends tableAccessBase
       // data that could be required by tableAccessBase tables
 
       String typeTable   = cmdData.getArg(0);
-      String dbName      = cmdData.getArg(1);
+      String dbName      = cmdData.getListix().resolveDBName (cmdData.getArg(1));
       String sqlQuery    = cmdData.getArg(2);
 
       if (sqlQuery.length () <= 1)
@@ -46,9 +46,6 @@ public class tableAccessSql extends tableAccessBase
          cmdData.getLog().err ("tableAccessSql", "not valid query specified!");
          return false;
       }
-
-      if (dbName.length () == 0)
-         dbName = cmdData.getListix().getDefaultDBName ();
 
       // set data
       //

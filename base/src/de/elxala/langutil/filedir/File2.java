@@ -24,49 +24,104 @@ import java.io.*;
 /**
    class File2
    @author Alejandro Xalabarder Aulet
-   @date   2020
+   @date   2020-2026
 
    Fixed java.io.File
 */
 public class File2 extends File
 {
-   public File2 (String name)
-   {
-      //https://stackoverflow.com/questions/18646731/java-absolute-path-adds-user-home-property-when-adding-quotes-linux/62457476#62457476
-      super ((name.length () >= 2 && name.charAt (0) == '"' && name.charAt (name.length ()-1) == '"') ?
-             name.substring (1, name.length ()-1):
-             name);
-   }
+    public File2 (String name)
+    {
+        //https://stackoverflow.com/questions/1099300/whats-the-difference-between-getpath-getabsolutepath-and-getcanonicalpath
+        //https://stackoverflow.com/questions/18646731/java-absolute-path-adds-user-home-property-when-adding-quotes-linux/62457476#62457476
+        super ((name.length () >= 2 && name.charAt (0) == '"' && name.charAt (name.length ()-1) == '"') ?
+                name.substring (1, name.length ()-1):
+                name);
+    }
+
+    public String getAbsPath2 ()
+    {
+        String absPath;
+        try
+        {
+            absPath = getCanonicalPath ();
+        }
+        catch (Exception e)
+        {
+            // silently return getAbsolutePath as before using getAbsPath2
+            absPath = getAbsolutePath ();
+        }
+        return absPath;
+    }
 }
 
 /*
+------------------- file pathos.java
+import java.io.*;
 
-      String rename;
-      boolean ya;
-      
-      File f1 = new File("C:/UNI2");     // given that exists and it is a directory
-      ya = f1.exists();                  // true
-      ya = f1.isFile();                  // false
-      ya = f1.isDirectory();             // true
-      rename = f1.getAbsolutePath();     // "C:\\UNI2"
-      
+class pathos
+{
+    public static void main (String [] aa)
+    {
+        if (aa.length == 0)
+        {
+            System.out.println ("No paths given in arguments, show three default examples");
+            aa = new String [] {"c:\\ansolutor.txt", "tengo blanco.txt", "../relato/kas.txt", "\"c:\\asumer\\castanyo.txt\"" };
+        }
+        for (int ii = 0; ii < aa.length; ii ++)
+        {
+            try {
+                File f1 = new File (aa[ii]);
+                System.out.println ("File [" + aa[ii] + "]");
+                System.out.println ("exists " + f1.exists());
+                System.out.println ("isFile " + f1.isFile());
+                System.out.println ("isDir  " + f1.isDirectory());
+                System.out.println ("AbsolutePath " + f1.getAbsolutePath());
+                System.out.println ("CanonicalPath " + f1.getCanonicalPath());
+                System.out.println ("");
+            }
+            catch (Exception e)
+            {
+                System.out.println ("*** EXCEPTION!! " + e);
+            }
+        }
+        System.out.print ("fi.");
+    }
+}
+------------------- OUTPUT of pathos.java
 
-      f1 = new File("\"C:/UNI2\"");      // in windows this should be the same directory!!
-      ya = f1.exists();                  // false
-      ya = f1.isFile();                  // false
-      ya = f1.isDirectory();             // false
-      rename = f1.getAbsolutePath();     // "C:\tmp\"C:\UNI2""
+C:\testIssue\subfol> java pathos
 
-      File f1 = new File2 ("C:/UNI2");  // (same as with File)
-      ya = f1.exists();                  // true
-      ya = f1.isFile();                  // false
-      ya = f1.isDirectory();             // true
-      rename = f1.getAbsolutePath();     // "C:\\UNI2"
-      
+No paths given in arguments, show three default examples
+File [c:\ansolutor.txt]
+exists false
+isFile false
+isDir  false
+AbsolutePath c:\ansolutor.txt
+CanonicalPath C:\ansolutor.txt
 
-      f1 = new File2 ("\"C:/UNI2\"");    // Fixed!
-      ya = f1.exists();                  // true
-      ya = f1.isFile();                  // false
-      ya = f1.isDirectory();             // true
-      rename = f1.getAbsolutePath();     // "C:\\UNI2"
+File [tengo blanco.txt]
+exists false
+isFile false
+isDir  false
+AbsolutePath C:\testIssue\subfol\tengo blanco.txt
+CanonicalPath C:\testIssue\subfol\tengo blanco.txt
+
+File [../relato/kas.txt]
+exists false
+isFile false
+isDir  false
+AbsolutePath C:\testIssue\subfol\..\relato\kas.txt
+CanonicalPath C:\testIssue\relato\kas.txt
+
+File ["c:\asumer\castanyo.txt"]
+exists false
+isFile false
+isDir  false
+AbsolutePath C:\testIssue\subfol\"c:\asumer\castanyo.txt"
+
+*** EXCEPTION!! java.io.IOException: The filename, directory name, or volume label syntax is incorrect
+fi.
+
+
 */

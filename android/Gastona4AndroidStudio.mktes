@@ -1,0 +1,107 @@
+#h Gastona for Android Studio (AStudio)
+
+-- Introduction
+
+Finally have the first Android Studio project for gastona-android
+
+-- Differences with current gastona in Github 
+
+For gastona in Github we compile using the option 
+
+      -sourcepath android\src base\src
+      
+which is not done for Android Studio. For AStudio unfortunately 
+we copy all base/src and then android/scr over it so we end in a 
+single source path that starts at
+      
+      app/src/main/java
+
+--- Tree for gastona android Github
+
+Done in cmd line
+
+      > tree /A C:\PAVODEV\GASTONASOURCES\ANDROID
+
+      +---assets
+      ¦   +---demo
+      ¦   +---filesUpload
+      +---misc
+      +---res
+      ¦   +---drawable-hdpi
+      ¦   +---drawable-ldpi
+      ¦   +---drawable-mdpi
+      ¦   +---drawable-nodpi
+      +---src
+          +---de
+          ¦   +---elxala
+          ¦       +---db
+          ¦       ¦   +---sqlite
+          ¦       +---Eva
+          ¦       ¦   +---layout
+          ¦       +---langutil
+          ¦       ¦   +---filedir
+          ¦       ¦   +---graph
+          ¦       +---zServices
+          +---javaj
+          ¦   +---widgets
+          ¦       +---basics
+          ¦       +---gestures
+          ¦       +---graphics
+          ¦       +---kits
+          ¦       +---table
+          ¦       ¦   +---util
+          ¦       +---text
+          +---listix
+          ¦   +---cmds
+          +---org
+              +---gastona
+                  +---cmds
+
+
+--- Tree for gastona android AStudio
+
+The same for android_4studio
+
+      tree /A C:\PAVODEV\GASTONASOURCES\ANDROID_4STUDIO
+
+      +---.gradle
+      |   .... CHORRADAS ...
+      +---.idea
+      |   .... CHORRADAS ...
+      +---app
+      |   +---build
+      |   |   .... CHORRADAS ...(muchas)
+      |   +---libs
+      |   \---src
+      |       \---main
+      |           +---assets
+      |           |   \---demo
+      |           +---java
+      |           |   +---de
+      |           |       ..ETC..
+      |           |   +---javaj
+      |           |       ..ETC..
+      |           |   +---listix
+      |           |       ..ETC..
+      |           |   \---org
+      |           |       +---gastona
+      |           |       ..ETC..
+      |           |       \---mozilla
+      |           |       ..ETC..
+      |           \---res
+      |               +---drawable
+      |               +---drawable-hdpi
+      |               +---drawable-ldpi
+      |               +---drawable-mdpi
+      |               +---drawable-nodpi
+      |               +---drawable-v24
+      |               +---layout
+      |               +---mipmap-anydpi-v26
+      |               +---mipmap-hdpi
+      |               +---mipmap-mdpi
+      |               +---mipmap-xhdpi
+      |               +---mipmap-xxhdpi
+      |               +---mipmap-xxxhdpi
+      |               \---values
+      \---gradle
+          \---wrapper

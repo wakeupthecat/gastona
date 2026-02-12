@@ -37,21 +37,6 @@ package de.elxala.zServices;
 
 */
 
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.Color;
-import javax.swing.text.*;
-
-import java.io.File;
-import java.util.List;
-import java.util.Vector;
-import de.elxala.db.sqlite.*;
-import de.elxala.db.dbMore.*;
-import de.elxala.Eva.*;
-import de.elxala.langutil.filedir.*;
-import de.elxala.langutil.*;
-import de.elxala.mensaka.*;
-
 /**
    @date 15.05.2012 21:14
    @name logWakeup

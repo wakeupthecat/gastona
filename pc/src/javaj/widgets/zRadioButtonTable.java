@@ -189,6 +189,7 @@ public class zRadioButtonTable extends JPanel implements MensakaTarget
       super ();
       // setBorder (BorderFactory.createBevelBorder (BevelBorder.RAISED));
       setBorder(new EmptyBorder(2, 2, 2, 2));
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public zRadioButtonTable (String map_name)
@@ -196,6 +197,7 @@ public class zRadioButtonTable extends JPanel implements MensakaTarget
       super ();
       build (map_name);
       setBorder(new EmptyBorder(2, 2, 2, 2));
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    private void build (String map_name)

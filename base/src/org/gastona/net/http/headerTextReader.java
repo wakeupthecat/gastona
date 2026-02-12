@@ -1,6 +1,6 @@
 /*
 package org.gastona.net.http
-(c) Copyright 2015 Alejandro Xalabarder Aulet
+(c) Copyright 2015-2021 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -31,6 +31,7 @@ import de.elxala.zServices.logger;
 */
 public class headerTextReader
 {
+   private String serverName = "";
    private String lastLine = "";
    private List linesBuffer = new Vector ();
    private boolean vEOH = false; // End Of Header
@@ -39,8 +40,9 @@ public class headerTextReader
    private boolean lastCR = false;
    private boolean ignoreFirstEmptyLines;
 
-   public headerTextReader (boolean ignorePreliminarEmptyLines)
+   public headerTextReader (String srvName, boolean ignorePreliminarEmptyLines)
    {
+      serverName = srvName;
       ignoreFirstEmptyLines = ignorePreliminarEmptyLines;
    }
 
@@ -202,11 +204,11 @@ public class headerTextReader
 
    private void out (String sa)
    {
-      micoHttpServer.out (sa);
+      micoHttpServer.out (serverName, sa);
    }
 
    private void out (int level, String sa)
    {
-      micoHttpServer.out (level, sa);
+      micoHttpServer.out (serverName, level, sa);
    }
 }

@@ -1,6 +1,6 @@
 /*
 package javaj.widgets.graphics;
-Copyright (C) 2011 Alejandro Xalabarder Aulet
+Copyright (C) 2011-2026 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -30,6 +30,7 @@ import java.awt.RenderingHints;
 public class uniCanvas
 {
    public Graphics2D ese = null;
+   public styleSet theStyleMap = null;
 
    public int x0 = 0;
    public int y0 = 0;
@@ -38,6 +39,11 @@ public class uniCanvas
 
    public uniCanvas (java.awt.Graphics2D obj, int left, int top, int width, int height)
    {
+      init (obj, left, top, width, height);
+   }
+
+   protected void init (java.awt.Graphics2D obj, int left, int top, int width, int height)
+   {
       ese = obj;
       ese.setRenderingHint (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -45,6 +51,11 @@ public class uniCanvas
       y0 = top;
       dx = width;
       dy = height;
+   }
+
+   public void assignStyleMap (styleSet stMap)
+   {
+      theStyleMap = stMap;
    }
 
    public int getX0 ()  { return x0; }
@@ -57,6 +68,15 @@ public class uniCanvas
       return ese;
    }
 
+   public styleObject getStyleObject (String styleName)
+   {
+      if (theStyleMap != null)
+         return theStyleMap.getStyle (styleName);
+
+      //fall back
+      return styleGlobalContainer.getStyleObjectByName (styleName);
+   }
+
    public int getTextHeight (uniPaint pai)
    {
       // we don't use pai but for android is needed!
@@ -65,7 +85,6 @@ public class uniCanvas
 
       //Paint.FontMetrics fome = pai.getFontMetrics ();
       //int H = (int) (fome.top - fome.bottom);
-
    }
 
    public int getTextWidth (String str, uniPaint pai)
@@ -90,7 +109,7 @@ public class uniCanvas
       ese.setColor (ucol.getNativeColor ());
       ese.fillRect ((int) rec.left (),  (int) rec.top (),    (int) rec.width (), (int) rec.height ());
    }
-   
+
    public void drawRect (uniRect rec, uniPaint pai)
    {
       ese.setColor (pai.getColorColor ());
@@ -111,19 +130,19 @@ public class uniCanvas
       ese.drawString (text, x, y);
 
 
-      //ver articulo : http://docstore.mik.ua/orelly/java-ent/jfc/ch04_09.htm
+      //ver articulo : https://docstore.mik.ua/orelly/java-ent/jfc/ch04_09.htm
       //             de Java Foundation Classes in a Nutshell
       //Graphics2D g;
       //      GlyphVector msg = fontana.createGlyphVector(ese.getFontRenderContext(), text);
       //      ese.drawGlyphVector(msg, x, y);
    }
 
-   public void drawTrazoPath (uniPath pat, int indx, styleObject styleObj)
+   public void drawTrassPath (uniPath pat, int indx, styleObject styleObj)
    {
-      //de.elxala.langutil.uniUtil.printLater ("drawPath " + ii + "  form  [" + pat.getEdiPaths().getTrazo(ii).trazoForm + "]  style [" + pat.getStyleFromTrazo (ii) + "]");
+      //de.elxala.langutil.uniUtil.printLater ("drawPath " + ii + "  form  [" + pat.getEdiPaths().getTrass(ii).trassForm + "]  style [" + pat.getStyleFromTrass (ii) + "]");
       if (styleObj == null)
-         styleObj = styleGlobalContainer.getStyleObjectByName (pat.getStyleFromTrazo (indx));
-      Shape elpath = pat.getNativePathFromTrazo (indx);
+         styleObj = getStyleObject (pat.getStyleFromTrass (indx));
+      Shape elpath = pat.getNativePathFromTrass (indx);
       if (styleObj.hasFill ())
       {
          ese.setColor (styleObj.getFillPaint ().getColorColor ());
@@ -136,12 +155,12 @@ public class uniCanvas
          ese.draw (elpath);
       }
    }
-   
+
    public void drawPath (uniPath pat)
    {
-      for (int ii = 0; ii < pat.getTrazosCount (); ii ++)
+      for (int ii = 0; ii < pat.getTrassosCount (); ii ++)
       {
-         drawTrazoPath (pat, ii, null);
+         drawTrassPath (pat, ii, null);
       }
    }
 
@@ -156,9 +175,9 @@ public class uniCanvas
 
       scale (skalo.scaleX, skalo.scaleY);
       translate (skalo.offsetX, skalo.offsetY);
-      for (int ii = 0; ii < pat.getTrazosCount (); ii ++)
+      for (int ii = 0; ii < pat.getTrassosCount (); ii ++)
       {
-         drawTrazoPath (pat, ii, null);
+         drawTrassPath (pat, ii, null);
       }
       translate (- skalo.offsetX, - skalo.offsetY);
       scale (1f / skalo.scaleX, 1f / skalo.scaleY);

@@ -58,9 +58,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
    <examples>
       gastSample
 
-      evaMosaic layout example
+      evaMosaic1 layout example
+      evaMosaic2 layout example
 
-   <evaMosaic layout example>
+   <evaMosaic1 layout example>
       //#gastona#
       //
       //   <!PAINT LAYOUT> 1
@@ -102,6 +103,25 @@ Place - Suite 330, Boston, MA 02111-1307, USA.
       //	<layout of NOTES>
       //		PANEL, X, Notes
       //		xNotes
+
+   <evaMosaic2 layout example>
+      //#gastona#
+      //
+      //   <!PAINT LAYOUT> 1
+      //
+      //#javaj#
+      //
+      //   <frames>
+      //      F, "example layout EVAMOSAIC(X)"
+      //
+      //   <layout of F>
+      //
+      //     EVAMOSAICX, 10, 11, 4, 5
+      //
+      //     A, eeID  , 100, eeDATE, 200, ccTYPE,100
+      //     A, eeNAME, 200, eeCITY, 200
+      //     X, xxNOTES, 400
+      //
 
 
 #**FIN_EVA#

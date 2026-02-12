@@ -1,6 +1,0 @@
-#server#
-
-   <POST /ranDesktop>
-      GAST, @<_bodyMemFileName>
-
-

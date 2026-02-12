@@ -137,7 +137,6 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
    protected basicAparato helper = null;
    protected dndFileTransHandler dndHandler = null;
 
-
    protected Color backColor = Color.GRAY; //new JButton().getBackground (); // new JButton().getBackgroundColor ();
 
    // own data
@@ -147,6 +146,7 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
    public zImage ()
    {
       // default constructor to allow instantiation using <javaClass of...>
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    // ------
@@ -155,6 +155,7 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
       init (map_name);
 
       addMouseListener (this);
+      addKeyListener (javaj.widgets.gestures.keyboard.getListener ());
    }
 
    public void setName (String map_name)
@@ -299,6 +300,9 @@ public class zImage extends JPanel implements MouseListener, MensakaTarget
          g.clearRect (0, 0, d.width, d.height);
 
       if (theImage == null) return; // No image yet!
+
+
+      // ??? Image image = icon.getImage().getScaledInstance(width, height,  Image.SCALE_SMOOTH);
 
       int left  = (d.width - theImage.getIconWidth()) / 2;
       int right = (d.height - theImage.getIconHeight()) / 2;

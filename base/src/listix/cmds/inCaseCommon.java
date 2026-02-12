@@ -1,6 +1,6 @@
 /*
 library listix (www.listix.org)
-Copyright (C) 2016 Alejandro Xalabarder Aulet
+Copyright (C) 2016-2022 Alejandro Xalabarder Aulet
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -49,117 +49,99 @@ public abstract class inCaseCommon
    */
    public int executeInCase (comparator compa, listix that, Eva commandEva, int indxComm)
    {
-      listixCmdStruct cmd = new listixCmdStruct (that, commandEva, indxComm);
+      listixCmdStruct cmdLsx = new listixCmdStruct (
+                                    that,
+                                    commandEva,
+                                    indxComm,
+                                    1,        // offsetOptions
+                                    false     // normalizeOpts (options are indeed values or formulas)
+                                  );
 
-      String mainValue = cmd.getArg (0);
-      String oper      = cmd.getArg (1);
+      String mainValue = cmdLsx.getArg (0);
+      String oper      = cmdLsx.getArg (1);
 
       if (oper.equals(""))
          oper = "=";
 
-      String mv = processMainValue (compa, cmd, oper, mainValue);
+      //since options are not normalized we need more cases, but don't accept mixed values (e.g. "Else" etc)
+      //
+      Eva elseFormat = cmdLsx.takeOptionAsEva (new String [] {
+                  "else",
+                  "ELSE",
+                  "OTHERWISE",
+                  "otherwise",
+                  "NOCASE",
+                  "nocase",
+                  "NO CASE",
+                  "no case",
+                  });
+
+      // set comparator
+      //
+      String mv = processMainValue (compa, cmdLsx, oper, mainValue);
       that.log().dbg (2, commandStr (), mv + oper);
 
-      boolean executeOtherwise = true;
       // NOTE: the eva subcommand is independent of the current EvaUnit data!
       Eva subcommand = new Eva ("subcommand");
-      double value2 = 0.;
 
-      if (cmd.getArgSize() > 2)
+      // is it a "one line" (except the ELSE option) command ?
+      //
+      if (cmdLsx.getArgSize() > 2)
       {
          // we have a initial value-command pair
          //       0           1       2       3       4      5    6   << index for commandEva
-         //                   0       1       2       3      4    5   << index for cmd.getArg
+         //                   0       1       2       3      4    5   << index for cmdLsx.getArg
          //    IN CASE NUM, valueRef, oper, value, command, par, etc
          //
-         String doCaseStr = doCase (compa, cmd, oper, cmd.getArg (2));
+         String doCaseStr = doCase (compa, cmdLsx, oper, cmdLsx.getArg (2));
          if (doCaseStr != null)
          {
             that.log().dbg (2, "case value [", doCaseStr + "] (line 0) will be executed");
-            executeOtherwise = false;
 
             // collect the command or simply the text
             for (int ii = 4; ii < commandEva.cols (indxComm); ii ++)
                subcommand.addCol (commandEva.getValue (indxComm, ii));
 
-            if (subcommand.cols (0) > 1)
-                 that.executeSingleCommand (subcommand);
-            else that.printTextLsx (subcommand.getValue (0, 0));
+            cmdLsx.getListix ().doFormat (subcommand);
+            // we continue evaluating option values
+            // if for whatever reason there are more equal values in the options
+            // these will be executed in a separated block (different eva)
          }
       }
 
-      // look for the end of the switch
-      int endSwitch = 0;
-      String firstCol = "";
-      while (indxComm + endSwitch + 1 < commandEva.rows ())
-      {
-         if (commandEva.cols (indxComm + endSwitch + 1) < 2)
-            break;   // if no more than one column then end of IN CASE command
+      int nCase = 1;
+      boolean somethingExecuted = false;
 
-         firstCol = commandEva.getValue (indxComm + endSwitch + 1, 0);
-
-         if (!firstCol.equals (""))
-            break;   // if the first column is not "" then end of IN CASE command
-
-         endSwitch ++;
-      }
-
-      // Now we have cases [1 .. endSwitch-1] and a default value endSwitch
+      // evaluate options matching the criteria
       //
-      boolean firstPrinted = false;
-      int theCase = indxComm + 1;
-      while (theCase <= indxComm + endSwitch)
+      do {
+         String [] remop = cmdLsx.getRemainingOptionNames ();
+         if (remop.length == 0) break;
+         String nextOpt = remop[0];
+
+         // we get all lines with that not solved option name
+         //
+         Eva oneCaseFormat = cmdLsx.takeOptionAsEva (new String [] { nextOpt });
+         that.log().dbg (3, "evaluating case #" + nCase + " (" + nextOpt + ") ...");
+
+         // check the solved option name has to be executed
+         String doCaseStr = doCase (compa, cmdLsx, oper, cmdLsx.getListix ().solveStrAsString (nextOpt));
+         if (doCaseStr != null)
+         {
+            that.log().dbg (2, "case #" + nCase + " [" + doCaseStr + "] (option " + nextOpt + ") will be executed");
+            cmdLsx.getListix ().doFormat (oneCaseFormat);
+            somethingExecuted = true;
+         }
+         nCase ++;
+      } while (true);
+
+      if (!somethingExecuted && elseFormat != null)
       {
-         boolean executeThat = false;
-         boolean elseCase = false;
-
-         // check if it is the ELSE case
-         if (theCase == indxComm + endSwitch)
-         {
-            String colVal = commandEva.getValue (theCase, 1); // Note: do not use solveStrAsString since we are looking for a constant value
-            if (colVal.equalsIgnoreCase ("ELSE") || colVal.equalsIgnoreCase ("OTHERWISE") || colVal.equalsIgnoreCase ("NOCASE"))
-            {
-               elseCase = true;
-               executeThat = executeOtherwise;
-            }
-            if (executeThat)
-               that.log().dbg (2, "ELSE (option " + (theCase - indxComm) + ") will be executed");
-         }
-
-         // check it as a normal case
-         if (!elseCase)
-         {
-            String doCaseStr = doCase (compa, cmd, oper, cmd.getListix ().solveStrAsString (commandEva.getValue (theCase, 1)));
-            executeThat = doCaseStr != null;
-            if (doCaseStr != null)
-               that.log().dbg (2, "caseValue [" + doCaseStr + "] (option " + (theCase - indxComm) + ") will be executed");
-         }
-
-         if (executeThat)
-         {
-            executeOtherwise = false;
-
-            // collect the command (or simply a text)
-            subcommand.clear ();
-            for (int ii = 2; ii < commandEva.cols (theCase); ii ++)
-               subcommand.addCol (commandEva.getValue (theCase, ii));
-
-            if (subcommand.cols (0) > 1)
-                 cmd.getListix ().executeSingleCommand (subcommand);
-            else
-            {
-               // all strings of a case value print a return except the last one
-               if (firstPrinted)
-                    cmd.getListix ().newLineOnTarget ();
-               else firstPrinted = true;
-               cmd.getListix ().printTextLsx (subcommand.getValue (0, 0));
-            }
-         }
-
-         theCase ++;
+         that.log().dbg (2, "else case (lines " + elseFormat.rows () + ") will be executed");
+         cmdLsx.getListix ().doFormat (elseFormat);
       }
 
-//      return (endSwitch + 1); // ojo! es el nu'mero de li'neas que ha requerido el switch!
-      return 1; // does not matter, they are void command for listix
+      cmdLsx.checkRemainingOptions (true);
+      return 1;
    }
 }
